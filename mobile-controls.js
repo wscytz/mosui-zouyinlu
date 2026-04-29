@@ -37,6 +37,7 @@
     }
     updateControlSizes();
   }
+  window._fitCanvas = fitCanvas;
   window.addEventListener("resize",fitCanvas);
   window.addEventListener("orientationchange",function(){setTimeout(fitCanvas,100)});
   fitCanvas();

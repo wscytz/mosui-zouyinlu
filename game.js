@@ -2519,6 +2519,8 @@ function startGame(wid){
   G=newGame(wid,diff);
   document.body.classList.add("game-active");
   if(!_loopActive){_loopActive=true;_rafId=requestAnimationFrame(loop);}
+  // Force canvas reflow after game container becomes visible
+  if(window._fitCanvas)window._fitCanvas();
   if(window.GameSound)GameSound.init();
   // Show curse selection before first wave
   showCurse(G);
