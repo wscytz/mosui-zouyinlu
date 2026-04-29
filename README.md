@@ -1,4 +1,4 @@
-# 墨祟：走阴录
+# 墨祟：走阴录 v2.3
 
 水墨俯视角动作肉鸽。你扮演一名替亡者走阴的夜行客，手持法器深入地宫，斩妖除祟。
 
@@ -9,8 +9,8 @@
 浏览器直接打开 `game.html` 即可游玩。建议 Chrome / Edge。
 
 ```bash
-# 运行测试
-npm test
+# 运行测试（36 冒烟 + 5 波次）
+node smoke_test.js && node wave_test.js
 ```
 
 ## 操作
@@ -19,13 +19,23 @@ npm test
 |------|------|--------|
 | 移动 | WASD | 左摇杆 |
 | 瞄准 / 攻击 | 鼠标移动 + 按住左键 | 右摇杆拖动 |
-| 闪避 | 空格 | 双击右摇杆 / 闪避按钮 |
+| 闪避 | 空格 / Shift | 闪避按钮 |
 | 暂停 | Escape / P | 右上角暂停按钮 |
+
+## v2.3 新特性
+
+- **生存波次** — 敌人源源不断，需击杀配额才能通关
+- **精英波次视觉** — 金色环境粒子 + 呼吸式屏幕覆盖层
+- **元进度系统** — 14 项成就，解锁起始遗物、金墨色等奖励
+- **结算增强** — 死因显示、总伤害/最高连斩/精英击杀统计、个人最佳对比
+- **设置菜单** — 音量滑块（持久化）、重新开始、退到标题
+- **移动端修复** — 覆盖层触摸滚动、Android 返回键、安全区域适配
 
 ## 移动端打包
 
 ```bash
-npm run cap:sync        # 同步 www/ → Android
+npm run www              # 同步源文件 → www/
+npm run cap:sync         # 同步 www/ → Android
 npm run cap:open:android # Android Studio 打开编译
 ```
 
@@ -35,19 +45,18 @@ npm run cap:open:android # Android Studio 打开编译
 
 ```
 game.html          # 游戏入口
-game.js            # 核心逻辑（~2250 行）
+game.js            # 核心逻辑（~2600 行）
 game.css           # 游戏样式（含移动端全屏适配）
-gamedata.js        # 武器 / 遗物 / 敌人 / 波次数据
+gamedata.js        # 武器 / 遗物 / 敌人 / 波次 / 成就数据
 sound.js           # Web Audio API 合成音效
 mobile-controls.js # 移动端虚拟摇杆 + 触摸输入
 
 index.html         # 原型宣传页
-wiki.html          # 游戏百科
+wiki.html          # 游戏百科（自动读取 gamedata.js）
 styles.css         # 宣传页 / 百科 / 游戏共用样式
-app.js             # 武器遗物数据模块（独立引用）
 
 smoke_test.js      # 冒烟测试（36 项）
-wave_test.js       # 波次专项测试
+wave_test.js       # 波次专项测试（5 项）
 DEVDOC.md          # 开发文档
 ```
 
@@ -58,8 +67,6 @@ game.js（不动，双端共用）
   ↑ WASD + 鼠标     ↑ _mobileInput 桥接 (mobile-controls.js)
   桌面浏览器           Capacitor WebView
 ```
-
-game.js 只加了 5 处输入桥接（~18 行），核心逻辑完全不动。mobile-controls.js 通过 `window._mobileInput` 注入触摸输入，通过 `window._renderMobileControls` 在 Canvas 上绘制虚拟摇杆。
 
 ## 技术栈
 

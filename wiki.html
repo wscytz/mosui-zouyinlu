@@ -211,6 +211,19 @@
 
   <main style="width:var(--content-width);margin:0 auto;position:relative;z-index:1">
 
+    <nav class="wiki-nav">
+      <a href="#sec-weapons">兵器</a>
+      <a href="#sec-relics">遗物</a>
+      <a href="#sec-curses">誓印</a>
+      <a href="#sec-evolutions">进化</a>
+      <a href="#sec-enemies">敌人</a>
+      <a href="#sec-waves">波次</a>
+      <a href="#sec-stages">关卡</a>
+      <a href="#sec-achievements">成就</a>
+      <a href="#sec-builds">构筑</a>
+      <a href="#sec-caps">封顶</a>
+    </nav>
+
     <section class="wiki-section" id="sec-weapons">
       <div class="section__heading">
         <p class="section__eyebrow">Weapons</p>
@@ -228,6 +241,15 @@
       </div>
       <div id="relicFilter" class="wiki-filter"></div>
       <div id="relicGrid" class="wiki-grid wiki-grid--3"></div>
+    </section>
+
+    <section class="wiki-section" id="sec-curses">
+      <div class="section__heading">
+        <p class="section__eyebrow">Curses</p>
+        <h2>誓印</h2>
+        <p class="wiki-section__summary">开战前选择，获得力量的同时承担代价。双刃刀，慎选。</p>
+      </div>
+      <div id="curseGrid" class="wiki-grid wiki-grid--3"></div>
     </section>
 
     <section class="wiki-section" id="sec-evolutions">
@@ -264,6 +286,15 @@
         <p class="wiki-section__summary">每波的地形规则，让同样的敌人打出不同的节奏。</p>
       </div>
       <div id="stageGrid" class="wiki-grid wiki-grid--3"></div>
+    </section>
+
+    <section class="wiki-section" id="sec-achievements">
+      <div class="section__heading">
+        <p class="section__eyebrow">Achievements</p>
+        <h2>成就</h2>
+        <p class="wiki-section__summary">解锁成就可获得奖励：起始遗物、金墨色等。进度保存在浏览器中。</p>
+      </div>
+      <div id="achGrid" class="wiki-grid wiki-grid--3"></div>
     </section>
 
     <section class="wiki-section" id="sec-builds">
@@ -390,6 +421,20 @@
     }
     renderRelics();
 
+    // --- Curses (誓印) ---
+    var cg=document.getElementById('curseGrid');
+    if(CURSES){
+      CURSES.forEach(function(c2){
+        var card=document.createElement('div');
+        card.className='wiki-card';
+        card.innerHTML='<h4>'+c2.name+'</h4>'
+          +'<div class="wiki-card__meta">'+c2.type+'</div>'
+          +'<p>'+c2.desc+'</p>';
+        card.appendChild(tags(c2.tags));
+        cg.appendChild(card);
+      });
+    }
+
     // --- Evolutions ---
     var eg=document.getElementById('evoGrid');
     var wNames={melee:'斩妖剑',ranged:'符骨笔',aoe:'镇魂铃',dash:'伏魔伞'};
@@ -412,7 +457,7 @@
 
     // --- Enemies ---
     var eng=document.getElementById('enemyGrid');
-    var eOrder=['zhikui','youhun','fenling','shigui','gudeng','jiangshi','zhikuang','fenshen','modun','boss'];
+    var eOrder=['zhikui','youhun','fenling','shigui','gudeng','jiangshi','zhikuang','fenshen','modun','boss','mojiangjun'];
     eOrder.forEach(function(tid){
       var e=ETYPE[tid];
       if(!e)return;
@@ -434,6 +479,7 @@
 
     // --- Waves ---
     var wl=document.getElementById('waveList');
+    var specialLabels={elite:"精英潮",elite_horde:"精英群潮",horde:"群魔潮",survival:"生存"};
     WAVES.forEach(function(w2,idx){
       var row=document.createElement('div');
       row.className='wiki-wave-row';
@@ -446,13 +492,18 @@
       w2.list.forEach(function(grp){
         var e=ETYPE[grp.t];
         var name=e?e.name:grp.t;
-        var s=tag('span',name+'×'+grp.n,'tag'+(grp.t==='boss'?' tag--accent':''));
+        var s=tag('span',name+'×'+grp.n,'tag'+(grp.t==='boss'||grp.t==='mojiangjun'?' tag--accent':''));
         enemies.appendChild(s);
       });
       var mod=STAGE_MODS[w2.mod];
       if(mod){
         var ms=tag('span',mod.name,'tag tag--accent');
         enemies.appendChild(ms);
+      }
+      if(w2.special){
+        var sp=tag('span',specialLabels[w2.special]||w2.special,'tag tag--accent');
+        sp.style.background='rgba(163,58,45,0.12)';
+        enemies.appendChild(sp);
       }
       row.appendChild(label);
       row.appendChild(enemies);
@@ -548,6 +599,20 @@
         rt.appendChild(tr);
       });
       rangesEl.appendChild(rt);
+    }
+
+    // --- Achievements ---
+    var achGrid=document.getElementById('achGrid');
+    if(ACHIEVEMENTS){
+      var rewardLabels={startRelic:"起始遗物",goldInk:"金墨色"};
+      ACHIEVEMENTS.forEach(function(a2){
+        var card=document.createElement('div');
+        card.className='wiki-card';
+        card.innerHTML='<h4>'+a2.name+'</h4>'
+          +'<p>'+a2.desc+'</p>'
+          +(a2.reward?'<div class="wiki-card__meta" style="color:var(--accent)">奖励: '+(rewardLabels[a2.reward]||a2.reward)+'</div>':'');
+        achGrid.appendChild(card);
+      });
     }
 
     // WAVE_SCALE
