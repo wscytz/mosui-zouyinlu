@@ -2,6 +2,11 @@
   "appId": "com.mosui.zouyinlu",
   "appName": "墨祟走阴录",
   "webDir": "www",
+  "plugins": {
+    "SplashScreen": {
+      "launchAutoHide": false
+    }
+  },
   "android": {
     "allowMixedContent": false
   }

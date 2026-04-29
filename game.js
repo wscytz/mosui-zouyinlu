@@ -696,21 +696,21 @@ function pAtk(g){
   // 斩妖剑：multi决定同劈几刀
   if(w.type==="melee"){
     var comboArc=w.arc,comboRng=rng,comboDmg=dmg;
-    if(p.comboCount%3===0){comboArc=w.arc*TUNING.combo3Arc;comboRng=rng*TUNING.combo3Range;comboDmg=Math.floor(dmg*TUNING.combo3Dmg)}
+    if((p.comboCount+1)%3===0){comboArc=w.arc*TUNING.combo3Arc;comboRng=rng*TUNING.combo3Range;comboDmg=Math.floor(dmg*TUNING.combo3Dmg)}
     if(p.wideSlash)comboArc*=1.2;
     for(var si=0;si<s.multi;si++){
       var sOff=(si-(s.multi-1)/2)*0.18;
       addAttack(g,{x:p.x,y:p.y,angle:p.facing+sOff,arc:comboArc,range:comboRng,
         dmg:comboDmg,crit:crit,life:12,maxLife:12,type:"slash",
-        pierce:(p.pierceOnDodge&&p.justDodged)||(p.comboCount%3===0),
+        pierce:(p.pierceOnDodge&&p.justDodged)||((p.comboCount+1)%3===0),
         hitMap:{}});
     }
     spawnInk(g,p.x+Math.cos(p.facing)*rng*0.6,p.y+Math.sin(p.facing)*rng*0.6,
-      Math.max(2,Math.floor((p.comboCount%3===0?8:4)*pMul)),"ink");
+      Math.max(2,Math.floor(((p.comboCount+1)%3===0?8:4)*pMul)),"ink");
   // 符骨笔：multi决定扇形弹数
   }else if(w.type==="ranged"){
     var basePSpd=w.spd||7,basePSize=8*s.projSize;
-    var isBig=p.comboCount%5===0;
+    var isBig=(p.comboCount+1)%5===0;
     for(var pi=0;pi<s.multi;pi++){
       var spread=(pi-(s.multi-1)/2)*0.13;
       var pa=p.facing+spread;
@@ -2658,7 +2658,10 @@ function loop(){
 }
 
 function init(){
-  canvas=document.getElementById("gameCanvas");ctx=canvas.getContext("2d");
+  canvas=document.getElementById("gameCanvas");
+  if(!canvas){console.error("gameCanvas not found");return}
+  ctx=canvas.getContext("2d");
+  if(!ctx){console.error("canvas 2d context failed");return}
   buildBg();
   window.addEventListener("keydown",function(e){keys[e.key.toLowerCase()]=true;
     if(e.key==="Escape")togglePause();
@@ -2704,13 +2707,13 @@ function init(){
     if(window._mobileInput)return;
     e.preventDefault();mouse.down=false},{passive:false});
   canvas.addEventListener("touchcancel",function(e){mouse.down=false});
-  document.getElementById("restartBtn").addEventListener("click",function(){
-    document.getElementById("gameOver").style.display="none";
-    document.getElementById("gameContainer").style.display="none";
-    document.getElementById("pauseHint").style.display="none";
-    document.getElementById("weaponSelect").style.display="";
+  var _restartBtn=document.getElementById("restartBtn");if(_restartBtn)_restartBtn.addEventListener("click",function(){
+    var _go=document.getElementById("gameOver");if(_go)_go.style.display="none";
+    var _gc=document.getElementById("gameContainer");if(_gc)_gc.style.display="none";
+    var _ph=document.getElementById("pauseHint");if(_ph)_ph.style.display="none";
+    var _ws=document.getElementById("weaponSelect");if(_ws)_ws.style.display="";
     keys={};G=null;document.body.classList.remove("game-active")});
-  document.getElementById("resumeBtn").addEventListener("click",togglePause);
+  var _resumeBtn=document.getElementById("resumeBtn");if(_resumeBtn)_resumeBtn.addEventListener("click",togglePause);
   // Volume slider
   var volSlider=document.getElementById("volMaster");
   if(volSlider){
@@ -2744,7 +2747,21 @@ function init(){
     }
   }
   setupWeaponSelect();loop();
+  // Dismiss Capacitor splash screen after game is ready
+  try{if(window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.SplashScreen){window.Capacitor.Plugins.SplashScreen.hide({fadeOutDuration:300})}}catch(e){}
 }
 
-if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
+function safeInit(){
+  try{init()}
+  catch(e){
+    console.error("init() failed:",e.message,e.stack);
+    // Show error message on screen so user isn't stuck on splash
+    var d=document.createElement("div");
+    d.style.cssText="position:fixed;inset:0;background:#f1e6d4;color:#171310;display:flex;align-items:center;justify-content:center;font:16px sans-serif;padding:20px;text-align:center;z-index:99999";
+    d.textContent="加载失败: "+e.message;
+    document.body.appendChild(d);
+  }
+}
+
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",safeInit);else safeInit();
 })();
