@@ -7,7 +7,9 @@ var C={paper:"#f1e6d4",edge:"#d9c9af",ink:"#171310",soft:"#2c2520",
   spirit:"rgba(90,140,100,0.55)",spiritG:"rgba(77,122,86,0.25)",
   boss:"#6b3a5c",bossG:"rgba(107,58,92,0.3)",
   gold:"#9c835a",goldG:"rgba(156,131,90,0.24)",
-  frost:"#b8c8d4",frostE:"#7fa0b4"};
+  frost:"#b8c8d4",frostE:"#7fa0b4",
+  fontBody:'"STKaiti","KaiTi","Noto Sans SC","Droid Sans Fallback",sans-serif,serif',
+  fontTitle:'"STKaiti","KaiTi","Noto Sans SC","Droid Sans Fallback",sans-serif,serif'};
 
 var WEAPONS=[
   {id:"jian",name:"斩妖剑",tone:"近战 / 破绽 / 处决",blurb:"三段贴身剑势，第三击挑出破绽。",

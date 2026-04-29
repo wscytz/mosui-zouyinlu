@@ -88,13 +88,13 @@
     rightBase.y = Math.min(rightBase.y, H - bottomInsetY - 60);
     dodgePos.y = Math.min(dodgePos.y, H - bottomInsetY - 50);
   }
-  updateControlSizes();
-
   // Positions moved lower for landscape thumb ergonomics
   var leftBase  = { x: W * 0.14, y: H * 0.82 };
   var rightBase = { x: W * 0.88, y: H * 0.82 };
   var dodgePos  = { x: W * 0.62, y: H * 0.78 };
   var pausePos  = { x: W - 28, y: 28 };
+
+  updateControlSizes();
 
   var sticks = {
     left:  { active: false, touchId: null, bx: leftBase.x,  by: leftBase.y,  tx: leftBase.x,  ty: leftBase.y },
@@ -103,6 +103,8 @@
 
   var dodgeDown = false;
   var pauseDown = false;
+  var pauseWasDown = false; // edge detection for pause toggle
+  var pauseFlash = 0; // visual feedback frames for pause button
 
   // Mobile input state consumed by game.js
   var input = { active: false, dx: 0, dy: 0, aimAngle: 0, attacking: false, dodging: false, pausing: false };
@@ -148,7 +150,7 @@
           dodgeDown = true; continue;
         }
         if (dist(p.x, p.y, pausePos.x, pausePos.y) < CTRL.PAUSE_R + 10) {
-          pauseDown = true; continue;
+          pauseDown = true; pauseFlash = 18; continue;
         }
         // Left or right stick based on screen half
         if (p.x < W / 2) {
@@ -201,11 +203,13 @@
       } else if (e.type === "touchend" || e.type === "touchcancel") {
         if (sticks.left.touchId === id) {
           sticks.left.active = false; sticks.left.touchId = null;
-          sticks.left.tx = sticks.left.bx; sticks.left.ty = sticks.left.by;
+          sticks.left.bx = leftBase.x; sticks.left.by = leftBase.y;
+          sticks.left.tx = leftBase.x; sticks.left.ty = leftBase.y;
           input.dx = 0; input.dy = 0;
         } else if (sticks.right.touchId === id) {
           sticks.right.active = false; sticks.right.touchId = null;
-          sticks.right.tx = sticks.right.bx; sticks.right.ty = sticks.right.by;
+          sticks.right.bx = rightBase.x; sticks.right.by = rightBase.y;
+          sticks.right.tx = rightBase.x; sticks.right.ty = rightBase.y;
           input.attacking = false;
         }
         if (dodgeDown) {
@@ -217,14 +221,25 @@
           }
           if (!stillDodge) dodgeDown = false;
         }
+        if (pauseDown) {
+          var stillPause = false;
+          for (var k = 0; k < e.touches.length; k++) {
+            var tpp = canvasCoord(e.touches[k].clientX, e.touches[k].clientY);
+            if (dist(tpp.x, tpp.y, pausePos.x, pausePos.y) < CTRL.PAUSE_R + 10) stillPause = true;
+          }
+          if (!stillPause) pauseDown = false;
+        }
       }
     }
 
     // Derive input state
     input.active = sticks.left.active || sticks.right.active;
     input.dodging = dodgeDown;
-    input.pausing = pauseDown;
-    if (pauseDown) { pauseDown = false; }
+    // Pause: edge-triggered to prevent repeated toggle while held
+    var pauseEdge = pauseDown && !pauseWasDown;
+    input.pausing = pauseEdge;
+    pauseWasDown = pauseDown;
+    if (pauseFlash > 0) pauseFlash--;
   }
 
   function drawStick(c, stick) {
@@ -260,6 +275,21 @@
 
   // Render hook — called from game.js render()
   window._renderMobileControls = function(c, w, h) {
+    // Bottom control panel background — subtle ink-wash gradient
+    var panelTop = h * 0.62;
+    var grad = c.createLinearGradient(0, panelTop, 0, h);
+    grad.addColorStop(0, "rgba(23,19,16,0)");
+    grad.addColorStop(0.25, "rgba(23,19,16,0.05)");
+    grad.addColorStop(1, "rgba(23,19,16,0.15)");
+    c.globalAlpha = 1;
+    c.fillStyle = grad;
+    c.fillRect(0, panelTop, w, h - panelTop);
+    // Subtle top edge line of the panel
+    c.globalAlpha = 0.08;
+    c.strokeStyle = "rgba(23,19,16,0.3)";
+    c.lineWidth = 1;
+    c.beginPath(); c.moveTo(0, panelTop); c.lineTo(w, panelTop); c.stroke();
+    c.globalAlpha = 1;
     // Always show faint indicators for stick zones when game is playing
     if (!sticks.left.active) {
       c.globalAlpha = 0.08; c.fillStyle = "rgba(23,19,16,0.2)";
@@ -280,7 +310,7 @@
     drawStick(c, sticks.left);
     drawStick(c, sticks.right);
     drawBtn(c, dodgePos, CTRL.DODGE_R, "闪", dodgeDown);
-    drawBtn(c, pausePos, CTRL.PAUSE_R, "停", false);
+    drawBtn(c, pausePos, CTRL.PAUSE_R, "停", pauseDown || pauseFlash > 0);
   };
 
   // Bind to canvas

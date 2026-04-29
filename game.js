@@ -2485,7 +2485,14 @@ function showCurse(g){
       '<p>'+c.desc+'</p></div>'}).join("")+
     '<div class="relic-pick curse-card curse-skip" data-curse="skip" style="text-align:center;opacity:0.6"><h4>不立誓</h4><p>原样进入地宫</p></div>';
   popup.style.display="";
+  // Mobile safety: auto-dismiss after 20s if no interaction
+  var isMobile='ontouchstart' in window||navigator.maxTouchPoints>0;
+  var autoDismissT=isMobile?setTimeout(function(){
+    if(popup.style.display!=="none"){
+      choices.onclick=null;popup.style.display="none";beginRun(g)}
+  },20000):null;
   choices.onclick=function(ev){
+    if(autoDismissT)clearTimeout(autoDismissT);
     var target=ev.target;
     // Defensive: text node → parent
     if(target&&target.nodeType===3)target=target.parentElement;
@@ -2581,7 +2588,8 @@ function loop(){
     }catch(err){console.error("update error:",err.message)}
     try{
       render(G);
-    }catch(err){console.error("render error:",err.message)}
+    }catch(err){G._renderErrors=(G._renderErrors||0)+1;
+	      if(G._renderErrors<=3)console.error("render error:",err.message)}
     try{
       if(G.state==="over"||(G.state==="victory"&&G.freezeT<=0))showEnd(G);
     }catch(err){console.error("showEnd error:",err.message)}
