@@ -1,0 +1,8 @@
+{
+  "appId": "com.mosui.zouyinlu",
+  "appName": "墨祟走阴录",
+  "webDir": "www",
+  "android": {
+    "allowMixedContent": false
+  }
+}

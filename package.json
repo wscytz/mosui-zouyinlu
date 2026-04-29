@@ -1,0 +1,22 @@
+{
+  "name": "mosui-zouyinlu",
+  "version": "2.0.0",
+  "description": "墨祟：走阴录 — 水墨俯视角动作肉鸽",
+  "main": "game.html",
+  "scripts": {
+    "test": "node smoke_test.js",
+    "www": "node -e \"var f=require('fs');f.copyFileSync('game.html','www/index.html');['game.css','game.js','gamedata.js','sound.js','mobile-controls.js','styles.css'].forEach(function(n){f.copyFileSync(n,'www/'+n)})\"",
+    "cap:sync": "npm run www && npx cap sync",
+    "cap:open:android": "npm run cap:sync && npx cap open android"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@capacitor/android": "^8.3.1",
+    "@capacitor/core": "^8.3.1"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.3.1"
+  }
+}

@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>墨祟：走阴录 | 东方志怪肉鸽原型</title>
+    <meta
+      name="description"
+      content="一个强调现代水墨表现、高自由度武器与遗物构筑、无局外养成的东方志怪动作肉鸽原型。"
+    >
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <div class="paper-noise" aria-hidden="true"></div>
+    <div class="ink-cloud ink-cloud--left" aria-hidden="true"></div>
+    <div class="ink-cloud ink-cloud--right" aria-hidden="true"></div>
+
+    <header class="hero">
+      <nav class="topbar">
+        <span class="seal">墨祟</span>
+        <div style="display:flex;gap:14px;align-items:center">
+          <span class="topbar__caption">东方志怪动作肉鸽概念原型</span>
+          <a href="game.html" class="back-link" style="margin:0">试玩</a>
+          <a href="wiki.html" class="back-link" style="margin:0">百科</a>
+        </div>
+      </nav>
+
+      <div class="hero__layout">
+        <section class="hero__copy">
+          <p class="eyebrow">俯视角动作 / 无局外成长 / 单局 20 分钟 / 现代水墨表现</p>
+          <h1>《墨祟：走阴录》</h1>
+          <p class="hero__lead">
+            你扮演一名替亡者走阴的“夜行客”，深入被邪祟浸透的地宫，在每一局中重组兵器、法器与禁物，
+            于魑魅魍魉之间杀出一条回魂路。
+          </p>
+          <div class="hero__actions">
+            <a href="game.html" class="button">进入试玩</a>
+            <button id="randomizeBuild" class="button button--ghost">随机起局</button>
+            <button id="clearBuild" class="button button--ghost">清空构筑</button>
+          </div>
+        </section>
+
+        <aside class="hero__card">
+          <p class="hero__card-label">项目钉子</p>
+          <ul class="hero__card-list">
+            <li>少系统：1 主武器 + 6 遗物 + 1 主动法术位</li>
+            <li>强构筑：标签驱动，不做死板套装</li>
+            <li>重表现：留白、宣纸、泼墨、朱砂点睛</li>
+            <li>硬局内：失败只保留认知，不保留数值成长</li>
+          </ul>
+        </aside>
+      </div>
+    </header>
+
+    <main>
+      <section class="section">
+        <div class="section__heading">
+          <p class="section__eyebrow">Core Pillars</p>
+          <h2>轻，但不浅</h2>
+          <p class="section__summary">
+            这版方案把复杂度压在“可组合规则”上，而不是堆功能。玩家几分钟内就能看懂系统，但每局都能形成不一样的战斗节奏。
+          </p>
+        </div>
+
+        <div class="pillar-grid">
+          <article class="pillar-card">
+            <h3>高自由构筑</h3>
+            <p>遗物按标签修改规则，同一件遗物可以服务多把武器，构筑深度来自组合，不来自数量膨胀。</p>
+          </article>
+          <article class="pillar-card">
+            <h3>东方志怪氛围</h3>
+            <p>区域、Boss、法器与敌人都围绕“地宫、祭祀、纸扎、走阴、残神”展开，统一世界观语汇。</p>
+          </article>
+          <article class="pillar-card">
+            <h3>现代水墨表达</h3>
+            <p>用宣纸底、墨迹边缘、笔触拖尾和朱砂点缀建立视觉记忆，避免高成本模拟真实国画。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section section--dense" id="build-lab">
+        <div class="section__heading">
+          <p class="section__eyebrow">Build Lab</p>
+          <h2>本局构筑预览</h2>
+          <p class="section__summary">
+            选择 1 把武器和至多 6 件遗物，右侧会实时生成这一局的战斗节奏、标签联动和推荐路线。
+          </p>
+        </div>
+
+        <div class="lab-layout">
+          <div class="lab-column">
+            <div class="section-card">
+              <div class="section-card__head">
+                <h3>武器</h3>
+                <p>首版只做 4 把，但每把都要有清晰剪影和核心手感。</p>
+              </div>
+              <div id="weaponGrid" class="card-grid card-grid--weapons"></div>
+            </div>
+
+            <div class="section-card">
+              <div class="section-card__head">
+                <h3>遗物</h3>
+                <p>样例列出 14 件。正式版可以扩展到 40 件左右，但规则风格保持一致。</p>
+              </div>
+              <div id="relicGrid" class="card-grid card-grid--relics"></div>
+            </div>
+          </div>
+
+          <aside class="build-panel">
+            <div class="build-panel__head">
+              <span class="seal seal--small">本局</span>
+              <h3 id="buildName">未成局</h3>
+              <p id="buildPitch" class="build-panel__pitch">先选一把武器，再挑几件遗物。构筑会在这里长出来。</p>
+            </div>
+
+            <div class="metric-grid" id="metricGrid"></div>
+
+            <div class="build-panel__block">
+              <h4>核心标签</h4>
+              <div id="activeTags" class="tag-cloud"></div>
+            </div>
+
+            <div class="build-panel__block">
+              <h4>战斗循环</h4>
+              <p id="combatLoop" class="build-panel__text">等待构筑生成。</p>
+            </div>
+
+            <div class="build-panel__block">
+              <h4>推荐路线</h4>
+              <p id="routePlan" class="build-panel__text">等待构筑生成。</p>
+            </div>
+
+            <div class="build-panel__block">
+              <h4>本局风险</h4>
+              <p id="riskNote" class="build-panel__text">等待构筑生成。</p>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section__heading">
+          <p class="section__eyebrow">Run Structure</p>
+          <h2>一局怎么推进</h2>
+          <p class="section__summary">
+            局外不做数值成长，所以局内前 5 分钟必须进状态。流程上要尽快给到关键遗物和第一次方向转折。
+          </p>
+        </div>
+
+        <div class="runline">
+          <article class="run-step">
+            <span class="run-step__index">壹</span>
+            <h3>起局</h3>
+            <p>从 4 把初始武器中选 1 把，拿到第一件小遗物，30 秒内建立操作预期。</p>
+          </article>
+          <article class="run-step">
+            <span class="run-step__index">贰</span>
+            <h3>定流派</h3>
+            <p>第 2 到第 4 个节点给出明显分叉：战斗、献祭、奇遇、商店，促成第一轮构筑倾向。</p>
+          </article>
+          <article class="run-step">
+            <span class="run-step__index">叁</span>
+            <h3>转曲线</h3>
+            <p>第二章加入诅咒节点和精英怪机制，逼迫玩家在容错和输出之间重新取舍。</p>
+          </article>
+          <article class="run-step">
+            <span class="run-step__index">肆</span>
+            <h3>终局</h3>
+            <p>第三章收束构筑，让 Boss 检验的是“你这套构筑会不会运转”，而不是纯数值。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section__heading">
+          <p class="section__eyebrow">Regions</p>
+          <h2>三张区域地图</h2>
+          <p class="section__summary">
+            首版地图不求大，但求每张区域有明确气味、地貌和敌人语义，保证玩家记得住。
+          </p>
+        </div>
+
+        <div id="regionGrid" class="lore-grid"></div>
+      </section>
+
+      <section class="section">
+        <div class="section__heading">
+          <p class="section__eyebrow">Boss Lineup</p>
+          <h2>四个 Boss 概念</h2>
+          <p class="section__summary">
+            Boss 不是大体量血包，而是围绕“看懂机制后就能以你的构筑方式破解”的对局设计。
+          </p>
+        </div>
+
+        <div id="bossGrid" class="lore-grid"></div>
+      </section>
+
+      <section class="section section--last">
+        <div class="section__heading">
+          <p class="section__eyebrow">Production Scope</p>
+          <h2>为什么这版真的做得出来</h2>
+        </div>
+
+        <div class="scope-grid">
+          <article class="scope-card">
+            <h3>内容体量受控</h3>
+            <p>1 名主角、4 把武器、40 件左右遗物、12 种普通怪、6 种精英怪、4 个 Boss，足够成型，又不会失控。</p>
+          </article>
+          <article class="scope-card">
+            <h3>表现优先级清晰</h3>
+            <p>优先做命中泼墨、斩击笔触、Boss 出招轮廓、纸面质感和音效留白，不急着堆场景资产。</p>
+          </article>
+          <article class="scope-card">
+            <h3>系统扩展自然</h3>
+            <p>后续新增武器、遗物和怪物时，只要继续遵守标签体系，就能自然扩容，不需要重写核心框架。</p>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>原型目标：验证“东方志怪 + 现代水墨 + 高自由武器遗物构筑 + 无局外成长”这条线是否成立。</p>
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>

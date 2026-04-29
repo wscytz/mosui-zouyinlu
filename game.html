@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover">
+  <title>墨祟：走阴录 | 战斗试玩</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="game.css">
+</head>
+<body>
+  <div class="paper-noise" aria-hidden="true"></div>
+
+  <div id="titleScreen" class="overlay">
+    <div class="overlay__inner title-screen">
+      <span class="seal" style="margin-bottom:20px;">夜行客</span>
+      <h1 class="title-screen__title">墨　祟</h1>
+      <p class="title-screen__sub">：　走　阴　录</p>
+      <p class="title-screen__desc">你扮演一名替亡者走阴的夜行客，<br>手持法器深入地宫，斩妖除祟。</p>
+      <button id="startBtn" class="button title-screen__btn">进入地宫</button>
+      <div class="title-screen__links">
+        <a href="index.html" class="back-link">← 返回原型页</a>
+        <a href="wiki.html" class="back-link" style="margin-left:16px">百科</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="weaponSelect" class="overlay" style="display:none;">
+    <div class="overlay__inner">
+      <span class="seal" style="margin-bottom:16px;">夜行客</span>
+      <h2 class="overlay__title">带上你最趁手的家伙</h2>
+      <p class="overlay__subtitle">选一把兵器，然后进地宫试试手感。</p>
+      <div id="weaponChoices" class="weapon-choices"></div>
+      <div class="difficulty-select">
+        <span class="difficulty-label">难度</span>
+        <label class="difficulty-option"><input type="radio" name="diff" value="normal" checked>平常</label>
+        <label class="difficulty-option"><input type="radio" name="diff" value="hard">险途</label>
+        <label class="difficulty-option"><input type="radio" name="diff" value="nightmare">噩梦</label>
+      </div>
+      <a href="index.html" class="back-link">← 返回原型页</a>
+      <a href="wiki.html" class="back-link" style="margin-left:12px">百科</a>
+    </div>
+  </div>
+
+  <div id="gameContainer" class="game-container" style="display:none;">
+    <div class="game-frame">
+      <canvas id="gameCanvas" width="960" height="640" tabindex="0"></canvas>
+      <div id="controlsHint" class="controls-hint">
+        <div class="controls-hint__inner">
+          <p>WASD 移动 · 空格/Shift 闪避 · 鼠标瞄准 · 左键攻击 · ESC 暂停</p>
+        </div>
+      </div>
+      <div id="waveClear" class="wave-clear">波次完成</div>
+      <div id="hud" class="hud">
+        <div class="hud__left">
+          <div class="hud__hp">
+            <span class="hud__label">命</span>
+            <div class="hud__hp-bar"><div id="hpFill" class="hud__hp-fill"></div></div>
+            <span id="hpText" class="hud__hp-text">100</span>
+          </div>
+          <div id="hudWeapon" class="hud__weapon"></div>
+        </div>
+        <div class="hud__center">
+          <span id="waveInfo" class="hud__wave"></span>
+        </div>
+        <div class="hud__right">
+          <span id="killCount" class="hud__kills">斩祟 0</span>
+        </div>
+      </div>
+    </div>
+    <div class="hud__relics" id="hudRelics"></div>
+  </div>
+
+  <div id="relicPopup" class="overlay" style="display:none;">
+    <div class="overlay__inner">
+      <span id="relicSeal" class="seal seal--small" style="margin-bottom:12px;">得物</span>
+      <h2 class="overlay__title">挑一件带着上路</h2>
+      <div id="relicChoices" class="relic-choices"></div>
+    </div>
+  </div>
+
+  <div id="cursePopup" class="overlay" style="display:none;">
+    <div class="overlay__inner">
+      <span class="seal seal--small" style="margin-bottom:12px;">誓印</span>
+      <h2 class="overlay__title">立一个誓再入地宫</h2>
+      <p class="overlay__subtitle">誓印是一把双刃刀，获得力量的同时承担代价。</p>
+      <div id="curseChoices" class="relic-choices"></div>
+    </div>
+  </div>
+
+  <div id="gameOver" class="overlay" style="display:none;">
+    <div class="overlay__inner">
+      <h2 class="overlay__title" id="endTitle"></h2>
+      <p class="overlay__subtitle" id="endSubtitle"></p>
+      <p class="overlay__stats" id="endStats"></p>
+      <div class="overlay__actions">
+        <button id="restartBtn" class="button">再入地宫</button>
+        <a href="index.html" class="button button--ghost">返回原型页</a>
+        <a href="wiki.html" class="button button--ghost">百科</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="rotateHint" class="rotate-hint" style="display:none;">
+    <span class="rotate-hint__icon">↻</span>
+    <p>请旋转手机横屏游玩</p>
+  </div>
+  <div id="pauseHint" class="pause-hint" style="display:none;">按 ESC 暂停</div>
+  <div id="pauseOverlay" class="overlay" style="display:none;">
+    <div class="overlay__inner">
+      <h2 class="overlay__title">暂停</h2>
+      <p class="overlay__subtitle pause-controls">WASD 移动 · 空格/Shift 闪避 · 鼠标瞄准 · 左键攻击 · H 操作提示</p>
+      <p id="pauseStats" class="overlay__stats"></p>
+      <div class="overlay__actions">
+        <button id="resumeBtn" class="button">继续</button>
+        <a href="index.html" class="button button--ghost">返回原型页</a>
+        <a href="wiki.html" class="button button--ghost">百科</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="sound.js"></script>
+  <script src="gamedata.js"></script>
+  <script src="game.js"></script>
+  <script src="mobile-controls.js"></script>
+</body>
+</html>

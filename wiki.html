@@ -1,0 +1,572 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>墨祟：走阴录 | 百科</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* wiki-specific overrides */
+    .wiki-nav { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+    .wiki-nav a { color: var(--ash); text-decoration: none; font-size: 0.88rem;
+      border-bottom: 1px solid transparent; transition: color 120ms; }
+    .wiki-nav a:hover { color: var(--accent); }
+    .wiki-section { margin-bottom: 48px; }
+    .wiki-section h2 { font-size: clamp(1.6rem, 3.5vw, 2.4rem); margin-bottom: 20px; }
+    .wiki-grid { display: grid; gap: 14px; }
+    .wiki-grid--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .wiki-grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .wiki-grid--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .wiki-card {
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 18px;
+      background:
+        linear-gradient(180deg, rgba(255,248,240,0.92), rgba(236,221,198,0.88)),
+        linear-gradient(135deg, rgba(255,255,255,0.2), transparent 52%);
+      transition: transform 180ms, border-color 180ms, box-shadow 180ms;
+    }
+    .wiki-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(163,58,45,0.3);
+      box-shadow: 0 12px 28px rgba(23,19,16,0.1);
+    }
+    .wiki-card h4 {
+      font-family: var(--title-face);
+      font-size: 1.1rem;
+      margin: 0 0 4px;
+    }
+    .wiki-card__meta {
+      font-size: 0.76rem;
+      color: var(--ash);
+      margin-bottom: 8px;
+    }
+    .wiki-card p {
+      font-size: 0.84rem;
+      color: rgba(23,19,16,0.76);
+      margin: 0 0 10px;
+      line-height: 1.5;
+    }
+    .wiki-card--boss {
+      border-color: rgba(107,58,92,0.3);
+      background:
+        linear-gradient(180deg, rgba(255,248,240,0.92), rgba(236,221,198,0.88)),
+        linear-gradient(135deg, rgba(107,58,92,0.06), transparent 60%);
+    }
+    .wiki-card--boss h4 { color: #6b3a5c; }
+    .wiki-card--evo {
+      border-color: rgba(163,58,45,0.2);
+    }
+    .wiki-card--evo h4 { color: var(--accent); }
+    .wiki-filter {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+    .wiki-filter__btn {
+      appearance: none;
+      border: 1px solid rgba(23,19,16,0.1);
+      border-radius: 999px;
+      background: rgba(255,251,245,0.72);
+      color: rgba(23,19,16,0.78);
+      font-size: 0.82rem;
+      padding: 5px 12px;
+      cursor: pointer;
+      transition: background 120ms, color 120ms, border-color 120ms;
+      font-family: inherit;
+    }
+    .wiki-filter__btn:hover,
+    .wiki-filter__btn.is-active {
+      background: rgba(163,58,45,0.11);
+      color: var(--accent);
+      border-color: rgba(163,58,45,0.2);
+    }
+    .wiki-wave-row {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      padding: 12px 18px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      margin-bottom: 10px;
+      background:
+        linear-gradient(180deg, rgba(255,248,240,0.88), rgba(236,221,198,0.82));
+    }
+    .wiki-wave-row__label {
+      font-family: var(--title-face);
+      font-size: 1rem;
+      white-space: nowrap;
+      min-width: 10em;
+    }
+    .wiki-wave-row__enemies {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .wiki-build {
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 14px;
+      background:
+        linear-gradient(180deg, rgba(255,248,240,0.92), rgba(236,221,198,0.88));
+    }
+    .wiki-build h4 {
+      font-family: var(--title-face);
+      font-size: 1.1rem;
+      margin: 0 0 4px;
+    }
+    .wiki-build__weapon {
+      font-size: 0.82rem;
+      color: var(--accent);
+      margin-bottom: 10px;
+    }
+    .wiki-build__row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 6px;
+      align-items: baseline;
+    }
+    .wiki-build__label {
+      font-size: 0.78rem;
+      color: var(--ash);
+      min-width: 4em;
+    }
+    .wiki-caps-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+    .wiki-caps-table th,
+    .wiki-caps-table td {
+      text-align: left;
+      padding: 8px 14px;
+      border-bottom: 1px solid var(--line);
+    }
+    .wiki-caps-table th {
+      font-family: var(--title-face);
+      color: var(--ink);
+    }
+    .wiki-caps-table td { color: rgba(23,19,16,0.78); }
+    .wiki-prereq {
+      display: inline-block;
+      font-size: 0.72rem;
+      color: var(--moss);
+      margin-top: 6px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(77,97,86,0.08);
+      border: 1px solid rgba(77,97,86,0.15);
+    }
+    .wiki-section__summary {
+      color: rgba(23,19,16,0.72);
+      font-size: 0.95rem;
+      margin: 0 0 20px;
+      max-width: 68ch;
+    }
+    .wiki-back {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 10;
+      background: rgba(241,230,212,0.9);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 8px 16px;
+      color: var(--ash);
+      text-decoration: none;
+      font-size: 0.82rem;
+      backdrop-filter: blur(6px);
+      transition: color 120ms, border-color 120ms;
+    }
+    .wiki-back:hover { color: var(--ink); border-color: rgba(23,19,16,0.24); }
+    @media (max-width: 980px) {
+      .wiki-grid--4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .wiki-grid--3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 600px) {
+      .wiki-grid--4,
+      .wiki-grid--3,
+      .wiki-grid--2 { grid-template-columns: 1fr; }
+      .wiki-wave-row { flex-direction: column; gap: 8px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="paper-noise" aria-hidden="true"></div>
+  <div class="ink-cloud ink-cloud--left" aria-hidden="true"></div>
+  <div class="ink-cloud ink-cloud--right" aria-hidden="true"></div>
+
+  <header class="hero">
+    <nav class="topbar">
+      <a href="index.html" class="seal" style="text-decoration:none;color:var(--accent)">墨祟</a>
+      <div class="topbar__nav" style="display:flex;gap:14px;align-items:center">
+        <a href="index.html" class="back-link" style="margin:0">首页</a>
+        <a href="game.html" class="back-link" style="margin:0">试玩</a>
+        <span style="color:var(--accent);font-size:0.88rem;font-family:var(--title-face)">百科</span>
+      </div>
+    </nav>
+  </header>
+
+  <main style="width:var(--content-width);margin:0 auto;position:relative;z-index:1">
+
+    <section class="wiki-section" id="sec-weapons">
+      <div class="section__heading">
+        <p class="section__eyebrow">Weapons</p>
+        <h2>四把兵器</h2>
+        <p class="wiki-section__summary">每局选一把，风格各异。进化后解锁更强形态。</p>
+      </div>
+      <div id="weaponGrid" class="wiki-grid wiki-grid--4"></div>
+    </section>
+
+    <section class="wiki-section" id="sec-relics">
+      <div class="section__heading">
+        <p class="section__eyebrow">Relics</p>
+        <h2>遗物图鉴</h2>
+        <p class="wiki-section__summary">波次间拾取，构筑你这一局的路。标签驱动，组合即深度。</p>
+      </div>
+      <div id="relicFilter" class="wiki-filter"></div>
+      <div id="relicGrid" class="wiki-grid wiki-grid--3"></div>
+    </section>
+
+    <section class="wiki-section" id="sec-evolutions">
+      <div class="section__heading">
+        <p class="section__eyebrow">Evolutions</p>
+        <h2>武器进化</h2>
+        <p class="wiki-section__summary">第叁波与第陆波后选择，每把武器四条进化路线。</p>
+      </div>
+      <div id="evoGrid"></div>
+    </section>
+
+    <section class="wiki-section" id="sec-enemies">
+      <div class="section__heading">
+        <p class="section__eyebrow">Enemies</p>
+        <h2>妖祟录</h2>
+        <p class="wiki-section__summary">地宫里的常客和稀客。摸清习性，才能活下去。</p>
+      </div>
+      <div id="enemyGrid" class="wiki-grid wiki-grid--3"></div>
+    </section>
+
+    <section class="wiki-section" id="sec-waves">
+      <div class="section__heading">
+        <p class="section__eyebrow">Waves</p>
+        <h2>九波地宫</h2>
+        <p class="wiki-section__summary">每波都有不同的敌人组合和关卡调制器。</p>
+      </div>
+      <div id="waveList"></div>
+    </section>
+
+    <section class="wiki-section" id="sec-stages">
+      <div class="section__heading">
+        <p class="section__eyebrow">Stage Mods</p>
+        <h2>关卡调制器</h2>
+        <p class="wiki-section__summary">每波的地形规则，让同样的敌人打出不同的节奏。</p>
+      </div>
+      <div id="stageGrid" class="wiki-grid wiki-grid--3"></div>
+    </section>
+
+    <section class="wiki-section" id="sec-builds">
+      <div class="section__heading">
+        <p class="section__eyebrow">Build Lines</p>
+        <h2>构筑线</h2>
+        <p class="wiki-section__summary">六条成熟的构筑方向。核心遗物定调，放大遗物拉满，保底遗物兜住容错。</p>
+      </div>
+      <div id="buildList"></div>
+    </section>
+
+    <section class="wiki-section" id="sec-caps">
+      <div class="section__heading">
+        <p class="section__eyebrow">Caps</p>
+        <h2>数值封顶</h2>
+        <p class="wiki-section__summary">软封顶保证后期构筑依然爽，但不会一件成神。</p>
+      </div>
+      <div id="capsTable" style="border:1px solid var(--line);border-radius:20px;padding:18px;background:linear-gradient(180deg,rgba(255,248,240,0.92),rgba(236,221,198,0.88))"></div>
+    </section>
+
+    <section class="wiki-section">
+      <div class="section__heading">
+        <p class="section__eyebrow">Ranges</p>
+        <h2>距离阈值</h2>
+        <p class="wiki-section__summary">各类效果的判定半径，从 gamedata.js 的 RANGES 常量自动生成。</p>
+      </div>
+      <div id="wiki-ranges" style="border:1px solid var(--line);border-radius:20px;padding:18px;background:linear-gradient(180deg,rgba(255,248,240,0.92),rgba(236,221,198,0.88))"></div>
+    </section>
+
+    <section class="wiki-section">
+      <div class="section__heading">
+        <p class="section__eyebrow">Scaling</p>
+        <h2>波次缩放</h2>
+        <p class="wiki-section__summary">每波敌人属性的自动增长系数。</p>
+      </div>
+      <div id="wiki-wavescale" style="border:1px solid var(--line);border-radius:20px;padding:18px;background:linear-gradient(180deg,rgba(255,248,240,0.92),rgba(236,221,198,0.88))"></div>
+    </section>
+
+  </main>
+
+  <footer class="footer" style="width:var(--content-width);margin:0 auto;position:relative;z-index:1">
+    <p>数据自动读取 gamedata.js，与游戏完全同步。改一处，两端生效。</p>
+  </footer>
+
+  <a href="#" class="wiki-back" onclick="window.scrollTo({top:0,behavior:'smooth'});return false">回顶</a>
+
+  <script src="gamedata.js"></script>
+  <script>
+  (function(){
+    function tag(name,cn,cls){
+      var t=document.createElement(name);
+      if(cls)t.className=cls;
+      if(cn)t.textContent=cn;
+      return t;
+    }
+    function tags(arr){
+      var row=document.createElement('div');
+      row.className='tag-row';
+      arr.forEach(function(t2){
+        var s=tag('span',t2,'tag');
+        row.appendChild(s);
+      });
+      return row;
+    }
+
+    // --- Weapons ---
+    var wg=document.getElementById('weaponGrid');
+    WEAPONS.forEach(function(w){
+      var c=document.createElement('div');
+      c.className='wiki-card';
+      c.innerHTML='<h4>'+w.name+'</h4>'
+        +'<div class="wiki-card__meta">'+w.tone+'</div>'
+        +'<p>'+w.blurb+'</p>';
+      c.appendChild(tags(w.tags));
+      var stats=tag('div','','wiki-card__meta');
+      stats.style.marginTop='8px';
+      stats.textContent='伤害:'+w.dmg+' 射程:'+w.range+' 冷却:'+w.cd+'帧';
+      c.appendChild(stats);
+      wg.appendChild(c);
+    });
+
+    // --- Relics ---
+    var allTags=[];
+    RELICS.forEach(function(r){
+      r.tags.forEach(function(t2){if(allTags.indexOf(t2)<0)allTags.push(t2)});
+    });
+    allTags.sort();
+
+    var rf=document.getElementById('relicFilter');
+    var activeFilter='__all__';
+    function mkFilterBtn(label,val){
+      var b=tag('button',label,'wiki-filter__btn');
+      if(val==='__all__')b.classList.add('is-active');
+      b.onclick=function(){
+        activeFilter=val;
+        rf.querySelectorAll('.wiki-filter__btn').forEach(function(x){x.classList.remove('is-active')});
+        b.classList.add('is-active');
+        renderRelics();
+      };
+      return b;
+    }
+    rf.appendChild(mkFilterBtn('全部','__all__'));
+    allTags.forEach(function(t2){rf.appendChild(mkFilterBtn(t2,t2))});
+
+    var rg=document.getElementById('relicGrid');
+    function renderRelics(){
+      rg.innerHTML='';
+      RELICS.forEach(function(r){
+        if(activeFilter!=='__all__'&&r.tags.indexOf(activeFilter)<0)return;
+        var c=document.createElement('div');
+        c.className='wiki-card';
+        c.innerHTML='<h4>'+r.name+'</h4>'
+          +'<div class="wiki-card__meta">'+r.type+'</div>'
+          +'<p>'+r.effect+'</p>';
+        c.appendChild(tags(r.tags));
+        if(PREREQS[r.id]){
+          var pq=document.createElement('div');
+          pq.className='wiki-prereq';
+          pq.textContent='前置条件';
+          c.appendChild(pq);
+        }
+        rg.appendChild(c);
+      });
+    }
+    renderRelics();
+
+    // --- Evolutions ---
+    var eg=document.getElementById('evoGrid');
+    var wNames={melee:'斩妖剑',ranged:'符骨笔',aoe:'镇魂铃',dash:'伏魔伞'};
+    Object.keys(EVOLUTIONS).forEach(function(wtype){
+      var sec=document.createElement('div');
+      sec.style.marginBottom='24px';
+      sec.innerHTML='<h3 style="font-family:var(--title-face);font-size:1.2rem;margin:0 0 12px;color:var(--accent)">'+(wNames[wtype]||wtype)+'</h3>';
+      var grid=document.createElement('div');
+      grid.className='wiki-grid wiki-grid--4';
+      EVOLUTIONS[wtype].forEach(function(e){
+        var c=document.createElement('div');
+        c.className='wiki-card wiki-card--evo';
+        c.innerHTML='<h4>'+e.name+'</h4>'
+          +'<p>'+e.effect+'</p>';
+        grid.appendChild(c);
+      });
+      sec.appendChild(grid);
+      eg.appendChild(sec);
+    });
+
+    // --- Enemies ---
+    var eng=document.getElementById('enemyGrid');
+    var eOrder=['zhikui','youhun','fenling','shigui','gudeng','jiangshi','zhikuang','fenshen','modun','boss'];
+    eOrder.forEach(function(tid){
+      var e=ETYPE[tid];
+      if(!e)return;
+      var c=document.createElement('div');
+      c.className='wiki-card'+(e.isBoss?' wiki-card--boss':'');
+      var hpStr=e.isBoss?'HP:'+e.hp+' (Boss)':e.hp;
+      var extra='';
+      if(e.ranged)extra=' · 远程';
+      if(e.charge)extra=' · 蓄力冲锋';
+      if(e.fanShot)extra=' · 三向弹';
+      if(e.fireTrail)extra=' · 火径';
+      if(e.summoner)extra=' · 召唤';
+      if(e.splitter)extra=' · 分裂';
+      if(e.hasShield)extra=' · 护盾';
+      c.innerHTML='<h4>'+e.name+(e.isBoss?' (Boss)':'')+'</h4>'
+        +'<div class="wiki-card__meta">HP:'+hpStr+' · 速度:'+e.spd+' · 伤害:'+e.dmg+extra+'</div>';
+      eng.appendChild(c);
+    });
+
+    // --- Waves ---
+    var wl=document.getElementById('waveList');
+    WAVES.forEach(function(w2,idx){
+      var row=document.createElement('div');
+      row.className='wiki-wave-row';
+      var label=document.createElement('span');
+      label.className='wiki-wave-row__label';
+      label.textContent=w2.label;
+      if(idx===WAVES.length-1)label.style.color='var(--accent)';
+      var enemies=document.createElement('div');
+      enemies.className='wiki-wave-row__enemies';
+      w2.list.forEach(function(grp){
+        var e=ETYPE[grp.t];
+        var name=e?e.name:grp.t;
+        var s=tag('span',name+'×'+grp.n,'tag'+(grp.t==='boss'?' tag--accent':''));
+        enemies.appendChild(s);
+      });
+      var mod=STAGE_MODS[w2.mod];
+      if(mod){
+        var ms=tag('span',mod.name,'tag tag--accent');
+        enemies.appendChild(ms);
+      }
+      row.appendChild(label);
+      row.appendChild(enemies);
+      wl.appendChild(row);
+    });
+
+    // --- Stage Mods ---
+    var sg=document.getElementById('stageGrid');
+    Object.keys(STAGE_MODS).forEach(function(key){
+      var m=STAGE_MODS[key];
+      var c=document.createElement('div');
+      c.className='wiki-card';
+      c.innerHTML='<h4>'+m.name+'</h4><p>'+m.desc+'</p>';
+      sg.appendChild(c);
+    });
+
+    // --- Build Lines ---
+    var bl=document.getElementById('buildList');
+    var BUILDS=[
+      {name:'处决暴击',weapon:'斩妖剑',
+       core:['朱砂封钉','铜镜照妖'],amp:['判官断文','朱批残页'],safe:['血契剑穗','纸甲残片']},
+      {name:'闪避反击',weapon:'伏魔伞',
+       core:['破镜残片'],amp:['留影伞骨','黄泉引路'],safe:['走马灯片','纸人替魄']},
+      {name:'火与击杀',weapon:'任意',
+       core:['夜灯残烬'],amp:['火祟牙','骨笛残声'],safe:['收阴袋','走马灯片']},
+      {name:'魂与连锁',weapon:'符骨笔 / 镇魂铃',
+       core:['无字谶符','鬼脊蝶印'],amp:['魂钱串','铃木鱼'],safe:['引魂灯笼','骨笛残声']},
+      {name:'冰控暴击',weapon:'镇魂铃',
+       core:['玄冰简穗','裂冰诀'],amp:[],safe:[]},
+      {name:'召唤击杀',weapon:'任意',
+       core:['纸鸢引','夜灯残烬'],amp:[],safe:[]}
+    ];
+    BUILDS.forEach(function(b){
+      var c=document.createElement('div');
+      c.className='wiki-build';
+      c.innerHTML='<h4>'+b.name+'</h4><div class="wiki-build__weapon">主武器: '+b.weapon+'</div>';
+      function addRow(label,arr){
+        if(!arr.length)return;
+        var row=document.createElement('div');
+        row.className='wiki-build__row';
+        row.appendChild(tag('span',label,'wiki-build__label'));
+        arr.forEach(function(n2){row.appendChild(tag('span',n2,'tag'))});
+        c.appendChild(row);
+      }
+      addRow('核心',b.core);
+      addRow('放大',b.amp);
+      addRow('保底',b.safe);
+      bl.appendChild(c);
+    });
+
+    // --- Caps ---
+    var ct=document.getElementById('capsTable');
+    var capsInfo={
+      critRate:{label:'暴击率上限',desc:'超过此值不再增加'},
+      bellCombo:{label:'铃连段上限',desc:'范围乘算最大 1 + 15×0.06 = 1.9×'},
+      shieldStack:{label:'护盾层数上限',desc:'收阴袋最多叠3层'},
+      atkCdFloor:{label:'攻击冷却下限',desc:'堆攻速不会低于4帧'},
+      soulChain:{label:'魂链跳伤上限',desc:'单次攻击最多连锁4个目标'},
+      ringSoul:{label:'铃魂伤上限',desc:'单圈最多触发6次追加魂伤'}
+    };
+    var table=document.createElement('table');
+    table.className='wiki-caps-table';
+    table.innerHTML='<tr><th>属性</th><th>封顶值</th><th>说明</th></tr>';
+    Object.keys(CAPS).forEach(function(key){
+      var info=capsInfo[key]||{label:key,desc:''};
+      var tr=document.createElement('tr');
+      tr.innerHTML='<td>'+info.label+'</td><td>'+CAPS[key]+'</td><td>'+info.desc+'</td>';
+      table.appendChild(tr);
+    });
+    ct.appendChild(table);
+
+    // RANGES table
+    var rangesEl=document.getElementById('wiki-ranges');
+    if(rangesEl && typeof RANGES!=='undefined'){
+      var rangesInfo={
+        weakSpread:{label:'弱点扩散半径',desc:'弱点击杀后标记附近敌人的范围'},
+        fireExpand:{label:'火场扩展距离',desc:'磷火击杀扩大火场的判定距离'},
+        fear:{label:'恐惧半径',desc:'暴击时恐惧周围敌人的范围'},
+        soulChain:{label:'魂链半径',desc:'魂伤跳伤附近敌人的范围'},
+        burst:{label:'爆裂溅射半径',desc:'弹道命中时溅射伤害范围'},
+        decoyAttract:{label:'诱饵吸引半径',desc:'残影吸引敌人的范围'},
+        chargeMax:{label:'冲锋触发距离',desc:'僵客开始蓄势的最大距离'},
+        chargeMin:{label:'冲锋最小距离',desc:'僵客停止蓄势的最小距离'},
+        rangedMin:{label:'远程停止距离',desc:'远程敌人停止逼近玩家的距离'}
+      };
+      var rt=document.createElement('table');
+      rt.className='wiki-caps-table';
+      rt.innerHTML='<tr><th>距离属性</th><th>像素值</th><th>说明</th></tr>';
+      Object.keys(RANGES).forEach(function(key){
+        var info=rangesInfo[key]||{label:key,desc:''};
+        var tr=document.createElement('tr');
+        tr.innerHTML='<td>'+info.label+'</td><td>'+RANGES[key]+'</td><td>'+info.desc+'</td>';
+        rt.appendChild(tr);
+      });
+      rangesEl.appendChild(rt);
+    }
+
+    // WAVE_SCALE
+    var wsEl=document.getElementById('wiki-wavescale');
+    if(wsEl && typeof WAVE_SCALE!=='undefined'){
+      var wsInfo={hpPerWave:{label:'HP缩放/波',desc:'每波敌人HP增长6.5%'},spdPerWave:{label:'速度缩放/波',desc:'每波敌人速度增长1.2%'}};
+      var wt=document.createElement('table');
+      wt.className='wiki-caps-table';
+      wt.innerHTML='<tr><th>属性</th><th>值</th><th>说明</th></tr>';
+      Object.keys(WAVE_SCALE).forEach(function(key){
+        var info=wsInfo[key]||{label:key,desc:''};
+        var tr=document.createElement('tr');
+        tr.innerHTML='<td>'+info.label+'</td><td>'+WAVE_SCALE[key]+'</td><td>'+info.desc+'</td>';
+        wt.appendChild(tr);
+      });
+      wsEl.appendChild(wt);
+    }
+
+  })();
+  </script>
+</body>
+</html>
