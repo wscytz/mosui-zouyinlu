@@ -13,7 +13,9 @@
     }
     ctx = new (window.AudioContext || window.webkitAudioContext)();
     masterGain = ctx.createGain();
-    masterGain.gain.value = 0.6;
+    var savedVol=0.6;
+    try{var v=parseFloat(localStorage.getItem("mosui_vol"));if(!isNaN(v))savedVol=v}catch(e){}
+    masterGain.gain.value = savedVol;
     masterGain.connect(ctx.destination);
     noiseBuffer = createNoiseBuffer();
     if (ctx.state === 'suspended') ctx.resume();

@@ -306,5 +306,27 @@ var CURSES=[
     fn:function(p){p.allElite=true;p.stats.critRate=Math.min(CAPS.critRate,p.stats.critRate+0.25)}}
 ];
 
+// --- Achievements / Meta-progression ---
+var ACHIEVEMENTS=[
+  {id:"first_run",name:"初入地宫",desc:"完成一次走阴",check:function(m){return m.totalRuns>=1},reward:null},
+  {id:"win_jian",name:"剑斩祟",desc:"用斩妖剑通关",check:function(m){return (m.weaponsCleared.jian||0)>0},reward:null},
+  {id:"win_bi",name:"笔诛邪",desc:"用符骨笔通关",check:function(m){return (m.weaponsCleared.bi||0)>0},reward:null},
+  {id:"win_ling",name:"令镇煞",desc:"用墨祟令通关",check:function(m){return (m.weaponsCleared.ling||0)>0},reward:null},
+  {id:"win_san",name:"香散祟",desc:"用散祟香通关",check:function(m){return (m.weaponsCleared.san||0)>0},reward:null},
+  {id:"all_weapons",name:"法器皆通",desc:"用全部四种武器通关",check:function(m){
+    return["jian","bi","ling","san"].every(function(w){return(m.weaponsCleared[w]||0)>0})},reward:"startRelic"},
+  {id:"kill_mojiangjun",name:"墨将军克星",desc:"击杀墨将军",check:function(m){return m.mojiangjunKills>0},reward:"goldInk"},
+  {id:"relic_20",name:"遗物学徒",desc:"发现20件遗物",check:function(m){return Object.keys(m.relicsDiscovered).length>=20},reward:null},
+  {id:"relic_30",name:"遗物大师",desc:"发现30件遗物",check:function(m){return Object.keys(m.relicsDiscovered).length>=30},reward:"startRelic"},
+  {id:"kills_1000",name:"千斩",desc:"累计斩杀一千祟",check:function(m){return m.totalKills>=1000},reward:null},
+  {id:"runs_10",name:"走阴老手",desc:"完成十次走阴",check:function(m){return m.totalRuns>=10},reward:null},
+  {id:"nightmare_win",name:"噩梦行者",desc:"噩梦难度通关",check:function(m){return m.nightmareWins>0},reward:"startRelic"},
+  {id:"grade_S",name:"墨上墨",desc:"获得S级评价",check:function(m){return m.bestGrade==="S"},reward:null},
+  {id:"boss_kills_5",name:"镇祟者",desc:"击杀5个Boss",check:function(m){return m.bossKills>=5},reward:null}
+];
+
+// Starting relic pool for unlocked rewards
+var STARTER_RELICS=["huomo","youming","shamo","lingguang","cifu","fuchen"];
+
 // --- Second boss: 墨将军 ---
 // (ETYPE entry added below)

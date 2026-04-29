@@ -47,6 +47,26 @@
 
   // Adaptive sizing based on viewport
   var CTRL = {};
+  function getSafeInsets() {
+    var s = { top: 0, right: 0, bottom: 0, left: 0 };
+    try {
+      var style = getComputedStyle(document.documentElement);
+      var pt = parseInt(style.getPropertyValue('--sat')) || 0;
+      if (!pt) {
+        // Read from env() via a temp measurement or parse from padding
+        var b = document.body;
+        var bpt = parseInt(getComputedStyle(b).paddingTop) || 0;
+        s.top = bpt > 40 ? 0 : Math.max(0, 44 - bpt); // estimate
+      }
+      // Use CSS custom properties if set, otherwise estimate from viewport
+      var rawTop = parseInt(style.getPropertyValue('env(safe-area-inset-top)')) || 0;
+      var rawRight = parseInt(style.getPropertyValue('env(safe-area-inset-right)')) || 0;
+      s.top = isNaN(rawTop) ? 0 : rawTop;
+      s.right = isNaN(rawRight) ? 0 : rawRight;
+    } catch(e) {}
+    return s;
+  }
+
   function updateControlSizes() {
     var rect = cvs ? cvs.getBoundingClientRect() : null;
     var logicalScale = rect && rect.width > 0 ? 960 / rect.width : 1;
@@ -55,6 +75,18 @@
     CTRL.DEAD    = Math.round(10 * logicalScale);
     CTRL.DODGE_R = Math.round(32 * logicalScale);
     CTRL.PAUSE_R = Math.round(24 * logicalScale);
+
+    // Safe area adjustments in canvas coords
+    var insets = getSafeInsets();
+    var scaleX = rect && rect.width > 0 ? 960 / rect.width : 1;
+    var scaleY = rect && rect.height > 0 ? 640 / rect.height : 1;
+    pausePos.x = W - 28 - insets.right * scaleX;
+    pausePos.y = 28 + insets.top * scaleY;
+    // Adjust dodge/stick Y for bottom safe area
+    var bottomInsetY = (insets.bottom || 0) * scaleY;
+    leftBase.y = Math.min(leftBase.y, H - bottomInsetY - 60);
+    rightBase.y = Math.min(rightBase.y, H - bottomInsetY - 60);
+    dodgePos.y = Math.min(dodgePos.y, H - bottomInsetY - 50);
   }
   updateControlSizes();
 

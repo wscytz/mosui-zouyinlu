@@ -61,7 +61,8 @@ var META_KEY="mosui_meta";
 function loadMeta(){
   try{var d=JSON.parse(localStorage.getItem(META_KEY));if(d&&d.version===2)return d}catch(e){}
   return{version:2,totalKills:0,totalRuns:0,bestWave:0,bestGrade:"",bossKills:0,
-    weaponsCleared:{},relicsDiscovered:{},cursesUsed:{},mojiangjunKills:0}}
+    weaponsCleared:{},relicsDiscovered:{},cursesUsed:{},mojiangjunKills:0,
+    nightmareWins:0,achievements:{},unlocks:{}}}
 function saveMeta(m){try{localStorage.setItem(META_KEY,JSON.stringify(m))}catch(e){}}
 var meta=loadMeta();
 function metaRecordRun(g){
@@ -73,7 +74,23 @@ function metaRecordRun(g){
   if(won){var wid=g.weapon.id;meta.weaponsCleared[wid]=(meta.weaponsCleared[wid]||0)+1}
   g.relics.forEach(function(r){meta.relicsDiscovered[r.id]=true});
   if(g.curse)meta.cursesUsed[g.curse.id]=true;
+  if(g.bossKilled){meta.bossKills++}
+  if(g.mojiangjunKilled){meta.mojiangjunKills++}
+  if(won&&g.diff==="nightmare")meta.nightmareWins++;
+  checkAchievements(meta);
   saveMeta(meta);
+}
+
+function checkAchievements(m){
+  var newlyUnlocked=[];
+  ACHIEVEMENTS.forEach(function(a){
+    if(!m.achievements[a.id]&&a.check(m)){
+      m.achievements[a.id]=true;
+      newlyUnlocked.push(a);
+      if(a.reward&&!m.unlocks[a.reward])m.unlocks[a.reward]=true;
+    }
+  });
+  return newlyUnlocked;
 }
 function calcGrade(g){
   var won=g.state==="victory";var score=0;
@@ -152,12 +169,14 @@ function newGame(wid,diff){
     shakeT:0,shakeAmp:0,shakeX:0,shakeY:0,freezeT:0,hintT:180,ended:false,dmgDir:null,slowMo:0,
     killStreak:0,killStreakT:0,relicFlash:0,critFlash:0,bossFlash:0,
     bossWaveEntrance:0,deathCircle:null,
+    totalDmg:0,maxCombo:0,eliteKills:0,deathCause:null,
     hints:{relic:false,evo:false,boss:false},encountered:{},
     inkWipe:0,
     player:mkPlayer(),enemies:[],attacks:[],particles:[],fires:[],eProj:[],
     relics:[],relicPool:shuf(RELICS.slice()),
     stage:null,stageDesc:"",announce:"",announceT:0,execFlash:null,evolution:null,evolution2:null,floatTexts:[],decoys:[],
     kites:[],frosts:[],waveTotal:0,waveCleared:false,waveClearT:0,
+    waveSpecial:null,survivalSpawnTimer:0,survivalCleared:false,
     bossType:pick(["boss","mojiangjun"]),curse:null,pendingDeathbursts:[],
     perf:{lastT:0,fps:60,pressure:0,peaks:{enemies:0,attacks:0,particles:0,fires:0,eProj:0,floatTexts:0,decoys:0,kites:0,frosts:0}}}
 }
@@ -468,6 +487,8 @@ function onEnemyKilled(g,e,source,opts){
   if(baseFreeze===9&&p.killAtkTimer>0)baseFreeze=4;
   g.freezeT=Math.max(g.freezeT,baseFreeze);shake(g,e.isBoss?16:8,e.isBoss?7:4);
   g.kills++;g.killStreak++;g.killStreakT=90;
+  if(g.killStreak>g.maxCombo)g.maxCombo=g.killStreak;
+  if(e.elite)g.eliteKills++;
   if(g.kills===10||g.kills===25||g.kills===50||g.kills===100)snd("killMilestone");
   // kill streak milestones
   var ks=g.killStreak;
@@ -501,6 +522,8 @@ function onEnemyKilled(g,e,source,opts){
     pushLimited(g.floatTexts,{x:e.x,y:e.y-40,text:"邪祟伏诛",life:80,maxLife:80,reason:"bossDeath"},LIMITS.floatTexts)}
   g.execFlash=e;
   stageOnEnemyKilled(g,e);
+  if(e.isBoss){g.bossKilled=true;if(e.type==="mojiangjun")g.mojiangjunKilled=true}
+  if(g.waveSpecial==="survival"&&g.survivalKillsNeeded>0)g.survivalKillsNeeded--;
   if(e.isBoss)spawnJudgment(g,e,"boss");
   else if(opts&&opts.crit&&g.weapon.type==="melee")spawnJudgment(g,e,"crit");
   else if(opts&&opts.weakpoint)spawnJudgment(g,e,"weak");
@@ -556,7 +579,9 @@ function damageEnemy(g,e,dmg,source,opts){
   else if(g.killStreak>=5)dmg=Math.floor(dmg*1.1);
   if(e.hasShield&&e.shield>0)dmg=Math.floor(dmg*0.5);
   dmg=Math.floor(dmg*(e.armorMult||1));
-  e.hp-=Math.max(1,dmg);e.hitFlash=6;
+  var actualDmg=Math.max(1,dmg);
+  e.hp-=actualDmg;e.hitFlash=6;
+  if(g)g.totalDmg+=actualDmg;
   if(e.hasShield&&e.shield>0){
     e.shield-=Math.max(1,Math.floor(dmg));
     if(e.shield<=0){e.shield=0;e.hasShield=false;e.shieldCd=e.shieldRegen;snd("shieldBreak");spawnInk(g,e.x,e.y,8,"ink")}
@@ -599,10 +624,12 @@ function startWave(g){
   startStage(g,w);
   g.announce=w.label+" · "+getStageDef(w.mod).name;g.announceT=110;
   g.waveCleared=false;g.waveClearT=0;
+  g.survivalCleared=false;g.survivalSpawnTimer=0;
   g.waveFlavor=w.flavor||"";
   if(g.wave>0)g.inkWipe=30;
   // Special wave handling
   var specialWave=w.special||null;
+  g.waveSpecial=specialWave;
   if(specialWave==="elite"||specialWave==="elite_horde"){
     g.player.allElite=true;g.announce=w.label+" · 精英潮";g.announceT=110;
     showHint(g,"boss","精英潮涌！所有敌人皆为精英。");
@@ -612,6 +639,8 @@ function startWave(g){
   }else if(specialWave==="survival"){
     g.announce=w.label+" · 生存";g.announceT=110;
     showHint(g,"boss","撑住！敌人源源不断。");
+    g.survivalSpawnTimer=100;
+    g.survivalKillsNeeded=Math.max(8,Math.floor(w.list.reduce(function(s,e){return s+e.n},0)*1.5));
   }
   // Boss wave — activate screen effect + entrance cinematic
   var hasBoss=w.list.some(function(e){return ETYPE[e.t]&&ETYPE[e.t].isBoss});
@@ -774,7 +803,8 @@ function hurtP(g,dmg,src){
     if(p.revive&&!p.hasRevived){p.hasRevived=true;p.hp=Math.floor(p.maxHp*TUNING.reviveHpRatio);
       p.invTimer=60;snd("revive");spawnInk(g,p.x,p.y,20,"accent");return}
     p.hp=0;g.freezeT=22;shake(g,16,10);
-    var killerName=src&&src.name?src.name:"未知";
+    var killerName=src&&src.name?src.name:(src&&src.type?src.type:"未知");
+    g.deathCause=killerName;
     g.deathCircle={x:p.x,y:p.y,r:0,maxR:180,life:22,killer:killerName};
     spawnInk(g,p.x,p.y,35,"ink");spawnInk(g,p.x,p.y,20,"accent");
     for(var di=0;di<16;di++){var da=di*Math.PI*2/16;
@@ -1242,8 +1272,41 @@ function update(g){
 
   markPerf(g);
 
-  // wave check
-  if(g.enemies.length===0&&g.announceT<=0&&!g.waveCleared){
+  // Elite wave ambient particles
+  if((g.waveSpecial==="elite"||g.waveSpecial==="elite_horde")&&g.announceT<=0&&g.time%8===0){
+    for(var ei=0;ei<2;ei++){
+      var epx=rn(A.l,A.r),epy=rn(A.t,A.b);
+      pushLimited(g.particles,{x:epx,y:epy,vx:rn(-0.3,0.3),vy:rn(-0.5,-0.2),life:rn(40,80),maxLife:80,size:rn(1.5,3),type:"gold"},LIMITS.particles);
+    }
+  }
+
+  // Survival wave persistent spawning
+  if(g.waveSpecial==="survival"&&!g.survivalCleared&&g.announceT<=0){
+    g.survivalSpawnTimer--;
+    if(g.survivalSpawnTimer<=0&&g.enemies.length<20){
+      g.survivalSpawnTimer=90+ri(0,60);
+      var sTiers=WAVE_TIERS[Math.min(WAVE_TIERS.length-1,g.wave)]||WAVE_TIERS[0];
+      var sType=sTiers[ri(0,sTiers.length-1)];
+      var sEt=ETYPE[sType];
+      var sCount=1+Math.floor(Math.random()*2);
+      if(sEt&&sEt.isBoss&&g.enemies.filter(function(e){return e.isBoss&&e.hp>0}).length>0)sCount=0;
+      for(var si=0;si<sCount;si++)spawnEnemy(g,sType,null);
+      if(g.waveFlavor)showHint(g,"survival","又有敌人涌来！撑住！");
+    }
+    // Clear if quota met and few enemies remain
+    if(g.survivalKillsNeeded<=0&&g.enemies.length<10){
+      g.survivalCleared=true;
+    }
+    // Also clear if all enemies dead and spawn timer still has time (player cleared too fast)
+    if(g.enemies.length===0&&g.survivalSpawnTimer>20){
+      g.survivalCleared=true;
+    }
+  }
+
+  // wave check (survival waves only clear after quota met or enemies cleared too fast)
+  if(g.waveSpecial==="survival"&&!g.survivalCleared){
+    // wave continues — enemies keep spawning until quota met
+  }else if(g.enemies.length===0&&g.announceT<=0&&!g.waveCleared){
     g.waveCleared=true;g.waveClearT=50;
     spawnInk(g,p.x,p.y,18,"accent");
     var sCol={calm:"ghost",ash:"ash",well:"moss",mask:"ghost",lantern:"gold",inkpool:"ink"}[g.stage?g.stage.id:"calm"]||"accent";
@@ -1302,6 +1365,21 @@ function render(g){
     c.rect(0,0,W,H);
     c.arc(W/2,H/2,Math.max(1,wipeR),0,Math.PI*2,true);
     c.fill();c.globalAlpha=1}
+
+  // Elite wave gold ambient overlay
+  if((g.waveSpecial==="elite"||g.waveSpecial==="elite_horde")&&g.state==="playing"){
+    var ep=0.06+0.02*Math.sin(g.time*0.04);
+    c.globalAlpha=ep;
+    var eg=c.createRadialGradient(W/2,H/2,W*0.25,W/2,H/2,W*0.7);
+    eg.addColorStop(0,"rgba(212,175,55,0.1)");
+    eg.addColorStop(1,"rgba(180,120,30,0.25)");
+    c.fillStyle=eg;c.fillRect(0,0,W,H);
+    // gold border pulse
+    c.globalAlpha=0.15+0.05*Math.sin(g.time*0.06);
+    c.strokeStyle="rgba(212,175,55,0.5)";c.lineWidth=3;
+    c.strokeRect(A.l+1,A.t+1,A.r-A.l-2,A.b-A.t-2);
+    c.globalAlpha=1;
+  }
 
   // fires / ink trails
   g.fires.forEach(function(f){var ml=f.maxLife||f.life;var t=f.life/ml;var a=t*0.5;var rr=Math.max(1,f.r*Math.pow(t,0.7));
@@ -2307,6 +2385,14 @@ function showEnd(g){
   var gradeColors={S:"#c4523d","甲":"var(--accent)","乙":"var(--ink-soft)","丙":"var(--ash)","丁":"var(--ash)"};
   var isNewBest=g.wave>=meta.bestWave;
   var relicCount=Object.keys(meta.relicsDiscovered).length;
+  var prevBest=meta.bestWave;
+  var bestCompare="";
+  if(meta.totalRuns>1){
+    if(g.wave>prevBest)bestCompare="突破了过往最佳（"+prevBest+"波）！";
+    else if(g.wave===prevBest&&won)bestCompare="追平了最佳记录。";
+    else if(g.wave<prevBest)bestCompare="未及最佳（"+prevBest+"波）。";
+  }
+  var deathLine=!won&&g.deathCause?"<br><span style='color:#c4523d'>死因：</span>"+g.deathCause:"";
   el=document.getElementById("endStats");
   if(el)el.innerHTML=
     "<div style='font-family:var(--title-face);font-size:2.4rem;color:"+(gradeColors[grade]||"var(--ink)")+
@@ -2315,7 +2401,12 @@ function showEnd(g){
     " · 斩祟 "+g.kills+" · 波次 "+g.wave+"/"+WAVE_BUDGETS.length+" · 遗物 "+g.relics.length+"件"+
     "<br><span class='end-build'>"+buildLine+"</span>"+
     (relicNames?"<br><span class='end-relics'>"+relicNames+"</span>":"")+
+    "<br><span style='font-size:0.82rem;color:var(--ink-soft);margin-top:4px;display:inline-block'>"+
+    "总伤害 "+g.totalDmg+" · 最高连斩 "+g.maxCombo+" · 精英击杀 "+g.eliteKills+
+    "</span>"+
+    deathLine+
     (isNewBest?"<br><span style='color:var(--accent);font-weight:600'>新纪录！</span>":"")+
+    (bestCompare?"<br><span style='font-size:0.78rem;color:var(--ash)'>"+bestCompare+"</span>":"")+
     "<br><span style='font-size:0.78rem;color:var(--ash);margin-top:6px;display:inline-block'>"+
     "累计 "+meta.totalRuns+" 次走阴 · 斩祟 "+meta.totalKills+" · 图鉴 "+relicCount+"/"+RELICS.length+"</span>";
   el=document.getElementById("gameOver");if(el)el.style.display="";
@@ -2339,11 +2430,30 @@ function setupWeaponSelect(){
   if(desc&&meta.totalRuns>0){
     var relicCount=Object.keys(meta.relicsDiscovered).length;
     var clearedNames=Object.keys(meta.weaponsCleared);
+    var achCount=Object.keys(meta.achievements).length;
     desc.innerHTML="你扮演一名替亡者走阴的夜行客，<br>手持法器深入地宫，斩妖除祟。"+
       "<br><span style='font-size:0.82rem;color:rgba(163,58,45,0.7);margin-top:4px;display:inline-block'>"+
       "走阴 "+meta.totalRuns+" 次 · 斩祟 "+meta.totalKills+" · 最高 "+meta.bestWave+" 波 · 图鉴 "+relicCount+"/"+RELICS.length+
       (meta.bestGrade?" · 最佳 "+meta.bestGrade:"")+
       "</span>";
+  }
+  // Achievement badges
+  var achRow=document.getElementById("achRow");
+  if(achRow&&ACHIEVEMENTS){
+    var unlockedAch=ACHIEVEMENTS.filter(function(a){return meta.achievements[a.id]});
+    if(unlockedAch.length>0){
+      achRow.style.display="";
+      achRow.innerHTML=unlockedAch.slice(-6).map(function(a){
+        return'<span class="ach-badge" title="'+a.name+': '+a.desc+'">'+a.name+'</span>'}).join("");
+    }
+  }
+  // Unlock indicators
+  var unlockHint=document.getElementById("unlockHint");
+  if(unlockHint&&meta.unlocks){
+    var hints=[];
+    if(meta.unlocks.startRelic)hints.push("起始遗物已解锁");
+    if(meta.unlocks.goldInk)hints.push("金墨色已解锁");
+    if(hints.length>0)unlockHint.textContent=hints.join(" · ");
   }
 }
 
@@ -2384,6 +2494,16 @@ function showCurse(g){
 function beginRun(g){
   var p=g.player;
   if(p.maxHpOverride>0){p.maxHp=p.maxHpOverride;p.hp=Math.min(p.hp,p.maxHp)}
+  // Starter relic from meta-unlock
+  if(meta.unlocks.startRelic&&STARTER_RELICS){
+    var srPool=STARTER_RELICS.filter(function(id){return !g.relics.some(function(r){return r.id===id})});
+    if(srPool.length>0){
+      var srId=srPool[Math.floor(Math.random()*srPool.length)];
+      var sr=RELICS.filter(function(r){return r.id===srId})[0];
+      if(sr){g.relics.push(sr);sr.fn(p);
+        pushLimited(g.floatTexts,{x:W/2,y:H/2-30,text:"起始遗物: "+sr.name,life:120,maxLife:120,reason:"hint"},LIMITS.floatTexts)}
+    }
+  }
   // extra start relics from curse
   if(p.extraStartRelics>0){
     for(var esi=0;esi<p.extraStartRelics;esi++){
@@ -2400,10 +2520,39 @@ function togglePause(){
   if(G.state==="playing"){G.state="paused";el.style.display="";
     var ps=document.getElementById("pauseStats");
     if(ps)ps.textContent="第 "+(G.wave+1)+" 波 · 斩祟 "+G.kills+" · 遗物 "+G.relics.length+"件";
-    if(window.GameSound)GameSound.setVolume(0.1);
+    var savedVol=0.6;
+    try{savedVol=parseFloat(localStorage.getItem("mosui_vol")||"0.6")}catch(e){}
+    var vs=document.getElementById("volMaster");
+    if(vs)vs.value=Math.round(savedVol*100);
+    if(window.GameSound)GameSound.setVolume(Math.min(0.1,savedVol));
   }else if(G.state==="paused"){G.state="playing";el.style.display="none";
-    if(window.GameSound)GameSound.setVolume(0.6);
+    var sv=0.6;
+    try{sv=parseFloat(localStorage.getItem("mosui_vol")||"0.6")}catch(e){}
+    if(window.GameSound)GameSound.setVolume(sv);
   }
+}
+
+function restartRun(){
+  if(!G)return;
+  var wid=G.weapon.id, diff=G.diff;
+  document.getElementById("pauseOverlay").style.display="none";
+  document.body.classList.add("game-active");
+  G=newGame(wid,diff);
+  if(window.GameSound)GameSound.init();
+  showCurse(G);
+}
+
+function quitToTitle(){
+  if(!G)return;
+  if(window.GameSound)GameSound.stopAmbient();
+  document.getElementById("pauseOverlay").style.display="none";
+  document.getElementById("gameContainer").style.display="none";
+  document.getElementById("pauseHint").style.display="none";
+  document.body.classList.remove("game-active");
+  G=null;
+  var ts=document.getElementById("titleScreen");
+  if(ts)ts.style.display="";
+  setupWeaponSelect();
 }
 
 function loop(){
@@ -2440,6 +2589,20 @@ function init(){
       var rb=document.getElementById("restartBtn");if(rb)rb.click()}});
   window.addEventListener("keyup",function(e){keys[e.key.toLowerCase()]=false});
   window.addEventListener("blur",function(){keys={};mouse.down=false});
+  // Android back button (Capacitor)
+  try{
+    var Capacitor=window.Capacitor;
+    if(Capacitor&&Capacitor.App){
+      Capacitor.App.addListener("backButton",function(e){
+        if(!G){Capacitor.App.exitApp();return}
+        if(G.state==="playing"){togglePause();return}
+        if(G.state==="paused"){togglePause();return}
+        if(G.state==="over"||G.state==="victory"){
+          var rb=document.getElementById("restartBtn");if(rb)rb.click();return}
+        Capacitor.App.exitApp();
+      });
+    }
+  }catch(e){}
   window.addEventListener("mousemove",function(e){mouse.x=e.clientX;mouse.y=e.clientY});
   window.addEventListener("mousedown",function(e){if(e.button===0){mouse.down=true;if(window.GameSound)GameSound.init()}});
   window.addEventListener("mouseup",function(e){if(e.button===0)mouse.down=false});
@@ -2465,6 +2628,24 @@ function init(){
     document.getElementById("weaponSelect").style.display="";
     keys={};G=null;document.body.classList.remove("game-active")});
   document.getElementById("resumeBtn").addEventListener("click",togglePause);
+  // Volume slider
+  var volSlider=document.getElementById("volMaster");
+  if(volSlider){
+    var savedVol=0.6;
+    try{savedVol=parseFloat(localStorage.getItem("mosui_vol")||"0.6")}catch(e){}
+    volSlider.value=Math.round(savedVol*100);
+    volSlider.addEventListener("input",function(){
+      var v=parseInt(volSlider.value)/100;
+      try{localStorage.setItem("mosui_vol",String(v))}catch(e){}
+      if(window.GameSound)GameSound.setVolume(v);
+    });
+  }
+  // Restart button
+  var restartBtn=document.getElementById("restartBtn");
+  if(restartBtn)restartBtn.addEventListener("click",function(){restartRun()});
+  // Quit to title button
+  var quitBtn=document.getElementById("quitBtn");
+  if(quitBtn)quitBtn.addEventListener("click",function(){quitToTitle()});
   setupWeaponSelect();loop();
 }
 

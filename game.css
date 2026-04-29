@@ -2,10 +2,17 @@
   --game-bg: #e8dac6;
 }
 body.game-active {
-  touch-action: none;
   overscroll-behavior: none;
   -webkit-user-select: none;
   user-select: none;
+}
+.game-frame {
+  touch-action: none;
+}
+/* Restore scrolling on overlays shown during game-active */
+.game-active .overlay,
+.game-active .overlay__inner {
+  touch-action: auto;
 }
 
 /* ===== Title Screen ===== */
@@ -51,9 +58,35 @@ body.game-active {
   color: rgba(23,19,16,0.6);
   font-size: 0.92rem;
   line-height: 1.8;
-  margin: 24px 0 28px;
+  margin: 24px 0 16px;
   opacity: 0;
   animation: title-fade-in 1s ease-out 0.9s forwards;
+}
+.ach-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin: 0 0 16px;
+  opacity: 0;
+  animation: title-fade-in 0.8s ease-out 1.0s forwards;
+}
+.ach-badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  padding: 3px 10px;
+  border: 1px solid rgba(156,131,90,0.5);
+  border-radius: 20px;
+  color: rgba(156,131,90,0.9);
+  background: rgba(156,131,90,0.06);
+  font-family: var(--title-face);
+  letter-spacing: 0.05em;
+}
+.unlock-hint {
+  font-size: 0.72rem;
+  color: rgba(163,58,45,0.7);
+  margin-bottom: 8px;
+  min-height: 1.2em;
 }
 .title-screen__btn {
   opacity: 0;
@@ -140,6 +173,9 @@ body.game-active #gameCanvas {
   align-items: center;
   justify-content: space-between;
   padding: 10px 16px;
+  padding-top: max(10px, env(safe-area-inset-top, 10px));
+  padding-left: max(16px, env(safe-area-inset-left, 16px));
+  padding-right: max(16px, env(safe-area-inset-right, 16px));
   pointer-events: none;
   z-index: 2;
 }
@@ -204,7 +240,9 @@ body.game-active #gameCanvas {
 .hud__relics {
   display: flex;
   gap: 8px;
-  margin-top: 8px;
+  margin-top: max(48px, env(safe-area-inset-top, 48px));
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
   flex-wrap: wrap;
   justify-content: center;
   max-width: 960px;
@@ -292,6 +330,46 @@ body.game-active #gameCanvas {
   gap: 12px;
   justify-content: center;
   flex-wrap: wrap;
+}
+
+.pause-volume {
+  margin: 12px 0 16px;
+  display: flex;
+  justify-content: center;
+}
+.pause-volume label {
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.vol-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 140px;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(23,19,16,0.15);
+  outline: none;
+}
+.vol-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  border: 2px solid rgba(241,230,212,0.6);
+}
+.vol-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  border: 2px solid rgba(241,230,212,0.6);
 }
 
 .back-link {
@@ -446,8 +524,8 @@ body.game-active #gameCanvas {
 /* ===== 暂停提示 ===== */
 .pause-hint {
   position: fixed;
-  bottom: 16px;
-  right: 20px;
+  bottom: max(16px, env(safe-area-inset-bottom, 16px));
+  right: max(20px, env(safe-area-inset-right, 20px));
   font-size: 0.76rem;
   color: var(--ash);
   z-index: 10;
@@ -922,7 +1000,7 @@ body.game-active #gameCanvas {
   #pauseOverlay .overlay__inner { max-width: 60vw; }
 
   /* HUD: smaller on short screens */
-  .hud { padding: 4px 10px; }
+  .hud { padding: 4px 10px; padding-top: max(4px, env(safe-area-inset-top, 4px)); padding-left: max(10px, env(safe-area-inset-left, 10px)); padding-right: max(10px, env(safe-area-inset-right, 10px)); }
   .hud__label { font-size: 0.7rem; }
   .hud__hp-bar { width: 80px; height: 7px; }
   .hud__hp-text { font-size: 0.65rem; }
@@ -931,7 +1009,7 @@ body.game-active #gameCanvas {
   .hud__boss-name { font-size: 0.72rem; top: 30px; }
 
   /* Relic tags: compact */
-  .hud__relics { gap: 4px; margin-top: 4px; max-width: 100vw; }
+  .hud__relics { gap: 4px; margin-top: max(32px, env(safe-area-inset-top, 32px)); padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); max-width: 100vw; }
   .hud__relic-tag { font-size: 0.62rem; padding: 2px 7px; }
 
   /* Wave clear flash: smaller */
@@ -980,7 +1058,7 @@ body.game-active #gameCanvas {
   .relic-pick h4 { font-size: 0.88rem; }
   .relic-pick p { font-size: 0.72rem; }
 
-  .hud { padding: 6px 12px; }
+  .hud { padding: 6px 12px; padding-top: max(6px, env(safe-area-inset-top, 6px)); padding-left: max(12px, env(safe-area-inset-left, 12px)); padding-right: max(12px, env(safe-area-inset-right, 12px)); }
   .hud__label { font-size: 0.76rem; }
   .hud__hp-bar { width: 100px; height: 8px; }
   .hud__hp-text { font-size: 0.7rem; }

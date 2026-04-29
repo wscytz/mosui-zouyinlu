@@ -16,6 +16,8 @@
       <h1 class="title-screen__title">墨　祟</h1>
       <p class="title-screen__sub">：　走　阴　录</p>
       <p class="title-screen__desc">你扮演一名替亡者走阴的夜行客，<br>手持法器深入地宫，斩妖除祟。</p>
+      <div id="achRow" class="ach-row" style="display:none"></div>
+      <div id="unlockHint" class="unlock-hint"></div>
       <button id="startBtn" class="button title-screen__btn">进入地宫</button>
       <div class="title-screen__links">
         <a href="index.html" class="back-link">← 返回原型页</a>
@@ -110,8 +112,13 @@
       <h2 class="overlay__title">暂停</h2>
       <p class="overlay__subtitle pause-controls">WASD 移动 · 空格/Shift 闪避 · 鼠标瞄准 · 左键攻击 · H 操作提示</p>
       <p id="pauseStats" class="overlay__stats"></p>
+      <div class="pause-volume">
+        <label>音量 <input type="range" id="volMaster" min="0" max="100" value="60" class="vol-slider"></label>
+      </div>
       <div class="overlay__actions">
         <button id="resumeBtn" class="button">继续</button>
+        <button id="restartBtn" class="button button--ghost">重新开始</button>
+        <button id="quitBtn" class="button button--ghost">退到标题</button>
         <a href="index.html" class="button button--ghost">返回原型页</a>
         <a href="wiki.html" class="button button--ghost">百科</a>
       </div>
