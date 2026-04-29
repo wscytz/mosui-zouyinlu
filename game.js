@@ -2747,8 +2747,12 @@ function init(){
     }
   }
   setupWeaponSelect();loop();
-  // Dismiss Capacitor splash screen after game is ready
-  try{if(window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.SplashScreen){window.Capacitor.Plugins.SplashScreen.hide({fadeOutDuration:300})}}catch(e){}
+  // Dismiss Capacitor splash screen — try multiple methods
+  try{var _sp=window.Capacitor&&(Capacitor.Plugins&&Capacitor.Plugins.SplashScreen)||(Capacitor.SplashScreen);
+    if(_sp&&_sp.hide)_sp.hide({fadeOutDuration:200})}catch(e){}
+  // Fallback: force dismiss after 3s no matter what
+  setTimeout(function(){try{var _sp2=window.Capacitor&&(Capacitor.Plugins&&Capacitor.Plugins.SplashScreen);
+    if(_sp2&&_sp2.hide)_sp2.hide()}catch(e){}},3000);
 }
 
 function safeInit(){

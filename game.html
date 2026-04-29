@@ -125,9 +125,15 @@
     </div>
   </div>
 
-  <script src="sound.js"></script>
-  <script src="gamedata.js"></script>
-  <script src="game.js"></script>
-  <script src="mobile-controls.js"></script>
+  <!-- Loading diagnostics overlay (visible on mobile if scripts fail) -->
+  <div id="loadDiag" style="position:fixed;bottom:10px;left:10px;background:rgba(0,0,0,0.7);color:#fff;font:12px monospace;padding:6px 10px;border-radius:4px;z-index:99999;pointer-events:none;max-width:90vw;word-break:break-all"></div>
+  <script>(function(){var d=document.getElementById("loadDiag");function m(s){if(d)d.textContent=s}
+    m("页面加载...");window._loadLog=m;
+    window.onerror=function(msg,url,line){m("JS错误: "+msg+" 行:"+line)};
+  })();</script>
+  <script src="sound.js" onload="_loadLog&&_loadLog('音效✓')" onerror="_loadLog&&_loadLog('音效加载失败!')"></script>
+  <script src="gamedata.js" onload="_loadLog&&_loadLog('数据✓')" onerror="_loadLog&&_loadLog('数据加载失败!')"></script>
+  <script src="game.js" onload="_loadLog&&_loadLog('核心✓ — 初始化中...')" onerror="_loadLog&&_loadLog('核心加载失败!')"></script>
+  <script src="mobile-controls.js" onload="setTimeout(function(){var d=document.getElementById('loadDiag');if(d)d.style.display='none'},1500)" onerror="_loadLog&&_loadLog('移动端控件失败')"></script>
 </body>
 </html>
