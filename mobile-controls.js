@@ -92,8 +92,8 @@
 
   // Positions moved lower for landscape thumb ergonomics
   var leftBase  = { x: W * 0.14, y: H * 0.82 };
-  var rightBase = { x: W * 0.86, y: H * 0.82 };
-  var dodgePos  = { x: W * 0.73, y: H * 0.82 };
+  var rightBase = { x: W * 0.88, y: H * 0.82 };
+  var dodgePos  = { x: W * 0.62, y: H * 0.78 };
   var pausePos  = { x: W - 28, y: 28 };
 
   var sticks = {

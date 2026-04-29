@@ -662,8 +662,7 @@ function pAtk(g){
   var pMul=fastAtk?TUNING.fastAtkParticleMult:1;
   if(p.atkCd>0)return;
   p.atkCd=Math.max(CAPS.atkCdFloor,Math.floor(w.cd*cdMult*s.atkSpd));p.atkCdMax=p.atkCd;p.atkCount++;
-  // 连段
-  if(p.comboTimer>0)p.comboCount++;else p.comboCount=1;
+  // Combo window stays open while attacking, but count only increments on actual hits
   p.comboTimer=TUNING.comboWindow;
   // 蓄力（墨龙珠）
   var chargeBonus=1;
@@ -814,6 +813,7 @@ function hurtP(g,dmg,src){
 
 function hitE(g,atk,e){
   var p=g.player;
+  if(p.comboTimer>0)p.comboCount++;else p.comboCount=1;
   var dmg=atk.dmg;
   // 连击递增（墨池残砚）
   if(p.comboDmg){
@@ -949,11 +949,14 @@ function update(g){
 
   var rect=canvas.getBoundingClientRect();
   var mouseX=rect.width>0?(mouse.x-rect.left)*(W/rect.width):p.x,mouseY=rect.height>0?(mouse.y-rect.top)*(H/rect.height):p.y;
-  if(mob&&mob.active&&mob.attacking)p.facing=mob.aimAngle;
-  else p.facing=Math.atan2(mouseY-p.y,mouseX-p.x);
+  // Mobile: keep last aim angle when right stick released (prevent snap to center)
+  if(mob&&mob.active&&mob.attacking){p.facing=mob.aimAngle;p._lastMobileAim=mob.aimAngle}
+  else if(mob&&mob.active&&p._lastMobileAim!==undefined)p.facing=p._lastMobileAim;
+  else{p.facing=Math.atan2(mouseY-p.y,mouseX-p.x);p._lastMobileAim=undefined}
 
   var movedThisFrame=false;
   if(mob&&mob.dodging){p.dodgeQueued=true;mob.dodging=false}
+  else if(!(keys[" "]||keys["shift"]||keys["space"]))p.dodgeQueued=false;
   if(p.dodgeQueued)startDodge(g,dx,dy);
   if(p.dodgeT>0){p.x+=p.dodgeDx;p.y+=p.dodgeDy;p.dodgeT--;movedThisFrame=true;
     if(g.time%2===0)spawnP(g,p.x+rn(-6,6),p.y+rn(-6,6),"ink",2)}
@@ -2478,16 +2481,25 @@ function showCurse(g){
   var pool=shuf(CURSES.slice()).slice(0,3);
   choices.innerHTML=pool.map(function(c,i){
     return'<div class="relic-pick curse-card" data-curse="'+i+'"><h4>'+c.name+'</h4>'+
-      '<div class="relic-pick__type"><span class="relic-type-badge">誓印</span>'+c.tags.join(" · ")+'</div>'+
+      '<div class="relic-pick__type"><span class="relic-type-badge">誓印</span> '+c.tags.join(" · ")+'</div>'+
       '<p>'+c.desc+'</p></div>'}).join("")+
     '<div class="relic-pick curse-card curse-skip" data-curse="skip" style="text-align:center;opacity:0.6"><h4>不立誓</h4><p>原样进入地宫</p></div>';
   popup.style.display="";
   choices.onclick=function(ev){
-    var card=ev.target.closest("[data-curse]");if(!card)return;
+    var target=ev.target;
+    // Defensive: text node → parent
+    if(target&&target.nodeType===3)target=target.parentElement;
+    var card=target&&target.closest?target.closest("[data-curse]"):null;
+    if(!card)return;
     var idx=card.dataset.curse;
-    if(idx!=="skip"){var curse=pool[parseInt(idx)];
-      curse.fn(g.player);g.curse=curse;
-      snd("relicPickup");spawnInk(g,g.player.x,g.player.y,8,"fire")}
+    if(idx!=="skip"){
+      var ci=parseInt(idx);
+      if(ci>=0&&ci<pool.length){
+        var curse=pool[ci];
+        curse.fn(g.player);g.curse=curse;
+        snd("relicPickup");spawnInk(g,g.player.x,g.player.y,8,"fire")}
+    }
+    choices.onclick=null;
     popup.style.display="none";beginRun(g)};
 }
 
@@ -2534,9 +2546,11 @@ function togglePause(){
 
 function restartRun(){
   if(!G)return;
+  if(window.GameSound)GameSound.stopAmbient();
   var wid=G.weapon.id, diff=G.diff;
   document.getElementById("pauseOverlay").style.display="none";
   document.body.classList.add("game-active");
+  G=null;
   G=newGame(wid,diff);
   if(window.GameSound)GameSound.init();
   showCurse(G);
@@ -2546,10 +2560,11 @@ function quitToTitle(){
   if(!G)return;
   if(window.GameSound)GameSound.stopAmbient();
   document.getElementById("pauseOverlay").style.display="none";
+  document.getElementById("gameOver").style.display="none";
   document.getElementById("gameContainer").style.display="none";
   document.getElementById("pauseHint").style.display="none";
   document.body.classList.remove("game-active");
-  G=null;
+  G=null;keys={};
   var ts=document.getElementById("titleScreen");
   if(ts)ts.style.display="";
   setupWeaponSelect();
@@ -2640,12 +2655,12 @@ function init(){
       if(window.GameSound)GameSound.setVolume(v);
     });
   }
-  // Restart button
-  var restartBtn=document.getElementById("restartBtn");
-  if(restartBtn)restartBtn.addEventListener("click",function(){restartRun()});
-  // Quit to title button
-  var quitBtn=document.getElementById("quitBtn");
-  if(quitBtn)quitBtn.addEventListener("click",function(){quitToTitle()});
+  // Pause restart button
+  var pauseRestartBtn=document.getElementById("pauseRestartBtn");
+  if(pauseRestartBtn)pauseRestartBtn.addEventListener("click",function(){restartRun()});
+  // Pause quit to title button
+  var pauseQuitBtn=document.getElementById("pauseQuitBtn");
+  if(pauseQuitBtn)pauseQuitBtn.addEventListener("click",function(){quitToTitle()});
   setupWeaponSelect();loop();
 }
 
