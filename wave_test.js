@@ -43,7 +43,7 @@ code+=[
 '    // Don\'t call update between kills - just kill them all first',
 '  }',
 '  // Now run updates for death animations + wave check',
-'  for(var w=0;w<40;w++){if(g.state!=="playing")break;update(g)}',
+'  for(var w=0;w<90;w++){if(g.state!=="playing")break;update(g)}',
 '}',
 
 'function advanceWave(g){',
@@ -68,7 +68,7 @@ code+=[
 '    var g=newGame(wid);',
 '    for(var w=0;w<WAVES.length;w++){',
 '      startWave(g);g.announceT=0;',
-'      for(var i=0;i<8;i++)update(g);',
+'      for(var i=0;i<20;i++)update(g);',
 '      killAll(g);',
 '      if(g.state==="victory"){break}',
 '      if(g.state!=="waveClear"){',

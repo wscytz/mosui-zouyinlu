@@ -199,7 +199,9 @@ function spawnEnemy(g,type,opts){
   var hp=Math.max(1,Math.floor(t.hp*waveScale*(opts.hpMul||1)*dCfg.hpM*(p.enemyHpMult||1)));
   var spd=t.spd*(1+Math.max(0,g.wave)*WAVE_SCALE.spdPerWave)*(opts.spdMul||1)*dCfg.spdM;
   var shield=t.hasShield?Math.floor((t.shield||0)*waveScale):0;
-  var elite=(g.wave>=3||p.allElite)&&!t.isBoss&&(p.allElite||Math.random()<Math.min(0.3,0.1+g.wave*0.025));
+  var diffEliteBonus=g.diff==="hard"?0.08:g.diff==="nightmare"?0.18:0;
+  var eliteChance=Math.min(0.4,0.1+g.wave*0.025+diffEliteBonus);
+  var elite=(g.wave>=3||p.allElite)&&!t.isBoss&&(p.allElite||Math.random()<eliteChance);
   var eliteAbility=null;
   if(elite){hp=Math.floor(hp*1.5);spd*=1.3;eliteAbility=pick(["blink","deathburst","enrage","armored"]);
     if(eliteAbility==="armored")spd*=0.7}
@@ -599,6 +601,18 @@ function startWave(g){
   g.waveCleared=false;g.waveClearT=0;
   g.waveFlavor=w.flavor||"";
   if(g.wave>0)g.inkWipe=30;
+  // Special wave handling
+  var specialWave=w.special||null;
+  if(specialWave==="elite"||specialWave==="elite_horde"){
+    g.player.allElite=true;g.announce=w.label+" · 精英潮";g.announceT=110;
+    showHint(g,"boss","精英潮涌！所有敌人皆为精英。");
+  }else if(specialWave==="horde"){
+    g.announce=w.label+" · 群魔潮";g.announceT=110;
+    showHint(g,"boss","群魔蜂拥而至！杀出一条血路。");
+  }else if(specialWave==="survival"){
+    g.announce=w.label+" · 生存";g.announceT=110;
+    showHint(g,"boss","撑住！敌人源源不断。");
+  }
   // Boss wave — activate screen effect + entrance cinematic
   var hasBoss=w.list.some(function(e){return ETYPE[e.t]&&ETYPE[e.t].isBoss});
   if(hasBoss){g.bossWaveEntrance=50;snd("bossIntro");
@@ -608,7 +622,7 @@ function startWave(g){
   var frame=document.querySelector&&document.querySelector(".game-frame");
   if(frame){if(hasBoss)frame.classList.add("is-boss-wave");else frame.classList.remove("is-boss-wave")}
   w.list.forEach(function(e){for(var i=0;i<e.n;i++)spawnEnemy(g,e.t,e)});
-  g.waveTotal=g.enemies.length;
+  g.player.allElite=false;g.waveTotal=g.enemies.length;
   g.enemies.forEach(function(en){en.spawnGraceT=Math.max(en.spawnGraceT||0,30)});
 }
 
@@ -628,7 +642,8 @@ function pAtk(g){
   p.chargeTimer=0;
 
   var rng=w.range*s.range;
-  var dmg=Math.floor(w.dmg*s.dmg)+p.soulDmg;
+  var effectiveSoul=p.soulDmg+(p.soulDmgPerRelic?g.relics.length:0);
+  var dmg=Math.floor(w.dmg*s.dmg)+effectiveSoul;
   // 低血增伤（祟面香灰）
   if(p.lowHpDmg>0&&p.hp<=p.maxHp*TUNING.lowHpThreshold)dmg=Math.floor(dmg*(1+p.lowHpDmg));
   // 低血增范围（血墨混染）
@@ -639,7 +654,7 @@ function pAtk(g){
   var effectiveCrit=Math.min(s.critRate+(p.execCritT>0?0.2:0),CAPS.critRate);
   var crit=Math.random()<effectiveCrit;
   if(crit)dmg=Math.floor(dmg*s.critDmg);
-  else if(p.guxuePenalty)dmg=Math.floor(dmg*0.8);
+  else if(p.guxuePenalty)dmg=Math.floor(dmg*0.88);
   // justDodged bonus: all weapons get +20% damage after a successful dodge
   if(p.justDodged)dmg=Math.floor(dmg*1.2);
 
@@ -1126,14 +1141,6 @@ function update(g){
   }
 
   // enemy projectiles + off-screen warnings
-  for(var i=g.eProj.length-1;i>=0;i--){
-    var ep=g.eProj[i];ep.x+=ep.vx;ep.y+=ep.vy;ep.life--;
-    // enemy projectile trail (every 4 frames)
-    if(g.time%4===0&&perfMul(g)>0.4){
-      pushLimited(g.particles,{x:ep.x+rn(-1,1),y:ep.y+rn(-1,1),
-        vx:rn(-0.2,0.2),vy:rn(-0.2,0.2),life:6,maxLife:6,size:rn(1,2.5),type:"ink"},LIMITS.particles)}
-    if(ep.life<=0||ep.x<A.l||ep.x>A.r||ep.y<A.t||ep.y>A.b){g.eProj.splice(i,1);continue}
-    {var mr=ep.r+p.r;if(collideSq(ep,p)&&p.invTimer<=0){hurtP(g,ep.dmg,ep._src);g.eProj.splice(i,1)}}}
   for(var i=g.eProj.length-1;i>=0;i--){
     var ep=g.eProj[i];ep.x+=ep.vx;ep.y+=ep.vy;ep.life--;
     // enemy projectile trail (every 4 frames)
@@ -1783,12 +1790,23 @@ function render(g){
     c.strokeStyle=C.ink;c.lineWidth=1;c.strokeRect(bx-1,by-1,bw+2,bh+2);
     // phase threshold marks
     c.globalAlpha=0.35;c.strokeStyle=C.paper;c.lineWidth=1;
-    var enrageX=bx+bw*TUNING.bossEnrageHp;c.beginPath();c.moveTo(enrageX,by);c.lineTo(enrageX,by+bh);c.stroke();
-    var despX=bx+bw*TUNING.bossDesperateHp;c.beginPath();c.moveTo(despX,by);c.lineTo(despX,by+bh);c.stroke();
+    if(e.type==="mojiangjun"){
+      var p1X=bx+bw*0.6;c.beginPath();c.moveTo(p1X,by);c.lineTo(p1X,by+bh);c.stroke();
+      var p2X=bx+bw*0.25;c.beginPath();c.moveTo(p2X,by);c.lineTo(p2X,by+bh);c.stroke();
+    }else{
+      var enrageX=bx+bw*TUNING.bossEnrageHp;c.beginPath();c.moveTo(enrageX,by);c.lineTo(enrageX,by+bh);c.stroke();
+      var despX=bx+bw*TUNING.bossDesperateHp;c.beginPath();c.moveTo(despX,by);c.lineTo(despX,by+bh);c.stroke();
+    }
     c.globalAlpha=1;
     c.fillStyle=C.ink;c.font='500 13px "STKaiti","KaiTi",serif';c.textAlign="center";
     c.shadowColor="rgba(241,230,212,0.8)";c.shadowBlur=4;
-    var bossName=e.enraged?e.name+" · 狂":e.name;
+    var bossName;
+    if(e.type==="mojiangjun"){
+      var mjRatio=e.hp/e.maxHp;
+      bossName=e.name+(mjRatio<=0.25?" · 狂书":mjRatio<=0.6?" · 召书":"");
+    }else{
+      bossName=e.enraged?e.name+" · 狂":e.name;
+    }
     c.fillText(bossName,W/2,by-4);c.shadowBlur=0}});
 
   // 处决闪光

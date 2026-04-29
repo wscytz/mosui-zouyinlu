@@ -24,13 +24,13 @@ var RELICS=[
   {id:"zhusha",name:"朱砂封钉",type:"凶器",tags:["处决","暴击"],effect:"暴击伤害+40%",fn:function(p){p.stats.critDmg+=0.4}},
   {id:"kuhao",name:"枯毫遗墨",type:"残器",tags:["近战","魂"],effect:"每3次攻击释放墨刃",fn:function(p){p.tripleBlade=true}},
   {id:"zhiren",name:"纸人替魄",type:"法具",tags:["闪避","生存"],effect:"受伤时替身吸收伤害",fn:function(p){p.decoyHP=30}},
-  {id:"chenfu",name:"无字谶符",type:"符物",tags:["法术","魂"],effect:"攻击附带5点额外伤害",fn:function(p){p.soulDmg+=5}},
+  {id:"chenfu",name:"无字谶符",type:"符物",tags:["法术","魂"],effect:"攻击附带8点魂伤，每遗物+1",fn:function(p){p.soulDmg+=8;p.soulDmgPerRelic=true}},
   {id:"lingshe",name:"青铜镇铃舌",type:"古铃",tags:["控场","召物"],effect:"攻击范围+25%",fn:function(p){p.stats.range+=0.25}},
   {id:"jingjuan",name:"倒写经卷",type:"残卷",tags:["远程","分裂"],effect:"攻击追加折返墨迹",fn:function(p){p.bounce=true;p.stats.returnInk+=1}},
   {id:"yedeng",name:"夜灯残烬",type:"烛具",tags:["火","击杀"],effect:"击杀留下磷火",fn:function(p){p.fireOnKill=true}},
   {id:"xianghui",name:"祟面香灰",type:"禁物",tags:["诅咒","暴击"],effect:"低血量时伤害+50%",fn:function(p){p.lowHpDmg+=0.5}},
   {id:"xuanbing",name:"玄冰简穗",type:"祠器",tags:["控场","冰"],effect:"攻击减速敌人",fn:function(p){p.slowOnHit=0.4}},
-  {id:"xuezhu",name:"血烛祭片",type:"禁物",tags:["诅咒","火"],effect:"攻击范围+20%",fn:function(p){p.stats.range+=0.2}},
+  {id:"xuezhu",name:"血烛祭片",type:"禁物",tags:["诅咒","火"],effect:"范围+25%，但受伤+10%",fn:function(p){p.stats.range+=0.25;p.extraDmgTaken=(p.extraDmgTaken||0)+0.1}},
   {id:"dieyin",name:"鬼脊蝶印",type:"异印",tags:["魂","远程"],effect:"魂伤跳印附近敌人",fn:function(p){p.soulChain=true}},
   {id:"pojing",name:"破镜残片",type:"镜片",tags:["闪避","反击"],effect:"闪避后攻击穿透",fn:function(p){p.pierceOnDodge=true}},
   {id:"zhijia",name:"纸甲残片",type:"护具",tags:["生存","近战"],
@@ -74,7 +74,7 @@ var RELICS=[
   {id:"fanzhao",name:"返照铜片",type:"镜片",tags:["远程","分裂"],
     effect:"折返墨迹命中后留下小范围墨爆",fn:function(p){p.bounceExplosion=true}},
   {id:"guxue",name:"骨血墨",type:"禁物",tags:["诅咒","暴击"],
-    effect:"暴击率+15%，非暴击伤害-20%",fn:function(p){p.stats.critRate+=0.15;p.guxuePenalty=true}},
+    effect:"暴击率+18%，非暴击伤害-12%",fn:function(p){p.stats.critRate+=0.18;p.guxuePenalty=true}},
   {id:"shouyin",name:"收阴袋",type:"袋具",tags:["生存","击杀"],
     effect:"连续击杀积攒护盾，受击清空层数",fn:function(p){p.killShield=true}},
   {id:"fengma",name:"风行纸马",type:"纸器",tags:["机动","闪避"],
@@ -225,11 +225,11 @@ function _pick(a){return a[Math.floor(Math.random()*a.length)]}
 var ENEMY_COST={zhikui:1,youhun:1.5,zhikuang:1.5,fenling:2,gudeng:2,shigui:2.5,fenshen:2.5,modun:2.5,jiangshi:3};
 var WAVE_BUDGETS=[5,7,9.5,12,14.5,17.5,21,25,28,32,36,0];
 var WAVE_TIERS=[
-  ["zhikui"],
   ["zhikui","youhun"],
-  ["zhikui","youhun","fenling","gudeng"],
-  ["zhikui","youhun","fenling","shigui","gudeng","zhikuang"],
-  ["zhikui","youhun","fenling","shigui","gudeng","jiangshi","fenshen","modun","zhikuang"]
+  ["zhikui","youhun","fenling","zhikuang"],
+  ["zhikui","youhun","fenling","gudeng","shigui","fenshen"],
+  ["zhikuang","fenling","gudeng","shigui","fenshen","modun","jiangshi"],
+  ["fenling","gudeng","shigui","fenshen","modun","jiangshi"]
 ];
 var WAVE_PLACES=["纸门","纸灰巷","悬井口","鬼灯廊","无面台","墨池","灰潮","百鬼面","黄泉路","枯骨桥","阴风道","鬼市","鸦栖楼","幽冥渡"];
 var WAVE_FLAVORS=["此处邪祟暗藏，小心试探。","前方鬼影绰绰，不可大意。","阴气渐重，步步为营。","群邪毕至，殊死一搏。","地宫深处，杀机四伏。"];
@@ -246,32 +246,42 @@ function generateWave(wi,diff){
   if(wi>=WAVE_BUDGETS.length||WAVE_BUDGETS[wi]===0)return null; // boss wave handled separately
   var tier=Math.min(4,Math.floor(wi/2));
   var pool=WAVE_TIERS[tier];
-  var budget=WAVE_BUDGETS[wi]*(diff==="hard"?1.15:diff==="nightmare"?1.35:1);
+  var diffMul=diff==="hard"?1.15:diff==="nightmare"?1.35:1;
+  var budget=WAVE_BUDGETS[wi]*diffMul;
   var list=[];
   var totalCost=0;
   var expensive={jiangshi:0,modun:0,fenshen:0};
+
+  // Special wave types (after wave 1, ~20% chance)
+  var specialWave=null;
+  if(wi>=2&&Math.random()<0.2){
+    var specials=["horde","elite","survival"];
+    if(diff==="nightmare")specials.push("elite_horde");
+    specialWave=_pick(specials);
+    if(specialWave==="horde"){budget*=1.7;}
+    else if(specialWave==="elite_horde"){budget*=1.4;}
+    else if(specialWave==="elite"){budget*=0.8;}
+    else if(specialWave==="survival"){budget*=1.3;}
+  }
+
   for(var attempt=0;attempt<40&&totalCost<budget*0.9;attempt++){
     var t=_pick(pool);
     var c=ENEMY_COST[t]||1;
     if(totalCost+c>budget*1.1)continue;
     if(expensive[t]>=2)continue;
-    // find existing entry
     var found=false;
     for(var j=0;j<list.length;j++){if(list[j].t===t){list[j].n++;found=true;break}}
     if(!found)list.push({t:t,n:1});
     totalCost+=c;
     if(expensive[t]!==undefined)expensive[t]++;
   }
-  // ensure minimum 3 enemies
   var total=0;list.forEach(function(e){total+=e.n});
   if(total<3){list.push({t:"zhikui",n:3-total})}
-  // cap max 18
   while(total>18){var biggest=list.reduce(function(a,b){return a.n>b.n?a:b});biggest.n--;total--}
-  // stage modifier
   var sp=STAGE_POOLS[tier];
   var mod=sp[wi%sp.length];
   return{label:"第"+CN_NUM[wi]+"波 · "+WAVE_PLACES[_ri(0,WAVE_PLACES.length-1)],
-    mod:mod,flavor:_pick(WAVE_FLAVORS),list:list};
+    mod:mod,flavor:_pick(WAVE_FLAVORS),list:list,special:specialWave};
 }
 
 // --- Curse/Oath system (誓印) ---
