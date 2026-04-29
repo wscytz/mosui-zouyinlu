@@ -90,7 +90,17 @@ var RELICS=[
   {id:"zhiyuan",name:"纸鸢引",type:"纸器",tags:["召物","远程"],
     effect:"每击杀5敌生成追踪纸鸢",fn:function(p){p.summonKite=true;p.kiteKills=0}},
   {id:"liebing",name:"裂冰诀",type:"祠器",tags:["冰","暴击"],
-    effect:"暴击时在目标位置留下冰冻区域",fn:function(p){p.frostOnCrit=true}}
+    effect:"暴击时在目标位置留下冰冻区域",fn:function(p){p.frostOnCrit=true}},
+  {id:"moyaling",name:"墨鸦翎",type:"羽器",tags:["机动","远程"],
+    effect:"移速+12%，击杀后攻速大幅提升",fn:function(p){p.stats.spd+=0.12;p.killAtkSpd=true}},
+  {id:"shixin",name:"石心",type:"护具",tags:["生存","近战"],
+    effect:"防御+18%，移速-6%",fn:function(p){p.stats.def+=0.18;p.stats.spd-=0.06}},
+  {id:"yujinshan",name:"余烬扇",type:"火具",tags:["火","生存"],
+    effect:"站在火场上每秒回复3HP，若已有磷火则火场扩大",fn:function(p){p.fireHeal=(p.fireHeal||0)+3;if(p.fireOnKill)p.fireExpand=true}},
+  {id:"fengmofu",name:"封魔符",type:"符物",tags:["控场","法术"],
+    effect:"攻击减速效果提升至35%",fn:function(p){p.slowOnHit=Math.max(p.slowOnHit||0,0.35)}},
+  {id:"huihunxiang",name:"回魂香",type:"香具",tags:["生存","击杀"],
+    effect:"击杀回复3HP，击杀后短暂加速",fn:function(p){p.killHeal=(p.killHeal||0)+3;p.killSpeed=true}}
 ];
 
 var EVOLUTIONS={
@@ -172,7 +182,9 @@ var ETYPE={
   modun:{name:"墨盾鬼",tip:"自带墨盾，破盾后才有效伤害",hp:70,spd:0.8,r:16,dmg:9,atkR:32,atkCd:55,col:C.soft,edge:C.ink,
     hasShield:true,shield:30,maxShield:30,shieldRegen:300},
   mojiangjun:{name:"墨将军",tip:"古代镇墓将军，以墨为甲，以书为兵",hp:480,spd:0.8,r:28,dmg:15,atkR:45,atkCd:55,
-    col:"rgba(23,19,16,0.55)",edge:C.ink,isBoss:true,desperate:false}
+    col:"rgba(23,19,16,0.55)",edge:C.ink,isBoss:true,desperate:false},
+  moya:{name:"墨鸦",tip:"飞行远程，快速且脆弱，优先点杀",hp:35,spd:1.9,r:11,dmg:5,atkR:240,atkCd:72,col:"rgba(23,19,16,0.35)",edge:C.ink,ranged:true,pSpd:5.2},
+  shiyong:{name:"石俑",tip:"重甲盾兵，破盾后集火击杀",hp:110,spd:0.55,r:20,dmg:13,atkR:34,atkCd:68,col:"rgba(100,95,88,0.4)",edge:C.soft,hasShield:true,shield:45,maxShield:45,shieldRegen:360}
 };
 
 var LIMITS={particles:260,fires:72,attacks:90,eProj:90,floatTexts:18,decoys:12,kites:4,frosts:12,enemies:80};
@@ -207,7 +219,7 @@ var TUNING={
 };
 
 var DEATH_COLOR={zhikui:"ash",youhun:"moss",fenling:"fire",shigui:"soft",gudeng:"gold",jiangshi:"ink",boss:"accent",
-  zhikuang:"ghost",fenshen:"soul",modun:"soft",mojiangjun:"ink"};
+  zhikuang:"ghost",fenshen:"soul",modun:"soft",mojiangjun:"ink",moya:"ink",shiyong:"soft"};
 
 var JUDGMENTS=["斩业已断","纸命归灰","照见真形","朱批落定","一念归尘","墨尽灯枯","形消魄散","笔落惊魂"];
 
@@ -224,14 +236,14 @@ var BUILD_PREFS={
 function _ri(a,b){return Math.floor(a+Math.random()*(b-a+1))}
 function _pick(a){return a[Math.floor(Math.random()*a.length)]}
 // --- Procedural wave generation ---
-var ENEMY_COST={zhikui:1,youhun:1.5,zhikuang:1.5,fenling:2,gudeng:2,shigui:2.5,fenshen:2.5,modun:2.5,jiangshi:3};
+var ENEMY_COST={zhikui:1,youhun:1.5,zhikuang:1.5,fenling:2,gudeng:2,shigui:2.5,fenshen:2.5,modun:2.5,jiangshi:3,moya:1.8,shiyong:3};
 var WAVE_BUDGETS=[5,7,9.5,12,14.5,17.5,21,25,28,32,36,0];
 var WAVE_TIERS=[
   ["zhikui","youhun"],
-  ["zhikui","youhun","fenling","zhikuang"],
-  ["zhikui","youhun","fenling","gudeng","shigui","fenshen"],
-  ["zhikuang","fenling","gudeng","shigui","fenshen","modun","jiangshi"],
-  ["fenling","gudeng","shigui","fenshen","modun","jiangshi"]
+  ["zhikui","youhun","fenling","zhikuang","moya"],
+  ["zhikui","youhun","fenling","gudeng","shigui","fenshen","moya","shiyong"],
+  ["zhikuang","fenling","gudeng","shigui","fenshen","modun","jiangshi","moya","shiyong"],
+  ["fenling","gudeng","shigui","fenshen","modun","jiangshi","moya","shiyong"]
 ];
 var WAVE_PLACES=["纸门","纸灰巷","悬井口","鬼灯廊","无面台","墨池","灰潮","百鬼面","黄泉路","枯骨桥","阴风道","鬼市","鸦栖楼","幽冥渡"];
 var WAVE_FLAVORS=["此处邪祟暗藏，小心试探。","前方鬼影绰绰，不可大意。","阴气渐重，步步为营。","群邪毕至，殊死一搏。","地宫深处，杀机四伏。"];
@@ -324,7 +336,11 @@ var ACHIEVEMENTS=[
   {id:"runs_10",name:"走阴老手",desc:"完成十次走阴",check:function(m){return m.totalRuns>=10},reward:null},
   {id:"nightmare_win",name:"噩梦行者",desc:"噩梦难度通关",check:function(m){return m.nightmareWins>0},reward:"startRelic"},
   {id:"grade_S",name:"墨上墨",desc:"获得S级评价",check:function(m){return m.bestGrade==="S"},reward:null},
-  {id:"boss_kills_5",name:"镇祟者",desc:"击杀5个Boss",check:function(m){return m.bossKills>=5},reward:null}
+  {id:"boss_kills_5",name:"镇祟者",desc:"击杀5个Boss",check:function(m){return m.bossKills>=5},reward:null},
+  {id:"curse_master",name:"誓印皆立",desc:"使用过全部6种誓印",check:function(m){return Object.keys(m.cursesUsed||{}).length>=6},reward:null},
+  {id:"elite_hunter",name:"精英猎手",desc:"累计击杀50个精英敌人",check:function(m){return (m.eliteKills||0)>=50},reward:null},
+  {id:"relic_35",name:"遗物学者",desc:"发现35件遗物",check:function(m){return Object.keys(m.relicsDiscovered).length>=35},reward:"startRelic"},
+  {id:"fire_kills",name:"火中取栗",desc:"单局用火焰击杀10个敌人",check:function(m){return (m.bestFireKills||0)>=10},reward:null}
 ];
 
 // Starting relic pool for unlocked rewards

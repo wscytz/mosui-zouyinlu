@@ -313,6 +313,21 @@
     drawBtn(c, pausePos, CTRL.PAUSE_R, "停", pauseDown || pauseFlash > 0);
   };
 
+  // Reset all input state (called on tab switch / visibility loss)
+  function resetAllInput(){
+    sticks.left.active=false;sticks.left.touchId=null;
+    sticks.left.bx=leftBase.x;sticks.left.by=leftBase.y;
+    sticks.left.tx=leftBase.x;sticks.left.ty=leftBase.y;
+    sticks.right.active=false;sticks.right.touchId=null;
+    sticks.right.bx=rightBase.x;sticks.right.by=rightBase.y;
+    sticks.right.tx=rightBase.x;sticks.right.ty=rightBase.y;
+    dodgeDown=false;pauseDown=false;pauseWasDown=false;
+    input.active=false;input.dx=0;input.dy=0;input.attacking=false;input.dodging=false;input.pausing=false;
+  }
+  document.addEventListener("visibilitychange",function(){
+    if(document.hidden)resetAllInput();
+  });
+
   // Bind to canvas
   var canvas = document.getElementById("gameCanvas");
   if (canvas) {

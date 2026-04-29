@@ -62,7 +62,7 @@ function loadMeta(){
   try{var d=JSON.parse(localStorage.getItem(META_KEY));if(d&&d.version===2)return d}catch(e){}
   return{version:2,totalKills:0,totalRuns:0,bestWave:0,bestGrade:"",bossKills:0,
     weaponsCleared:{},relicsDiscovered:{},cursesUsed:{},mojiangjunKills:0,
-    nightmareWins:0,achievements:{},unlocks:{}}}
+    nightmareWins:0,eliteKills:0,bestFireKills:0,achievements:{},unlocks:{}}}
 function saveMeta(m){try{localStorage.setItem(META_KEY,JSON.stringify(m))}catch(e){}}
 var meta=loadMeta();
 function metaRecordRun(g){
@@ -77,6 +77,8 @@ function metaRecordRun(g){
   if(g.bossKilled){meta.bossKills++}
   if(g.mojiangjunKilled){meta.mojiangjunKills++}
   if(won&&g.diff==="nightmare")meta.nightmareWins++;
+  meta.eliteKills=(meta.eliteKills||0)+g.eliteKills;
+  if(g.fireKills>(meta.bestFireKills||0))meta.bestFireKills=g.fireKills;
   checkAchievements(meta);
   saveMeta(meta);
 }
@@ -154,7 +156,7 @@ function mkPlayer(){
     // curse flags
     noDodge:false,noWaveHeal:false,noEvolution:false,
     maxHpOverride:0,extraStartRelics:0,extraRelicChoice:false,
-    enemyHpMult:1,allElite:false,relicPower:1,
+    enemyHpMult:1,allElite:false,relicPower:1,_relicPowerApplied:false,
     idleT:0}
 }
 
@@ -169,7 +171,7 @@ function newGame(wid,diff){
     shakeT:0,shakeAmp:0,shakeX:0,shakeY:0,freezeT:0,hintT:180,ended:false,dmgDir:null,slowMo:0,
     killStreak:0,killStreakT:0,relicFlash:0,critFlash:0,bossFlash:0,
     bossWaveEntrance:0,deathCircle:null,
-    totalDmg:0,maxCombo:0,eliteKills:0,deathCause:null,
+    totalDmg:0,maxCombo:0,eliteKills:0,fireKills:0,deathCause:null,
     hints:{relic:false,evo:false,boss:false},encountered:{},
     inkWipe:0,
     player:mkPlayer(),enemies:[],attacks:[],particles:[],fires:[],eProj:[],
@@ -489,6 +491,7 @@ function onEnemyKilled(g,e,source,opts){
   g.kills++;g.killStreak++;g.killStreakT=90;
   if(g.killStreak>g.maxCombo)g.maxCombo=g.killStreak;
   if(e.elite)g.eliteKills++;
+  if(source==="fire")g.fireKills++;
   if(g.kills===10||g.kills===25||g.kills===50||g.kills===100)snd("killMilestone");
   // kill streak milestones
   var ks=g.killStreak;
@@ -496,6 +499,7 @@ function onEnemyKilled(g,e,source,opts){
   else if(ks===5){pushLimited(g.floatTexts,{x:W/2,y:H/2,text:"五连斩",life:70,maxLife:70,reason:"streak"},LIMITS.floatTexts);spawnP(g,p.x,p.y,"accent",8);shake(g,8,3)}
   else if(ks===10){pushLimited(g.floatTexts,{x:W/2,y:H/2,text:"十连斩",life:80,maxLife:80,reason:"streak"},LIMITS.floatTexts);spawnP(g,p.x,p.y,"accent",14);shake(g,12,5);g.relicFlash=6}
   else if(ks===20){pushLimited(g.floatTexts,{x:W/2,y:H/2,text:"百鬼夜行",life:90,maxLife:90,reason:"streak"},LIMITS.floatTexts);spawnP(g,p.x,p.y,"accent",20);shake(g,16,7);g.relicFlash=8}
+  else if(ks===30){pushLimited(g.floatTexts,{x:W/2,y:H/2,text:"修罗道",life:100,maxLife:100,reason:"streak"},LIMITS.floatTexts);spawnP(g,p.x,p.y,"accent",28);spawnP(g,p.x,p.y,"gold",12);shake(g,20,10);g.relicFlash=10}
   var dcol=DEATH_COLOR[e.type]||"ink";spawnInk(g,e.x,e.y,16,dcol);spawnInk(g,e.x,e.y,8,"accent");
   spawnP(g,e.x,e.y,dcol,e.isBoss?12:6);
   if(e.elite){spawnInk(g,e.x,e.y,12,"gold");for(var ei=0;ei<8;ei++){var ea=ei*Math.PI/4;
@@ -630,8 +634,10 @@ function startWave(g){
   // Special wave handling
   var specialWave=w.special||null;
   g.waveSpecial=specialWave;
+  var isAllEliteWave=false;
   if(specialWave==="elite"||specialWave==="elite_horde"){
-    g.player.allElite=true;g.announce=w.label+" · 精英潮";g.announceT=110;
+    isAllEliteWave=true;g.player.allElite=true;
+    g.announce=w.label+" · 精英潮";g.announceT=110;
     showHint(g,"boss","精英潮涌！所有敌人皆为精英。");
   }else if(specialWave==="horde"){
     g.announce=w.label+" · 群魔潮";g.announceT=110;
@@ -651,7 +657,8 @@ function startWave(g){
   var frame=document.querySelector&&document.querySelector(".game-frame");
   if(frame){if(hasBoss)frame.classList.add("is-boss-wave");else frame.classList.remove("is-boss-wave")}
   w.list.forEach(function(e){for(var i=0;i<e.n;i++)spawnEnemy(g,e.t,e)});
-  g.player.allElite=false;g.waveTotal=g.enemies.length;
+  if(isAllEliteWave)g.player.allElite=false; // only reset if wave-set, preserve curse
+  g.waveTotal=g.enemies.length;
   g.enemies.forEach(function(en){en.spawnGraceT=Math.max(en.spawnGraceT||0,30)});
 }
 
@@ -804,7 +811,7 @@ function hurtP(g,dmg,src){
     p.hp=0;g.freezeT=22;shake(g,16,10);
     var killerName=src&&src.name?src.name:(src&&src.type?src.type:"未知");
     g.deathCause=killerName;
-    g.deathCircle={x:p.x,y:p.y,r:0,maxR:180,life:22,killer:killerName};
+    g.deathCircle={x:p.x,y:p.y,r:0,maxR:180,life:22,killer:killerName,wave:g.wave};
     spawnInk(g,p.x,p.y,35,"ink");spawnInk(g,p.x,p.y,20,"accent");
     for(var di=0;di<16;di++){var da=di*Math.PI*2/16;
       spawnP(g,p.x+Math.cos(da)*24,p.y+Math.sin(da)*24,"ink",2)}
@@ -905,6 +912,9 @@ function startDodge(g,dx,dy){
   p.invTimer=Math.max(p.invTimer,TUNING.dodgeInvFrames);
   p.justDodged=true;p.justDodgedT=TUNING.justDodgedWindow;p.dodgeQueued=false;
   snd("playerDodge");spawnInk(g,p.x,p.y,7,"ink");
+  for(var di=0;di<8;di++){var da=a+Math.PI+(di-3.5)*0.35,s=rn(1.5,3.5);
+    pushLimited(g.particles,{x:p.x+Math.cos(a+Math.PI)*4,y:p.y+Math.sin(a+Math.PI)*4,
+      vx:Math.cos(da)*s,vy:Math.sin(da)*s,life:rn(16,28),maxLife:28,size:rn(1,4),type:"ink"},LIMITS.particles)}
   if(p.decoyOnDodge){
     pushLimited(g.decoys,{x:p.x,y:p.y,life:50,maxLife:50,r:p.r},LIMITS.decoys);
   }
@@ -1591,9 +1601,29 @@ function render(g){
       // summoner: diamond body
       c.beginPath();c.moveTo(0,-e.r);c.lineTo(e.r,0);c.lineTo(0,e.r);c.lineTo(-e.r,0);
       c.closePath();c.fill();c.stroke();
+    }else if(e.type==="moya"){
+      // crow: angular diamond with wing flares
+      c.beginPath();c.moveTo(0,-e.r*1.1);c.lineTo(e.r*0.7,0);c.lineTo(0,e.r*0.8);
+      c.lineTo(-e.r*0.7,0);c.closePath();c.fill();c.stroke();
+      c.globalAlpha=0.3;c.strokeStyle=e.edge;c.lineWidth=1;
+      c.beginPath();c.moveTo(e.r*0.7,0);c.lineTo(e.r*1.5,-e.r*0.5);c.stroke();
+      c.beginPath();c.moveTo(-e.r*0.7,0);c.lineTo(-e.r*1.5,-e.r*0.5);c.stroke();
+      c.globalAlpha=1;
+    }else if(e.type==="shiyong"){
+      // stone soldier: heavy square with angular shoulders
+      var sr=e.r*0.85;c.fillRect(-sr,-sr*0.9,sr*2,sr*1.8);
+      c.strokeRect(-sr,-sr*0.9,sr*2,sr*1.8);
+      c.globalAlpha=0.2;c.fillStyle=C.ink;
+      c.fillRect(-sr*0.3,-sr*1.15,sr*0.6,sr*0.25);
+      c.globalAlpha=1;
     }else{
       c.beginPath();c.arc(0,0,e.r,0,Math.PI*2);c.fill();c.stroke()}
     c.shadowBlur=0;
+    // Elite ability tag
+    if(e.elite&&e.eliteAbility){c.fillStyle=C.gold;c.globalAlpha=0.7;
+      c.font='400 9px '+C.fontBody;c.textAlign="center";
+      var abNames={blink:"瞬",deathburst:"爆",enrage:"狂",armored:"甲"};
+      c.fillText(abNames[e.eliteAbility]||"",0,-e.r-20);c.globalAlpha=1}
     c.fillStyle=e.isBoss?(e.enraged?C.accent:C.ink):C.ink;var eo=e.r*0.3;
     var eyeR=e.isBoss?2.5:2;
     c.beginPath();c.arc(-eo,-2,eyeR,0,Math.PI*2);c.fill();
@@ -2009,6 +2039,8 @@ function render(g){
       c.fillText("为你送终",dc.x,dc.y-10);
       c.font='400 14px "STKaiti","KaiTi",serif';c.fillStyle=C.ash;
       c.fillText(dc.killer,dc.x,dc.y+12);
+      c.font='400 12px "STKaiti","KaiTi",serif';
+      c.fillText("止步第"+(dc.wave||0)+"波",dc.x,dc.y+30);
     }
     c.globalAlpha=1;
   }
@@ -2179,7 +2211,17 @@ var RELIC_RULES={
   zhiyuan:[{c:function(s){return s.weaponType==="ranged"||s.ownedTags["击杀"]},n:8,w:"击杀产纸鸢"},
     {c:function(s){return s.ownedTags["火"]||s.ownedTags["魂"]},n:6,w:"击杀链放大"}],
   liebing:[{c:function(s){return s.weaponType==="aoe"||s.ownedIds["xuanbing"]||s.ownedTags["暴击"]},n:9,w:"冰暴击共鸣"},
-    {c:function(s){return s.weaponType==="melee"||s.ownedTags["暴击"]},n:7,w:"暴击触发"}]
+    {c:function(s){return s.weaponType==="melee"||s.ownedTags["暴击"]},n:7,w:"暴击触发"}],
+  moyaling:[{c:function(s){return s.weaponType==="ranged"||s.stats.spd>1.1},n:8,w:"速度远程"},
+    {c:function(s){return s.hasKill},n:6,w:"击杀加速链"}],
+  shixin:[{c:function(s){return s.weaponType==="melee"||s.weaponType==="dash"},n:8,w:"前线防御"},
+    {c:function(s){return s.hpRatio<0.55},n:6,w:"血线保护"}],
+  yujinshan:[{c:function(s){return s.ownedIds.yedeng||s.ownedTags["火"]},n:10,w:"火场联动"},
+    {c:function(s){return s.hpRatio<0.5},n:6,w:"低血回复"}],
+  fengmofu:[{c:function(s){return s.weaponType==="aoe"||s.slowOnHit>0||s.ringSlow},n:9,w:"控场增强"},
+    {c:function(s){return s.ownedTags["冰"]},n:7,w:"冰减速联动"}],
+  huihunxiang:[{c:function(s){return s.noSurvival},n:9,w:"缺生存"},
+    {c:function(s){return s.ownedTags["击杀"]||s.wave>=4},n:6,w:"击杀链"}]
 };
 
 function scoreRelicChoice(r,state,mode){
@@ -2349,14 +2391,22 @@ function showRelic(g){
         pushLimited(g.floatTexts,{x:W/2,y:H/2+20,text:"协同 · "+sTag,life:90,maxLife:90,reason:"synergy"},LIMITS.floatTexts);
       }
     }
+    var _preSoul=g.player.soulDmg||0,_preHeal=g.player.killHeal||0,_preDecoy=g.player.decoyHP||0;
     item.fn(g.player);
     if(g.player.relicPower>1){
       var rp=g.player.relicPower;
-      g.player.soulDmg=Math.floor(g.player.soulDmg*rp);
-      g.player.killHeal=Math.floor(g.player.killHeal*rp);
-      if(g.player.decoyHP>0)g.player.decoyHP=Math.floor(g.player.decoyHP*rp);
-      g.player.stats.dmg+=(rp-1)*0.12;
-      g.player.stats.critDmg+=(rp-1)*0.2}
+      var soulDelta=(g.player.soulDmg||0)-_preSoul;
+      var healDelta=(g.player.killHeal||0)-_preHeal;
+      var decoyDelta=(g.player.decoyHP||0)-_preDecoy;
+      if(soulDelta>0)g.player.soulDmg=_preSoul+Math.floor(soulDelta*rp);
+      if(healDelta>0)g.player.killHeal=_preHeal+Math.floor(healDelta*rp);
+      if(decoyDelta>0)g.player.decoyHP=_preDecoy+Math.floor(decoyDelta*rp);
+      if(!g.player._relicPowerApplied){
+        g.player.stats.dmg+=(rp-1)*0.12;
+        g.player.stats.critDmg+=(rp-1)*0.2;
+        g.player._relicPowerApplied=true;
+      }
+    }
     spawnInk(g,g.player.x,g.player.y,12,"accent");
     g.relicFlash=12;
     popupEl.style.display="none";
@@ -2468,6 +2518,7 @@ function startGame(wid){
   document.getElementById("pauseHint").style.display="";
   G=newGame(wid,diff);
   document.body.classList.add("game-active");
+  if(!_loopActive){_loopActive=true;_rafId=requestAnimationFrame(loop);}
   if(window.GameSound)GameSound.init();
   // Show curse selection before first wave
   showCurse(G);
@@ -2488,7 +2539,7 @@ function showCurse(g){
   // Mobile safety: auto-dismiss after 20s if no interaction
   var isMobile='ontouchstart' in window||navigator.maxTouchPoints>0;
   var autoDismissT=isMobile?setTimeout(function(){
-    if(popup.style.display!=="none"){
+    if(popup.style.display!=="none"&&G===g){
       choices.onclick=null;popup.style.display="none";beginRun(g)}
   },20000):null;
   choices.onclick=function(ev){
@@ -2527,13 +2578,18 @@ function beginRun(g){
   if(p.extraStartRelics>0){
     for(var esi=0;esi<p.extraStartRelics;esi++){
       var rc=pickRelicChoices(g);
-      if(rc.length>0){var r=rc[0];g.relics.push(r);r.fn(p)}}}
+      if(rc.length>0){var r=rc[0];g.relics.push(r);r.fn(p);
+        pushLimited(g.floatTexts,{x:W/2,y:H/2-50+esi*22,text:"誓印赐物: "+r.name,life:100,maxLife:100,reason:"hint"},LIMITS.floatTexts)}}}
   startWave(g);updateHUD(g);canvas.focus();
   setTimeout(function(){var h=document.getElementById("controlsHint");if(h)h.classList.add("is-hidden")},3000);
 }
 
 function togglePause(){
   if(!G)return;
+  // Don't pause while overlays are active
+  var relicPopup=document.getElementById("relicPopup");
+  var cursePopup=document.getElementById("cursePopup");
+  if((relicPopup&&relicPopup.style.display!=="none")||(cursePopup&&cursePopup.style.display!=="none"))return;
   var el=document.getElementById("pauseOverlay");
   if(!el)return;
   if(G.state==="playing"){G.state="paused";el.style.display="";
@@ -2556,6 +2612,8 @@ function restartRun(){
   if(window.GameSound)GameSound.stopAmbient();
   var wid=G.weapon.id, diff=G.diff;
   document.getElementById("pauseOverlay").style.display="none";
+  document.getElementById("relicPopup").style.display="none";
+  document.getElementById("cursePopup").style.display="none";
   document.body.classList.add("game-active");
   G=null;
   G=newGame(wid,diff);
@@ -2564,19 +2622,21 @@ function restartRun(){
 }
 
 function quitToTitle(){
-  if(!G)return;
   if(window.GameSound)GameSound.stopAmbient();
   document.getElementById("pauseOverlay").style.display="none";
   document.getElementById("gameOver").style.display="none";
   document.getElementById("gameContainer").style.display="none";
   document.getElementById("pauseHint").style.display="none";
+  document.getElementById("relicPopup").style.display="none";
+  document.getElementById("cursePopup").style.display="none";
   document.body.classList.remove("game-active");
-  G=null;keys={};
+  G=null;keys={};_loopActive=false;
   var ts=document.getElementById("titleScreen");
   if(ts)ts.style.display="";
   setupWeaponSelect();
 }
 
+var _rafId=null,_loopActive=true;
 function loop(){
   var now=performance.now();
   if(G){
@@ -2594,7 +2654,7 @@ function loop(){
       if(G.state==="over"||(G.state==="victory"&&G.freezeT<=0))showEnd(G);
     }catch(err){console.error("showEnd error:",err.message)}
   }
-  requestAnimationFrame(loop);
+  if(_loopActive)_rafId=requestAnimationFrame(loop);
 }
 
 function init(){
@@ -2669,6 +2729,20 @@ function init(){
   // Pause quit to title button
   var pauseQuitBtn=document.getElementById("pauseQuitBtn");
   if(pauseQuitBtn)pauseQuitBtn.addEventListener("click",function(){quitToTitle()});
+  // Difficulty radio visual feedback (fallback for browsers without :has())
+  if(document.querySelectorAll){
+    var diffRadios=document.querySelectorAll('input[name="diff"]');
+    if(diffRadios.length>0){
+      function updateDiffLabels(){
+        diffRadios.forEach(function(r){
+          var label=r.closest(".difficulty-option");
+          if(label)label.classList.toggle("is-selected",r.checked);
+        });
+      }
+      diffRadios.forEach(function(r){r.addEventListener("change",updateDiffLabels)});
+      updateDiffLabels();
+    }
+  }
   setupWeaponSelect();loop();
 }
 

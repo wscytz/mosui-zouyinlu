@@ -407,7 +407,8 @@ body.game-active #gameCanvas {
   transition: border-color 0.2s, background 0.2s;
 }
 .difficulty-option:hover { background: rgba(23,19,16,0.04); }
-.difficulty-option:has(input:checked) {
+.difficulty-option:has(input:checked),
+.difficulty-option.is-selected {
   border-color: rgba(163,58,45,0.3);
   background: rgba(163,58,45,0.06);
 }

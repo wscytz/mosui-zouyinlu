@@ -1,4 +1,4 @@
-# 墨祟：走阴录 — 战斗试玩 技术文档 v2.4
+# 墨祟：走阴录 — 战斗试玩 技术文档 v2.5
 
 ## 一、项目概况
 
@@ -32,7 +32,7 @@
 ```
 gamedata.js (共享数据，game.html/wiki.html 均加载)
 ├── 常量：画布尺寸(W/H/A)、调色板(C)
-├── 数据表：WEAPONS(4)、RELICS(40)、EVOLUTIONS(16)、WAVES(9)、ETYPE(10)、STAGE_MODS(6)
+├── 数据表：WEAPONS(4)、RELICS(45)、EVOLUTIONS(16)、WAVES(9)、ETYPE(12)、STAGE_MODS(6)、ACHIEVEMENTS(18)
 ├── 规则：PREREQS(10件前置条件)、CAPS(6项封顶值)、LIMITS(8类对象上限)、RANGES(9项距离阈值)、WAVE_SCALE(2项波次缩放)
 ├── 映射：DEATH_COLOR、PCOL、BUILD_PREFS、JUDGMENTS
 
@@ -1727,6 +1727,63 @@ npm run cap:open:android  # 用 Android Studio 打开
 **渲染容错：**
 - 渲染循环 catch 块新增 `_renderErrors` 计数器，仅前 3 次错误输出到 console，用于移动端问题诊断。
 
-**代码规模：** game.js ~2670 行 (+10)，mobile-controls.js ~305 行 (+42)，gamedata.js ~320 行 (+2)。
+**本会话修复 (2026-04-29 第二阶段)：**
+- **`relicPower` 指数叠加修复：** 噬魂诅咒的 1.8x 遗物效果加成每次拾取遗物时重复乘以已累积的 `soulDmg`/`killHeal`/`decoyHP`，导致数值指数膨胀。改为仅对当前遗物新贡献的增量应用倍率，不重复乘累积值。首次拾取时一次性加成 `dmg`/`critDmg`，由 `_relicPowerApplied` 标记防重复。
+- **`quitToTitle` / `restartRun` 弹窗清理：** 新增隐藏 `relicPopup` 和 `cursePopup` 的逻辑，防止从暂停菜单退到标题/重新开始时弹窗残留在画面上。
+- **`togglePause` 重叠弹窗防护：** 遗物/誓印弹窗显示期间禁止暂停，防止暂停遮罩层与弹窗重叠。
+- **难度选择 JS 兜底：** 新增 `updateDiffLabels()` 函数，监听 radio change 事件并 toggle `.is-selected` class，为不支持 `:has()` 的浏览器提供视觉反馈。CSS 同步添加 `.difficulty-option.is-selected` 规则。
+- **纸薄诅咒额外遗物通知：** `extraStartRelics` 选择的遗物现在显示浮动文字 "誓印赐物: X"，玩家可见获得的额外遗物（此前静默添加）。
+- **`_relicPowerApplied` 标记：** 新增于 `mkPlayer()` 中，追踪噬魂诅咒的一次性加成是否已应用。
+
+**代码规模：** game.js ~2709 行 (+39)，mobile-controls.js ~324 行，gamedata.js ~334 行，game.css ~1072 行 (+1)。
 
 *v2.4 更新于 2026-04-29。*
+
+### v2.5 内容扩展 + 元进度完善 (2026-04-29)
+
+**目标：** 扩展敌人/遗物/成就内容，完善元进度追踪，增强视觉反馈。
+
+**新增敌人（2种）：**
+- **墨鸦 (moya)：** 飞行远程敌人，生命低但速度极快（spd 1.9），远距离弹射攻击。优先点杀型威胁。
+- **石俑 (shiyong)：** 重甲盾兵，生命极高（hp 110），自带 45 点护盾，移速极慢。破盾后集火击杀。
+
+**新增遗物（5件）：**
+- **墨鸦翎：** 移速+12%，击杀后攻速大幅提升。机动型遗物。
+- **石心：** 防御+18%，移速-6%。生存与机动的取舍。
+- **余烬扇：** 站在火场上每秒回复 3HP。若已有磷火遗物，火场击杀后扩大范围。
+- **封魔符：** 攻击减速效果提升至 35%。控场特化。
+- **回魂香：** 击杀回复 3HP，击杀后短暂加速。生存+机动双收益。
+
+**新增成就（4项）：**
+- **誓印皆立：** 使用过全部 6 种誓印。
+- **精英猎手：** 累计击杀 50 个精英敌人。追踪 `meta.eliteKills`。
+- **遗物学者：** 发现 35 件遗物。奖励起始遗物。
+- **火中取栗：** 单局用火焰击杀 10 个敌人。追踪 `meta.bestFireKills`。
+
+**元进度追踪更新：**
+- `loadMeta()` 新增 `eliteKills:0`、`bestFireKills:0` 默认值。
+- `metaRecordRun()` 新增精英击杀累加和火焰击杀最佳记录。
+- `newGame()` 新增 `fireKills:0` 游戏内计数器。
+- `onEnemyKilled()` 新增火焰击杀检测（`source==="fire"`）。
+
+**视觉增强：**
+- **闪避定向粒子：** 闪避时向闪避反方向喷射 8 颗定向墨粒子，强化"瞬身"视觉反馈。
+- **连击 30 里程碑：** 新增"修罗道"浮动文字 + 金色粒子 + 强震屏，在百鬼夜行（20连）之上再加一层。
+
+**数据表更新：**
+- `WAVE_TIERS` 第 2-5 梯队新增墨鸦/石俑出现。
+- `ENEMY_COST` 新增墨鸦 (1.8) / 石俑 (3)。
+- `DEATH_COLOR` 新增墨鸦 (ink) / 石俑 (soft)。
+
+**代码规模：** game.js ~2745 行 (+36)，gamedata.js ~351 行 (+17)。
+
+**Bug 修复 (深度审计发现)：**
+- **`showCurse` setTimeout 泄漏：** 移动端 20s 自动跳过定时器在 `restartRun`/`quitToTitle` 后未被清除，定时器回调可能使用已废弃的 `g` 引用调用 `beginRun(g)` 导致状态污染。修复：回调中添加 `G===g` 守卫，确保仅在游戏对象仍为当前时才执行。
+- **RAF 泄漏：** `requestAnimationFrame(loop)` 在 `quitToTitle` 后持续运行，G=null 时虽无渲染但持续消耗移动端电量。修复：新增 `_loopActive` 标志，`quitToTitle` 停止循环，`startGame` 重新启动。
+- **移动端输入卡死：** `input.attacking`/`dodgeDown` 在标签页切换或系统中断丢失 `touchend` 事件时可能永久卡住。修复：`mobile-controls.js` 新增 `visibilitychange` 监听，页面隐藏时重置全部输入状态。
+
+**视觉扩展：**
+- **墨鸦 / 石俑独特外观：** 墨鸦渲染为菱形鸟身+双翼，石俑渲染为方形重甲。
+- **精英能力标签：** 精英敌人上方显示能力单字标签（瞬/爆/狂/甲），便于识别威胁类型。
+
+*v2.5 更新于 2026-04-29。*
