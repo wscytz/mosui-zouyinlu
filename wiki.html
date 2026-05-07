@@ -219,6 +219,7 @@
       <a href="#sec-enemies">敌人</a>
       <a href="#sec-waves">波次</a>
       <a href="#sec-stages">关卡</a>
+      <a href="#sec-hazards">事件</a>
       <a href="#sec-achievements">成就</a>
       <a href="#sec-builds">构筑</a>
       <a href="#sec-caps">封顶</a>
@@ -256,7 +257,7 @@
       <div class="section__heading">
         <p class="section__eyebrow">Evolutions</p>
         <h2>武器进化</h2>
-        <p class="wiki-section__summary">第叁波与第陆波后选择，每把武器四条进化路线。</p>
+        <p class="wiki-section__summary">第叁波与第陆波后选择，每把武器五条进化路线。</p>
       </div>
       <div id="evoGrid"></div>
     </section>
@@ -288,6 +289,15 @@
       <div id="stageGrid" class="wiki-grid wiki-grid--3"></div>
     </section>
 
+    <section class="wiki-section" id="sec-hazards">
+      <div class="section__heading">
+        <p class="section__eyebrow">Hazards</p>
+        <h2>环境事件</h2>
+        <p class="wiki-section__summary">战斗中随机触发的环境威胁，考验走位与反应。</p>
+      </div>
+      <div id="hazardGrid" class="wiki-grid wiki-grid--3"></div>
+    </section>
+
     <section class="wiki-section" id="sec-achievements">
       <div class="section__heading">
         <p class="section__eyebrow">Achievements</p>
@@ -301,7 +311,7 @@
       <div class="section__heading">
         <p class="section__eyebrow">Build Lines</p>
         <h2>构筑线</h2>
-        <p class="wiki-section__summary">六条成熟的构筑方向。核心遗物定调，放大遗物拉满，保底遗物兜住容错。</p>
+        <p class="wiki-section__summary" id="buildSummary">构筑方向。核心遗物定调，放大遗物拉满，保底遗物兜住容错。</p>
       </div>
       <div id="buildList"></div>
     </section>
@@ -315,7 +325,7 @@
       <div id="capsTable" style="border:1px solid var(--line);border-radius:20px;padding:18px;background:linear-gradient(180deg,rgba(255,248,240,0.92),rgba(236,221,198,0.88))"></div>
     </section>
 
-    <section class="wiki-section">
+    <section class="wiki-section" id="sec-ranges">
       <div class="section__heading">
         <p class="section__eyebrow">Ranges</p>
         <h2>距离阈值</h2>
@@ -324,7 +334,7 @@
       <div id="wiki-ranges" style="border:1px solid var(--line);border-radius:20px;padding:18px;background:linear-gradient(180deg,rgba(255,248,240,0.92),rgba(236,221,198,0.88))"></div>
     </section>
 
-    <section class="wiki-section">
+    <section class="wiki-section" id="sec-scaling">
       <div class="section__heading">
         <p class="section__eyebrow">Scaling</p>
         <h2>波次缩放</h2>
@@ -457,7 +467,11 @@
 
     // --- Enemies ---
     var eng=document.getElementById('enemyGrid');
-    var eOrder=['zhikui','youhun','fenling','shigui','gudeng','jiangshi','zhikuang','fenshen','modun','boss','mojiangjun'];
+    var eOrder=Object.keys(ETYPE).sort(function(a,b){
+      var ea=ETYPE[a],eb=ETYPE[b];
+      if(ea.isBoss!==eb.isBoss)return ea.isBoss?1:-1;
+      return (ea.hp||0)-(eb.hp||0);
+    });
     eOrder.forEach(function(tid){
       var e=ETYPE[tid];
       if(!e)return;
@@ -472,6 +486,14 @@
       if(e.summoner)extra=' · 召唤';
       if(e.splitter)extra=' · 分裂';
       if(e.hasShield)extra=' · 护盾';
+      if(e.poisonTrail)extra=' · 毒径';
+      if(e.buffAura)extra=' · 增益光环';
+      if(e.mimic)extra=' · 伪装';
+      if(e.leech)extra=' · 吸附';
+      if(e.deathBomb)extra=' · 自爆';
+      if(e.swoop)extra=' · 俯冲';
+            if(e.deathBuff)extra=' · 死后鼓舞';
+            if(e.spawnsOnDeath)extra=' · 死后孵化';
       c.innerHTML='<h4>'+e.name+(e.isBoss?' (Boss)':'')+'</h4>'
         +'<div class="wiki-card__meta">HP:'+hpStr+' · 速度:'+e.spd+' · 伤害:'+e.dmg+extra+'</div>';
       eng.appendChild(c);
@@ -520,22 +542,87 @@
       sg.appendChild(c);
     });
 
+    // --- Stage Hazards ---
+    var hg=document.getElementById('hazardGrid');
+    if(typeof STAGE_HAZARDS!=='undefined'){STAGE_HAZARDS.forEach(function(h){
+      var c=document.createElement('div');
+      c.className='wiki-card';
+      c.innerHTML='<h4>'+h.name+'</h4><p>'+h.desc+'</p><div class="wiki-card__meta">触发间隔: '+(h.interval/60).toFixed(1)+'秒</div>';
+      hg.appendChild(c);
+    });}
+
     // --- Build Lines ---
     var bl=document.getElementById('buildList');
     var BUILDS=[
       {name:'处决暴击',weapon:'斩妖剑',
-       core:['朱砂封钉','铜镜照妖'],amp:['判官断文','朱批残页'],safe:['血契剑穗','纸甲残片']},
+       core:['朱砂封钉','铜镜照妖'],amp:['判官断文','朱批残页','破军符'],safe:['血契剑穗','纸甲残片','墨龙鳞']},
       {name:'闪避反击',weapon:'伏魔伞',
        core:['破镜残片'],amp:['留影伞骨','黄泉引路'],safe:['走马灯片','纸人替魄']},
       {name:'火与击杀',weapon:'任意',
-       core:['夜灯残烬'],amp:['火祟牙','骨笛残声'],safe:['收阴袋','走马灯片']},
+       core:['夜灯残烬'],amp:['火祟牙','炎墨砚','骨笛残声','吞魔符'],safe:['收阴袋','走马灯片']},
       {name:'魂与连锁',weapon:'符骨笔 / 镇魂铃',
-       core:['无字谶符','鬼脊蝶印'],amp:['魂钱串','铃木鱼'],safe:['引魂灯笼','骨笛残声']},
+       core:['无字谶符','鬼脊蝶印'],amp:['魂钱串','铃木鱼','连环符','霹雳木'],safe:['引魂灯笼','骨笛残声']},
       {name:'冰控暴击',weapon:'镇魂铃',
-       core:['玄冰简穗','裂冰诀'],amp:[],safe:[]},
+       core:['玄冰简穗','裂冰诀'],amp:['寒星铁','冰核','静心咒'],safe:['纸甲残片','走马灯片']},
+      {name:'弹道贯穿',weapon:'符骨笔',
+       core:['聚灵墨斗','墨蛟筋'],amp:['墨罡印','厚墨','吞魔符'],safe:['余烬扇','纸人替魄']},
       {name:'召唤击杀',weapon:'任意',
-       core:['纸鸢引','夜灯残烬'],amp:[],safe:[]}
+       core:['纸鸢引','夜灯残烬'],amp:['墨蛟筋','回魂香'],safe:['收阴袋','纸人替魄']},
+      {name:'火径压制',weapon:'任意',
+       core:['夜灯残烬','炎墨砚'],amp:['火祟牙','吞魔符','余烬扇'],safe:['收阴袋','走马灯片']},
+      {name:'魂遁之术',weapon:'伏魔伞',
+       core:['鬼手印','破镜残片'],amp:['留影伞骨','无字谶符','铃木鱼'],safe:['走马灯片','纸人替魄','墨龙鳞']},
+      {name:'弹幕领域',weapon:'符骨笔',
+       core:['聚灵墨斗','纸鸢纹'],amp:['墨罡印','厚墨','封魔符'],safe:['余烬扇','纸人替魄']},
+      {name:'毒径求生',weapon:'任意',
+       core:['噬蛊瓶','夜灯残烬'],amp:['纸鸢纹','吞魔符','玄冰简穗'],safe:['走马灯片','墨龙鳞']},
+      {name:'暗夜行者',weapon:'伏魔伞',
+       core:['夜行衣','破镜残片'],amp:['鬼手印','黄泉引路','风行纸马'],safe:['纸人替魄','收阴袋']},
+      {name:'连斩之道',weapon:'斩妖剑',
+       core:['魂锁链','朱砂封钉'],amp:['血契剑穗','判官断文','骨笛残声'],safe:['纸甲残片','墨龙鳞']},
+      {name:'墨灵召来',weapon:'任意',
+       core:['墨灵玉','墨灵契'],amp:['无字谶符','聚灵墨斗','魂钱串'],safe:['引魂灯笼','纸人替魄']},
+      {name:'破妄伏妖',weapon:'斩妖剑',
+       core:['破妄瞳','铜镜照妖'],amp:['朱批残页','判官断文','朱砂封钉'],safe:['纸甲残片','走马灯片']},
+      {name:'蛭血反噬',weapon:'任意',
+       core:['蛭反','祟面香灰'],amp:['血墨混染','骨血墨','墨龙珠'],safe:['招魂残幡','墨龙鳞']},
+      {name:'墨守成规',weapon:'任意',
+       core:['墨守阵','阵眼'],amp:['纸甲残片','石心','墨龙鳞'],safe:['引魂灯笼','纸人替魄']},
+      {name:'攻阵连爆',weapon:'任意',
+       core:['墨攻阵','阵眼'],amp:['骨笛残声','破军符','魂锁链'],safe:['走马灯片','收阴袋']},
+      {name:'墨镜弹反',weapon:'符骨笔',
+       core:['墨镜','墨蛟筋'],amp:['厚墨','破军符','墨罡印'],safe:['静心咒','回春阵']},
+      {name:'回春守御',weapon:'伏魔伞',
+       core:['回春阵','墨守阵'],amp:['阵眼','墨龙鳞','吞魔符'],safe:['替身石心','静心咒']},
+      {name:'墨甲阵御',weapon:'任意',
+       core:['墨甲','墨守阵'],amp:['阵眼','墨龙鳞','墨吸'],safe:['静心咒','回春阵']},
+      {name:'墨爆连阵',weapon:'伏魔伞',
+       core:['墨爆','墨守阵'],amp:['墨攻阵','阵眼','墨吸'],safe:['回春阵','静心咒']},
+      {name:'墨弦织网',weapon:'镇魂铃',
+       core:['墨弦','墨守阵'],amp:['墨攻阵','墨涡','阵眼'],safe:['墨甲','回春阵']},
+      {name:'墨钉锁敌',weapon:'斩妖剑',
+       core:['墨钉','墨守阵'],amp:['墨澄','破军符','墨甲'],safe:['静心咒','吞魔符']},
+      {name:'澄阵疾攻',weapon:'任意',
+       core:['墨澄','墨守阵'],amp:['阵眼','墨攻阵','墨镜'],safe:['回春阵','墨甲']},
+      {name:'墨涛推浪',weapon:'镇魂铃',
+       core:['墨涛','墨涡'],amp:['墨攻阵','阵眼','墨爆'],safe:['墨守阵','回春阵']},
+      {name:'墨移幻影',weapon:'伏魔伞',
+       core:['墨移','墨守阵'],amp:['墨澄','墨镜','墨甲'],safe:['静心咒','回春阵']},
+      {name:'疾风墨泽',weapon:'斩妖剑',
+       core:['墨泽','墨涛'],amp:['墨鸦翎','破军符','墨蛟筋'],safe:['墨守阵','静心咒']},
+      {name:'墨威阵垒',weapon:'任意',
+       core:['墨威','墨守阵'],amp:['墨攻阵','墨涡','阵眼'],safe:['墨甲','回春阵']},
+      {name:'墨嗅连斩',weapon:'斩妖剑',
+       core:['墨嗅','破军符'],amp:['墨钉','墨鸦翎','墨澄'],safe:['墨守阵','静心咒']},
+      {name:'墨碎溅射',weapon:'斩妖剑',
+       core:['墨碎','墨鸦翎'],amp:['墨钉','破军符','墨蛟筋'],safe:['墨守阵','静心咒']},
+      {name:'墨蚀叠毒',weapon:'任意',
+       core:['墨蚀','墨涟'],amp:['墨涡','墨弦','墨威'],safe:['墨甲','回春阵']},
+      {name:'墨怒血战',weapon:'伏魔伞',
+       core:['墨怒','铜镜'],amp:['墨甲','墨泽','墨爆'],safe:['回春阵','墨守阵']}
     ];
+    var bsm=document.getElementById('buildSummary');
+    if(bsm)bsm.textContent=BUILDS.length+'条成熟构筑方向。核心遗物定调，放大遗物拉满，保底遗物兜住容错。';
     BUILDS.forEach(function(b){
       var c=document.createElement('div');
       c.className='wiki-build';
@@ -561,6 +648,7 @@
       bellCombo:{label:'铃连段上限',desc:'范围乘算最大 1 + 15×0.06 = 1.9×'},
       shieldStack:{label:'护盾层数上限',desc:'收阴袋最多叠3层'},
       atkCdFloor:{label:'攻击冷却下限',desc:'堆攻速不会低于4帧'},
+      projSize:{label:'弹道体积上限',desc:'最大弹道体积2.0x'},
       soulChain:{label:'魂链跳伤上限',desc:'单次攻击最多连锁4个目标'},
       ringSoul:{label:'铃魂伤上限',desc:'单圈最多触发6次追加魂伤'}
     };

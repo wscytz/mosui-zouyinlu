@@ -1,4 +1,6 @@
-# 墨祟：走阴录 — 战斗试玩 技术文档 v2.5
+# 墨祟：走阴录 — 战斗试玩 技术文档 v3.0 (候选版)
+
+> 开发接手请先读 `DEVELOPMENT.md`。本文保留完整技术细节、版本历史和 Bug 追踪。
 
 ## 一、项目概况
 
@@ -17,7 +19,7 @@
 | `game.css` | 游戏专用样式。HUD、武器/遗物卡片、遮罩层、波次动画 |
 | `styles.css` | 全站公用样式。配色变量、字体、纸张质感背景 |
 | `gamedata.js` | 共享数据文件。武器/遗物/进化/波次/敌人/前置条件/封顶值等全部常量，game.html 和 wiki.html 共同引用 |
-| `game.js` | 主游戏逻辑。IIFE 包裹，严格模式，约 2250 行 |
+| `game.js` | 主游戏逻辑。IIFE 包裹，严格模式，约 3680 行 |
 | `sound.js` | Web Audio API 合成音效。无音频文件，全部程序生成 |
 | `mobile-controls.js` | 移动端虚拟摇杆。触摸检测+双摇杆+闪避/暂停按钮+横屏锁定，canvas 绘制 |
 | `app.js` | 首页 `index.html` 的构筑预览逻辑（与游戏无关） |
@@ -32,11 +34,11 @@
 ```
 gamedata.js (共享数据，game.html/wiki.html 均加载)
 ├── 常量：画布尺寸(W/H/A)、调色板(C)
-├── 数据表：WEAPONS(4)、RELICS(45)、EVOLUTIONS(16)、WAVES(9)、ETYPE(12)、STAGE_MODS(6)、ACHIEVEMENTS(18)
-├── 规则：PREREQS(10件前置条件)、CAPS(6项封顶值)、LIMITS(8类对象上限)、RANGES(9项距离阈值)、WAVE_SCALE(2项波次缩放)
+├── 数据表：WEAPONS(4)、RELICS(92)、EVOLUTIONS(20)、WAVES(动态)、ETYPE(24)、STAGE_MODS(8)、CURSES(14)、ACHIEVEMENTS(27)
+├── 规则：PREREQS(29件前置条件)、CAPS(7项封顶值)、LIMITS(10类对象上限)、RANGES(17项距离阈值)、TUNING(70项可调参数)、WAVE_SCALE(2项波次缩放)
 ├── 映射：DEATH_COLOR、PCOL、BUILD_PREFS、JUDGMENTS
 
-game.js (IIFE，约1591行)
+game.js (IIFE，约3680行)
 ├── 工具函数：dstSq（主用）/dst（仅需要实际距离时）、ang、cl、rn/ri、pick、shuf、moveScale、pushLimited
 ├── 性能：perfPressure、perfMul、markPerf
 ├── 对象入口：addFire、addEProj、pushAttack、spawnJudgment、mkMinion
@@ -221,14 +223,14 @@ stats: {
 | 僵客 (jiangshi) | 88 | 蓄势后直线冲锋 |
 | 画皮娘子 (boss) | 320 | 近战+8方向弹幕，50%血后加速 |
 
-9个波次，HP和速度按 `1 + wave * 0.065` 缩放。关卡调制器：净坛、纸灰风、悬井、无面戏台、鬼灯阵。
+9个波次，HP和速度按 `1 + wave * 0.065` 缩放。关卡调制器：净坛、纸灰风、悬井、无面戏台、鬼灯阵、墨池、鬼市、镜殿。
 
 波次间回复20%最大生命。
 
 
 ## 八、音效（sound.js）
 
-Web Audio API 合成，11种音效全部用振荡器+噪音生成。无外部音频文件。
+Web Audio API 合成，28种音效全部用振荡器+噪音生成。无外部音频文件。含8种关卡氛围音（STAGE_AMBIENT）。
 
 
 ## 九、视觉管线
@@ -1787,3 +1789,1205 @@ npm run cap:open:android  # 用 Android Studio 打开
 - **精英能力标签：** 精英敌人上方显示能力单字标签（瞬/爆/狂/甲），便于识别威胁类型。
 
 *v2.5 更新于 2026-04-29。*
+
+### v2.6 内容深拓 + 联动强化 (2026-04-29)
+
+**目标：** 扩展弹道体积联动链、火径体系、新敌人/誓印、中Boss遭遇。
+
+**弹道体积联动链（projSize synergy）：**
+- 新增 6 件联动遗物：聚灵墨斗→墨罡印→厚墨（弹体变大+dmg+减速），需前置遗物解锁
+- 新增 `CAPS.projSize=2.0` 封顶保护，3 处代码（折返弹/远程弹/三连刃）强制 clamp
+- PREREQS 新增 6 条：mogangyin(需聚灵墨斗/墨蛟筋)、houmo(需projSize>1.2)、yanmoyan(需夜灯)、binghe(需裂冰)、lianhuanfu(需蝶印)、molonglin(需石心)
+
+**新增遗物（17件，40→57）：**
+
+| 层 | 数量 | 遗物 |
+|----|------|------|
+| 基础数值/机制 | 11 | 聚灵墨斗(projSize+0.3+returnInk+0.15)、墨蛟筋(projSize+0.25)、炎墨砚(fireTrail)、吞魔符(fireDmg)、狐墨(dmg每遗物)、幽冥砂(probSize+slow)、沙墨(def+hp)、墨龙鳞(def每精英杀)、破军符(critRate每精英杀)、霹雳木(fearCrit)、寒星铁(critDmg+slow)、静心咒(decoyHP+def) |
+| 联动（PREREQS） | 6 | 墨罡印、厚墨、焰墨砚、连环符、墨龙鳞、裂冰诀（均需前置遗物满足条件方出现） |
+
+**新增敌人（2种，13→15）：**
+- **炎俑 (yanyong)：** 近战火径敌人，HP 95、spd 1.3、dmg 13，移动留火场，cost 2.2
+- **速傀 (sukui)：** 高速远程敌人，HP 38、spd 2.2、dmg 8，快速弹射，cost 1.4
+
+**新增誓印（2种，6→8）：**
+- **狂血 (kuangxue)：** 杀敌后攻速+移速短时提升，受击额外受伤+30%
+- **墨瘾 (moyin)：** 弹道+1，射程-15%，移速-8%
+
+**中Boss遭遇：**
+- Wave 6 50%概率触发中Boss（非噩梦难度），使用最终Boss类型但 HP×0.55
+- 入场特效减半（25帧）、无 bossIntro 音效、标签显示"中Boss"
+- `midBoss:true` 标志存储于敌人对象，贯穿 spawnEnemy→入场→死亡全流程
+
+**性能优化：**
+- 4 处渲染循环添加屏幕空间裁剪（fires/eProj/attacks/particles），减少 ~30-50% draw call
+- 小粒子（ps≤2.5）改为简单 arc 路径，跳过复杂 blob 绘制
+
+**武器平衡：**
+- AOE 武器（镇魂铃）dmg 13→16
+- Dash 武器（伏魔伞）dmg 18→16
+- 静心咒 decoyHP 30→20+def 12%
+
+**百科更新：**
+- 构筑线从 7 条扩至 9 条（新增弹道体积联动、火径压制）
+- 所有新增遗物/敌人/誓印自动渲染
+
+**测试覆盖：** smoke_test 36项 + wave_test 5项 + content_test 11项 = **52项全部通过**。
+
+**代码规模：** game.js ~2810 行 (+65)，gamedata.js ~380 行 (+29)，content_test.js 153 行（新增），wiki.html 构筑线+2。
+
+*v2.6 更新于 2026-04-29。*
+
+### v2.7 毒蛛 + 三遗物 + 深度测试 (2026-04-30)
+
+**新增敌人（1种，15→16）：**
+- **毒蛛 (duzhu)：** 毒径减速敌人，HP 50、spd 1.6、r 13、dmg 8，移动留毒场（poison=true），cost 1.7
+  - 毒场每 25 帧生成，半径 14，持续 70 帧
+  - 毒场对玩家造成伤害并减速（slowT+=30），绿色苔藓风格渲染
+  - 加入 WAVE_TIERS tier 2-3（wave 4+）
+  - DEATH_COLOR: moss
+
+**毒场系统：**
+- `fire.poison` 新分支：与 `f.slow`（冰区）、`f.owner==="player"`（玩家火场）、默认（敌方火场）并列
+- 毒场渲染：外圈深绿 `rgba(77,107,86,0.5)` + 内圈浅绿 `rgba(140,180,120,0.6)`
+- 玩家减速：`p.slowT=Math.max(p.slowT,30)`，与冰冻区共享减速机制
+
+**新增遗物（3件，57→60）：**
+
+| ID | 名称 | 标签 | 效果 |
+|----|------|------|------|
+| mojiangling | 墨将令 | 击杀/法术 | 击杀精英时爆发墨汁，80px范围内造成 stats.dmg×8 伤害 |
+| guishouyin | 鬼手印 | 闪避/魂 | 完美闪避时吸取120px内最近敌人灵魂，造成 soulDmg+5 并回复3HP |
+| zhiyanwen | 纸鸢纹 | 远程/控场 | 弹道首次命中留下减速墨圈（r=22, life=50, slow=true） |
+
+**遗物实现细节：**
+- 墨将令：挂载于 `onEnemyKilled()` 精英死亡分支，对范围内非Boss敌人调用 `damageEnemy()`
+- 鬼手印：挂载于 `dodge()` 函数末尾，寻找最近敌人，造成魂伤+回血+粒子特效
+- 纸鸢纹：挂载于弹道命中逻辑，每颗弹道仅触发一次（`_slowFieldDone` 标记）
+
+**测试覆盖：** 新增 3 项测试（#48 毒蛛、#49 新遗物、#50 WAVE_TIERS），总计 **14 项 content_test 全部通过**。
+
+**代码规模：** game.js ~2860 行 (+50)，gamedata.js ~385 行 (+6)，content_test.js ~195 行 (+42)。
+
+*v2.7 更新于 2026-04-30。*
+
+### v2.8 蛊师 + 誓印扩展 + 环境事件 (2026-04-30)
+
+**新增敌人（1种，16→17）：**
+- **蛊师 (gushi)：** 支援型敌人，HP 65、spd 1.1、r 14、dmg 0（不直接攻击），cost 2.8
+  - 每 60 帧为 90px 范围内非Boss敌人施加增益（`buffed=60`），+30%移速 +35%伤害
+  - 深紫光环渲染，被增益敌人显示暗紫色边框
+  - 加入 WAVE_TIERS tier 3-4（wave 6+）
+
+**新增誓印（2种，8→10）：**
+- **迷雾 (miwu)：** 5秒周期，其中1.5秒视野缩小至 120px 径向渐变，但移速+30%
+  - 渲染使用 `destination-in` 合成模式创建黑洞效果
+- **鬼火 (guihuo)：** 敌人死亡产生追踪魂球（spd 1.5, dmg × 0.4, life 180），但击杀回血+5
+  - 魂球渲染为暗紫核心+苍白内核，带 shadowBlur 发光
+
+**新增遗物（3件，60→63）：**
+
+| ID | 名称 | 标签 | 效果 |
+|----|------|------|------|
+| shiguping | 噬蛊瓶 | 生存/火 | 站在毒场上回复2HP而非受伤，反转毒蛛威胁 |
+| yexingyi | 夜行衣 | 闪避/机动 | 迷雾中增伤+30%，魂球击中回血+3而非受伤 |
+| hunsuolian | 魂锁链 | 处决/击杀 | 连斩每层额外+3%伤害，十连斩以上暴击率+15% |
+
+**遗物-誓印联动设计：**
+- 噬蛊瓶 + 毒蛛：将威胁转为资源
+- 夜行衣 + 迷雾/鬼火誓印：将惩罚转为增益
+- 魂锁链 + 斩妖剑：强化连斩体系的核心循环
+
+**环境事件系统（STAGE_HAZARDS）：**
+- Wave 3+ 非 Boss 波次 30% 概率触发随机环境事件
+- **阴风 (yinfeng)：** 每 180 帧随机方向推力影响玩家和所有敌人
+- **墨雨 (moyu)：** 每 45 帧随机位置掉落墨点，接触扣 5 HP
+- **鬼火焰 (guihuoyan)：** 每 120 帧生成追踪火球（spd 1.2, dmg 3, life 120）
+
+**百科更新：**
+- 构筑线从 11 条扩至 15 条（新增毒径求生、暗夜行者、连斩之道、弹幕领域）
+
+**测试覆盖：** 新增 4 项测试（#51 蛊师、#52 新誓印、#53 新遗物、#54 环境事件），总计 **18 项 content_test 全部通过**。
+
+**代码规模：** game.js ~2950 行 (+90)，gamedata.js ~400 行 (+15)，content_test.js ~280 行 (+85)。
+
+*v2.8 更新于 2026-04-30。*
+
+### v2.9 墨灵伙伴 + 伪装/寄生系统 (2026-04-30)
+
+**新系统：墨灵伴侣**
+- 墨灵玉(molingyu): 召唤墨灵环绕玩家，自动追踪攻击附近敌人
+- 墨灵以小墨球形态绕玩家旋转，每38帧发射墨弹攻击220px内敌人
+- 墨灵弹为独立攻击类型(spirit)，碰撞后触发hitE完整流程
+
+**新敌人类型：**
+- 画皮(huapi): 伪装成墨色光点，玩家靠近后现形突袭。速度2.1、伤害14，高威胁伏击单位
+- 墨蛭(mozhi): 极速小型寄生者，接触后吸附玩家持续吸血(2HP/30帧)，需闪避甩脱
+
+**新遗物 (4件)：**
+- 墨灵契(molingqi): 墨灵伤害+50%、墨灵数量+2（前置：墨灵玉）
+- 破妄瞳(powangtong): 首次攻击现形画皮必暴击+50%伤害，暴击率+5%
+- 蛭反(zhifan): 被墨蛭吸附时攻速+35%、伤害+25%
+
+**新誓印 (1件)：**
+- 灵噬(lingshi): 墨灵伤害翻倍，但每波开始每只墨灵扣2HP
+
+**交互设计：**
+- 画皮伪装→破妄瞳克制（首次必暴）形成战术反制
+- 墨蛭吸附→闪避甩脱→蛭反增益形成风险收益博弈
+- 灵噬高伤害→扣血惩罚→需要权衡墨灵数量
+
+**游戏逻辑修改：**
+- game.js: spawnEnemy添加mimic/disguised/leech/attached标志
+- update(): 画皮检测距离触发现形(55px)，墨蛭接触吸附+跟随+吸血
+- startDodge(): 闪避时清除所有吸附墨蛭
+- pAtk(): 蛭反检测吸附状态增伤+减CD
+- hitE(): 破妄瞳检测mimicRevealT强制暴击+增伤
+- startWave(): 灵噬检测扣除墨灵数×2的HP
+- render(): 画皮伪装渲染为墨绿光点，墨蛭吸附时在玩家身上渲染，墨灵渲染为带光环的墨球
+
+**数据更新：**
+- RELICS: 63→67 (+4)
+- ETYPE: 17→19 (+2: huapi/mozhi)
+- CURSES: 10→11 (+1: lingshi)
+- PREREQS: 16→17 (+1: molingqi)
+- LIMITS: 新增inkSpirits:6
+
+**测试覆盖：** 新增 8 项测试（#55-#62），总计 **26 项 content_test 全部通过**。
+
+**代码规模：** game.js ~3030 行 (+80)，gamedata.js ~430 行 (+14)，content_test.js ~360 行 (+80)。
+
+*v2.9 更新于 2026-04-30。*
+
+### v2.10 墨阵系统 + 墨童自爆 (2026-04-30)
+
+**新系统：墨阵 (Ink Formations)**
+- 墨守阵(moshouzhen): 静止1秒后生成墨守圈(50px,90帧)，圈内玩家减伤25%
+- 墨攻阵(mogongzhen): 每击杀3敌释放墨爆脉冲(80px)，对范围内敌人造成武器伤害×2
+- 阵眼(zhenyan): 墨阵范围+40%、触发阈值减半（静止0.5秒、击杀2敌）
+- 墨竭(mojie)誓印: 墨阵效果翻倍（双倍范围/持续时间），但最大生命-25%
+- 墨阵为独立ground对象，render中绘制为虚线圆(守)/扩散圈(攻)
+
+**阵地系统实现：**
+- g.formations数组管理所有墨阵
+- 守阵在hurtP中减伤判定（dstSq<r²）
+- 攻阵在life=4帧时爆炸，遍历enemies造成伤害
+- 静止检测通过movedThisFrame标志，连续不移动积累stillT
+
+**新敌人：墨童(motong)**
+- 小型快速近战(HP28,spd1.7)，死后延迟55帧自爆
+- 爆炸半径60px，伤害12，对玩家造成伤害
+- 炸弹倒计时在render中渲染为渐变红色警告圈
+
+**交互设计：**
+- 墨守阵鼓励"站桩输出"玩法，与闪避型build形成取舍
+- 墨攻阵+骨笛残声/破军符=高频击杀触发连爆
+- 墨竭高风险高收益，配合墨守阵弥补生存缺陷
+- 墨童死后自爆迫使玩家注意尸体位置，增加走位深度
+
+**数据更新：**
+- RELICS: 67→70 (+3: moshouzhen/mogongzhen/zhenyan)
+- ETYPE: 19→20 (+1: motong)
+- CURSES: 11→12 (+1: mojie)
+- PREREQS: 17→18 (+1: zhenyan)
+
+**测试覆盖：** 新增 6 项测试（#63-#68），总计 **32 项 content_test 全部通过**。
+
+**代码规模：** game.js ~3095 行 (+65)，gamedata.js ~440 行 (+11)，content_test.js ~430 行 (+70)。
+
+*v2.10 更新于 2026-04-30。*
+
+### v2.11 墨镜/回春阵/墨涡/墨蝠/墨瘴 (2026-04-30)
+
+**新遗物（3件）：**
+
+**墨镜（mojing）** — 镜器 | 防御/法术
+- 30%概率反弹敌方弹道，反弹伤害翻倍
+- 标记：`reflectChance`=0.3, `reflectDmgMult`=1
+- 实现：在敌弹碰撞检测中（game.js:1378）插入反射判定，通过Math.random()<reflectChance决定是否反弹
+- 反射时将弹道反转方向、加倍伤害，从g.eProj移除并pushAttack加入玩家攻击池
+- 反射粒子效果：accent色粒子；
+
+**回春阵（huichunzhen）** — 阵器 | 生存/控场
+- 静止1.2秒生成回春圈，圈内每秒回复3HP
+- 标记：`healFormation`=true
+- 实现：与墨守阵共用stillT机制，独立阈值（formBoost减半）；生成"heal"类型阵
+- 阵生命周期中每60帧（1秒）检查玩家是否在圈内，是则+3HP
+- 阵渲染：moss色虚线圆，alpha=0.12填充+0.35描边
+- formDouble/mojie：半径56→112，生命120→240
+- 前置：需持有任一墨阵（moshouzhen或mogongzhen）
+
+**墨涡（mowo）** — 阵器 | 击杀/控场
+- 每击杀5敌在脚下释放墨涡，牵引并伤害周围敌人
+- 标记：`vortexOnKill`=true, `vortexKills`计数
+- 实现：onEnemyKilled递增vortexKills；update检测>=5时生成"vortex"阵并重置
+- 阵每帧牵引圈内敌人向中心（拉力与距离成反比），每12帧造成35%阵伤害
+- 阵渲染：三层旋转弧线+渐大填充圆
+- wave开始时reset vortexKills
+
+**墨吸（moxi）** — 阵器 | 击杀/控场
+- 击杀敌人延长所有墨阵15帧
+- 标记：`formationLeech`=true
+- 实现：onEnemyKilled遍历g.formations将life延长15帧（不超过maxLife）
+- 与所有阵型遗物协同，提供阵的持续维持
+
+**墨甲（mojia）** — 护具 | 生存/控场
+- 防御+15%，在墨阵内额外+15%防御
+- 标记：`formDef`=true, stats.def+=0.15
+- 实现：hurtP中检查p.formDef，若玩家在任一类型阵内则额外减伤15%
+- 与所有阵型遗物协同，提供阵内生存强化
+
+**新敌人（1种）：**
+
+**墨蝠（mofu）** — 高速俯冲撞击
+- HP 25, SPD 3.2, R 9, DMG 10, ATK/R 60, ATK/CD 50
+- 机制 `swoop`：三段状态机 idle→prep→swoop
+  - idle：距玩家<180px时进入prep
+  - prep：减速前移35帧后锁定方向冲刺
+  - swoop：2.8倍速冲刺22帧，命中1.5倍伤，出界或超时回idle
+- 渲染：蝙蝠翼形多边形+翼展动画wingFlap；prep状态闪烁accent虚线
+- 配色：rgba(23,19,16,0.3)/ink，死亡墨色
+- WAVE_TIERS[1]出现，ENEMY_COST=1.1
+
+**新环境事件（1种）：**
+
+**墨瘴（mozhang）** — 毒瘴飘移
+- 每200帧生成毒瘴云（R30, 生命220），随机初速度飘移
+- 碰壁反弹，玩家在云内每20帧扣2HP
+- 渲染：moss色双层椭圆波动云，间隔200帧
+
+**Bug修复（4项）：**
+1. formDouble错误降低了atkFormation触发阈值（修复：formBoost才减半）
+2. stillT精确相等导致阵无法连续触发（修复：>=检测+重置stillT=0）
+3. 墨灵契拾取后已有墨灵伤害未更新（修复：relic应用后遍历更新所有spirit.dmg）
+4. deathburst碰撞公式用r1²+r2²而非(r1+r2)²（修复：mr=db.r+p.r; dstSq<mr*mr）
+
+**数据更新：**
+- RELICS: 70→75 (+5: mojing/huichunzhen/mowo/moxi/mojia)
+- ETYPE: 20→21 (+1: mofu)
+- STAGE_HAZARDS: 3→4 (+1: mozhang)
+- PREREQS: 18→19 (+1: huichunzhen)
+
+**测试覆盖：** 新增 10 项测试（#69-#78），总计 **42 项 content_test 全部通过**。
+
+**代码规模：** game.js ~3250 行 (+155)，gamedata.js ~465 行 (+25)，content_test.js ~540 行 (+112)。
+
+*v2.11 更新于 2026-04-30。*
+
+### v2.12 墨爆/墨弦/墨蝶 (2026-04-30)
+
+**新遗物（2件）：**
+
+**墨爆（mobao）** — 阵器 | 击杀/法术
+- 墨阵消失时引爆，对范围内敌人造成伤害
+- 标记：`formationDetonate`=true
+- 实现：在formation生命周期中，life<=0时若玩家有formationDetonate，引爆AOE
+- 伤害 = weapon.dmg × stats.dmg × 1.2，范围=阵半径
+- 引爆视觉：accent粒子12个+ink粒子8个+震动(5,2)
+- 前置：需持有任一墨阵（moshouzhen/mogongzhen/huichunzhen/mowo）
+
+**墨弦（moxian）** — 阵器 | 法术/控场
+- 两个以上墨阵间生成墨弦，触弦敌人受伤
+- 标记：`inkStrings`=true
+- 实现：update中每12帧遍历formation对，用distPointToSeg检测敌人-线段距离
+- 弦线伤害 = weapon.dmg × stats.dmg × 0.25
+- 弦线渲染：虚线连接每对墨阵，alpha=min两阵生命比×0.3
+- 前置：需持有至少2件阵型遗物（含mobao）
+- 新增工具函数：distPointToSeg(px,py,x1,y1,x2,y2) — 点到线段最短距离
+
+**新敌人（1种）：**
+
+**墨蝶（modie）** — 脆弱飞行远程
+- HP 18, SPD 2.8, R 8, DMG 6, ATK/R 200, ATK/CD 80
+- 机制 `deathBuff`：死亡时buff半径130内所有敌人180帧（伤害+35%）
+- 渲染：蝴蝶双翼多边形+振翅动画wingFlap，moss色填充
+- 配色：rgba(77,97,86,0.35)/C.moss，死亡moss色
+- WAVE_TIERS[1]出现，ENEMY_COST=1.6
+
+**数据更新：**
+- RELICS: 75→77 (+2: mobao/moxian)
+- ETYPE: 21→22 (+1: modie)
+- PREREQS: 19→21 (+2: mobao/moxian)
+
+**测试覆盖：** 新增 7 项测试（#79-#85），总计 **48 项 content_test 全部通过**。
+
+**代码规模：** game.js ~3310 行 (+60)，gamedata.js ~475 行 (+10)，content_test.js ~600 行 (+60)。
+
+*v2.12 更新于 2026-04-30。*
+
+### v2.13 墨钉/墨澄 (2026-04-30)
+
+**新遗物（2件）：**
+
+**墨钉（moding）** — 凶器 | 控场/近战
+- 攻击钉住首个命中敌人1.5秒（30帧），禁止移动
+- 标记：`attackPin`=true
+- 实现：damageEnemy中若e.hp>0则设置e.pinned=30帧
+- 敌人update：pinned>0时spd强制为0，逐帧递减
+- 渲染：accent色十字钉标记，闪烁动画
+- 前置：仅限近战武器
+
+**墨澄（mochen）** — 阵器 | 法术/控场
+- 站在墨阵内时攻速+20%
+- 标记：`formClarity`=true
+- 实现：pAtk计算atkCd时，若玩家在任一墨阵内，cdMult×0.8
+- 与所有阵型遗物协同，强化阵内站桩输出
+
+**数据更新：**
+- RELICS: 77→85 (+8: moding/mochen/motao/molian/moyi/moze/moxiu/mowei)
+- PREREQS: 21→25 (+4: moding/mochen/molian/moyi)
+
+**墨涛（motao）** — 墨具 | 击杀/控场
+- 击杀敌人释放墨涛，推开周围敌人
+- 标记：`killPulse`=true
+- 实现：onEnemyKilled遍历100px内敌人，按距离反比推开
+
+**墨涟（molian）** — 阵器 | 法术/控场
+- 站在墨阵内每0.5秒释放墨涟，伤害阵内所有敌人
+- 标记：`formRipple`=true
+- 伤害=weapon.dmg×stats.dmg×0.18，moss色粒子效果
+
+**墨移（moyi）** — 闪具 | 闪避/机动
+- 闪后留影，3秒内再闪回归原位
+- 标记：`recallDash`=true，前置：闪避武器
+- 实现：首次闪保存recallMark{x,y,life:180}，再闪时若mark有效则传送回mark位置
+- 视觉：accent虚线圈+粒子爆发
+
+**墨泽（moze）** — 墨具 | 击杀/机动
+- 击杀敌人获得3秒移速+20%
+- 标记：`speedBurstT`=180（3秒）
+- 实现：onEnemyKilled设置speedBurstT=180，moveScale中speedBurstT>0时+0.2速度
+- 叠加于killSpdTimer之上，moss色粒子提示
+
+**墨嗅（moxiu）** — 墨具 | 击杀/处决
+- 击杀延长连斩窗口15帧（上限150帧），更易维持高连斩
+- 标记：`scentStreak`=true
+- 实现：onEnemyKilled将killStreakT+15（上限150），延长连斩判定窗口
+
+**墨威（mowei）** — 阵器 | 法术/击杀
+- 每个活跃墨阵+6%伤害
+- 标记：`formDmgBonus`=true
+- 实现：pAtk计算伤害时，dmg×(1+g.formations.length×0.06)
+
+**测试覆盖：** 新增 10 项测试（#86-#95），总计 **58 项 content_test 全部通过**。
+
+**代码规模：** game.js ~3410 行 (+60)，gamedata.js ~505 行 (+25)，content_test.js ~730 行 (+150)。
+
+*v2.13 更新于 2026-04-30。*
+
+### v2.14 墨碎/墨蚀/墨怒 (2026-04-30)
+
+**新遗物（3件）：**
+
+**墨碎（mosui）** — 凶器 | 暴击/溅射
+- 暴击时溅射碎片，对周围80px内敌人造成35%伤害
+- 标记：`critShrapnel`=true
+- 实现：hitE中暴击判定后，遍历附近敌人调用damageEnemy，"shrapnel"伤害源
+
+**墨蝕（moshi）** — 墨具 | 持续/法术
+- 攻击附加墨蚀，每秒2点伤害持续5秒（100帧），可叠3层
+- 标记：`corrosive`=true，前置：墨涟
+- 实现：damageEnemy中设置e.corrode（上限3层），e.corrodeT=100
+- 敌人update中每60帧（1秒）造成 corrode×2 点伤害，粒子提示
+- corrodeT归零时层数清零
+
+**墨怒（monu）** — 墨具 | 生命/爆发
+- 生命低于50%时，伤害+25%，移速+15%
+- 标记：`lowHpFury`=true，前置：铜镜
+- 实现：pAtk中若hp≤maxHp×0.5则最终伤害×1.25
+- moveScale中若hp≤maxHp×0.5则速率+0.15
+
+**新敌人（2种）：**
+
+**墨蛹（moyong）** — 蛹体
+- 慢速无攻击蛹体（HP55，速度1.2），死后孵化2只墨蚋
+- 属性：spawnsOnDeath=true，spawnType="morui"，spawnCount=2
+- 实现：onEnemyKilled中检测spawnsOnDeath，调用spawnEnemy在死亡位置生成morui
+- 波次：Tier1/Tier3
+
+**墨蚋（morui）** — 幼虫
+- 极速近战小虫（HP12，速度3.6，攻击CD26帧）
+- 仅由墨蛹孵化生成，不直接出现在波次池中
+
+**UI/体验打磨：**
+- 破盾：增加震屏（dur=5, amp=3）+ 顿帧2帧
+- critFlash：持续帧数12→18（更明显的金色闪光）
+- 处决闪光：窗口从freezeT>4扩大到freezeT>1，alpha随freezeT线性衰减
+- 浮动文字：dmg/critDmg/weakDmg/soul/heal基础字号+2px，全部增加text-shadow
+- 连斩计数器：基础字号16→20px，倍率12→14px，增加accent色辉光
+- 波次进度条：高度3→5px
+- 命中闪光：alpha上限限制1.0，防止过曝
+
+**引擎增强：**
+- spawnEnemy支持opts.x/opts.y位置覆盖（用于敌人孵化/分裂等中途生成场景）
+- 覆盖时跳过arena边缘定位逻辑
+
+**数据更新：**
+- RELICS: 85→88 (+3: mosui/moshi/monu)
+- ETYPE: 22→24 (+2: moyong/morui)
+- PREREQS: 25→27 (+2: moshi/monu)
+
+**测试覆盖：** 新增 8 项测试（#96-#103），总计 **66 项 content_test 全部通过**。
+
+**代码规模：** game.js ~3500 行 (+80)，gamedata.js ~545 行 (+40)，content_test.js ~780 行 (+50)。
+
+*v2.14 更新于 2026-04-30。*
+
+### v2.14.1 稳定性热修 + UI图标补丁 (2026-04-30)
+
+**稳定性修复：**
+- 修复 `damageEnemy()` 内部直接读取未定义 `p` 的崩溃。该问题会在墨蚀/魂链/护盾/多武器长跑中触发，表现为对局中后段随机中断。
+- 将 `pAtk()`、墨涟、铃圈绘制中的局部 `ri` 循环变量改名，避免测试环境去掉 IIFE 后覆盖随机整数函数 `ri()`，同时降低全局污染风险。
+- `pushAttack()` 统一初始化 `hitMap/life/maxLife`，并对投射物/墨灵弹做速度有效性修复。后续所有攻击入口走同一安全网，减少“弹射物卡住无伤害”的隐性来源。
+- 墨灵自动弹从直接 `pushLimited(g.attacks,...)` 改走 `pushAttack()`，保证攻击对象结构一致。
+
+**遗物/誓印流程修复：**
+- 遗物弹窗增加一次性选择锁，防止双击/连点导致重复应用、直接进入后续项或状态错乱。
+- 纸薄/起始遗物浮字从 `startWave()` 前移动到 `startWave()` 后创建，避免被 `cleanupWave()` 清掉。
+
+**UI/图标补丁：**
+- 武器选择卡和遗物选择卡新增纯 CSS 水墨小图标，不引入图片资源。
+- 卡片增加淡墨底纹、选中态和更清晰的标题层级，提升“东方志怪/水墨器物”的识别度。
+
+**测试覆盖：**
+- `smoke_test.js` 增加第37项：镇魂铃 + 魂链 + 墨蚀 + 减速联动的 60 秒长跑，用于回归约49秒崩溃窗口。
+- 当前通过：`smoke_test` 37项、`wave_test` 5项、`content_test` 69项。
+
+*v2.14.1 更新于 2026-04-30。*
+
+### v2.14.2 移动端手感 + HUD可读性优化 (2026-04-30)
+
+**目标：**
+- 处理移动端右摇杆死区与 HUD 后期遮挡两个直接体验问题。
+- 把纸薄开局赠物从“字段测试”提升到真实 `beginRun()` 流程回归。
+
+**改动：**
+- `mobile-controls.js` 新增 `nearestAimVector()` 和 `updateRightAim()`，右摇杆 `touchstart/touchmove` 共用同一套死区逻辑。
+- 右摇杆轻触不再立刻攻击；只有拖出 `ATTACK_THRESHOLD` 后才攻击。死区内仍保留最近敌人自动瞄准方向。
+- HUD 遗物条最多展示前 5 件遗物，超过部分显示 `+N件`，避免后期遮挡画面和移动端压 UI。
+- `content_test.js` 的纸薄测试新增真实 `beginRun()` 验证：开局应获得 2 件遗物、消耗 `extraStartRelics`、最大生命变为 60。
+- 新增 HUD 汇总测试，防止后续改 UI 时再次把遗物条铺满。
+
+**测试覆盖：**
+- `node --check game.js`
+- `node --check mobile-controls.js`
+- `node smoke_test.js`：37项通过
+- `node wave_test.js`：5项通过
+- `node content_test.js`：70项通过
+
+**未解决：**
+- 纸薄已通过真实流程测试，但如果实机仍只显示 1 件，需要优先排查缓存/打包同步。
+- 移动端右摇杆阈值需要实机手感确认，当前策略是“死区内自动瞄准、拖出死区攻击”。
+
+*v2.14.2 更新于 2026-04-30。*
+
+### v2.14.3 数值平衡 + UI增强 (2026-04-30)
+
+**目标：**
+- 缩小四武器DPS差距，解决斩妖剑DPS约为符骨笔2倍的问题。
+- 增加战斗状态可视化反馈。
+
+**数值平衡改动：**
+
+| 项目 | 改前 | 改后 | 变化 |
+|------|------|------|------|
+| 斩妖剑 dmg | 22 | 20 | -9% |
+| 符骨笔 dmg | 14 | 16 | +14% |
+| 符骨笔 cd | 20帧 | 18帧 | -10% |
+| 伏魔伞 dmg | 16 | 18 | +13% |
+| combo3Dmg | 1.35× | 1.25× | -7% |
+| 石俑 shield | 45 | 35 | -22% |
+
+剑/笔差距从 2:1 缩至 1.4:1。
+
+**UI/反馈增强：**
+- 墨蚀指示器：被腐蚀敌人显示苔绿色虚线环 + 层数数字，便于追踪DOT状态
+- 连斩计数器持久化：窗口 90→120帧（1.5→2秒），从第1斩即显示，5连/10连字号放大+辉光增强
+- 缓存版本 `?v=2143`
+
+**测试覆盖：**
+- `node --check` 全部通过
+- smoke 37项 / wave 5项 / content 70项 = 112项全通过
+
+**未解决：**
+- 墨碎溅射值(35%)和spirit伤害(4)仍需实机观察。
+- 遗物强度梯度暂未调整。
+
+*v2.14.3 更新于 2026-04-30。*
+
+### v2.14.4 UI反馈 + 战斗可视化 (2026-04-30)
+
+**遗物选择优化：**
+- 协同标签：遗物选择卡片新增"协·{tag}"徽章，当选中遗物与已持有遗物有共同标签时显示，帮助玩家识别搭配潜力
+- `relicCardHtml()` 新增 `ownedRelics` 参数，`showRelic()` 调用处传入 `g.relics`
+
+**战斗状态指示：**
+- Buff图标：玩家下方显示彩色圆点+单字标签（速/攻/暴/盾/蓄），实时显示当前激活的临时增益
+  - 金色=速度、苔绿=攻击、赤色=暴击、冰蓝=护盾、金色蓄=蓄力
+- Boss八向弹幕预警：boss发射8方向弹幕前20帧显示墨色虚线射线，逐渐变长变亮，提示玩家走位
+
+**CSS新增：**
+- `.relic-synergy` 类：金色半透明背景标签，内联于遗物卡片类型徽章旁
+
+**测试覆盖：**
+- `node --check` 全部通过
+- smoke 37项 / wave 5项 / content 70项 = 112项全通过
+
+*v2.14.4 更新于 2026-04-30。*
+
+### v2.14.5 数值平衡 + 图标扩展 (2026-04-30)
+
+**目标：**
+- 系统化数值平衡：缩小敌人/遗物/誓印之间的强度差距
+- 扩展遗物图标覆盖：新增火焰/灵魂/护盾/面具/镜子/珍珠/诅咒 7组图标
+
+**数值平衡改动：**
+
+| 项目 | 改前 | 改后 | 原因 |
+|------|------|------|------|
+| 石俑 HP | 110 | 95 | EHP 145→123，后期不再过度spongy |
+| 石俑 shield | 35 | 28 | 与HP同比例下调 |
+| 纸人替魄 decoyHP | 30 | 45 | 30HP在第3波后即被秒，45HP可持续到第6波 |
+| 镇墓兽首 thorns | 30% | 50% | 反弹3伤害太弱，提高到5-6伤害 |
+| 迷雾 spd | +30% | +40% | 视野损失的代价需要更强补偿 |
+| 鬼火 killHeal | +5 | +8 | 追踪魂球风险大，回血需更显著 |
+| 孤行 stats | +35% | +30% | 全属性+35%+攻速过强，适度削减 |
+
+**图标扩展（+14个遗物有专属图标）：**
+- 火焰组：夜灯残烬、血烛祭片、火祟牙 — 火苗形状
+- 灵魂组：引魂灯笼、鬼脊蝶印、招魂残幡、骨笛残声 — 魂光形状
+- 护盾组：纸甲残片、镇墓兽首 — 盾牌+十字
+- 面具：傩面碎片 — 椭圆+双目
+- 镜子：铜镜照妖 — 菱形+反光线
+- 珍珠：墨龙珠 — 圆珠+光晕
+- 诅咒组：祟面香灰、血墨混染 — 圆印+斜线
+
+**测试覆盖：**
+- `node --check` 全部通过
+- smoke 37项 / wave 5项 / content 70项 = 112项全通过
+
+*v2.14.5 更新于 2026-04-30。*
+
+### v2.14.6 性能压测脚本 (2026-04-30)
+
+**目标：**
+- 按开发规范 Priority #4 补性能压测脚本，覆盖高压场景。
+
+**新增 `stress_test.js`（10项）：**
+
+| # | 场景 | 覆盖 |
+|---|------|------|
+| 1 | Bell AOE 满连击 | max combo + 40敌人 + 200帧 |
+| 2 | 火场饱和 | fireOnKill + 8焚灵 + 8炎俑 |
+| 3 | 墨灵满编 | 6只墨灵 + 40敌人 |
+| 4 | 分裂链爆炸 | 10只分身鬼同时击杀 |
+| 5 | 召唤物洪流 | 4纸鸢匠 + 400帧 |
+| 6 | 远程弹幕饱和 | 20游魂 + 200帧 |
+| 7 | perfMul 节流验证 | 填满粒子池 → 验证降频 |
+| 8 | 综合高压 | 镇魂铃+fireOnKill+魂链+墨灵+召唤+分裂 |
+| 9 | 60秒极限长跑 | boss + 35敌人 + 3600帧 + 增援 |
+| 10 | 粒子预算 | 符骨笔+折返+30敌人 + 500帧 |
+
+**验证内容：**
+- 所有对象池不超过 LIMITS 上限
+- perfMul 在高压时正确降频（mul < 0.5）
+- 3600帧长跑在 5 秒内完成
+
+**测试覆盖：**
+- smoke 37 + wave 5 + content 70 + stress 10 = 122 项全通过
+
+*v2.14.6 更新于 2026-04-30。*
+
+### v2.15 彩蛋成就 (2026-05-05)
+
+**新增 8 个彩蛋成就（ACHIEVEMENTS 扩展 18→26）：**
+
+| ID | 名称 | 条件 | 检测方式 |
+|----|------|------|----------|
+| no_move_win | 不动如山 | 全程不按WASD通关 | `usedMoveKey` 追踪 |
+| low_hurt_win | 一刀不漏 | 受伤≤3次通关 | `hurtCount` 计数 |
+| speed_clear | 暴走夜行 | 单波30秒内清场 | `waveFirstKillT` → 清除时间差 |
+| paper_win | 纸糊的人 | 纸薄誓印通关 | `maxHpOverride<=60` |
+| no_relic_win | 赤手空拳 | 不拾取任何遗物通关 | `relics.length===0` |
+| massacre | 百鬼夜行 | 单局击杀100+ | `kills>=100` |
+| perfect_boss | 完美谢幕 | Boss战不受伤 | `bossHurtThisWave` 追踪 |
+| no_evolve_win | 孤勇者 | 孤行誓印通关 | `player.noEvolution` |
+
+**检测点埋设（game.js）：**
+- `newGame()`: 初始化 `hurtCount=0, usedMoveKey=false, bossHurtThisWave=false`
+- `hurtP()`: `hurtCount++`, boss波时 `bossHurtThisWave=true`
+- `keydown`: WASD/方向键按下时 `usedMoveKey=true`
+- `onEnemyKilled()`: 记录 `waveFirstKillT`
+- `startWave()`: 检测boss波，重置 `bossHurtThisWave`
+- 波次清除: 检测快速清场 (<1800帧/30秒)
+- `metaRecordRun()`: 写入所有彩蛋字段
+
+**测试覆盖：**
+- content_test 新增 7 项 (108-114)，覆盖成就注册、计数器、追踪字段、meta写入
+- smoke 37 + wave 5 + content 77 + stress 10 = 129 项全通过
+
+*v2.15 更新于 2026-05-05。*
+
+---
+
+## 十七、当前Bug追踪（改完删条目）
+
+### 🔴 严重
+
+- 暂无自动化可复现的严重问题。
+
+### 🟡 平衡
+
+- **墨碎(critShrapnel)**: 已改为仅暴击触发，但35%溅射值可能仍需观察
+- **spirit伤害**: 基础5→4（20%降低），需进一步测试实际对局表现
+
+### 🟡 功能
+
+- **移动端右摇杆瞄准**: 已改为死区内自动瞄准、拖出死区攻击；仍需实机确认阈值是否舒适
+
+### 🟢 已修复 (v2.14.5, 2026-04-30)
+
+- ✅ critShrapnel每次攻击都触发→改为仅暴击触发
+- ✅ 弹射物速度安全网
+- ✅ 49秒崩溃窗口：修复 `damageEnemy()` 未定义 `p`
+- ✅ 弹射物入口一致性：`pushAttack()` 统一补 `hitMap/life/maxLife/速度`
+- ✅ 遗物选择连点/重复应用：一次性选择锁
+- ✅ 誓印赐物浮字：移到 `startWave()` 之后创建
+- ✅ 纸薄开局赠物：`beginRun()` 回归测试确认2件遗物
+- ✅ 移动端右摇杆：死区内自动瞄准、拖出死区攻击
+- ✅ HUD遗物条：超过5件改为 `+N件` 汇总
+- ✅ 武器平衡：剑-9%/笔+27%/伞+13%，剑笔差距 2:1→1.4:1
+- ✅ 石俑EHP：110+35盾→95+28盾，有效生命 145→123
+- ✅ combo3Dmg：1.35→1.25，剑三连击 24.6→21.67 均伤
+- ✅ 遗物协同标签：选择时显示"协·{tag}"提示搭配潜力
+- ✅ Buff状态图标：玩家下方彩色圆点实时显示临时增益
+- ✅ Boss八向弹幕预警：发射前20帧显示墨色虚线射线
+- ✅ 数值平衡梯度：镇墓兽首50%反伤、纸人替魄45HP、迷雾+40%速、鬼火+8击杀回血、孤行+30%属性
+- ✅ 遗物图标扩展：+14个专属图标（火焰/灵魂/护盾/面具/镜子/珍珠/诅咒）
+
+### 🟢 v2.16 (2026-05-05) 成就展示 + Bug修复 + 性能优化
+
+**新功能：**
+- ✅ 游戏结束画面显示新解锁成就名称（带边框标签样式）
+- ✅ 88件遗物全部拥有专属CSS图标（从30个扩展到88个）
+
+**Bug修复：**
+- ✅ 死因显示优化：爆裂/墨童爆裂/鬼火焰/墨雨/墨瘴（之前显示未知）
+- ✅ 墨蛭位置计算：indexOf从调用两次优化为一次
+- ✅ weakTargets迭代：for...in改为Object.keys().forEach（避免继承属性风险）
+- ✅ 死亡敌人护盾再生：已死亡敌人(e.hp<=0)不再触发护盾恢复
+- ✅ metaRecordRun运算符优先级：grade比较条件加括号防止短路错误
+- ✅ eProj碰撞后splice缺少continue（虽然碰巧安全但模式脆弱）
+- ✅ 诱饵距离覆写bug：敌人攻击距离检查改用真实目标而非始终玩家（decoys实际生效）
+- ✅ flaky test 113修复：给玩家invTimer=200防止随机碰撞导致bossHurt误触发
+
+**性能优化：**
+- ✅ perfMul缓存：每帧计算一次，spawnP/spawnInk复用缓存值
+- ✅ 敌人分离碰撞：敌人≤3只时跳过O(n²)分离计算
+- ✅ 条件阴影渲染：setShadow/clearShadow辅助函数，5个热路径在高负载时自动关闭shadowBlur
+- ✅ 预计算常量：Math.sqrt(W*W+H*H)*0.6 → _DIAG_R06（每帧省一次sqrt）
+- ✅ pullToStageWell：dstSq先做阈值判断，通过后才算sqrt（每敌人每帧省一次sqrt）
+- ✅ ptInArc：dstSq替代sqrt做range判断（每次攻击命中检测省一次sqrt）
+- ✅ eProj离屏警告：dstSq替代sqrt做距离判断
+- ✅ distPointToSegSq：墨弦三重嵌套循环用平方距离替代两次sqrt
+- ✅ atan2+cos/sin → 向量归一化：11处热路径（魂球/鬼火/墨阵涡旋/追踪弹/风筝/墨灵/击杀脉冲/敌人冲锋/俯冲/Boss冲锋/墨将军冲锋）
+- ✅ 追踪弹转向：2×atan2+cos/sin → 叉积+旋转矩阵（省2次atan2）
+- ✅ 敌人分离推力方向：ang+cos/sin → 向量归一化
+- ✅ 诱饵循环提前退出：无诱饵时跳过O(N×D)迭代
+
+**移动端诊断：**
+- ✅ mobile-controls.js增强日志：初始化步骤、canvas检测、触控绑定、摇杆坐标
+- ✅ game.js游戏开始时记录摇杆初始化状态
+- ✅ 环境检测结果(native/touch/maxTouchPoints)写入诊断
+
+**测试：** 132项全通过（37 smoke + 5 wave + 80 content + 10 stress）
+
+**代码质量：**
+- ✅ 移除死代码distPointToSeg（仅保留distPointToSegSq）
+- ✅ _DIAG_R06改用W/H变量替代硬编码960/640
+
+---
+
+### ✅ v2.17 (2026-05-05) 第三进化 + 鬼市 + 墨灵扩展 + 新环境事件
+
+**目标：** 补完构筑深度（第三进化）、添加首个正面互动关卡（鬼市）、扩展墨灵流派、丰富环境事件。
+
+**内容扩展（gamedata.js）：**
+- [x] 第三进化层：4种新进化 — 回斩(killDmgBoost)/梭破(projTravelDmg)/回鸣(ringHeal)/影迹(dashTrail)
+- [x] 鬼市(guishi)关卡调制器：NPC商贩出现，可交换遗物或HP换遗物
+- [x] 墨灵遗物扩展：+4件新遗物 — 爆墨灵(spiritExplode)/愈墨灵(spiritHeal)/寒墨灵(spiritSlow)/分墨灵(inkSpiritCount+2)
+- [x] 新环境事件：+2种 — 阴兵借道(yinbing)/纸剑雨(zhijian)
+- [x] PREREQS 补全3条 + WAVE_PLACES 添加入口
+
+**game.js 机制实现：**
+- [x] 第三进化：wave 8 触发"终进化"选择，HUD/结算显示 evolution3
+- [x] 回斩(killDmgBoost): onEnemyKilled 标记 → pAtk 1.6x增伤并清除
+- [x] 梭破(projTravelDmg): pushAttack 记录 spawnX/Y → hitE 计算飞行距离，最多+50%
+- [x] 回鸣(ringHeal): 铃铛命中每敌+2HP（上限maxHp）
+- [x] 影迹(dashTrail): 冲刺路径每6帧生成冰冻区（frost zones）
+- [x] 爆墨灵(spiritExplode): 墨灵弹命中→60px AOE 40%伤害
+- [x] 寒墨灵(spiritSlow): 墨灵弹命中→目标 slowT=40
+- [x] 愈墨灵(spiritHeal): 墨灵弹击杀→恢复5HP
+- [x] 分墨灵: 墨灵数量+2（inkSpiritCount+=2）
+- [x] 鬼市(showMerchant): HTML弹窗提供"交换遗物"和"HP换遗物"两个选项
+- [x] 鬼市商贩渲染：幽灵商贩形象+脉冲光晕+浮动金币粒子
+- [x] 阴兵借道：6-8只鬼骑兵横扫屏幕，碰撞造成伤害
+- [x] 纸剑雨：纸剑从顶部坠落，旋转渲染，碰撞造成伤害
+- [x] 阴兵/纸剑渲染：ash色鬼魂光晕+纸剑旋转矩形
+
+**代码质量：**
+- [x] findNearestEnemy(g,ox,oy,rSq) 公共函数，替换4处内联循环
+- [x] 移除死代码 distPointToSeg
+
+**移动端修复：**
+- [x] ensureMobileButtons() JS函数 + one-shot touchstart监听
+- [x] AudioContext 恢复：visibilitychange 事件监听
+- [x] 窗口级 touchstart/touchend/touchcancel 事件转发
+
+**测试：** 147项全通过（37 smoke + 5 wave + 95 content + 10 stress）
+- content_test 54a: STAGE_HAZARDS 数量 4→6
+- content_test 118-125: v2.17 新内容测试（第三进化/鬼市/墨灵遗物/新环境事件/PREREQS/evolution3初始化/findNearestEnemy/rebuildPlayerStats）
+
+**Bug修复（2026-05-06）：**
+- ✅ 鬼市交换遗物不撤销旧遗物效果：新增 `rebuildPlayerStats(g)` 函数，交换后从 mkPlayer() 基础重建属性，保留运行时状态，重新应用所有遗物和进化
+- ✅ 鬼市DOM缺失状态泄漏：`showMerchant` 提前return时恢复 `g.state="playing"`，避免卡死
+- ✅ 分墨灵(fenmo)初始化脆弱：`inkSpiritCount+=2` 改为 `(p.inkSpiritCount||0)+2`
+
+**数值平衡（2026-05-06）：**
+- ✅ 回斩(killDmgBoost): 1.6x → 1.45x（击杀后增伤过于接近常驻）
+- ✅ 回鸣(ringHeal): +2HP → +1HP/命中（AOE武器命中频率高，恢复过强）
+- ✅ 愈墨灵(spiritHeal): +5HP → +3HP/击杀（被动击杀不应等同主动击杀回复）
+- ✅ 影迹(dashTrail): 冰霜频率6帧→4帧，半径35→40，寿命50→70帧，新增2点伤害
+- ✅ 纸剑雨(zhijian): 间隔55→80帧（伤害6过高且频率过密）
+
+**信息架构 + 移动端UX（2026-05-06）：**
+- ✅ 波次进度：HUD wave pill 显示剩余敌人数"余N"
+- ✅ 小地图增强：提高可见度(alpha +0.1)、加粗边框、显示危险物(红点)、鬼市商贩(金点)
+- ✅ Boss名称DOM同步：HUD显示Boss名+狂/绝望状态
+- ✅ 状态图标系统：23种buff定义(collectBuffs)，HUD最多显示8个图标(permanent/temp/negative)
+- ✅ 遗物快速查看：右键/长按遗物标签显示效果tooltip
+- ✅ 遗物标签pointer-events: auto，支持交互
+- ✅ 移动端伤害数字放大：13px→15px(伤害)，16px→19px(暴击)
+- ✅ 摇杆底部安全区补偿：读取env(safe-area-inset-bottom)并上移基点
+- ✅ 摇杆灵敏度设置：localStorage持久化，暂停菜单滑块(0.5-1.5)
+- ✅ 浮字渲染移动端检测(_isMob)适配
+
+**视觉增强（2026-05-06）：**
+- ✅ 精英/Boss出场脉冲：金/紫色扩展环，16帧渐隐
+- ✅ 场景氛围墨点：战斗间歇飘浮淡墨微粒
+- ✅ content_test 136: spawnPulse 属性测试
+
+**Bug修复 — 代码审计（2026-05-06）：**
+- ✅ 商人无遗物交换：g.relics.length===0 时显示"无遗物可换"并返回，不消耗商贩
+- ✅ 商人HP不足：提前返回并重置choiceLocked，不消耗商贩
+- ✅ 商人遗物池重复：过滤已拥有遗物ID后再取新遗物
+- ✅ 商人HP路径一致性：swap和HP两条路径均使用rebuildPlayerStats重建属性
+- ✅ showRelic DOM缺失：提前return时设置g.state="playing"并启动波次，防止卡流程
+- ✅ rebuildPlayerStats字段缺失：rk数组补充kiteKills和_killBoost，防止交换遗物时丢失进度
+- ✅ aliveCount帧内分配：filter().length 改为计数循环，减少每帧GC压力
+- ✅ tooltip长按竞态：touchstart中缓存touches[0]，防止400ms setTimeout中TouchList过期
+- ✅ mobile-controls.js灵敏度类型校验：加入typeof number + isFinite守卫，防止NaN移动
+- ✅ 愈墨灵(spiritHeal)效果文案：+5HP → +3HP，与代码实际数值一致
+
+**音效扩展（2026-05-06）：**
+- ✅ 鬼市交易音效(merchantTrade)：金属钱币叮当声（三角波+正弦波）
+- ✅ 鬼市环境音(guishi)：低频嗡鸣（82/123/165Hz三频叠加+LFO颤音）
+
+**测试：** 147项全通过（37 smoke + 5 wave + 95 content + 10 stress）
+- content_test 126: collectBuffs 函数测试
+- content_test 127: BUFF_DEFS 完整性校验
+- content_test 128: 商贩音效存在性测试
+- content_test 129-133: 审计修复回归（商人0遗物/HP不足/遗物重复/showRelic守卫/重建字段）
+
+**HTML标准合规（2026-05-06）：**
+- ✅ 补齐 meta 标签：description / theme-color / og: / twitter:card
+- ✅ 补齐 iOS Web App 标签：apple-mobile-web-app-capable / status-bar-style / title
+- ✅ 添加 manifest.json 和 SVG favicon
+- ✅ 添加 `<noscript>` 回退提示
+
+**性能优化（2026-05-06）：**
+- ✅ 敌人离屏裁剪：渲染前跳过画布外的敌人（减少30-60%绘制调用）
+- ✅ 渐变缓存：screenFlash 径向渐变复用，消除每帧 4-9 次 GC 分配
+- ✅ 粒子优化：accent类型粒子去除 save/translate/rotate/restore，改世界坐标旋转
+- ✅ 连击阴影：combo shadow 在性能压力模式下禁用（perfMul throttle）
+
+**内容扩展（2026-05-06）：**
+- ✅ 灰烬之路成就：单局磷火覆盖 ≥ 50% 时解锁，奖励金墨色
+- ✅ 全法器皆通成就：四种武器各通关一次解锁
+- ✅ 火覆盖追踪：metaRecordRun 中计算玩家火场面积占比
+
+**测试：** 155项全通过（37 smoke + 5 wave + 103 content + 10 stress）
+- content_test 129-133: 审计修复回归测试
+- content_test 134-135: 新成就测试
+
+*v2.17 更新于 2026-05-06。（共 155 项测试）*
+
+### v2.18 QoL + 内容扩展 + 音效补齐 (2026-05-06)
+
+**QoL：**
+- R键快速重开（游戏中/暂停/结束画面均可）
+- quickRestart() 函数：保持武器+难度，立即重开
+
+**新内容：**
+- 墨契诅咒（moqi）：攻击范围-30%，暴击回血+3HP/次
+- 镜殿关卡（mirror）：敌人死亡射出残影弹向玩家
+- STAGE_POOLS 扩展：镜殿和鬼市加入后期波次池
+- 精英敌人金色三角头顶标记（视觉识别）
+
+**测试：** 155项全通过（37 smoke + 5 wave + 103 content + 10 stress）
+- content_test 137: 墨契诅咒数据和应用
+- content_test 138: 镜殿关卡残影弹机制
+
+*v2.18 更新于 2026-05-06。（共 155 项测试）*
+
+### v2.19 音效扩展 + 视觉增强 + Boss打磨 (2026-05-06)
+
+**音效修复：**
+- 修复 `snd("hurt")` 调用不存在的音效键 → `snd("playerHurt")`
+
+**新增音效（5种，30→35）：**
+- `bossDeath`: Boss死亡低沉和弦（锯齿波+三角波，110/146.83/220Hz）
+- `achievementUnlock`: 成就解锁上行号角（5音，523-1319Hz）
+- `playerDeath`: 玩家死亡下行哀鸣（锯齿波220→55Hz）
+- `comboMilestone`: 连斩里程碑短促高音（三角波880→1100Hz）
+- `reflect`: 弹道反射金属碰撞音（方波1800→2400Hz）
+
+**音效接入点：**
+- Boss死亡：`snd("bossDeath")` 紧跟 `snd("enemyDeath")`
+- 成就解锁：`showEnd()` 检测新成就时播放
+- 玩家死亡：`hurtP()` HP=0进入dying状态时立即播放（不再等showEnd）
+- 连斩3/5/10/20/30：每个里程碑播放 `comboMilestone`
+- 弹道反射：墨镜遗物反弹时播放 `reflect`
+
+**视觉增强：**
+- 镜殿(mirror)关卡新增视觉渲染：四角镜框装饰、水平闪光纹、玩家虚影反射
+- 墨将军Phase 2("召书")：新增freezeT(4帧)、bossFlash(6帧)、16+10墨粒子、enraged光环
+- 墨将军Phase 3("狂书")：新增bossFlash(10帧)、24+16墨粒子、enraged光环
+- 墨将军狂暴光环现在正确显示（之前enraged标记未设置）
+
+**测试：** 155项全通过（37 smoke + 5 wave + 103 content + 10 stress）
+
+*v2.19 更新于 2026-05-06。（共 155 项测试，35 种音效，8 种环境音）*
+
+### v2.20 性能优化 + 桌面增强 + 代码规范 (2026-05-06)
+
+**性能优化（热路径）：**
+- 渲染循环中 `filter().length` 替换为计数循环（消除每帧GC分配）
+- `findNearestEnemy()` 内联对象分配 `{x:ox,y:oy}` → 直接计算dx/dy（消除内循环GC）
+- `canvas.getBoundingClientRect()` 改为缓存版本，仅在 resize/fullscreen 时刷新（消除每帧布局回流）
+- 添加 `getCanvasRect()` / `invalidateCanvasRect()` 缓存函数
+
+**桌面增强：**
+- P键替代暂停（Escape之外的备选）
+- F键全屏切换（`requestFullscreen` / `exitFullscreen`）
+- 方向键添加 `preventDefault()` 防止页面滚动
+- `setupWeaponSelect()` 添加空值保护
+
+**代码规范改进：**
+- 移除死代码：`_DIAG_R06`、`dst()` 函数
+- 新增 `forEachLiveEnemy(g,fn)` 公共辅助函数（消除8+处重复的 `hp<=0||spawnGraceT>0` 模式）
+- 连斩里程碑从5段 if-else → 数据驱动查找表
+- 13个魔法数字移入 `gamedata.js TUNING`：
+  - `killStreak5Dmg`/`killStreak10Dmg`: 连斩伤害加成
+  - `eliteBaseChance`/`eliteWaveScale`/`eliteMaxChance`/`eliteHardBonus`/`eliteNightmareBonus`: 精英生成率
+  - `defFormReduction`/`formDefReduction`: 防御减伤
+  - `perfThresh*`/`perfMul*`: 性能自适应阈值
+
+**测试：** 155项全通过（37 smoke + 5 wave + 103 content + 10 stress）
+
+*没有改变游戏平衡性。*
+
+*v2.20 更新于 2026-05-06。（共 155 项测试，38 种音效，8 种环境音）*
+
+**game.js 审计修复：**
+- 修复重复条件 `o===e||o.hp<=0||o===e`（移除冗余第三个条件）
+- 修复水蛭 indexOf(-1) 边界：Math.max(0, ...) 防止坐标系异常
+- 修复 calcGrade 中 maxHp 可能为0的除零保护
+- 诅咒选择期间状态设为"prep"，防止游戏循环在背后运行（时间累积、玩家可移动/攻击）
+- 诅咒选择自动解除从仅移动端改为桌面+移动端通用（20秒超时）
+- beginRun 恢复状态为"playing"
+
+**wiki.html 补全：**
+- 新增环境事件(STAGE_HAZARDS)章节，6种事件自动渲染
+- eOrder 从硬编码24项改为 Object.keys(ETYPE) 动态生成，Boss排最后
+- 构筑线计数从硬编码"三十六条"改为动态读取 BUILDS.length
+- 修复"墨蚀叠毒"武器名 '透骨针'→'任意'
+
+**gamedata.js：** 零问题（8维度全量审计通过）
+
+**测试：** 155项全通过（37 smoke + 5 wave + 103 content + 10 stress）
+
+*没有改变游戏平衡性。*
+
+*v2.18.2 更新于 2026-05-06。（共 155 项测试）*
+
+### v2.21 代码质量 + 循环优化 (2026-05-06)
+
+**目标：** 消除重复的敌人生存守卫模式，提取魔法数字为可调常量，减少热路径GC压力。
+
+**forEachLiveEnemy 重构（17处）：**
+- 击杀脉冲(killPulse)、死亡增益(deathBuff)、暴击碎片(critShrapnel)
+- 闪避夺魂(dodgeSoulGrab) — 同时修复了缺失的spawnGraceT检查
+- 墨阵攻击/涡旋/引爆(3处)、墨弦(inkStrings)、墨涟(formRipple)
+- 攻击命中检测：弹射/斩击/环/墨灵弹(4处)
+- 火场tick伤害(fire tick)
+- 墨灵爆发(spiritExplode)
+- 离屏敌人指示器(render)
+
+**filter().length → some()：**
+- 生存模式Boss上限检测：`filter().length > 0` → `some()`，消除每帧数组分配
+
+**RANGES 扩展（+8项）：**
+- killPulse/critShrapnel/dodgeSoulGrab/inkSpirit/spiritExplode/swoop/mimicReveal/buffAura
+
+**TUNING 扩展（+10项）：**
+- killStreakWindow/speedBurstDuration/spawnGraceDuration/deathAnimDuration
+- buffedSpdMult/defaultSlowAmount/fireTickInterval
+- survivalMaxEnemies/survivalSpawnBase/survivalSpawnJitter
+
+**game.js 常量引用更新：**
+- 20+处硬编码数值替换为 RANGES/TUNING 引用
+- killPulse范围、critShrapnel范围、dodgeSoulGrab范围
+- inkSpirit攻击范围、spiritExplode范围
+- buffAura范围、swoop触发范围、mimicReveal范围
+- killStreakT窗口、speedBurstT持续时间
+- spawnGraceT默认值和渲染除数
+- 敌人buffed速度乘数、默认减速量
+- 火场tick间隔（玩家火+毒火）
+- 生存模式敌人上限和生成计时器
+
+**测试：** 156项全通过（37 smoke + 5 wave + 104 content + 10 stress）
+- content_test 142: RANGES/TUNING常量完整性 + forEachLiveEnemy覆盖率 + filter().length消除验证
+
+*没有改变游戏平衡性。*
+
+*v2.21 更新于 2026-05-06。（共 156 项测试）*
+
+### v2.22 性能修复 + Bug修复 + 代码清理 (2026-05-07)
+
+**目标：** 消除热路径中的对象分配、修复潜在渲染Bug、提取平衡关键常量。
+
+**性能优化（消除GC压力）：**
+- 连斩里程碑数组提升为模块级常量 `KILL_MILESTONES`（之前每次击杀重新创建5个对象+数组）
+- 诱饵(dstSq)目标计算：消除 `{x:targetX,y:targetY}` 临时对象分配，改为IIFE内联计算
+- `dstSq(p,{x:db.x,y:db.y})` → `dstSq(p,db)`：deathburst碰撞检测消除冗余对象创建
+- `p.leeches.filter()` → 反向splice循环：消除每帧数组分配（水蛭少时无影响，多时减少GC）
+- `var mr=ep.r+p.r;` 在eProj碰撞中已使用collideSq：移除冗余的手动距离计算
+
+**Bug修复：**
+- 精英deathburst缺少 `maxTimer` 字段 → 渲染时 `progress` 为NaN（之前静默失败不显示爆炸环）
+- `_isMob` 变量作用域：从 `dmg` 分支内提升到 `floatTexts.forEach` 循环顶部，确保 `critDmg` 分支可正确读取
+- 死代码 `var ks=g.killStreak;` 重复声明（被下一行立即覆盖）
+
+**TUNING常量新增（+5项）：**
+- `killSpeedBonus`:0.25, `speedBurstBonus`:0.2, `lowHpFuryBonus`:0.15, `lowHpFuryThreshold`:0.5（moveScale速度加成）
+- `eliteHpMult`:1.5, `eliteSpdMult`:1.3, `eliteArmoredSpdMult`:0.7（精英属性倍率）
+- `reviveInvFrames`:60（复活无敌帧数）
+
+**测试：** 157项全通过（37 smoke + 5 wave + 105 content + 10 stress）
+- content_test 143: KILL_MILESTONES常量 + 新TUNING项 + 内联里程碑消除 + deathburst修复验证 + leeches.filter消除 + dstSq冗余对象消除
+
+*没有改变游戏平衡性。*
+
+*v2.22 更新于 2026-05-07。（共 160 项测试）*
+
+### v2.23 常量提取 + Wiki同步 + 数据表审计 (2026-05-07)
+
+**目标：** 完成剩余平衡关键常量提取，修正Wiki过期文案，同步数据表计数。
+
+**TUNING新增（+8项）：**
+- `lowHpFuryDmgMult`:1.25, `lowHpRangeThreshold`:0.35, `lowHpRangeMult`:1.4（低血增伤/增范围）
+- `killBoostDmgMult`:1.45（回斩进化增伤倍率）
+- `bossChargeRange`:200, `bossNormalAtkInterval`:140（Boss冲锋距离/普攻间隔）
+- `bossPhase2Hp`:0.6, `bossPhase3Hp`:0.25（墨将军阶段HP阈值）
+- `eProjWarnMin`:120, `eProjWarnMax`:280（敌弹离屏预警范围）
+
+**game.js常量引用更新（10处）：**
+- pAtk: lowHpFury/lowHpRange/killBoost 倍率
+- Boss AI: 普通Boss冲锋距离/攻击间隔、墨将军阶段阈值
+- 渲染: 敌弹离屏预警范围硬编码 → TUNING常量
+
+**Wiki同步：**
+- 进化文案："四条进化路线" → "五条进化路线"
+- 导航：添加"事件"(sec-hazards)链接
+- RANGES/波次缩放章节：补锚点ID(sec-ranges/sec-scaling)
+
+**DEVDOC数据表计数修正：**
+- RELICS: 88→92, EVOLUTIONS: 16→20, ACHIEVEMENTS: 28→27
+- PREREQS: 27→29, LIMITS: 9→10, RANGES: 9→17, TUNING: 13→70
+
+**测试：** 157项全通过（37 smoke + 5 wave + 105 content + 10 stress）
+
+*没有改变游戏平衡性。*
+
+*v2.23 更新于 2026-05-07。（共 160 项测试）*
+
+### v2.24 FPS计数器 + 暂停信息增强 (2026-05-07)
+
+**目标：** 为性能调试和游戏信息提供实时可见性。
+
+**FPS计数器：**
+- F3键切换Canvas内FPS显示（利用已有`G.perf.fps`的EMA计算）
+- 显示：FPS + 敌人数(E) + 攻击数(A) + 粒子数(P) + 火场数(F)
+- 暂停菜单：stats行追加实时FPS数值
+
+**改动：**
+- game.js render末尾：F3切换 `_showFps` 标志，Canvas左上角11px monospace文字
+- game.js togglePause：pauseStats文本追加 `· FPS N`
+- game.js keydown：添加F3键监听
+
+**测试：** 157项全通过（37 smoke + 5 wave + 105 content + 10 stress）
+
+*v2.24 更新于 2026-05-07。（共 160 项测试）*
+
+### v2.25 Boss登场卡片 + FPS计数器 (2026-05-07)
+
+**目标：** 增强Boss遭遇的戏剧性，添加性能调试工具。
+
+**Boss登场卡片：**
+- Boss波开始时显示全屏深色遮罩(0.5 alpha)
+- 金色(accent)双层边框 420×110 / 400×100
+- 48px金色Boss名称（墨将军/画皮娘子）
+- 16px灰色Boss副标题（角色描述）
+- 90帧(1.5秒)动画：30帧淡入 + 60帧淡出
+
+**FPS计数器：**
+- F3键切换Canvas内FPS显示（利用已有EMA计算）
+- 显示FPS + 敌人数(E) + 攻击数(A) + 粒子数(P) + 火场数(F)
+- 暂停菜单stats追加FPS数值
+
+**README操作表扩展：**
+- 新增 F全屏、F3调试、R快速重开 三个桌面快捷键
+
+**测试：** 157项全通过（37 smoke + 5 wave + 105 content + 10 stress）
+
+*v2.25 更新于 2026-05-07。（共 160 项测试）*
+
+### v2.26 UX打磨 — 时序 + 反馈 + HUD (2026-05-07)
+
+**目标：** 让关键游戏时刻更有"存在感"，改善玩家信息可见性。
+
+**时序延长（让玩家有时间感受）：**
+- 死亡冻结：22→50帧（0.37s→0.83s），玩家能看到"魂归黄泉"书法
+- 胜利冻结：35→100帧（0.58s→1.67s），玩家能读完"走阴完毕"和武器名
+- 波次清除：50→80帧（0.83s→1.33s），给 relic 选择前的喘息空间
+
+**音效改进：**
+- 胜利音效从showEnd移至胜利瞬间（与粒子/震动同步）
+- Boss波清除播放bossDeath而非普通waveClear（区分重要性）
+- Deathburst爆炸添加hazardWarn音效（之前无声）
+
+**HUD增强：**
+- HP显示：`100` → `100/100`（显示当前/最大值，方便纸薄诅咒等玩法）
+- 低血量警告alpha增强：0.06-0.18 → 0.12-0.40（更容易注意到危险）
+
+**wave_test.js更新：**
+- killAll等待帧数从90→120，适配waveClearT延长
+
+**测试：** 157项全通过（37 smoke + 5 wave + 105 content + 10 stress）
+
+*v2.26 更新于 2026-05-07。（共 160 项测试）*
+
+### v2.27 PREREQS修复 + 鬼市退出 + 移动端摇杆可见度 (2026-05-07)
+
+**目标：** 修复玩家实测反馈的3项问题。
+
+**P0 — 遗物前置过滤修复：**
+- fengmofu(封魔符)：新增PREREQS `slowOnHit>0||ringSlow`。"提升至35%"暗示需要已有减速，之前无前置可出现在无减速构筑中
+- PREREQS总数：29→30
+
+**P1 — 鬼市退出选项：**
+- 新增"继续赶路"卡片：不交易关闭弹窗，90帧冷却防止立即重新触发
+- 冷却期过后可再次触发鬼市（未消耗商人）
+- gamedata添加 `_merchantCooldown` 状态字段
+
+**P3 — 移动端摇杆可见度大幅提升：**
+- 底部面板：76%处深色面板(0.9alpha 55%)+顶部渐变过渡+装饰线
+- 摇杆base alpha：0.3→0.5(闲置)/0.5→0.7(激活)
+- 摇杆填充alpha：0.12→0.25，描边：0.45→0.7
+- 拇指alpha：0.45→0.6(闲置)/0.85→0.9(激活)
+- 摇杆尺寸放大：STICK_R 62→68, THUMB_R 28→32, HIT_R +40→+60
+- 初始化增强：检测Android/iOS UA字符串兜底，2秒超时强制初始化
+
+**设计实装验证：**
+- 56个遗物boolean标记全部在 game.js 中存在引用
+- 12个抽样遗物/进化全部正确实装
+
+**测试：** 157项全通过（37 smoke + 5 wave + 105 content + 10 stress）
+
+*v2.27 更新于 2026-05-07。（共 160 项测试）*
+
+### v2.28 热修 — 鬼市波次覆盖Bug (2026-05-07)
+
+**Bug：** showMerchant 三个退出路径均调用了 `startWave(g)`，导致鬼市交易或离开后当前波次被跳过，敌人被刷新重置。
+
+**修复：**
+- 离开路径(continue): `startWave(g)` → 仅 `g.state="playing"` 恢复当前波次
+- 交易路径(swap/hp): `startWave(g)` → 仅 `g.state="playing"` 恢复当前波次
+- DOM守卫路径: `startWave(g)` → 仅 `g.state="playing"`
+- showRelic 中的 `startWave` 调用不受影响（波间选择，正确行为）
+
+**测试：** 157项全通过 + 全属性实装验证（无遗漏引用）
+
+*v2.28 更新于 2026-05-07。（共 160 项测试）*
+
+### v2.29 首个稳定版 — 代码审计 + 崩溃修复 (2026-05-07)
+
+**目标：** 全面审计消除已知崩溃向量，准备好 GitHub Pages 部署。
+
+**崩溃修复（1项）：**
+- quickRestart 中 `stopAmbient()` 未守卫 → `if(window.GameSound)GameSound.stopAmbient()`
+  3处调用已有守卫，仅此1处遗漏。sound.js 未加载时抛 ReferenceError 导致重开功能完全失效。
+
+**Bug修复（6项）：**
+- `recallMark` + `justDodged` 加入 rebuildPlayerStats 的 rk 数组
+  修复鬼市交换遗物后"墨移"闪避标记丢失导致召回失效的静默Bug
+- 4处 `.closest()` 调用补 feature-detection 守卫（relic tooltip 右键/长按、武器选择点击/悬停）
+  极罕见浏览器（无 Element.closest 支持）上防止 TypeError
+- `quitToTitle` 中清理 `.relic-tooltip` 残留 DOM 元素（之前仅在 CSS hidden，从未 remove）
+
+**审计确认无问题（20+项）：**
+- 状态机6条路径全部安全，无卡死/重入风险
+- 事件处理无泄漏（onclick覆盖+popup样式守卫）
+- 数组splice全部使用反向迭代，无越界
+- 除法全部有零值守卫或`||1`兜底
+- DOM 访问全部有 null 检查
+- 56个遗物boolean标记 + 全属性 setters 100% 在 game.js 中有读取点
+- rebuildPlayerStats 正确定义 rk(35项) + ck(12项) 防止状态泄漏
+
+**GitHub Pages 兼容性确认：**
+- 所有脚本/CSS/链接使用相对路径 ✓
+- index.html 作为着陆页 ✓
+- 无需构建步骤 ✓
+- 无需外部 API 依赖 ✓
+
+**测试：** 157项全通过（37 smoke + 5 wave + 105 content + 10 stress）
+
+*v2.29 稳定版 更新于 2026-05-07。（共 160 项测试）*
+
+### v3.0 候选版 — 移动端渲染+UI可读性修复 (2026-05-07)
+
+**目标：** 彻底解决移动端摇杆可见性、Canvas文本可读性、字体栈和UI对比度问题。
+
+**移动端摇杆渲染管线修复：**
+- `_renderMobileControls` 添加 `c.save()`/`c.restore()` 隔离Canvas状态
+  防止前方渲染（雾/魂球/环境事件)泄漏fillStyle/strokeStyle/lineWidth/shadowBlur到摇杆绘制
+
+**Canvas文本可读性（最小字号提升）：**
+- 精英能力标签(敌人上方): 9px→11px (bold) — 移动端从3.5→4.3物理px
+- 腐蚀伤害数字(敌人上方): 8px→10px (bold) — 移动端从3.1→3.9物理px
+- Buff图标标签(玩家附近): 8px→10px (bold) — 移动端从3.1→3.9物理px
+
+**字体栈修复（gamedata.js C.fontBody）：**
+- 移除末尾重复泛型 `,serif`（`sans-serif`已是最后的有效回退）
+
+**CSS对比度修复：**
+- 闪避按钮冷却态: color alpha 0.3→0.5, border alpha 0.15→0.25
+
+**测试：** 157项全通过（37 smoke + 5 wave + 105 content + 10 stress）
+
+*v3.0 候选版 更新于 2026-05-07。（共 160 项测试）*
+
+### 版本号规则
+
+改完一个bug → 删掉对应条目 → 版本号末尾+1
