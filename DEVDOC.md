@@ -1,4 +1,4 @@
-# 墨祟：走阴录 — 战斗试玩 技术文档 v3.0 (候选版)
+# 墨祟：走阴录 — 战斗试玩 技术文档 v3.0 稳定版
 
 > 开发接手请先读 `DEVELOPMENT.md`。本文保留完整技术细节、版本历史和 Bug 追踪。
 
@@ -2984,9 +2984,32 @@ npm run cap:open:android  # 用 Android Studio 打开
 **CSS对比度修复：**
 - 闪避按钮冷却态: color alpha 0.3→0.5, border alpha 0.15→0.25
 
-**测试：** 157项全通过（37 smoke + 5 wave + 105 content + 10 stress）
+**测试：** 160项全通过（37 smoke + 5 wave + 108 content + 10 stress）
 
 *v3.0 候选版 更新于 2026-05-07。（共 160 项测试）*
+
+### v3.0 稳定版 (2026-05-07)
+
+**移动端摇杆 CTRL 未初始化 Bug 修复：**
+- 根因：`var CTRL = {}`（L54）在 `fitCanvas()`（L46）之后初始化。`fitCanvas` 调用 `updateControlSizes` 写 `CTRL.STICK_R` 时 `CTRL` 为 `undefined`
+- 修复：`var CTRL = {}` 移至第28行（`fitCanvas` 定义之前）
+- 症状：`TypeError: Cannot set properties of undefined (setting 'STICK_R')`
+
+**桌面端误触发修复：**
+- `isTouch` 移除 `'ontouchstart' in window` 和 `maxTouchPoints`，仅用 UA 正则判断移动设备
+
+**技术债务清理建议 (TODO)：**
+- mobile-controls.js 347行 → 可拆分为渲染/输入/初始化三个模块
+- `isNative` Capacitor 检测与 `isTouch` UA检测有重叠，可统一为单一 `needsMobileUI()` 函数
+- game.js ~3800行 → 可考虑拆分为 state/combat/render/ui 四个文件
+- 测试从 Node mock 迁移到 Playwright 浏览器测试以覆盖真实渲染
+
+**已知限制：**
+- 部分 Capacitor WebView 的 UA 不含 Android 关键词，依赖 `isNative` 优先检测
+
+**测试：** 160项全通过
+
+*v3.0 稳定版 更新于 2026-05-07。*
 
 ### 版本号规则
 
