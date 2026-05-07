@@ -43,7 +43,7 @@ code+=[
 '    // Don\'t call update between kills - just kill them all first',
 '  }',
 '  // Now run updates for death animations + wave check',
-'  for(var w=0;w<90;w++){if(g.state!=="playing")break;update(g)}',
+'  for(var w=0;w<120;w++){if(g.state!=="playing")break;update(g)}',
 '}',
 
 'function advanceWave(g){',

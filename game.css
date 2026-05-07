@@ -5,14 +5,78 @@ body.game-active {
   overscroll-behavior: none;
   -webkit-user-select: none;
   user-select: none;
+  background: #000 !important;
 }
+body.game-active .paper-noise,
+body.game-active::before { display: none; }
 .game-frame {
   touch-action: none;
+  position: relative;
 }
 /* Restore scrolling on overlays shown during game-active */
 .game-active .overlay,
 .game-active .overlay__inner {
   touch-action: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* ===== Mobile HTML Buttons ===== */
+.mobile-btn {
+  display: none;
+  position: absolute;
+  z-index: 5;
+  border: 1.5px solid rgba(23,19,16,0.35);
+  border-radius: 50%;
+  background: rgba(23,19,16,0.18);
+  color: rgba(23,19,16,0.7);
+  font-family: "STKaiti","KaiTi",serif;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: background 0.15s, transform 0.1s;
+}
+.mobile-btn:active {
+  background: rgba(163,58,45,0.45);
+  transform: scale(0.92);
+  border-color: rgba(163,58,45,0.6);
+  color: rgba(241,230,212,0.95);
+}
+
+.mobile-btn--pause {
+  top: max(10px, env(safe-area-inset-top, 10px));
+  right: max(12px, env(safe-area-inset-right, 12px));
+  width: 52px;
+  height: 52px;
+  font-size: 1.3rem;
+  line-height: 52px;
+  text-align: center;
+  padding: 0;
+  background: rgba(241,230,212,0.18);
+  border-color: rgba(241,230,212,0.35);
+  color: rgba(241,230,212,0.8);
+}
+
+.mobile-btn--dodge {
+  bottom: max(20px, env(safe-area-inset-bottom, 20px));
+  right: max(100px, calc(env(safe-area-inset-right, 20px) + 80px));
+  width: 72px;
+  height: 72px;
+  font-size: 1.2rem;
+  line-height: 72px;
+  text-align: center;
+  padding: 0;
+  border-radius: 16px;
+  background: rgba(241,230,212,0.22);
+  border-color: rgba(241,230,212,0.4);
+  color: rgba(241,230,212,0.85);
+}
+
+/* Show mobile buttons only on touch devices */
+@media (hover: none) and (pointer: coarse) {
+  .mobile-btn { display: block; }
 }
 
 /* ===== Title Screen ===== */
@@ -156,6 +220,7 @@ body.game-active .game-frame {
   justify-content: center;
   max-width: none;
   max-height: none;
+  background: #000;
 }
 body.game-active .game-container {
   min-height: auto;
@@ -243,12 +308,14 @@ body.game-active #gameCanvas {
 .hud__relics {
   display: flex;
   gap: 8px;
-  margin-top: max(48px, env(safe-area-inset-top, 48px));
-  padding-left: env(safe-area-inset-left, 0px);
-  padding-right: env(safe-area-inset-right, 0px);
+  position: absolute;
+  top: max(44px, calc(env(safe-area-inset-top, 0px) + 44px));
+  left: max(16px, env(safe-area-inset-left, 16px));
+  right: max(16px, env(safe-area-inset-right, 16px));
   flex-wrap: wrap;
   justify-content: center;
-  max-width: 960px;
+  pointer-events: none;
+  z-index: 3;
 }
 
 .hud__relic-tag {
@@ -260,6 +327,73 @@ body.game-active #gameCanvas {
   border: 1px solid rgba(163,58,45,0.18);
   font-family: var(--title-face);
 }
+
+.hud__relic-tag--more {
+  background: rgba(23,19,16,0.08);
+  color: var(--ink-soft);
+  border-color: rgba(23,19,16,0.14);
+}
+.hud__relic-tag { pointer-events: auto; }
+
+.hud__buffs {
+  display: flex;
+  gap: 4px;
+  position: absolute;
+  top: max(68px, calc(env(safe-area-inset-top, 0px) + 68px));
+  left: max(16px, env(safe-area-inset-left, 16px));
+  pointer-events: none;
+  z-index: 3;
+  flex-wrap: wrap;
+  max-width: 50%;
+}
+.hud__buff-icon {
+  width: 26px; height: 26px;
+  border-radius: 6px;
+  border: 1px solid rgba(23,19,16,0.12);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.6rem;
+  font-family: var(--title-face);
+  line-height: 1;
+}
+.hud__buff-icon--permanent { background: rgba(163,58,45,0.08); color: var(--accent); }
+.hud__buff-icon--temp { background: rgba(23,19,16,0.05); color: var(--ink-soft); }
+.hud__buff-icon--negative { background: rgba(163,58,45,0.1); border-color: rgba(163,58,45,0.25); color: var(--accent); }
+.hud__buff-icon--overflow { background: rgba(23,19,16,0.04); color: var(--ash); font-size: 0.55rem; }
+
+.hud__boss-name {
+  position: absolute;
+  top: max(36px, calc(env(safe-area-inset-top, 0px) + 36px));
+  left: 50%; transform: translateX(-50%);
+  font-family: var(--title-face);
+  font-size: 0.82rem;
+  color: var(--accent);
+  background: rgba(163,58,45,0.08);
+  padding: 2px 12px;
+  border-radius: 999px;
+  pointer-events: none;
+  z-index: 3;
+  display: none;
+}
+.hud__boss-name:not(:empty) { display: block; }
+
+.relic-tooltip {
+  display: none;
+  position: absolute;
+  z-index: 10;
+  background: rgba(255,250,243,0.95);
+  border: 1px solid rgba(23,19,16,0.2);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.75rem;
+  color: var(--ink);
+  font-family: var(--title-face);
+  max-width: 200px;
+  transform: translateX(-50%);
+  pointer-events: auto;
+  box-shadow: 0 4px 16px rgba(23,19,16,0.15);
+}
+.relic-tooltip strong { color: var(--accent); }
+
 
 .hud__stats-btn {
   font-size: 0.78rem;
@@ -426,6 +560,8 @@ body.game-active #gameCanvas {
 }
 
 .weapon-pick {
+  position: relative;
+  overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 20px;
   padding: 20px 14px;
@@ -437,6 +573,22 @@ body.game-active #gameCanvas {
   text-align: left;
 }
 
+.weapon-pick::before,
+.relic-pick::before {
+  content: "";
+  position: absolute;
+  inset: -40% -25% auto auto;
+  width: 140px;
+  height: 140px;
+  border-radius: 48% 52% 44% 56%;
+  background:
+    radial-gradient(circle at 38% 40%, rgba(23,19,16,0.1), transparent 44%),
+    radial-gradient(circle at 60% 62%, rgba(163,58,45,0.08), transparent 48%);
+  opacity: 0.55;
+  transform: rotate(-18deg);
+  pointer-events: none;
+}
+
 .weapon-pick:hover {
   transform: translateY(-3px);
   border-color: rgba(163,58,45,0.35);
@@ -444,6 +596,10 @@ body.game-active #gameCanvas {
 }
 
 .weapon-pick h3 {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-family: var(--title-face);
   font-size: 1.2rem;
   margin: 0 0 4px;
@@ -464,6 +620,110 @@ body.game-active #gameCanvas {
 
 .weapon-pick .tag-row { display: flex; flex-wrap: wrap; gap: 5px; }
 
+.ink-icon {
+  position: relative;
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid rgba(23,19,16,0.2);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 40% 35%, rgba(255,250,243,0.86) 0 22%, transparent 23%),
+    radial-gradient(circle at 50% 58%, rgba(23,19,16,0.12), rgba(23,19,16,0.02) 68%);
+  box-shadow: inset 0 0 0 2px rgba(255,250,243,0.32), 0 6px 14px rgba(23,19,16,0.08);
+}
+
+.ink-icon::before,
+.ink-icon::after {
+  content: "";
+  display: block;
+  position: absolute;
+}
+
+.weapon-pick[data-icon="jian"] .ink-icon::before,
+.relic-pick[data-icon="xueqi"] .ink-icon::before,
+.relic-pick[data-icon="zhusha"] .ink-icon::before,
+.relic-pick[data-icon="panwen"] .ink-icon::before {
+  width: 4px;
+  height: 22px;
+  border-radius: 6px 6px 1px 1px;
+  background: linear-gradient(180deg, var(--ink), rgba(23,19,16,0.45));
+  transform: rotate(42deg);
+}
+.weapon-pick[data-icon="jian"] .ink-icon::after,
+.relic-pick[data-icon="xueqi"] .ink-icon::after {
+  width: 14px;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--accent);
+  transform: rotate(42deg) translateY(5px);
+}
+
+.weapon-pick[data-icon="bi"] .ink-icon::before,
+.relic-pick[data-icon="chenfu"] .ink-icon::before,
+.relic-pick[data-icon="kuhao"] .ink-icon::before,
+.relic-pick[data-icon="jingjuan"] .ink-icon::before {
+  width: 5px;
+  height: 22px;
+  border-radius: 5px 5px 1px 1px;
+  background: linear-gradient(180deg, var(--moss), var(--ink));
+  transform: rotate(20deg);
+}
+.weapon-pick[data-icon="bi"] .ink-icon::after,
+.relic-pick[data-icon="chenfu"] .ink-icon::after,
+.relic-pick[data-icon="kuhao"] .ink-icon::after,
+.relic-pick[data-icon="jingjuan"] .ink-icon::after {
+  width: 9px;
+  height: 7px;
+  border-radius: 60% 40% 70% 30%;
+  background: rgba(23,19,16,0.72);
+  transform: translate(3px,8px) rotate(-18deg);
+}
+
+.weapon-pick[data-icon="ling"] .ink-icon::before,
+.relic-pick[data-icon="lingshe"] .ink-icon::before,
+.relic-pick[data-icon="xuanbing"] .ink-icon::before,
+.relic-pick[data-icon="lingmu"] .ink-icon::before {
+  width: 18px;
+  height: 16px;
+  border: 3px solid var(--moss);
+  border-top-width: 5px;
+  border-radius: 12px 12px 9px 9px;
+}
+.weapon-pick[data-icon="ling"] .ink-icon::after,
+.relic-pick[data-icon="lingshe"] .ink-icon::after,
+.relic-pick[data-icon="xuanbing"] .ink-icon::after,
+.relic-pick[data-icon="lingmu"] .ink-icon::after {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+  transform: translateY(10px);
+}
+
+.weapon-pick[data-icon="san"] .ink-icon::before,
+.relic-pick[data-icon="liuying"] .ink-icon::before,
+.relic-pick[data-icon="pojing"] .ink-icon::before,
+.relic-pick[data-icon="zhiren"] .ink-icon::before {
+  width: 21px;
+  height: 12px;
+  border: 3px solid var(--accent);
+  border-bottom: 0;
+  border-radius: 22px 22px 0 0;
+  transform: translateY(-1px);
+}
+.weapon-pick[data-icon="san"] .ink-icon::after,
+.relic-pick[data-icon="liuying"] .ink-icon::after,
+.relic-pick[data-icon="pojing"] .ink-icon::after,
+.relic-pick[data-icon="zhiren"] .ink-icon::after {
+  width: 2px;
+  height: 17px;
+  background: var(--ink);
+  transform: translateY(6px);
+}
+
 /* ===== 遗物选择 ===== */
 .relic-choices {
   display: grid;
@@ -472,6 +732,8 @@ body.game-active #gameCanvas {
 }
 
 .relic-pick {
+  position: relative;
+  overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 18px;
   padding: 18px 14px;
@@ -489,9 +751,544 @@ body.game-active #gameCanvas {
 }
 
 .relic-pick h4 {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-family: var(--title-face);
   margin: 0 0 4px;
   font-size: 1.05rem;
+}
+
+.relic-pick .ink-icon {
+  width: 28px;
+  height: 28px;
+}
+
+.relic-pick:not([data-icon="zhusha"]):not([data-icon="xueqi"]):not([data-icon="panwen"]):not([data-icon="chenfu"]):not([data-icon="kuhao"]):not([data-icon="jingjuan"]):not([data-icon="lingshe"]):not([data-icon="xuanbing"]):not([data-icon="lingmu"]):not([data-icon="liuying"]):not([data-icon="pojing"]):not([data-icon="zhiren"]):not([data-icon="yedeng"]):not([data-icon="xuezhu"]):not([data-icon="huosui"]):not([data-icon="yindeng"]):not([data-icon="dieyin"]):not([data-icon="zhaohun"]):not([data-icon="gudi"]):not([data-icon="zhijia"]):not([data-icon="zhenmu"]):not([data-icon="nuomian"]):not([data-icon="tongjing"]):not([data-icon="molang"]):not([data-icon="xianghui"]):not([data-icon="xuemo"]):not([data-icon="zouma"]):not([data-icon="huangquan"]):not([data-icon="fengma"]):not([data-icon="mochi"]):not([data-icon="zhupi"]):not([data-icon="hunqian"]):not([data-icon="hunsuolian"]):not([data-icon="powangtong"]):not([data-icon="fanzhao"]):not([data-icon="jijiu"]):not([data-icon="huihunxiang"]):not([data-icon="huichunzhen"]):not([data-icon="shouyin"]):not([data-icon="tunmofu"]):not([data-icon="zhiyuan"]):not([data-icon="zhiyanwen"]):not([data-icon="liebing"]):not([data-icon="binghe"]):not([data-icon="hanxingtie"]):not([data-icon="moyaling"]):not([data-icon="shixin"]):not([data-icon="yujinshan"]):not([data-icon="shiguping"]):not([data-icon="fengmofu"]):not([data-icon="pojunfu"]):not([data-icon="lianhuanfu"]):not([data-icon="dengxin"]):not([data-icon="yanmoyan"]):not([data-icon="moshouzhen"]):not([data-icon="mogongzhen"]):not([data-icon="mowo"]):not([data-icon="moxi"]):not([data-icon="mobao"]):not([data-icon="moxian"]):not([data-icon="moding"]):not([data-icon="mochen"]):not([data-icon="motao"]):not([data-icon="molian"]):not([data-icon="mowei"]):not([data-icon="mojia"]):not([data-icon="molonglin"]):not([data-icon="moyi"]):not([data-icon="yexingyi"]):not([data-icon="houmo"]):not([data-icon="moze"]):not([data-icon="moxiu"]):not([data-icon="mosui"]):not([data-icon="moshi"]):not([data-icon="monu"]):not([data-icon="zhenyan"]):not([data-icon="mogangyin"]):not([data-icon="mojing"]):not([data-icon="molingyu"]):not([data-icon="molingqi"]):not([data-icon="judou"]):not([data-icon="guishouyin"]):not([data-icon="mojiangling"]):not([data-icon="mojiaojin"]):not([data-icon="guxue"]):not([data-icon="pilimu"]):not([data-icon="zhifan"]):not([data-icon="jingxinzhou"]) .ink-icon::before {
+  width: 15px;
+  height: 15px;
+  border-radius: 45% 55% 52% 48%;
+  background: radial-gradient(circle at 38% 32%, rgba(255,250,243,0.55) 0 18%, transparent 20%), var(--ink);
+  transform: rotate(-18deg);
+}
+
+.relic-pick:not([data-icon="zhusha"]):not([data-icon="xueqi"]):not([data-icon="panwen"]):not([data-icon="chenfu"]):not([data-icon="kuhao"]):not([data-icon="jingjuan"]):not([data-icon="lingshe"]):not([data-icon="xuanbing"]):not([data-icon="lingmu"]):not([data-icon="liuying"]):not([data-icon="pojing"]):not([data-icon="zhiren"]):not([data-icon="yedeng"]):not([data-icon="xuezhu"]):not([data-icon="huosui"]):not([data-icon="yindeng"]):not([data-icon="dieyin"]):not([data-icon="zhaohun"]):not([data-icon="gudi"]):not([data-icon="zhijia"]):not([data-icon="zhenmu"]):not([data-icon="nuomian"]):not([data-icon="tongjing"]):not([data-icon="molang"]):not([data-icon="xianghui"]):not([data-icon="xuemo"]):not([data-icon="zouma"]):not([data-icon="huangquan"]):not([data-icon="fengma"]):not([data-icon="mochi"]):not([data-icon="zhupi"]):not([data-icon="hunqian"]):not([data-icon="hunsuolian"]):not([data-icon="powangtong"]):not([data-icon="fanzhao"]):not([data-icon="jijiu"]):not([data-icon="huihunxiang"]):not([data-icon="huichunzhen"]):not([data-icon="shouyin"]):not([data-icon="tunmofu"]):not([data-icon="zhiyuan"]):not([data-icon="zhiyanwen"]):not([data-icon="liebing"]):not([data-icon="binghe"]):not([data-icon="hanxingtie"]):not([data-icon="moyaling"]):not([data-icon="shixin"]):not([data-icon="yujinshan"]):not([data-icon="shiguping"]):not([data-icon="fengmofu"]):not([data-icon="pojunfu"]):not([data-icon="lianhuanfu"]):not([data-icon="dengxin"]):not([data-icon="yanmoyan"]):not([data-icon="moshouzhen"]):not([data-icon="mogongzhen"]):not([data-icon="mowo"]):not([data-icon="moxi"]):not([data-icon="mobao"]):not([data-icon="moxian"]):not([data-icon="moding"]):not([data-icon="mochen"]):not([data-icon="motao"]):not([data-icon="molian"]):not([data-icon="mowei"]):not([data-icon="mojia"]):not([data-icon="molonglin"]):not([data-icon="moyi"]):not([data-icon="yexingyi"]):not([data-icon="houmo"]):not([data-icon="moze"]):not([data-icon="moxiu"]):not([data-icon="mosui"]):not([data-icon="moshi"]):not([data-icon="monu"]):not([data-icon="zhenyan"]):not([data-icon="mogangyin"]):not([data-icon="mojing"]):not([data-icon="molingyu"]):not([data-icon="molingqi"]):not([data-icon="judou"]):not([data-icon="guishouyin"]):not([data-icon="mojiangling"]):not([data-icon="mojiaojin"]):not([data-icon="guxue"]):not([data-icon="pilimu"]):not([data-icon="zhifan"]):not([data-icon="jingxinzhou"]) .ink-icon::after {
+  width: 8px;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--accent);
+  transform: translate(7px,8px) rotate(-24deg);
+}
+
+/* ===== Fire icons (yedeng/xuezhu/huosui) ===== */
+.relic-pick[data-icon="yedeng"] .ink-icon::before,
+.relic-pick[data-icon="xuezhu"] .ink-icon::before,
+.relic-pick[data-icon="huosui"] .ink-icon::before {
+  width: 12px; height: 18px;
+  border-radius: 50% 50% 20% 20%;
+  background: linear-gradient(0deg, rgba(196,90,45,0.5), rgba(163,58,45,0.8));
+  transform: translateY(-1px);
+}
+.relic-pick[data-icon="yedeng"] .ink-icon::after,
+.relic-pick[data-icon="xuezhu"] .ink-icon::after,
+.relic-pick[data-icon="huosui"] .ink-icon::after {
+  width: 6px; height: 10px;
+  border-radius: 50% 50% 20% 20%;
+  background: rgba(241,230,212,0.7);
+  transform: translateY(2px);
+}
+/* ===== Soul icons (yindeng/dieyin/zhaohun/gudi) ===== */
+.relic-pick[data-icon="yindeng"] .ink-icon::before,
+.relic-pick[data-icon="dieyin"] .ink-icon::before,
+.relic-pick[data-icon="zhaohun"] .ink-icon::before,
+.relic-pick[data-icon="gudi"] .ink-icon::before {
+  width: 10px; height: 16px;
+  border-radius: 50% 50% 30% 30%;
+  background: radial-gradient(circle at 50% 30%, rgba(241,230,212,0.6), rgba(77,122,86,0.6));
+  transform: translateY(-1px);
+}
+.relic-pick[data-icon="yindeng"] .ink-icon::after,
+.relic-pick[data-icon="dieyin"] .ink-icon::after,
+.relic-pick[data-icon="zhaohun"] .ink-icon::after,
+.relic-pick[data-icon="gudi"] .ink-icon::after {
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: rgba(241,230,212,0.8);
+  transform: translateY(-4px);
+}
+/* ===== Shield icons (zhijia/zhenmu) ===== */
+.relic-pick[data-icon="zhijia"] .ink-icon::before,
+.relic-pick[data-icon="zhenmu"] .ink-icon::before {
+  width: 14px; height: 16px;
+  border: 2.5px solid var(--ink);
+  border-radius: 50% 50% 40% 40%;
+  border-bottom-width: 3px;
+  background: rgba(23,19,16,0.04);
+  transform: translateY(-1px);
+}
+.relic-pick[data-icon="zhijia"] .ink-icon::after,
+.relic-pick[data-icon="zhenmu"] .ink-icon::after {
+  width: 2px; height: 10px;
+  background: var(--ink);
+  transform: translateY(-2px);
+}
+/* ===== Mask icon (nuomian) ===== */
+.relic-pick[data-icon="nuomian"] .ink-icon::before {
+  width: 16px; height: 14px;
+  border: 2px solid var(--accent);
+  border-radius: 45% 45% 50% 50%;
+  background: rgba(163,58,45,0.06);
+  transform: translateY(-1px);
+}
+.relic-pick[data-icon="nuomian"] .ink-icon::after {
+  width: 3px; height: 3px;
+  border-radius: 50%;
+  background: var(--accent);
+  transform: translate(-3px,-2px);
+  box-shadow: 6px 0 0 var(--accent);
+}
+/* ===== Mirror icon (tongjing) ===== */
+.relic-pick[data-icon="tongjing"] .ink-icon::before {
+  width: 14px; height: 14px;
+  border: 2.5px solid var(--ink);
+  border-radius: 2px;
+  transform: rotate(45deg) translateY(-1px);
+  background: rgba(241,230,212,0.3);
+}
+.relic-pick[data-icon="tongjing"] .ink-icon::after {
+  width: 8px; height: 1.5px;
+  background: rgba(23,19,16,0.35);
+  transform: rotate(45deg) translate(2px,2px);
+}
+/* ===== Pearl icon (molang) ===== */
+.relic-pick[data-icon="molang"] .ink-icon::before {
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 35%, rgba(241,230,212,0.7) 0 30%, var(--ink) 31%);
+  transform: translateY(-1px);
+}
+.relic-pick[data-icon="molang"] .ink-icon::after {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(241,230,212,0.5);
+  background: transparent;
+  transform: translate(5px,2px);
+}
+/* ===== Curse icons (xianghui/xuemo) ===== */
+.relic-pick[data-icon="xianghui"] .ink-icon::before,
+.relic-pick[data-icon="xuemo"] .ink-icon::before {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  background: rgba(163,58,45,0.08);
+  transform: translateY(-1px);
+}
+.relic-pick[data-icon="xianghui"] .ink-icon::after,
+.relic-pick[data-icon="xuemo"] .ink-icon::after {
+  width: 2px; height: 8px;
+  background: var(--accent);
+  transform: rotate(45deg);
+}
+/* ===== Movement icons (zouma/huangquan/fengma) ===== */
+.relic-pick[data-icon="zouma"] .ink-icon::before,
+.relic-pick[data-icon="huangquan"] .ink-icon::before,
+.relic-pick[data-icon="fengma"] .ink-icon::before {
+  width: 16px; height: 10px;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  background: rgba(23,19,16,0.04);
+  transform: translateY(-1px);
+}
+.relic-pick[data-icon="zouma"] .ink-icon::after,
+.relic-pick[data-icon="huangquan"] .ink-icon::after,
+.relic-pick[data-icon="fengma"] .ink-icon::after {
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: var(--accent);
+  transform: translate(3px,-1px);
+  box-shadow: -6px 3px 0 var(--ink);
+}
+/* ===== Ink pool (mochi) ===== */
+.relic-pick[data-icon="mochi"] .ink-icon::before {
+  width: 16px; height: 12px;
+  border: 2px solid var(--ink);
+  border-radius: 3px;
+  background: rgba(23,19,16,0.08);
+  transform: translateY(-1px);
+}
+.relic-pick[data-icon="mochi"] .ink-icon::after {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--ink);
+  transform: translateY(-1px);
+}
+/* ===== Execution icons (zhupi/hunqian/hunsuolian/powangtong) ===== */
+.relic-pick[data-icon="zhupi"] .ink-icon::before,
+.relic-pick[data-icon="hunqian"] .ink-icon::before,
+.relic-pick[data-icon="hunsuolian"] .ink-icon::before,
+.relic-pick[data-icon="powangtong"] .ink-icon::before {
+  width: 14px; height: 14px;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  background: rgba(163,58,45,0.06);
+  transform: translateY(-1px);
+}
+.relic-pick[data-icon="zhupi"] .ink-icon::after,
+.relic-pick[data-icon="hunqian"] .ink-icon::after,
+.relic-pick[data-icon="hunsuolian"] .ink-icon::after,
+.relic-pick[data-icon="powangtong"] .ink-icon::after {
+  width: 2px; height: 10px;
+  background: var(--accent);
+  transform: rotate(30deg);
+}
+/* ===== Reflector icon (fanzhao) ===== */
+.relic-pick[data-icon="fanzhao"] .ink-icon::before {
+  width: 14px; height: 14px;
+  border: 2px solid var(--ink);
+  border-radius: 2px;
+  transform: rotate(45deg) translateY(-1px);
+  background: rgba(241,230,212,0.2);
+}
+.relic-pick[data-icon="fanzhao"] .ink-icon::after {
+  width: 6px; height: 1.5px;
+  background: var(--accent);
+  transform: rotate(45deg) translate(1px,1px);
+  box-shadow: -2px 4px 0 var(--accent);
+}
+/* ===== Heal icons (jijiu/huihunxiang/huichunzhen) ===== */
+.relic-pick[data-icon="jijiu"] .ink-icon::before,
+.relic-pick[data-icon="huihunxiang"] .ink-icon::before,
+.relic-pick[data-icon="huichunzhen"] .ink-icon::before {
+  width: 12px; height: 12px;
+  border: 2px solid var(--moss);
+  border-radius: 50%;
+  background: rgba(77,122,86,0.06);
+  transform: translateY(-1px);
+}
+.relic-pick[data-icon="jijiu"] .ink-icon::after,
+.relic-pick[data-icon="huihunxiang"] .ink-icon::after,
+.relic-pick[data-icon="huichunzhen"] .ink-icon::after {
+  width: 8px; height: 2px;
+  background: var(--moss);
+  transform: translateY(-1px);
+  box-shadow: 0 -4px 0 var(--moss);
+}
+/* ===== Bag icons (shouyin/tunmofu) ===== */
+.relic-pick[data-icon="shouyin"] .ink-icon::before,
+.relic-pick[data-icon="tunmofu"] .ink-icon::before {
+  width: 14px; height: 12px;
+  border: 2px solid var(--ink);
+  border-radius: 2px 2px 4px 4px;
+  background: rgba(23,19,16,0.04);
+  transform: translateY(1px);
+}
+.relic-pick[data-icon="shouyin"] .ink-icon::after,
+.relic-pick[data-icon="tunmofu"] .ink-icon::after {
+  width: 8px; height: 4px;
+  border: 2px solid var(--ink);
+  border-bottom: none;
+  border-radius: 4px 4px 0 0;
+  transform: translateY(-3px);
+}
+/* ===== Kite icons (zhiyuan/zhiyanwen) ===== */
+.relic-pick[data-icon="zhiyuan"] .ink-icon::before,
+.relic-pick[data-icon="zhiyanwen"] .ink-icon::before {
+  width: 0; height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 14px solid var(--ink);
+  transform: translateY(-2px);
+}
+.relic-pick[data-icon="zhiyuan"] .ink-icon::after,
+.relic-pick[data-icon="zhiyanwen"] .ink-icon::after {
+  width: 12px; height: 1.5px;
+  background: var(--ink);
+  transform: translateY(6px);
+}
+/* ===== Ice icons (liebing/binghe/hanxingtie) ===== */
+.relic-pick[data-icon="liebing"] .ink-icon::before,
+.relic-pick[data-icon="binghe"] .ink-icon::before,
+.relic-pick[data-icon="hanxingtie"] .ink-icon::before {
+  width: 10px; height: 14px;
+  border: 2px solid rgba(120,160,180,0.8);
+  background: rgba(120,160,180,0.08);
+  transform: rotate(45deg) translateY(-1px);
+}
+.relic-pick[data-icon="liebing"] .ink-icon::after,
+.relic-pick[data-icon="binghe"] .ink-icon::after,
+.relic-pick[data-icon="hanxingtie"] .ink-icon::after {
+  width: 1.5px; height: 8px;
+  background: rgba(120,160,180,0.6);
+  transform: rotate(45deg);
+  box-shadow: 4px 0 0 rgba(120,160,180,0.6);
+}
+/* ===== Feather icon (moyaling) ===== */
+.relic-pick[data-icon="moyaling"] .ink-icon::before {
+  width: 6px; height: 16px;
+  border-radius: 50%;
+  background: var(--ink);
+  transform: rotate(-20deg) translateY(-1px);
+}
+.relic-pick[data-icon="moyaling"] .ink-icon::after {
+  width: 10px; height: 2px;
+  background: var(--ink);
+  transform: rotate(-20deg) translate(1px,-4px);
+  box-shadow: 0 4px 0 var(--ink), 0 8px 0 var(--ink);
+}
+/* ===== Stone icons (shixin/yujinshan/shiguping) ===== */
+.relic-pick[data-icon="shixin"] .ink-icon::before,
+.relic-pick[data-icon="yujinshan"] .ink-icon::before,
+.relic-pick[data-icon="shiguping"] .ink-icon::before {
+  width: 14px; height: 14px;
+  border: 2px solid var(--ink);
+  border-radius: 3px;
+  background: rgba(23,19,16,0.06);
+  transform: translateY(-1px);
+}
+.relic-pick[data-icon="shixin"] .ink-icon::after,
+.relic-pick[data-icon="yujinshan"] .ink-icon::after,
+.relic-pick[data-icon="shiguping"] .ink-icon::after {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  transform: translate(1px,1px);
+}
+/* ===== Talisman icons (fengmofu/pojunfu/lianhuanfu) ===== */
+.relic-pick[data-icon="fengmofu"] .ink-icon::before,
+.relic-pick[data-icon="pojunfu"] .ink-icon::before,
+.relic-pick[data-icon="lianhuanfu"] .ink-icon::before {
+  width: 10px; height: 16px;
+  border: 1.5px solid var(--accent);
+  border-radius: 1px;
+  background: rgba(163,58,45,0.06);
+  transform: translateY(-1px);
+}
+.relic-pick[data-icon="fengmofu"] .ink-icon::after,
+.relic-pick[data-icon="pojunfu"] .ink-icon::after,
+.relic-pick[data-icon="lianhuanfu"] .ink-icon::after {
+  width: 6px; height: 6px;
+  border: 1px solid var(--accent);
+  border-radius: 50%;
+  transform: translateY(-1px);
+}
+/* ===== Fire relic (dengxin/yanmoyan) ===== */
+.relic-pick[data-icon="dengxin"] .ink-icon::before,
+.relic-pick[data-icon="yanmoyan"] .ink-icon::before {
+  width: 12px; height: 16px;
+  border-radius: 50% 50% 20% 20%;
+  background: linear-gradient(0deg, rgba(196,90,45,0.4), rgba(163,58,45,0.7));
+  transform: translateY(-1px);
+}
+.relic-pick[data-icon="dengxin"] .ink-icon::after,
+.relic-pick[data-icon="yanmoyan"] .ink-icon::after {
+  width: 4px; height: 8px;
+  border-radius: 50% 50% 20% 20%;
+  background: rgba(241,230,212,0.6);
+  transform: translateY(1px);
+}
+/* ===== Array/Formation icons (moshouzhen/mogongzhen/mowo/moxi/mobao/moxian/moding/mochen/motao/molian/mowei) ===== */
+.relic-pick[data-icon="moshouzhen"] .ink-icon::before,
+.relic-pick[data-icon="mogongzhen"] .ink-icon::before,
+.relic-pick[data-icon="mowo"] .ink-icon::before,
+.relic-pick[data-icon="moxi"] .ink-icon::before,
+.relic-pick[data-icon="mobao"] .ink-icon::before,
+.relic-pick[data-icon="moxian"] .ink-icon::before,
+.relic-pick[data-icon="mochen"] .ink-icon::before,
+.relic-pick[data-icon="motao"] .ink-icon::before,
+.relic-pick[data-icon="molian"] .ink-icon::before,
+.relic-pick[data-icon="mowei"] .ink-icon::before,
+.relic-pick[data-icon="moding"] .ink-icon::before {
+  width: 14px; height: 14px;
+  border: 1.5px solid var(--ink);
+  border-radius: 50%;
+  background: rgba(23,19,16,0.03);
+  transform: translateY(-1px);
+}
+.relic-pick[data-icon="moshouzhen"] .ink-icon::after,
+.relic-pick[data-icon="mogongzhen"] .ink-icon::after,
+.relic-pick[data-icon="mowo"] .ink-icon::after,
+.relic-pick[data-icon="moxi"] .ink-icon::after,
+.relic-pick[data-icon="mobao"] .ink-icon::after,
+.relic-pick[data-icon="moxian"] .ink-icon::after,
+.relic-pick[data-icon="mochen"] .ink-icon::after,
+.relic-pick[data-icon="motao"] .ink-icon::after,
+.relic-pick[data-icon="molian"] .ink-icon::after,
+.relic-pick[data-icon="mowei"] .ink-icon::after,
+.relic-pick[data-icon="moding"] .ink-icon::after {
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: var(--ink);
+  transform: translate(-1px,-1px);
+}
+/* ===== Armor icons (mojia/molonglin) ===== */
+.relic-pick[data-icon="mojia"] .ink-icon::before,
+.relic-pick[data-icon="molonglin"] .ink-icon::before {
+  width: 16px; height: 14px;
+  border: 2px solid var(--ink);
+  border-radius: 3px;
+  background: rgba(23,19,16,0.06);
+  transform: translateY(-1px);
+}
+.relic-pick[data-icon="mojia"] .ink-icon::after,
+.relic-pick[data-icon="molonglin"] .ink-icon::after {
+  width: 6px; height: 1.5px;
+  background: var(--ink);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 0 var(--ink);
+}
+/* ===== Dodge icons (moyi/yexingyi) ===== */
+.relic-pick[data-icon="moyi"] .ink-icon::before,
+.relic-pick[data-icon="yexingyi"] .ink-icon::before {
+  width: 14px; height: 14px;
+  border: 2px dashed var(--ink);
+  border-radius: 50%;
+  background: transparent;
+  transform: translateY(-1px);
+}
+.relic-pick[data-icon="moyi"] .ink-icon::after,
+.relic-pick[data-icon="yexingyi"] .ink-icon::after {
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: var(--accent);
+  transform: translate(2px,2px);
+}
+/* ===== Ink relics (houmo/moze/moxiu/mosui/moshi/monu) ===== */
+.relic-pick[data-icon="houmo"] .ink-icon::before,
+.relic-pick[data-icon="moze"] .ink-icon::before,
+.relic-pick[data-icon="moxiu"] .ink-icon::before,
+.relic-pick[data-icon="mosui"] .ink-icon::before,
+.relic-pick[data-icon="moshi"] .ink-icon::before,
+.relic-pick[data-icon="monu"] .ink-icon::before {
+  width: 14px; height: 14px;
+  border-radius: 45% 55% 50% 50%;
+  background: radial-gradient(circle at 40% 35%, rgba(241,230,212,0.5) 0 25%, var(--ink) 26%);
+  transform: translateY(-1px);
+}
+.relic-pick[data-icon="houmo"] .ink-icon::after,
+.relic-pick[data-icon="moze"] .ink-icon::after,
+.relic-pick[data-icon="moxiu"] .ink-icon::after,
+.relic-pick[data-icon="mosui"] .ink-icon::after,
+.relic-pick[data-icon="moshi"] .ink-icon::after,
+.relic-pick[data-icon="monu"] .ink-icon::after {
+  width: 3px; height: 3px;
+  border-radius: 50%;
+  background: rgba(241,230,212,0.5);
+  transform: translate(-2px,-2px);
+}
+/* ===== Seal icons (zhenyan/mogangyin/mojing) ===== */
+.relic-pick[data-icon="zhenyan"] .ink-icon::before,
+.relic-pick[data-icon="mogangyin"] .ink-icon::before,
+.relic-pick[data-icon="mojing"] .ink-icon::before {
+  width: 14px; height: 14px;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  background: rgba(23,19,16,0.04);
+  transform: translateY(-1px);
+}
+.relic-pick[data-icon="zhenyan"] .ink-icon::after,
+.relic-pick[data-icon="mogangyin"] .ink-icon::after,
+.relic-pick[data-icon="mojing"] .ink-icon::after {
+  width: 6px; height: 6px;
+  border: 1.5px solid var(--ink);
+  border-radius: 50%;
+  transform: translate(-1px,-1px);
+}
+/* ===== Spirit icons (molingyu/molingqi/judou/guishouyin) ===== */
+.relic-pick[data-icon="molingyu"] .ink-icon::before,
+.relic-pick[data-icon="molingqi"] .ink-icon::before,
+.relic-pick[data-icon="judou"] .ink-icon::before,
+.relic-pick[data-icon="guishouyin"] .ink-icon::before {
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 35%, rgba(241,230,212,0.6) 0 35%, rgba(77,122,86,0.5) 36%);
+  transform: translateY(-1px);
+}
+.relic-pick[data-icon="molingyu"] .ink-icon::after,
+.relic-pick[data-icon="molingqi"] .ink-icon::after,
+.relic-pick[data-icon="judou"] .ink-icon::after,
+.relic-pick[data-icon="guishouyin"] .ink-icon::after {
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  border: 1px solid rgba(77,122,86,0.5);
+  transform: translate(4px,2px);
+}
+/* ===== Order icons (mojiangling) ===== */
+.relic-pick[data-icon="mojiangling"] .ink-icon::before {
+  width: 10px; height: 14px;
+  border: 2px solid var(--accent);
+  border-radius: 1px;
+  background: rgba(163,58,45,0.06);
+  transform: translateY(-1px);
+}
+.relic-pick[data-icon="mojiangling"] .ink-icon::after {
+  width: 6px; height: 1.5px;
+  background: var(--accent);
+  transform: translateY(-6px);
+  box-shadow: 0 4px 0 var(--accent), 0 8px 0 var(--accent);
+}
+/* ===== Whip/chain icons (mojiaojin/guxue) ===== */
+.relic-pick[data-icon="mojiaojin"] .ink-icon::before,
+.relic-pick[data-icon="guxue"] .ink-icon::before {
+  width: 14px; height: 3px;
+  background: var(--ink);
+  border-radius: 2px;
+  transform: rotate(-30deg) translateY(-1px);
+}
+.relic-pick[data-icon="mojiaojin"] .ink-icon::after,
+.relic-pick[data-icon="guxue"] .ink-icon::after {
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: var(--accent);
+  transform: rotate(-30deg) translate(2px,-6px);
+  box-shadow: 8px 4px 0 var(--ink);
+}
+/* ===== Thunder icon (pilimu) ===== */
+.relic-pick[data-icon="pilimu"] .ink-icon::before {
+  width: 10px; height: 16px;
+  background: var(--accent);
+  clip-path: polygon(50% 0%, 100% 35%, 65% 35%, 90% 100%, 30% 55%, 60% 55%, 0% 30%);
+  transform: translateY(-1px);
+}
+.relic-pick[data-icon="pilimu"] .ink-icon::after {
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: rgba(241,230,212,0.6);
+  transform: translate(-2px,2px);
+}
+/* ===== Parasite icon (zhifan) ===== */
+.relic-pick[data-icon="zhifan"] .ink-icon::before {
+  width: 10px; height: 10px;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  background: rgba(163,58,45,0.06);
+  transform: translateY(-1px);
+}
+.relic-pick[data-icon="zhifan"] .ink-icon::after {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  border: 1.5px solid var(--accent);
+  transform: translate(3px,3px);
+}
+/* ===== Misc remaining (jingxinzhou/motao/moyaling/moxian/mochen) ===== */
+.relic-pick[data-icon="jingxinzhou"] .ink-icon::before {
+  width: 12px; height: 12px;
+  border: 2px solid var(--moss);
+  border-radius: 50%;
+  background: rgba(77,122,86,0.04);
+  transform: translateY(-1px);
+}
+.relic-pick[data-icon="jingxinzhou"] .ink-icon::after {
+  width: 1.5px; height: 8px;
+  background: var(--moss);
+  transform: translateY(-1px);
+  box-shadow: 4px 0 0 var(--moss);
+}
+.relic-pick.is-picked {
+  transform: translateY(-2px) scale(0.99);
+  border-color: rgba(163,58,45,0.55);
+  box-shadow: 0 0 0 3px rgba(163,58,45,0.08), 0 14px 28px rgba(23,19,16,0.12);
+  pointer-events: none;
 }
 
 .relic-pick__type {
@@ -507,6 +1304,16 @@ body.game-active #gameCanvas {
   margin-right: 4px;
   background: rgba(23,19,16,0.06);
   color: var(--ink-soft);
+}
+.relic-synergy {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 0.62rem;
+  margin-left: 6px;
+  background: rgba(156,131,90,0.15);
+  color: var(--gold);
+  font-weight: 600;
 }
 
 .relic-pick p {
@@ -572,12 +1379,15 @@ body.game-active #gameCanvas {
   .title-screen__btn { min-height: 50px; font-size: 1.1rem; padding: 12px 44px; }
   .back-link { font-size: 0.82rem; padding: 6px 2px; margin-top: 8px; }
 
-  /* Title screen */
+  /* Title screen — speed up entrance animations */
   .title-screen { max-width: 400px; }
-  .title-screen__title { font-size: 2.2rem; }
-  .title-screen__sub { font-size: 1rem; }
-  .title-screen__desc { font-size: 0.82rem; margin-bottom: 12px; }
-  .title-screen__links { margin-top: 10px; }
+  .title-screen__title { font-size: 2.2rem; animation-duration: 0.7s; animation-delay: 0.05s; }
+  .title-screen__sub { font-size: 1rem; animation-duration: 0.6s; animation-delay: 0.15s; }
+  .title-screen__desc { font-size: 0.82rem; margin-bottom: 12px; animation-duration: 0.5s; animation-delay: 0.25s; }
+  .ach-row { animation-duration: 0.4s; animation-delay: 0.3s; }
+  .title-screen__btn { animation-duration: 0.4s; animation-delay: 0.35s; }
+  .title-screen__links { margin-top: 10px; animation-duration: 0.3s; animation-delay: 0.4s; }
+  .title-screen::before, .title-screen::after { animation-duration: 1s; animation-delay: 0.2s; }
 
   /* Weapon: 2x2 grid, compact cards */
   .weapon-choices { grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 6px; }
@@ -646,6 +1456,9 @@ body.game-active #gameCanvas {
 
 /* ===== Canvas Crosshair ===== */
 #gameCanvas { cursor: crosshair; }
+@media (hover: none) and (pointer: coarse) {
+  #gameCanvas { cursor: auto; }
+}
 
 /* ===== Boss HP Name ===== */
 .hud__boss-name {
@@ -816,6 +1629,33 @@ body.game-active #gameCanvas {
 @keyframes boss-wave-vignette {
   0%, 100% { box-shadow: 0 20px 60px rgba(23,19,16,0.18); }
   50% { box-shadow: 0 20px 60px rgba(163,58,45,0.2), 0 0 100px rgba(163,58,45,0.08); }
+}
+
+/* Low-HP screen-edge warning pulse */
+.game-frame.is-low-hp {
+  animation: low-hp-pulse 0.8s ease-in-out infinite;
+}
+@keyframes low-hp-pulse {
+  0%, 100% { box-shadow: inset 0 0 0 rgba(163,58,45,0), 0 0 0 rgba(163,58,45,0); }
+  50% { box-shadow: inset 0 0 60px rgba(163,58,45,0.15), 0 0 30px rgba(163,58,45,0.08); }
+}
+
+/* Dodge button states */
+.mobile-btn--dodge.is-cooldown {
+  background: rgba(241,230,212,0.08);
+  color: rgba(241,230,212,0.5);
+  border-color: rgba(241,230,212,0.25);
+  font-size: 0.8rem;
+}
+.mobile-btn--dodge.is-ready {
+  background: rgba(241,230,212,0.25);
+  color: rgba(241,230,212,0.9);
+  border-color: rgba(241,230,212,0.5);
+  animation: dodge-btn-glow 1.2s ease-in-out infinite;
+}
+@keyframes dodge-btn-glow {
+  0%, 100% { box-shadow: 0 0 0 rgba(241,230,212,0); }
+  50% { box-shadow: 0 0 12px rgba(241,230,212,0.3); }
 }
 
 /* Hit indicator at screen edge */
@@ -1013,7 +1853,7 @@ body.game-active #gameCanvas {
   .hud__boss-name { font-size: 0.72rem; top: 30px; }
 
   /* Relic tags: compact */
-  .hud__relics { gap: 4px; margin-top: max(32px, env(safe-area-inset-top, 32px)); padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); max-width: 100vw; }
+  .hud__relics { gap: 4px; top: 32px; max-width: 100vw; }
   .hud__relic-tag { font-size: 0.62rem; padding: 2px 7px; }
 
   /* Wave clear flash: smaller */

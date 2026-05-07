@@ -5,7 +5,7 @@
   "main": "game.html",
   "scripts": {
     "test": "node smoke_test.js",
-    "www": "node -e \"var f=require('fs');f.copyFileSync('game.html','www/index.html');['game.css','game.js','gamedata.js','sound.js','mobile-controls.js','styles.css'].forEach(function(n){f.copyFileSync(n,'www/'+n)})\"",
+    "www": "node -e \"var f=require('fs');f.copyFileSync('game.html','www/index.html');['game.css','game.js','gamedata.js','sound.js','mobile-controls.js','styles.css','wiki.html'].forEach(function(n){f.copyFileSync(n,'www/'+n)})\"",
     "cap:sync": "npm run www && npx cap sync",
     "cap:open:android": "npm run cap:sync && npx cap open android"
   },

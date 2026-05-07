@@ -533,9 +533,81 @@
     bossIntro: playBossIntro,
     uiBlip: playUiBlip,
     evoPickup: playEvoPickup,
-    killMilestone: playKillMilestone
+    killMilestone: playKillMilestone,
+    merchantTrade: playMerchantTrade,
+    ghostProj: playGhostProj,
+    critHeal: playCritHeal,
+    quickRestart: playQuickRestart,
+    spawnPulse: playSpawnPulse,
+    bossDeath: playBossDeath,
+    achievementUnlock: playAchievementUnlock,
+    playerDeath: playPlayerDeath,
+    comboMilestone: playComboMilestone,
+    reflect: playReflect,
+    shopEnter: playShopEnter,
+    hazardWarn: playHazardWarn,
+    curseSelect: playCurseSelect
   };
 
+  function playGhostProj() {
+    if (!ctx) init(); var t = now();
+    var osc = ctx.createOscillator(); var gain = makeGain(0);
+    osc.type = 'sine'; osc.frequency.setValueAtTime(800, t);
+    osc.frequency.exponentialRampToValueAtTime(200, t + 0.15);
+    gain.gain.setValueAtTime(0.04, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+    osc.connect(gain); osc.start(t); osc.stop(t + 0.2); autoDisconnect(0.2, [osc, gain]);
+  }
+  function playCritHeal() {
+    if (!ctx) init(); var t = now();
+    var osc = ctx.createOscillator(); var gain = makeGain(0);
+    osc.type = 'sine'; osc.frequency.setValueAtTime(523, t);
+    osc.frequency.setValueAtTime(659, t + 0.06);
+    gain.gain.setValueAtTime(0.03, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
+    osc.connect(gain); osc.start(t); osc.stop(t + 0.18); autoDisconnect(0.2, [osc, gain]);
+  }
+  function playQuickRestart() {
+    if (!ctx) init(); var t = now();
+    [440, 554, 659].forEach(function(f, i) {
+      var osc = ctx.createOscillator(); var gain = makeGain(0);
+      osc.type = 'triangle'; osc.frequency.value = f;
+      gain.gain.setValueAtTime(0, t);
+      gain.gain.setValueAtTime(0.05, t + i * 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.04 + 0.12);
+      osc.connect(gain); osc.start(t); osc.stop(t + 0.2); autoDisconnect(0.2, [osc, gain]);
+    });
+  }
+  function playMerchantTrade() {
+    if (!ctx) init(); var t = now();
+    // Coin-like metallic chime
+    var osc = ctx.createOscillator(); var gain = makeGain(0);
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(1200, t);
+    osc.frequency.exponentialRampToValueAtTime(800, t + 0.15);
+    gain.gain.setValueAtTime(0.06, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+    osc.connect(gain); osc.start(t); osc.stop(t + 0.3);
+    // Second chime
+    var osc2 = ctx.createOscillator(); var gain2 = makeGain(0);
+    osc2.type = 'sine';
+    osc2.frequency.setValueAtTime(1600, t + 0.1);
+    gain2.gain.setValueAtTime(0, t);
+    gain2.gain.setValueAtTime(0.04, t + 0.1);
+    gain2.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
+    osc2.connect(gain2); osc2.start(t + 0.1); osc2.stop(t + 0.4);
+    autoDisconnect(0.4, [osc, gain, osc2, gain2]);
+  }
+
+  function playSpawnPulse() {
+    if (!ctx) init(); var t = now();
+    var osc = ctx.createOscillator(); var gain = makeGain(0);
+    osc.type = 'sine'; osc.frequency.setValueAtTime(600, t);
+    osc.frequency.exponentialRampToValueAtTime(300, t + 0.25);
+    gain.gain.setValueAtTime(0.06, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+    osc.connect(gain); osc.start(t); osc.stop(t + 0.35); autoDisconnect(0.35, [osc, gain]);
+  }
   function playKillMilestone() {
     if (!ctx) init(); var t = now();
     var freqs = [523, 659, 784, 1047];
@@ -548,6 +620,97 @@
       gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.06 + 0.3);
       osc.connect(gain); osc.start(t); osc.stop(t + 0.5);
       autoDisconnect(0.5, [osc, gain]);
+    });
+  }
+
+  function playBossDeath() {
+    if (!ctx) init(); var t = now();
+    [110, 146.83, 220].forEach(function(f, i) {
+      var osc = ctx.createOscillator(); var gain = makeGain(0);
+      osc.type = i === 0 ? 'sawtooth' : 'triangle';
+      osc.frequency.value = f;
+      gain.gain.setValueAtTime(0, t);
+      gain.gain.setValueAtTime(0.1 - i * 0.02, t + i * 0.08);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.8);
+      osc.connect(gain); osc.start(t + i * 0.08); osc.stop(t + 0.9);
+      autoDisconnect(1.0, [osc, gain]);
+    });
+  }
+  function playAchievementUnlock() {
+    if (!ctx) init(); var t = now();
+    [523, 659, 784, 1047, 1319].forEach(function(f, i) {
+      var osc = ctx.createOscillator(); var gain = makeGain(0);
+      osc.type = i < 3 ? 'sine' : 'triangle';
+      osc.frequency.value = f;
+      gain.gain.setValueAtTime(0, t);
+      gain.gain.setValueAtTime(0.06, t + i * 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.05 + 0.4);
+      osc.connect(gain); osc.start(t + i * 0.05); osc.stop(t + 0.6);
+      autoDisconnect(0.7, [osc, gain]);
+    });
+  }
+  function playPlayerDeath() {
+    if (!ctx) init(); var t = now();
+    var osc = ctx.createOscillator(); var gain = makeGain(0);
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(220, t);
+    osc.frequency.exponentialRampToValueAtTime(55, t + 0.6);
+    gain.gain.setValueAtTime(0.08, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.7);
+    osc.connect(gain); osc.start(t); osc.stop(t + 0.8); autoDisconnect(0.9, [osc, gain]);
+  }
+  function playComboMilestone() {
+    if (!ctx) init(); var t = now();
+    var osc = ctx.createOscillator(); var gain = makeGain(0);
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(880, t);
+    osc.frequency.setValueAtTime(1100, t + 0.06);
+    gain.gain.setValueAtTime(0.05, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+    osc.connect(gain); osc.start(t); osc.stop(t + 0.25); autoDisconnect(0.3, [osc, gain]);
+  }
+  function playReflect() {
+    if (!ctx) init(); var t = now();
+    var osc = ctx.createOscillator(); var gain = makeGain(0);
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(1800, t);
+    osc.frequency.exponentialRampToValueAtTime(2400, t + 0.05);
+    gain.gain.setValueAtTime(0.04, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+    osc.connect(gain); osc.start(t); osc.stop(t + 0.15); autoDisconnect(0.2, [osc, gain]);
+  }
+  function playShopEnter() {
+    if (!ctx) init(); var t = now();
+    [660, 880].forEach(function(f, i) {
+      var osc = ctx.createOscillator(); var gain = makeGain(0);
+      osc.type = 'sine'; osc.frequency.value = f;
+      gain.gain.setValueAtTime(0, t);
+      gain.gain.setValueAtTime(0.04, t + i * 0.08);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.08 + 0.15);
+      osc.connect(gain); osc.start(t + i * 0.08); osc.stop(t + 0.3);
+      autoDisconnect(0.35, [osc, gain]);
+    });
+  }
+  function playHazardWarn() {
+    if (!ctx) init(); var t = now();
+    var osc = ctx.createOscillator(); var gain = makeGain(0);
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(200, t);
+    osc.frequency.linearRampToValueAtTime(400, t + 0.15);
+    gain.gain.setValueAtTime(0.03, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+    osc.connect(gain); osc.start(t); osc.stop(t + 0.25); autoDisconnect(0.3, [osc, gain]);
+  }
+  function playCurseSelect() {
+    if (!ctx) init(); var t = now();
+    [220, 277].forEach(function(f, i) {
+      var osc = ctx.createOscillator(); var gain = makeGain(0);
+      osc.type = 'triangle'; osc.frequency.value = f;
+      gain.gain.setValueAtTime(0, t);
+      gain.gain.setValueAtTime(0.06, t + i * 0.1);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.1 + 0.25);
+      osc.connect(gain); osc.start(t + i * 0.1); osc.stop(t + 0.4);
+      autoDisconnect(0.45, [osc, gain]);
     });
   }
 
@@ -569,7 +732,9 @@
     well:    { freqs: [44, 66, 88],     types: ['sine','sine','sine'], vol: 0.02, lfo: 0.05, lfoD: 3 },
     mask:    { freqs: [55, 73.42, 110], types: ['sine','sine','sine'], vol: 0.018, lfo: 0.12, lfoD: 5 },
     lantern: { freqs: [73.42, 110, 146.83], types: ['sine','sine','sine'], vol: 0.016, lfo: 0.1, lfoD: 3.5 },
-    inkpool: { freqs: [36.71, 55, 73.42], types: ['sine','sine','sine'], vol: 0.022, lfo: 0.04, lfoD: 2 }
+    inkpool: { freqs: [36.71, 55, 73.42], types: ['sine','sine','sine'], vol: 0.022, lfo: 0.04, lfoD: 2 },
+    guishi:  { freqs: [82.41, 123.47, 164.81], types: ['sine','triangle','sine'], vol: 0.014, lfo: 0.2, lfoD: 6 },
+    mirror:  { freqs: [98, 130.81, 196], types: ['sine','sine','triangle'], vol: 0.016, lfo: 0.25, lfoD: 7 }
   };
 
   function startAmbient(stage) {

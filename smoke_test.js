@@ -440,9 +440,24 @@ code+='\n'+[
 '  ch36.forEach(function(c){if(c.id==="fanzhao")errors.push("prereqs: fanzhao in choices without returnInk")});',
 '}catch(e){errors.push("prereqs: "+e.message)}',
 
+// Test 37: Long-run stability around reported 49s crash window
+'try{var g37=newGame("ling");startWave(g37);',
+'  g37.player.soulChain=true;g37.player.corrosive=true;g37.player.ringSlow=true;g37.player.ringSoulHit=true;',
+'  for(var t37=0;t37<3600;t37++){',
+'    mouse.down=(t37%4!==0);',
+'    mouse.x=g37.player.x+80;mouse.y=g37.player.y;',
+'    if(g37.state==="waveClear"){g37.state="playing";startWave(g37)}',
+'    if(g37.state!=="playing")break;',
+'    update(g37);',
+'    if(t37%180===0&&g37.enemies.length<LIMITS.enemies-2)spawnEnemy(g37,"mochong",{noScale:true});',
+'  }',
+'  if(g37.perf.peaks.attacks>LIMITS.attacks)errors.push("longrun: attacks over limit");',
+'  if(g37.perf.peaks.eProj>LIMITS.eProj)errors.push("longrun: eProj over limit");',
+'}catch(e){errors.push("longrun49s: "+e.message)}',
+
 // Report
 'if(errors.length){console.log("FAIL ("+errors.length+"):");errors.forEach(function(e){console.log("  - "+e)});process.exit(1)}',
-'else{console.log("ALL 36 PASSED");',
+'else{console.log("ALL 37 PASSED");',
 '  console.log("  1. 4 weapons x 20 frames + render");',
 '  console.log("  2. Relic selection = 3");',
 '  console.log("  3. Limits enforced");',
@@ -478,7 +493,8 @@ code+='\n'+[
 '  console.log(" 33. Shield break timing");',
 '  console.log(" 34. Full cleanupWave array clearing");',
 '  console.log(" 35. CAPS enforcement (atkCdFloor/critRate/bellCombo/shieldStack)");',
-'  console.log(" 36. PREREQS filtering for relic choices")}',
+'  console.log(" 36. PREREQS filtering for relic choices");',
+'  console.log(" 37. 60s long-run stability around 49s crash window")}',
 ].join('\n');
 
 eval(code);

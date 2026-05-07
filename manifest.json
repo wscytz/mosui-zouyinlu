@@ -1,0 +1,17 @@
+{
+  "name": "墨祟：走阴录",
+  "short_name": "墨祟",
+  "description": "水墨风俯视角动作肉鸽战斗试玩",
+  "start_url": "./game.html",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#171310",
+  "theme_color": "#171310",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='28' font-size='28'>鬼</text></svg>",
+      "sizes": "32x32",
+      "type": "image/svg+xml"
+    }
+  ]
+}
