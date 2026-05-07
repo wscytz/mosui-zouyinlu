@@ -24,6 +24,8 @@
     try{screen.orientation.lock("landscape").catch(function(){})}catch(e){}
     checkOrientation();
 
+    // Adaptive sizing — must be before fitCanvas (fixes CTRL undefined crash)
+    var CTRL = {};
     // Dynamic canvas scaling to fit viewport without cropping
     var cvs = document.getElementById("gameCanvas");
     var CW = 960, CH = 640, CRATIO = CW / CH; // 1.5
@@ -49,9 +51,6 @@
     var ATTACK_THRESHOLD = 0.08;
 
     if(!cvs){_log('警告: canvas未找到');}else{_log('canvas尺寸:'+cvs.offsetWidth+'x'+cvs.offsetHeight);}
-
-    // Adaptive sizing based on viewport
-    var CTRL = {};
 
     function updateControlSizes() {
       var rect = cvs ? cvs.getBoundingClientRect() : null;
@@ -325,7 +324,7 @@ window.addEventListener('touchstart',function(){ensureMobileButtons()},{once:tru
 
   // --- Always initialize on native (Capacitor), lazy init elsewhere ---
   var isNative = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
-  var isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0 || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent||'');
+  var isTouch = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent||'');
 
   if (window._loadLog) window._loadLog('检测: native='+isNative+' touch='+isTouch+' ua='+(navigator.userAgent||'').substring(0,40));
 
