@@ -27,6 +27,27 @@ node smoke_test.js && node wave_test.js && node content_test.js && node stress_t
 | 性能调试 | F3 | — |
 | 快速重开 | R | — |
 
+## v3.0 候选版 (2026-05-07)
+
+- **崩溃修复** — `quickRestart` 音效守卫、`rebuildPlayerStats` 补充 `recallMark`/`justDodged`
+- **鬼市修复** — 三种退出路径不再刷新怪物、新增"继续赶路"按钮、冷却防重复触发
+- **遗物过滤修复** — `fengmofu`(封魔符) 新增 PREREQS，无减速时不再出现
+- **移动端摇杆** — Canvas状态隔离(save/restore)、底部面板、可见度翻倍、尺寸放大、UA检测兜底
+- **UI可读性** — Canvas最小字号8→10px、字体栈修复、闪避按钮对比度
+- **代码质量** — `.closest()` 守卫(4处)、DOM泄漏清理、PREREQS从29→30
+- **测试** — 160项（37冒烟+5波次+108内容+10压力）
+
+## v2.18-v2.29 累积更新
+
+- **v2.29 稳定版审计** — 停止崩溃、状态机、数组越界、DOM守卫全面审查
+- **v2.26 UX打磨** — 死亡/胜利冻结延长、HP显示当前/最大值、低血警告增强
+- **v2.25 Boss登场卡片** — 全屏遮罩+金色名称+副标题动画
+- **v2.24 FPS计数器** — F3切换Canvas内性能面板、暂停菜单FPS
+- **v2.21-v2.23 代码质量** — 17处forEachLiveEnemy、filter→some、18项RANGES、35项TUNING
+- **v2.20 性能优化** — 热路径消除GC分配、P/F快捷键、13项魔法数字提取
+- **v2.19 音效+视觉** — 5种新音效(35种总计)、镜殿关卡视觉、墨将军P2/P3增强
+- **v2.18 QoL** — R键快速重开、墨契/狂墨诅咒、镜殿关卡
+
 ## v2.17 第三进化 + 鬼市 + 墨灵扩展
 
 - **第三进化 (wave 8)** — 回斩/梭破/回鸣/影迹，构筑深度再翻一层。
@@ -84,6 +105,16 @@ node smoke_test.js && node wave_test.js && node content_test.js && node stress_t
 - **设置菜单** — 音量滑块（持久化）、重新开始、退到标题
 - **移动端修复** — 覆盖层触摸滚动、Android 返回键、安全区域适配
 
+## 在线试玩
+
+通过 GitHub Pages 免费部署，无需服务器：
+
+1. 仓库 → Settings → Pages
+2. Source: `Deploy from a branch` → 分支 `main` → 目录 `/ (root)` → Save
+3. 等待 1-2 分钟，访问 `https://用户名.github.io/仓库名/` 即可在线游玩
+
+桌面和移动端浏览器均可直接打开，无需安装。
+
 ## 移动端打包
 
 ```bash
@@ -111,8 +142,9 @@ styles.css         # 宣传页 / 百科 / 游戏共用样式
 
 smoke_test.js      # 冒烟测试（37 项，含60秒长跑）
 wave_test.js       # 波次专项测试（5 项）
-content_test.js    # 内容/机制测试（103 项）
-DEVDOC.md          # 开发文档
+content_test.js    # 内容/机制测试（108 项）
+stress_test.js     # 压力测试（10 项）
+DEVDOC.md          # 开发文档（含完整版本历史）
 DEVELOPMENT.md     # 开发规范 / 交接清单
 ```
 
@@ -127,6 +159,6 @@ game.js（不动，双端共用）
 ## 技术栈
 
 - 渲染：Canvas 2D（960×640 内部分辨率）
-- 音效：Web Audio API 合成（28 种音效 + 8 种环境氛围）
+- 音效：Web Audio API 合成（38 种音效 + 8 种环境氛围）
 - 打包：Capacitor 8.x → Android APK
 - 测试：Node.js 冒烟测试（无框架）
