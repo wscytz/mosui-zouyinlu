@@ -1831,7 +1831,7 @@ function render(g){
       c.beginPath();c.arc(f.x,f.y,rr*0.4,0,Math.PI*2);c.fill()}
     else{c.globalAlpha=a;c.fillStyle=C.fire;setShadow(c,C.fire,g._pm>=0.6?12:0,g);
       c.beginPath();c.arc(f.x,f.y,rr,0,Math.PI*2);c.fill();
-      clearShadow(c);c.globalAlpha=a*0.5;c.fillStyle="#f7efe5";
+      clearShadow(c);c.globalAlpha=a*0.5;c.fillStyle="C.ivory";
       c.beginPath();c.arc(f.x,f.y,rr*0.35,0,Math.PI*2);c.fill()}});
   c.globalAlpha=1;
 
@@ -1853,7 +1853,7 @@ function render(g){
     c.beginPath();c.arc(ep.x-ep.vx*0.5,ep.y-ep.vy*0.5,ep.r*0.6,0,Math.PI*2);c.fill();
     c.globalAlpha=0.85;c.fillStyle=C.soft;setShadow(c,C.ink,g._pm>=0.6?6:0,g);
     c.beginPath();c.arc(ep.x,ep.y,ep.r,0,Math.PI*2);c.fill();clearShadow(c);
-    c.globalAlpha=0.4;c.fillStyle="#f7efe5";
+    c.globalAlpha=0.4;c.fillStyle="C.ivory";
     c.beginPath();c.arc(ep.x,ep.y,ep.r*0.35,0,Math.PI*2);c.fill();
     c.globalAlpha=1});
   // off-screen enemy projectile warnings (edge indicators for incoming threats)
@@ -1882,7 +1882,7 @@ function render(g){
       c.shadowColor=C.accent;c.shadowBlur=14;c.beginPath();
       c.arc(0,0,dR,-atk.arc/2,atk.arc/2);c.stroke();
       // bright core
-      c.shadowBlur=0;c.globalAlpha=0.5*(1-prog);c.strokeStyle="#f7efe5";c.lineWidth=1.5;c.beginPath();
+      c.shadowBlur=0;c.globalAlpha=0.5*(1-prog);c.strokeStyle="C.ivory";c.lineWidth=1.5;c.beginPath();
       c.arc(0,0,dR*0.95,-atk.arc/2,atk.arc/2);c.stroke();
       // umbrella ribs radiating from center
       c.globalAlpha=0.18*(1-prog);c.strokeStyle=C.accent;c.lineWidth=1;
@@ -1897,7 +1897,7 @@ function render(g){
       c.arc(0,0,sR,-atk.arc/2,atk.arc/2);c.stroke();
       c.shadowBlur=0;
       // white inner arc for sharpness
-      c.globalAlpha=0.35*(1-prog);c.strokeStyle="#f7efe5";c.lineWidth=1.5;c.beginPath();
+      c.globalAlpha=0.35*(1-prog);c.strokeStyle="C.ivory";c.lineWidth=1.5;c.beginPath();
       c.arc(0,0,sR*0.92,-atk.arc/2,atk.arc/2);c.stroke();
       // ink splatter dots along arc
       c.globalAlpha=0.3*(1-prog);c.fillStyle=C.ink;
@@ -1936,7 +1936,7 @@ function render(g){
       c.globalAlpha=0.5*(1-prog);c.strokeStyle=C.moss;c.lineWidth=4+prog*6;
       c.shadowColor=C.moss;c.shadowBlur=14;c.beginPath();c.arc(atk.x,atk.y,r,0,Math.PI*2);c.stroke();
       // inner bright edge
-      c.shadowBlur=0;c.globalAlpha=0.2*(1-prog);c.strokeStyle="#f7efe5";c.lineWidth=1.5;
+      c.shadowBlur=0;c.globalAlpha=0.2*(1-prog);c.strokeStyle="C.ivory";c.lineWidth=1.5;
       c.beginPath();c.arc(atk.x,atk.y,r*0.88,0,Math.PI*2);c.stroke();
       c.globalAlpha=1;
     }
@@ -1949,7 +1949,7 @@ function render(g){
     if(e.mimic&&e.disguised){
       c.globalAlpha=0.6+Math.sin(g.time*0.08)*0.2;c.fillStyle=C.moss;
       c.beginPath();c.arc(0,0,e.r*0.6,0,Math.PI*2);c.fill();
-      c.globalAlpha=1;c.fillStyle="#f7efe5";
+      c.globalAlpha=1;c.fillStyle="C.ivory";
       c.beginPath();c.arc(0,0,e.r*0.25,0,Math.PI*2);c.fill();
       c.restore();return}
     // spawn fade-in
@@ -1963,7 +1963,7 @@ function render(g){
       c.globalAlpha=Math.max(0,sg*0.7);c.strokeStyle=C.accent;c.lineWidth=2.5*sg+0.5;
       c.shadowColor=e.isBoss?C.accent:C.ink;c.shadowBlur=16*sg;
       c.beginPath();c.arc(0,0,e.r+18*sg,0,Math.PI*2);c.stroke();c.shadowBlur=0;
-      c.globalAlpha=Math.max(0,sg*0.5);c.strokeStyle="#f7efe5";c.lineWidth=1.5;
+      c.globalAlpha=Math.max(0,sg*0.5);c.strokeStyle="C.ivory";c.lineWidth=1.5;
       c.beginPath();c.arc(0,0,e.r+6*sg,0,Math.PI*2);c.stroke();
       if(sg>0.5){c.globalAlpha=Math.max(0,(sg-0.5)*1.2);c.fillStyle=C.accent;
         for(var spk=0;spk<4;spk++){var spA=spk*Math.PI/2+sg*1.5;
@@ -1977,7 +1977,7 @@ function render(g){
         c.shadowColor=C.accent;c.shadowBlur=18*(1-dt);
         for(var dri=0;dri<3;dri++){c.beginPath();c.arc(0,0,e.r+14+(1-dt)*30+dri*10,0,Math.PI*2);c.stroke()}
         c.shadowBlur=0;
-        c.globalAlpha=Math.max(0,dt*0.7-0.3);c.fillStyle="#f7efe5";
+        c.globalAlpha=Math.max(0,dt*0.7-0.3);c.fillStyle="C.ivory";
         c.beginPath();c.arc(0,0,e.r*dt,0,Math.PI*2);c.fill();
       }
       c.globalAlpha=dt}
@@ -2242,7 +2242,7 @@ function render(g){
   c.quadraticCurveTo(Math.cos(tailAng)*(p.r+6),Math.sin(tailAng)*(p.r+6),
     Math.cos(tailAng+0.3)*p.r,Math.sin(tailAng+0.3)*p.r);
   c.fill();c.globalAlpha=1;
-  c.strokeStyle="#f7efe5";c.lineWidth=2;c.lineCap="round";c.beginPath();
+  c.strokeStyle="C.ivory";c.lineWidth=2;c.lineCap="round";c.beginPath();
   c.moveTo(Math.cos(p.facing)*6,Math.sin(p.facing)*6);
   c.lineTo(Math.cos(p.facing)*(p.r+4),Math.sin(p.facing)*(p.r+4));c.stroke();
   // weapon-specific forward indicator dot
@@ -2413,7 +2413,7 @@ function render(g){
     c.beginPath();c.arc(mt.x,mt.y,16,0,Math.PI*2);c.stroke();
     // inner glow
     c.globalAlpha=0.5;
-    c.fillStyle="#f7efe5";
+    c.fillStyle="C.ivory";
     c.beginPath();c.arc(mt.x,mt.y,7,0,Math.PI*2);c.fill();
     // floating coins above
     c.globalAlpha=0.35+0.1*Math.sin(g.time*0.1);
@@ -2713,7 +2713,7 @@ function render(g){
       c.beginPath();c.arc(ex,ey,er,0,Math.PI*2);c.fill();
     });
     // player dot
-    c.globalAlpha=0.9;c.fillStyle="#f7efe5";
+    c.globalAlpha=0.9;c.fillStyle="C.ivory";
     c.beginPath();c.arc(mmCx,mmCy,2.5,0,Math.PI*2);c.fill();
     c.globalAlpha=1;
   }
@@ -2767,14 +2767,14 @@ function render(g){
     c.globalAlpha=1;
   }
   // vignette
-  screenFlash(c,W,H,1,'rgba(0,0,0,0)','rgba(23,19,16,0.15)',0.3,0.7);
+  screenFlash(c,W,H,1,C.clear,'rgba(23,19,16,0.15)',0.3,0.7);
   c.globalAlpha=1;
   // hurt flash (player hit)
-  if(p.hurtFlash>0){screenFlash(c,W,H,(p.hurtFlash/12)*0.25,'rgba(0,0,0,0)','rgba(163,58,45,1)',0.25,0.55);c.globalAlpha=1}
+  if(p.hurtFlash>0){screenFlash(c,W,H,(p.hurtFlash/12)*0.25,C.clear,'rgba(163,58,45,1)',0.25,0.55);c.globalAlpha=1}
   // crit flash (landed critical hit)
   if(g.critFlash>0){screenFlash(c,W,H,(g.critFlash/12)*0.25,'rgba(220,180,60,0.15)','rgba(220,180,60,0)',0.15,0.5);c.globalAlpha=1}
   // boss flash (boss damage taken)
-  if(g.bossFlash>0){screenFlash(c,W,H,(g.bossFlash/12)*0.3,'rgba(0,0,0,0)','rgba(107,58,92,1)',0.2,0.5);c.globalAlpha=1}
+  if(g.bossFlash>0){screenFlash(c,W,H,(g.bossFlash/12)*0.3,C.clear,'rgba(107,58,92,1)',0.2,0.5);c.globalAlpha=1}
   // slow motion vignette
   if(g.slowMo>0){
     var smA=g.slowMo/30*0.15;
@@ -2791,7 +2791,7 @@ function render(g){
     c.fillStyle=C.paper;c.font='700 36px "STKaiti","KaiTi",serif';c.textAlign="center";
     c.fillText("暂停",W/2,H/2-10);
     c.font='400 16px "STKaiti","KaiTi",serif';c.globalAlpha=0.7;
-    var isTouch='ontouchstart' in window||navigator.maxTouchPoints>0;
+    var isTouch=IS_TOUCH;
     c.fillText(isTouch?"点击 ⏸ 继续":"按 ESC 继续",W/2,H/2+22);c.globalAlpha=1}
 
   // death calligraphy overlay
@@ -2826,7 +2826,7 @@ function render(g){
   if(g.fogActive){var fogR=120+20*Math.sin(g.time*0.08);
     c.save();c.globalCompositeOperation="destination-in";
     var fogGrad=c.createRadialGradient(p.x,p.y,fogR*0.5,p.x,p.y,fogR);
-    fogGrad.addColorStop(0,"rgba(0,0,0,1)");fogGrad.addColorStop(1,"rgba(0,0,0,0)");
+    fogGrad.addColorStop(0,"rgba(0,0,0,1)");fogGrad.addColorStop(1,"C.clear");
     c.fillStyle=fogGrad;c.fillRect(0,0,W,H);c.restore();
     c.save();c.globalCompositeOperation="destination-over";c.fillStyle=C.ink;c.fillRect(0,0,W,H);c.restore()}
   // 鬼火诅咒：魂球渲染
@@ -2841,7 +2841,7 @@ function render(g){
       c.globalAlpha=hA*0.3;c.fillStyle=C.ash;c.beginPath();c.arc(ho.x,ho.y,ho.r*0.4,0,Math.PI*2);c.fill()}
     else if(ho.type==="guihuoyan"){c.globalAlpha=hA*0.8;c.fillStyle=C.fire;c.shadowColor=C.fire;c.shadowBlur=8;
       c.beginPath();c.arc(ho.x,ho.y,ho.r,0,Math.PI*2);c.fill();c.shadowBlur=0;
-      c.globalAlpha=hA*0.5;c.fillStyle="#f7efe5";c.beginPath();c.arc(ho.x,ho.y,ho.r*0.3,0,Math.PI*2);c.fill()}
+      c.globalAlpha=hA*0.5;c.fillStyle="C.ivory";c.beginPath();c.arc(ho.x,ho.y,ho.r*0.3,0,Math.PI*2);c.fill()}
     else if(ho.type==="mozhang"){c.globalAlpha=hA*0.25;c.fillStyle=C.moss;
       c.beginPath();c.arc(ho.x,ho.y,ho.r+Math.sin(g.time*0.03+ho.x)*3,0,Math.PI*2);c.fill();
       c.globalAlpha=hA*0.15;c.fillStyle="rgba(77,97,86,0.4)";
@@ -3496,7 +3496,7 @@ function startGame(wid){
   _hide("weaponSelect");_show("gameContainer");_show("pauseHint");
   G=newGame(wid,diff);
   document.body.classList.add("game-active");
-  if(!_loopActive){_loopActive=true;_rafId=requestAnimationFrame(loop);}
+  if(!_loopActive){_loopActive=true;requestAnimationFrame(loop);}
   // Force canvas reflow after game container becomes visible
   if(window._fitCanvas)window._fitCanvas();
   // Ensure mobile controls initialized (Capacitor WebView timing safety)
@@ -3625,7 +3625,8 @@ function quitToTitle(){
   setupWeaponSelect();
 }
 
-var _rafId=null,_loopActive=true;
+var _loopActive=true;
+var IS_TOUCH='ontouchstart' in window||navigator.maxTouchPoints>0;
 function loop(){
   var now=performance.now();
   if(G){
@@ -3643,7 +3644,7 @@ function loop(){
       if(G.state==="over"||(G.state==="victory"&&G.freezeT<=0))showEnd(G);
     }catch(err){console.error("showEnd error:",err.message)}
   }
-  if(_loopActive)_rafId=requestAnimationFrame(loop);
+  if(_loopActive)requestAnimationFrame(loop);
 }
 
 function init(){
@@ -3717,7 +3718,7 @@ function init(){
   if(_mobilePauseBtn)_mobilePauseBtn.addEventListener("click",function(e){e.stopPropagation();togglePause()});
   // Mobile HTML dodge button (touch-only: no mousedown to avoid double fire)
   var _mobileDodgeBtn=document.getElementById("mobileDodgeBtn");
-  var _isTouchDevice='ontouchstart' in window||navigator.maxTouchPoints>0;
+  var _isTouchDevice=IS_TOUCH;
   if(_mobileDodgeBtn){
     _mobileDodgeBtn.addEventListener("touchstart",function(e){e.preventDefault();e.stopPropagation();
       if(window._mobileInput)window._mobileInput.dodging=true},{passive:false});
@@ -3747,7 +3748,7 @@ function init(){
   // Joystick sensitivity slider (mobile only)
   var sensRow=document.getElementById("sensRow");
   var sensSlider=document.getElementById("joystickSens");
-  var isTouchDevice='ontouchstart' in window||navigator.maxTouchPoints>0;
+  var isTouchDevice=IS_TOUCH;
   if(sensRow&&isTouchDevice)sensRow.style.display="";
   if(sensSlider){
     try{var ss=JSON.parse(localStorage.getItem("mosui_ctrl_settings")||"{}");if(ss.sensitivity!=null)sensSlider.value=Math.round(ss.sensitivity*100)}catch(e){}

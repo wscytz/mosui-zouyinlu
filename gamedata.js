@@ -8,6 +8,7 @@ var C={paper:"#f1e6d4",edge:"#d9c9af",ink:"#171310",soft:"#2c2520",
   boss:"#6b3a5c",bossG:"rgba(107,58,92,0.3)",
   gold:"#9c835a",goldG:"rgba(156,131,90,0.24)",
   frost:"#b8c8d4",frostE:"#7fa0b4",
+  ivory:"#f7efe5",clear:"rgba(0,0,0,0)",
   fontBody:'"STKaiti","KaiTi","Noto Sans SC","Droid Sans Fallback",sans-serif',
   fontTitle:'"STKaiti","KaiTi","Noto Sans SC","Droid Sans Fallback",sans-serif,serif'};
 

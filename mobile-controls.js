@@ -28,7 +28,7 @@
     var CTRL = {};
     // Dynamic canvas scaling to fit viewport without cropping
     var cvs = document.getElementById("gameCanvas");
-    var CW = 960, CH = 640, CRATIO = CW / CH; // 1.5
+    var CRATIO = 960 / 640; // 1.5
     function fitCanvas(){
       if(!cvs)return;
       var vw=window.innerWidth, vh=window.innerHeight;
@@ -83,8 +83,6 @@
     // Fixed joystick positions — compensated for bottom safe area
     var leftBase  = { x: W * 0.14, y: H * 0.78 - _safeY };
     var rightBase = { x: W * 0.86, y: H * 0.78 - _safeY };
-
-    updateControlSizes();
 
     // Sticks: bx/by are ALWAYS at the fixed base, never move
     var sticks = {
@@ -141,9 +139,8 @@
     }
 
     function canvasCoord(clientX, clientY) {
-      var c = document.getElementById("gameCanvas");
-      if (!c) return { x: clientX, y: clientY };
-      var rect = c.getBoundingClientRect();
+      if (!cvs) return { x: clientX, y: clientY };
+      var rect = cvs.getBoundingClientRect();
       return {
         x: rect.width > 0 ? (clientX - rect.left) * (W / rect.width) : clientX,
         y: rect.height > 0 ? (clientY - rect.top) * (H / rect.height) : clientY
@@ -293,12 +290,11 @@
     });
 
     // Bind to canvas
-    var canvas = document.getElementById("gameCanvas");
-    if (canvas) {
-      canvas.addEventListener("touchstart", handleTouches, { passive: false });
-      canvas.addEventListener("touchmove", handleTouches, { passive: false });
-      canvas.addEventListener("touchend", handleTouches, { passive: false });
-      canvas.addEventListener("touchcancel", handleTouches, { passive: false });
+    if (cvs) {
+      cvs.addEventListener("touchstart", handleTouches, { passive: false });
+      cvs.addEventListener("touchmove", handleTouches, { passive: false });
+      cvs.addEventListener("touchend", handleTouches, { passive: false });
+      cvs.addEventListener("touchcancel", handleTouches, { passive: false });
       window.addEventListener("touchstart",function(e){if(!e.target.closest||!e.target.closest('canvas'))return;handleTouches(e)},{passive:false});
       window.addEventListener("touchend",function(e){handleTouches(e)},{passive:false});
       window.addEventListener("touchcancel",function(e){handleTouches(e)},{passive:false});
