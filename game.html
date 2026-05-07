@@ -40,9 +40,9 @@
 
   <div id="weaponSelect" class="overlay" style="display:none;">
     <div class="overlay__inner">
-      <span class="seal" style="margin-bottom:16px;">夜行客</span>
-      <h2 class="overlay__title">带上你最趁手的家伙</h2>
-      <p class="overlay__subtitle">选一把兵器，然后进地宫试试手感。</p>
+      <span class="seal seal--small" style="margin-bottom:16px;">选器</span>
+      <h2 class="overlay__title">挑一把趁手的家伙</h2>
+      <p class="overlay__subtitle">不同兵器打法迥异，选你顺手的那把。</p>
       <div id="weaponChoices" class="weapon-choices"></div>
       <div class="difficulty-select">
         <span class="difficulty-label">难度</span>
@@ -81,8 +81,8 @@
         </div>
       </div>
       <!-- Mobile-only HTML buttons (hidden on desktop) -->
-      <button id="mobilePauseBtn" class="mobile-btn mobile-btn--pause" type="button">⏸</button>
-      <button id="mobileDodgeBtn" class="mobile-btn mobile-btn--dodge" type="button">闪</button>
+      <button id="mobilePauseBtn" class="mobile-btn mobile-btn--pause" type="button" aria-label="暂停">⏸</button>
+      <button id="mobileDodgeBtn" class="mobile-btn mobile-btn--dodge" type="button" aria-label="闪避">闪</button>
       <div class="hud__relics" id="hudRelics"></div>
       <div class="hud__buffs" id="hudBuffs"></div>
       <div class="hud__boss-name" id="hudBossName"></div>
@@ -93,6 +93,7 @@
     <div class="overlay__inner">
       <span id="relicSeal" class="seal seal--small" style="margin-bottom:12px;">得物</span>
       <h2 class="overlay__title">挑一件带着上路</h2>
+      <p class="overlay__subtitle">遗物会在整局旅途中陪伴你。</p>
       <div id="relicChoices" class="relic-choices"></div>
     </div>
   </div>
@@ -101,7 +102,7 @@
     <div class="overlay__inner">
       <span class="seal seal--small" style="margin-bottom:12px;">誓印</span>
       <h2 class="overlay__title">立一个誓再入地宫</h2>
-      <p class="overlay__subtitle">誓印是一把双刃刀，获得力量的同时承担代价。</p>
+      <p class="overlay__subtitle">得力量，承代价。也可以跳过。</p>
       <div id="curseChoices" class="relic-choices"></div>
     </div>
   </div>
@@ -126,8 +127,9 @@
   <div id="pauseHint" class="pause-hint" style="display:none;">按 ESC 暂停</div>
   <div id="pauseOverlay" class="overlay" style="display:none;">
     <div class="overlay__inner">
-      <h2 class="overlay__title">暂停</h2>
-      <p class="overlay__subtitle pause-controls">WASD 移动 · 空格/Shift 闪避 · 鼠标瞄准 · 左键攻击 · H 操作提示</p>
+      <span class="seal seal--small" style="margin-bottom:12px;">暂停</span>
+      <h2 class="overlay__title">休息一下</h2>
+      <p class="overlay__subtitle pause-controls">WASD 移动 · 空格/Shift 闪避 · 鼠标瞄准 · 左键攻击</p>
       <p id="pauseStats" class="overlay__stats"></p>
       <div class="pause-volume">
         <label>音量 <input type="range" id="volMaster" min="0" max="100" value="60" class="vol-slider"></label>
@@ -139,8 +141,6 @@
         <button id="resumeBtn" class="button">继续</button>
         <button id="pauseRestartBtn" class="button button--ghost">重新开始</button>
         <button id="pauseQuitBtn" class="button button--ghost">退到标题</button>
-        <a href="index.html" class="button button--ghost">返回原型页</a>
-        <a href="wiki.html" class="button button--ghost">百科</a>
       </div>
     </div>
   </div>

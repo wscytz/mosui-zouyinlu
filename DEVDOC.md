@@ -1,4 +1,4 @@
-# 墨祟：走阴录 — 战斗试玩 技术文档 v3.0 稳定版
+# 墨祟：走阴录 — 战斗试玩 技术文档 v3.1.1
 
 > 开发接手请先读 `DEVELOPMENT.md`。本文保留完整技术细节、版本历史和 Bug 追踪。
 
@@ -19,9 +19,9 @@
 | `game.css` | 游戏专用样式。HUD、武器/遗物卡片、遮罩层、波次动画 |
 | `styles.css` | 全站公用样式。配色变量、字体、纸张质感背景 |
 | `gamedata.js` | 共享数据文件。武器/遗物/进化/波次/敌人/前置条件/封顶值等全部常量，game.html 和 wiki.html 共同引用 |
-| `game.js` | 主游戏逻辑。IIFE 包裹，严格模式，约 3680 行 |
+| `game.js` | 主游戏逻辑。IIFE 包裹，严格模式，约 3840 行 |
 | `sound.js` | Web Audio API 合成音效。无音频文件，全部程序生成 |
-| `mobile-controls.js` | 移动端虚拟摇杆。触摸检测+双摇杆+闪避/暂停按钮+横屏锁定，canvas 绘制 |
+| `mobile-controls.js` | 移动端虚拟摇杆。触摸检测+双摇杆+自动瞄准+闪避/暂停按钮+横屏锁定，canvas 绘制 |
 | `app.js` | 首页 `index.html` 的构筑预览逻辑（与游戏无关） |
 | `wiki.html` | 百科页面。自动读取 gamedata.js 渲染武器/遗物/进化/敌人/波次/构筑线/封顶值 |
 | `index.html` | 概念展示首页，含导航至试玩和百科 |
@@ -3000,7 +3000,7 @@ npm run cap:open:android  # 用 Android Studio 打开
 
 **技术债务清理建议 (TODO)：**
 - mobile-controls.js 347行 → 可拆分为渲染/输入/初始化三个模块
-- `isNative` Capacitor 检测与 `isTouch` UA检测有重叠，可统一为单一 `needsMobileUI()` 函数
+- ~~`isNative` Capacitor 检测与 `isTouch` UA检测有重叠，可统一为单一 `needsMobileUI()` 函数~~（v3.0.1 已完成）
 - game.js ~3800行 → 可考虑拆分为 state/combat/render/ui 四个文件
 - 测试从 Node mock 迁移到 Playwright 浏览器测试以覆盖真实渲染
 
@@ -3010,6 +3010,95 @@ npm run cap:open:android  # 用 Android Studio 打开
 **测试：** 160项全通过
 
 *v3.0 稳定版 更新于 2026-05-07。*
+
+### v3.0.1 热修 — 移动端输入隔离 (2026-05-07)
+
+**Bug：** APK 操控调试时，`game.js` 在 `startGame()` 中只要发现 `__forceMobileInit()` 就会强制初始化摇杆；而 `mobile-controls.js` 在所有网页环境都会暴露该函数，导致桌面网页端也可能被切到 `_mobileInput` 模式，影响键鼠瞄准、按钮显示和暂停提示。
+
+**修复：**
+- 新增统一 `needsMobileUI()` 判定：仅 Capacitor native 或 URL 调试开关 `?mobile=1` / `?mobileControls=1` / `?controls=mobile` 启用移动UI
+- `__forceMobileInit()` 增加环境守卫，非移动UI环境直接拒绝初始化
+- 移除网页端首次 `touchstart` 懒初始化和 2 秒无条件兜底初始化，防止触屏笔记本/移动浏览器误进 APK 摇杆层
+- `startGame()` 只有在 `IS_TOUCH` 为真时才触发摇杆兜底初始化
+- 移动按钮显示改为 `body.is-mobile-ui .mobile-btn`，不再依赖 `(hover:none)` 或 `maxTouchPoints`
+
+**测试覆盖：**
+- content_test 新增移动输入隔离静态回归，防止强制初始化入口再次污染网页端
+- 当前 161 项测试通过（37 smoke + 5 wave + 109 content + 10 stress）
+
+**已知限制：**
+- 普通移动网页默认回退到原有轻触鼠标模式；需要调试 APK 摇杆时可在浏览器 URL 加 `?mobile=1`
+
+*v3.0.1 热修 更新于 2026-05-07。*
+
+### v3.0.2 热修 — 移动输入诊断 + 闪避优化 (2026-05-07)
+
+**目标：** 让 APK 真机更容易排查输入问题，同时把闪避按钮从“状态型开关”收口成“一次性请求”。
+
+**改动：**
+- debug 面板新增移动端状态行，显示 `mobileUI`、`dx/dy`、`aim`、`lastAimMode`、`dodgeRequest`
+- 右摇杆松手后保留最后瞄准角，避免回到鼠标方向造成瞬时抖动
+- 闪避按钮改用 `requestMobileDodge()` 一次性请求，`update()` 统一消费并清零
+- `mobile-controls.js` 的输入对象增加 `dodgeRequest` / `leftActive` / `rightActive` / `lastAimMode`
+
+**测试：**
+- content_test 新增移动输入诊断和闪避请求静态回归
+- 当前 162 项测试全通过（37 smoke + 5 wave + 110 content + 10 stress）
+
+*v3.0.2 热修 更新于 2026-05-07。*
+
+### v3.0.3 热修 — 移动端 UI 抛光 (2026-05-07)
+
+**目标：** 让 APK 端的暂停/闪避按钮更像明确的触控控件，并给 HUD 留出更干净的顶部空间。
+
+**改动：**
+- `mobilePauseBtn` / `mobileDodgeBtn` 增加 `aria-label`
+- `body.is-mobile-ui` 下的移动按钮改为更大的方形控件，带阴影和毛玻璃质感
+- 移动端 HUD 顶部、遗物条、BUFF 条、Boss 名称重新收边，减少按钮和状态文本互相挤压
+
+**测试：**
+- 延续 v3.0.2 的 162 项测试结果，新增 HTML/CSS 静态回归后累计 163 项
+
+*v3.0.3 热修 更新于 2026-05-07。*
+
+### v3.1.1 架构整理 — 输入契约 + 运行时预留 (2026-05-08)
+
+**目标：** 在不改玩法、不改数值、不重做视觉的前提下，把后续长期迭代的架构入口固定下来，避免移动端、桌面端、渲染和 UI 继续互相污染。
+
+**架构文档：**
+- 新增 `ARCHITECTURE.md`
+- 明确 `data / input / core / render / ui / platform` 六层边界
+- 补充脚本加载顺序、测试体系、关键不变量
+- 新增“预留插槽”章节，定义未来扩展默认接法
+
+**统一输入帧：**
+- `game.js` 新增 `buildInputFrame(g)`
+- 桌面键鼠和移动摇杆统一输出 `dx / dy / aimAngle / attacking / dodgeQueued / isMobile`
+- `update()` 只读取输入帧，不再直接散读 `keys`、`mouse`、`_mobileInput`
+
+**运行时命名空间预留：**
+- 新增 `window.MOSUI`
+- 预留 `MOSUI.hooks / input / platform / profiles / ui / debug`
+- 暴露 `MOSUI.input.buildFrame` 和 `MOSUI.input.lastFrame`
+- 移动端挂入 `MOSUI.input.mobile`
+- 移动端平台能力挂入 `MOSUI.platform.mobileControls`
+- 移动控制参数读取口挂入 `MOSUI.profiles.control.mobile`
+
+**移动端架构整理：**
+- `mobile-controls.js` 增加 section 标记
+- 明确 platform detection、canvas sizing、joystick math、auto-aim、touch bridge、rendering、input state、lifecycle 的职责边界
+- 保留现有 `_mobileInput`、`_tickMobileAutoAim`、`_renderMobileControls` 兼容入口
+
+**测试：**
+- `content_test.js` 新增架构回归：
+  - 155：统一输入帧、section marker、模块边界
+  - 156：`MOSUI` 命名空间和扩展插槽
+- 当前 187 项测试通过（37 smoke + 5 wave + 135 content + 10 stress）
+
+**测试稳定性：**
+- 修复 `wave_test.js` 在 survival 随机波次下的偶发误报：`killAll()` 等待波次结算期间若刷出新怪，会继续清理后再判断。
+
+*v3.1.1 架构整理 更新于 2026-05-08。（共 187 项测试）*
 
 ### 版本号规则
 
