@@ -266,6 +266,7 @@ function mkPlayer(){
     // curse flags
     noDodge:false,noWaveHeal:false,noEvolution:false,
     fogCurse:false,soulOrbCurse:false,
+    moveSlowTrail:false,stillDmgMult:0,
     maxHpOverride:0,extraStartRelics:0,extraRelicChoice:false,
     enemyHpMult:1,enemySpdMult:1,allElite:false,relicPower:1,_relicPowerApplied:false,
     enemyFlicker:false,inkBrandCurse:false,missChance:0,hitDmgMult:0,
@@ -1109,6 +1110,8 @@ function hurtP(g,dmg,src){
   if(src&&inkPoolCheck(g,src.x,src.y)===1)dmg=Math.floor(dmg*TUNING.inkPoolDmgMult);
   // 伤害减免
   dmg=Math.floor(dmg*(1-p.stats.def));
+  // 墨旋誓印：静止受伤+30%
+  if(p.stillDmgMult>0&&p.idleT>3)dmg=Math.floor(dmg*p.stillDmgMult);
   // 额外受伤（血墨混染）
   if(p.extraDmgTaken>0)dmg=Math.floor(dmg*(1+p.extraDmgTaken));
   // 收阴袋护盾（在扣血前生效）
@@ -1431,6 +1434,8 @@ function update(g){
   if(movedThisFrame){p.idleT=0}else{p.idleT++}
   if(movedThisFrame&&p.inkTrail&&g.time%12===0){addFire(g,{x:p.x,y:p.y,r:18,life:90,dmg:0,slow:true});
     spawnP(g,p.x+rn(-8,8),p.y+rn(-8,8),"ink",1)}
+  // 墨旋誓印：移动留减速墨迹
+  if(movedThisFrame&&p.moveSlowTrail&&g.time%20===0){pushLimited(g.frosts,{x:p.x,y:p.y,r:22,life:70,maxLife:70},LIMITS.frosts)}
   if((dx||dy)&&g.time%4===0){
     var trvx=p.lastDx?p.lastDx*0.3+rn(-0.3,0.3):rn(-0.3,0.3);
     var trvy=p.lastDy?p.lastDy*0.3+rn(-0.3,0.3):rn(-0.3,0.3);
@@ -3686,7 +3691,7 @@ function rebuildPlayerStats(g){
     'nineSealCount','nineSealReady','autoReflectReady','autoReflectCd'];
   var ck=['noDodge','noWaveHeal','noEvolution','fogCurse','soulOrbCurse',
     'maxHpOverride','extraStartRelics','extraRelicChoice','enemyHpMult','enemySpdMult','maxRelicsOverride','allElite',
-    'relicPower','_relicPowerApplied'];
+    'relicPower','_relicPowerApplied','moveSlowTrail','stillDmgMult'];
   rk.concat(ck).forEach(function(k){f[k]=o[k]});
   g.relics.forEach(function(r){try{r.fn(f)}catch(e){}});
   if(g.evolution)g.evolution.fn(f);

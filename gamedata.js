@@ -552,7 +552,10 @@ var CURSES=[
     fn:function(p){p.enemySpdMult=1.3;p.killHeal=(p.killHeal||0)+5}},
   {id:"mofeng",name:"墨封",type:"誓印",tags:["遗物","诅咒"],
     desc:"遗物上限降至3件，但伤害+50%",
-    fn:function(p){p.maxRelicsOverride=3;p.stats.dmg+=0.5}}
+    fn:function(p){p.maxRelicsOverride=3;p.stats.dmg+=0.5}},
+  {id:"moxuan",name:"墨旋",type:"誓印",tags:["机动","法术"],
+    desc:"移动留下减速墨迹，但静止时受伤+30%",
+    fn:function(p){p.moveSlowTrail=true;p.stillDmgMult=1.3}}
 ];
 // --- Stage Hazards (random per wave) ---
 var STAGE_HAZARDS=[
