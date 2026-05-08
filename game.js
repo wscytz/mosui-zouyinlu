@@ -265,7 +265,7 @@ function mkPlayer(){
     noDodge:false,noWaveHeal:false,noEvolution:false,
     fogCurse:false,soulOrbCurse:false,
     maxHpOverride:0,extraStartRelics:0,extraRelicChoice:false,
-    enemyHpMult:1,allElite:false,relicPower:1,_relicPowerApplied:false,
+    enemyHpMult:1,enemySpdMult:1,allElite:false,relicPower:1,_relicPowerApplied:false,
     enemyFlicker:false,inkBrandCurse:false,missChance:0,hitDmgMult:0,
     idleT:0}
 }
@@ -348,7 +348,7 @@ function spawnEnemy(g,type,opts){
   var dCfg=DIFF[g.diff]||DIFF.normal;
   var p=g.player;
   var hp=Math.max(1,Math.floor(t.hp*waveScale*(opts.hpMul||1)*dCfg.hpM*(p.enemyHpMult||1)*(opts.midBoss?0.55:1)));
-  var spd=t.spd*(1+Math.max(0,g.wave)*WAVE_SCALE.spdPerWave)*(opts.spdMul||1)*dCfg.spdM;
+  var spd=t.spd*(1+Math.max(0,g.wave)*WAVE_SCALE.spdPerWave)*(opts.spdMul||1)*dCfg.spdM*(p.enemySpdMult||1);
   var shield=t.hasShield?Math.floor((t.shield||0)*waveScale):0;
   var diffEliteBonus=g.diff==="hard"?TUNING.eliteHardBonus:g.diff==="nightmare"?TUNING.eliteNightmareBonus:0;
   var eliteChance=Math.min(TUNING.eliteMaxChance,TUNING.eliteBaseChance+g.wave*TUNING.eliteWaveScale+diffEliteBonus);
@@ -3511,7 +3511,7 @@ function pickEvolutionChoices(g,pool){
 }
 
 function pickRelicChoices(g){
-  if(g.relics.length>=6)return[];
+  if(g.relics.length>=(g.player.maxRelicsOverride||6))return[];
   var owned={},unowned=[];
   g.relics.forEach(function(r){owned[r.id]=true});
   RELICS.forEach(function(r){if(!owned[r.id])unowned.push(r)});
@@ -3645,7 +3645,7 @@ function rebuildPlayerStats(g){
     'lastDx','lastDy','weakTargets','leeches','hasRevived','shieldStack',
     'execCritT','speedBurstT','atkFormCount','kiteKills','_killBoost','recallMark','justDodged'];
   var ck=['noDodge','noWaveHeal','noEvolution','fogCurse','soulOrbCurse',
-    'maxHpOverride','extraStartRelics','extraRelicChoice','enemyHpMult','allElite',
+    'maxHpOverride','extraStartRelics','extraRelicChoice','enemyHpMult','enemySpdMult','maxRelicsOverride','allElite',
     'relicPower','_relicPowerApplied'];
   rk.concat(ck).forEach(function(k){f[k]=o[k]});
   g.relics.forEach(function(r){try{r.fn(f)}catch(e){}});

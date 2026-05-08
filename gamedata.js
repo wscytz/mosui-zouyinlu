@@ -540,7 +540,14 @@ var CURSES=[
     fn:function(p){p.inkBrandCurse=true;p.extraStartRelics=(p.extraStartRelics||0)+2}},
   {id:"jinghua",name:"镜花",type:"誓印",tags:["法术","诅咒"],
     desc:"攻击20%几率落空，但命中时伤害x1.8",
-    fn:function(p){p.missChance=0.2;p.hitDmgMult=1.8}}
+    fn:function(p){p.missChance=0.2;p.hitDmgMult=1.8}},
+  // v4.3 new curses
+  {id:"anchao",name:"暗潮",type:"誓印",tags:["生存","诅咒"],
+    desc:"敌人移速+30%，但击杀回复5HP",
+    fn:function(p){p.enemySpdMult=1.3;p.killHeal=(p.killHeal||0)+5}},
+  {id:"mofeng",name:"墨封",type:"誓印",tags:["遗物","诅咒"],
+    desc:"遗物上限降至3件，但伤害+50%",
+    fn:function(p){p.maxRelicsOverride=3;p.stats.dmg+=0.5}}
 ];
 // --- Stage Hazards (random per wave) ---
 var STAGE_HAZARDS=[
