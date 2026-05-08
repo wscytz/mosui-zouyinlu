@@ -1,4 +1,4 @@
-# 墨祟：走阴录 — 架构文档 v3.1.1
+# 墨祟：走阴录 — 架构文档 v4.0
 
 ## 分层总览
 
@@ -9,24 +9,29 @@
 ├─────────────────────────────────────────────────┤
 │  UI (DOM)                                        │
 │  game.html + game.css                            │
-│  HUD / 遮罩层 / 按钮 / 卡片                      │
+│  HUD / 遮罩层 / 按钮 / 卡片 / 图片槽位            │
 ├─────────────────────────────────────────────────┤
 │  Render (canvas)                                 │
-│  game.js render() L1805-2896                     │
+│  game.js render() L1938-2896                     │
 │  mobile-controls.js _renderMobileControls()      │
 ├─────────────────────────────────────────────────┤
 │  Core (game loop)                                │
-│  game.js update() L1149-1804                     │
+│  game.js update() L1271-1850                     │
 │  战斗 / 碰撞 / 敌人AI / 波次推进                  │
 ├─────────────────────────────────────────────────┤
 │  Input                                           │
 │  桌面: game.js keys/mouse L97-101                │
 │  移动: mobile-controls.js → _mobileInput         │
-│  统一消费点: game.js update() L1236-1291          │
+│  统一消费点: game.js update() L1210-1270          │
 ├─────────────────────────────────────────────────┤
 │  Data                                            │
 │  gamedata.js (WEAPONS/RELICS/ETYPE/WAVES/...)    │
 │  game.js CAPS/LIMITS/RANGES/TUNING (L102-145)    │
+├─────────────────────────────────────────────────┤
+│  Art Assets                                      │
+│  assets/ (concept/ui/portraits/sprites/vfx)     │
+│  ART_DIRECTION.md / ASSET_MANIFEST.md            │
+│  generate-assets.js 生图脚本                     │
 └─────────────────────────────────────────────────┘
 ```
 
@@ -41,9 +46,9 @@
 | WEAPONS | 武器定义 | 4 |
 | RELICS | 遗物定义 | ~92 |
 | EVOLUTIONS | 进化定义 | 20 |
-| ETYPE | 敌人模板 | 24 |
-| STAGE_MODS | 关卡调制器 | 8 |
-| CURSES | 誓印 | 14 |
+| ETYPE | 敌人模板 | 28 (25敌人+3首领) |
+| STAGE_MODS | 关卡调制器 | 9 |
+| CURSES | 誓印 | 17 |
 | ACHIEVEMENTS | 成就 | 27 |
 | WAVES | 波次生成规则 | 动态 |
 | PREREQS | 遗物前置条件 | 30 |
