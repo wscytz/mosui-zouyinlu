@@ -36,3 +36,29 @@ A full-body Chinese exorcist centered on aged paper texture, front-facing, weari
 Chinese dark fantasy cover art, a small lone exorcist standing at the center of a ruined temple gate, huge dark ink demon presence looming in the mist behind him, smoke and torn talismans filling the sides, xuan paper texture, black ink drips, cinnabar seals, dramatic vertical composition, strong negative space on top, eerie majestic atmosphere, painterly ink-wash style, no text
 ```
 
+---
+
+## 武器图标（48x48，透明背景）
+
+### 斩妖剑 ui-weapon-jian-48.png ✅
+### 符骨笔 ui-weapon-bi-48.png ✅
+### 镇魂铃 ui-weapon-ling-48.png ✅
+### 伏魔伞 ui-weapon-san-48.png ✅
+
+### 召魂幡 ui-weapon-fan-48.png ❌ 待生成
+
+```text
+A game item icon of a Chinese ghost-summoning banner (召魂幡), top-down view.
+A thin wooden pole, a tattered dark gray cloth with ink-wash texture.
+A single glowing vermilion seal character "魂" (soul) is painted on the cloth.
+The cloth billows slightly as if in an otherworldly wind.
+Background is transparent.
+Style: ink-wash painting, minimalist, dark ink tones with vermilion accent.
+Resolution: 48x48 pixels, pixel-art adjacent but painterly.
+```
+
+通用画风（武器图标共用）：
+```text
+Chinese ink-wash game item icon, top-down view, dark ink and cinnabar red palette, xuan paper texture, minimalist, painterly, transparent background, 48x48 pixels, no text, no border
+```
+
