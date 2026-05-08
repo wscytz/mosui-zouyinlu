@@ -20,7 +20,9 @@ var WEAPONS=[
   {id:"ling",name:"镇魂铃",tone:"控场 / 召物 / 魂域",blurb:"铃响就是领域，怪被拉进你的节拍。",
    tags:["控场","魂","召物"],dmg:16,range:100,arc:Math.PI*2,cd:28,type:"aoe"},
   {id:"san",name:"伏魔伞",tone:"闪避 / 远程 / 反击",blurb:"撑伞吞压力，折返反击夺回节奏。",
-   tags:["闪避","远程","反击"],dmg:18,range:140,arc:0,cd:26,type:"dash"}
+   tags:["闪避","远程","反击"],dmg:18,range:140,arc:0,cd:26,type:"dash"},
+  {id:"fan",name:"召魂幡",tone:"召唤 / 法术 / 魂伤",blurb:"竖幡招魂，幽魂自寻敌。",
+   tags:["召物","法术","魂"],dmg:10,range:200,arc:0,cd:40,type:"summon",spd:0}
 ];
 
 var RELICS=[
@@ -247,6 +249,18 @@ var EVOLUTIONS={
       fn:function(p){p.dashReturn=true}},
     {id:"e_yingji",name:"影迹",type:"进化",tags:["突进","机动"],effect:"冲刺后留下墨迹减速敌人",
       fn:function(p){p.dashTrail=true}}
+  ],
+  summon:[
+    {id:"e_zhaohun",name:"招魂",type:"进化",tags:["召物","法术"],effect:"幡的魂弹穿透敌人",
+      fn:function(p){p.bannerPierce=true}},
+    {id:"e_sanpo",name:"散魄",type:"进化",tags:["召物","暴击"],effect:"魂弹命中后爆裂伤害周围敌人",
+      fn:function(p){p.bannerBurst=true}},
+    {id:"e_lingjiang",name:"灵将",type:"进化",tags:["召物","击杀"],effect:"幡的攻击范围增大，魂弹伤害+40%",
+      fn:function(p){p.bannerRangeBonus=80;p.bannerDmgMult=1.4}},
+    {id:"e_lianfan",name:"连幡",type:"进化",tags:["召物","法术"],effect:"同时可存在两面幡",
+      fn:function(p){p.bannerDouble=true}},
+    {id:"e_guijiang",name:"归将",type:"进化",tags:["召物","生存"],effect:"幡附近持续回血",
+      fn:function(p){p.bannerHeal=true}}
   ]
 };
 
@@ -558,6 +572,9 @@ var ACHIEVEMENTS=[
   {id:"massacre",name:"百鬼夜行",desc:"单局击杀100+敌人",check:function(m){return (m.bestSingleRunKills||0)>=100},reward:null},
   {id:"perfect_boss",name:"完美谢幕",desc:"Boss战不受伤",check:function(m){return (m.perfectBossKills||0)>0},reward:null},
   {id:"no_evolve_win",name:"孤勇者",desc:"孤行誓印通关",check:function(m){return (m.noEvolveWins||0)>0},reward:null},
+  {id:"kill_moguiwang",name:"墨鬼王克星",desc:"击败墨鬼王",check:function(m){return (m.moguiwangKills||0)>0},reward:null},
+  {id:"triple_boss",name:"三祟皆灭",desc:"击败过全部三个Boss",check:function(m){return (m.bossKills||0)>=1&&(m.mojiangjunKills||0)>=1&&(m.moguiwangKills||0)>=1},reward:"goldInk"},
+  {id:"max_relics",name:"六器加身",desc:"单局集满6件遗物",check:function(m){return (m.maxRelicsInRun||0)>=6},reward:null},
 	  {id:"ash_road",name:"灰烬之路",desc:"单局战斗结束时磷火覆盖过半场",check:function(m){return (m.bestFireCoverage||0)>=0.5},reward:"goldInk"},
 ];
 

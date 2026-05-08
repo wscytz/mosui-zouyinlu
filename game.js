@@ -159,6 +159,7 @@ function metaRecordRun(g){
   if(g.curse)meta.cursesUsed[g.curse.id]=true;
   if(g.bossKilled){meta.bossKills++}
   if(g.mojiangjunKilled){meta.mojiangjunKills++}
+  if(g.moguiwangKilled){meta.moguiwangKills=(meta.moguiwangKills||0)+1}
   if(won&&g.diff==="nightmare")meta.nightmareWins++;
   meta.eliteKills=(meta.eliteKills||0)+g.eliteKills;
   if(g.fireKills>(meta.bestFireKills||0))meta.bestFireKills=g.fireKills;
@@ -169,6 +170,7 @@ function metaRecordRun(g){
   if(won&&g.player.maxHpOverride&&g.player.maxHpOverride<=60)meta.paperWins=(meta.paperWins||0)+1;
   if(won&&g.relics.length===0)meta.noRelicWins=(meta.noRelicWins||0)+1;
   if(g.kills>(meta.bestSingleRunKills||0))meta.bestSingleRunKills=g.kills;
+  if(g.relics.length>(meta.maxRelicsInRun||0))meta.maxRelicsInRun=g.relics.length;
   if(won&&g._isBossWave&&!g.bossHurtThisWave)meta.perfectBossKills=(meta.perfectBossKills||0)+1;
   if(won&&g.player.noEvolution)meta.noEvolveWins=(meta.noEvolveWins||0)+1;
   if(won){var _fa=0;g.fires.forEach(function(f){if(f.owner==="player")_fa+=Math.PI*f.r*f.r});var _fc=_fa/(W*H);if(_fc>(meta.bestFireCoverage||0))meta.bestFireCoverage=_fc}
@@ -718,6 +720,7 @@ function onEnemyKilled(g,e,source,opts){
   else if(wt==="ranged"){for(var wi=0;wi<3;wi++)spawnP(g,e.x,e.y,"moss",2)}
   else if(wt==="aoe"){for(var wi=0;wi<4;wi++){var wa=wi*Math.PI/2;spawnP(g,e.x+Math.cos(wa)*10,e.y+Math.sin(wa)*10,"moss",1)}}
   else if(wt==="dash"){for(var wi=0;wi<4;wi++)spawnP(g,e.x+rn(-10,10),e.y+rn(-10,10),"accent",2)}
+  else if(wt==="summon"){for(var wi=0;wi<3;wi++)spawnP(g,e.x+rn(-8,8),e.y+rn(-8,8),"accent",1);spawnP(g,e.x,e.y,"ink",2)}
   // Boss死亡额外爆发
   if(e.isBoss){for(var bi=0;bi<16;bi++){var ba=bi*Math.PI*2/16;
     spawnP(g,e.x+Math.cos(ba)*15,e.y+Math.sin(ba)*15,"accent",2);
@@ -729,6 +732,7 @@ function onEnemyKilled(g,e,source,opts){
   g.execFlash=e;
   stageOnEnemyKilled(g,e);
   if(e.isBoss&&!e.midBoss){g.bossKilled=true;if(e.type==="mojiangjun")g.mojiangjunKilled=true;
+    if(e.type==="moguiwang")g.moguiwangKilled=true;
     // Boss kill celebration
     g.bossCelebrationT=120;g.freezeT=Math.max(g.freezeT,120);
     shake(g,28,14);if(g.freezeT<8)g.freezeT=8;
@@ -1037,6 +1041,22 @@ function pAtk(g){
         pierce:false,delay:8});
       spawnInk(g,p.x-Math.cos(p.facing)*dashRng*0.4,p.y-Math.sin(p.facing)*dashRng*0.4,4,"ink");
     }
+  // 召魂幡：竖幡，自动发射追踪魂弹
+  }else if(w.type==="summon"){
+    var bx=p.x+Math.cos(p.facing)*50,by=p.y+Math.sin(p.facing)*50;
+    var banR=36+(p.bannerRangeBonus||0);
+    var banDmg=Math.floor(dmg*(p.bannerDmgMult||1));
+    pushLimited(g.fires,{x:bx,y:by,r:banR,life:200,maxLife:200,dmg:banDmg,owner:"player",
+      tickOffset:ri(0,15),healTickOffset:0,isBanner:true,bannerPierce:!!p.bannerPierce,
+      bannerBurst:!!p.bannerBurst,spawned:0},LIMITS.fires);
+    spawnInk(g,bx,by,6,"accent");spawnP(g,bx,by,"accent",4);
+    if(p.bannerDouble){
+      var bx2=p.x+Math.cos(p.facing+Math.PI)*50,by2=p.y+Math.sin(p.facing+Math.PI)*50;
+      pushLimited(g.fires,{x:bx2,y:by2,r:banR,life:200,maxLife:200,dmg:banDmg,owner:"player",
+        tickOffset:ri(0,15),healTickOffset:0,isBanner:true,bannerPierce:!!p.bannerPierce,
+        bannerBurst:!!p.bannerBurst,spawned:0},LIMITS.fires);
+      spawnP(g,bx2,by2,"accent",3);
+    }
   }
   // 墨刃遗物
   if(p.tripleBlade&&p.atkCount%3===0){
@@ -1059,6 +1079,7 @@ function pAtk(g){
   else if(w.type==="ranged")snd("brushShot");
   else if(w.type==="aoe")snd("bellRing");
   else if(w.type==="dash")snd("umbrellaDash");
+  else if(w.type==="summon")snd("bellRing");
   p.justDodged=false;p.justDodgedT=0;
 }
 
@@ -1391,7 +1412,7 @@ function update(g){
   if((dx||dy)&&g.time%4===0){
     var trvx=p.lastDx?p.lastDx*0.3+rn(-0.3,0.3):rn(-0.3,0.3);
     var trvy=p.lastDy?p.lastDy*0.3+rn(-0.3,0.3):rn(-0.3,0.3);
-    var trailType=g.weapon.type==="dash"?"accent":g.weapon.type==="ranged"?"moss":"ink";
+    var trailType=g.weapon.type==="dash"?"accent":g.weapon.type==="ranged"?"moss":g.weapon.type==="summon"?"accent":"ink";
     pushLimited(g.particles,{x:p.x+rn(-4,4),y:p.y+rn(-4,4),
     vx:trvx,vy:trvy,life:rn(25,50),maxLife:50,size:rn(1.5,4),type:trailType},LIMITS.particles)}
   // dash trail ink splatter
@@ -1809,6 +1830,22 @@ function update(g){
       if(p.poisonHeal){p.hp=Math.min(p.maxHp,p.hp+2);pushLimited(g.floatTexts,{x:p.x,y:p.y-p.r-14,text:"+2",life:20,maxLife:20,reason:"heal"},LIMITS.floatTexts)}
       else if(p.invTimer<=0){hurtP(g,f.dmg);p.slowT=Math.max(p.slowT,30)}}}
     else{var mr=f.r+p.r;if(dstSq(f,p)<mr*mr&&p.invTimer<=0&&((g.time+f.tickOffset)%15===0))hurtP(g,f.dmg)}
+    // 召魂幡：周期发射追踪魂弹
+    if(f.isBanner&&((g.time+f.tickOffset)%30===0)){
+      var nr=findNearestEnemy(g,f.x,f.y);
+      var bannerRange=200+(p.bannerRangeBonus||0);
+      if(nr.enemy&&nr.distSq<bannerRange*bannerRange){
+        var bdx=nr.enemy.x-f.x,bdy=nr.enemy.y-f.y,bl=Math.sqrt(bdx*bdx+bdy*bdy)||1;
+        pushAttack(g,{x:f.x+bdx/bl*12,y:f.y+bdy/bl*12,
+          vx:bdx/bl*5,vy:bdy/bl*5,life:50,dmg:f.dmg,r:6,type:"spirit",
+          pierce:!!f.bannerPierce,burst:!!f.bannerBurst,hitMap:{}});
+        spawnP(g,f.x,f.y,"accent",1);
+      }
+      // 归将回血
+      if(p.bannerHeal&&dstSq(f,p)<(f.r+p.r)*(f.r+p.r)){
+        p.hp=Math.min(p.maxHp,p.hp+1);
+      }
+    }
     // 灯油旧芯：站在火场回血
     if(p.fireHeal>0&&f.owner==="player"){var fmr=f.r+p.r;if(dstSq(f,p)<fmr*fmr&&((g.time+f.healTickOffset)%40===0)){
       p.hp=Math.min(p.maxHp,p.hp+p.fireHeal);
@@ -1937,7 +1974,7 @@ function update(g){
         spawnP(g,p.x+Math.cos(va)*vr,p.y+Math.sin(va)*vr,"accent",3)}
       spawnInk(g,p.x,p.y,40,"accent");spawnInk(g,p.x,p.y,25,"gold");
       var wcol=g.weapon.type==="melee"?C.ink:g.weapon.type==="ranged"?C.moss:
-        g.weapon.type==="aoe"?"rgba(77,97,86,0.8)":C.gold;
+        g.weapon.type==="aoe"?"rgba(77,97,86,0.8)":g.weapon.type==="summon"?C.accent:C.gold;
       spawnInk(g,p.x,p.y,30,wcol);
       shake(g,28,8);snd("victory");
       pushLimited(g.floatTexts,{x:W/2,y:H/2-60,text:g.weapon.name+" · 走阴完毕",life:90,maxLife:90,reason:"victory"},LIMITS.floatTexts);
@@ -2003,6 +2040,20 @@ function render(g){
 
   // fires / ink trails (culled: skip off-screen fires)
   g.fires.forEach(function(f){if(f.x+f.r<A.l||f.x-f.r>A.r||f.y+f.r<A.t||f.y-f.r>A.b)return;
+    if(f.isBanner){
+      var bt=f.life/f.maxLife;c.globalAlpha=bt*0.6;
+      // banner pole
+      c.fillStyle=C.ink;c.fillRect(f.x-2,f.y-20,4,40);
+      // banner cloth
+      c.fillStyle=C.accent;c.fillRect(f.x-12,f.y-20,24,18);
+      // seal mark
+      c.globalAlpha=bt*0.8;c.fillStyle=C.ink;c.font='700 10px serif';c.textAlign="center";
+      c.fillText("魂",f.x,f.y-8);
+      // glow ring
+      c.globalAlpha=bt*0.15;c.fillStyle=C.accent;
+      c.beginPath();c.arc(f.x,f.y,f.r,0,Math.PI*2);c.fill();
+      c.globalAlpha=1;return}
+    var ml=f.maxLife||f.life;var t=f.life/ml;var a=t*0.5;var rr=Math.max(1,f.r*Math.pow(t,0.7));
     var ml=f.maxLife||f.life;var t=f.life/ml;var a=t*0.5;var rr=Math.max(1,f.r*Math.pow(t,0.7));
     if(f.slow){c.globalAlpha=a;c.fillStyle="rgba(23,19,16,0.35)";c.beginPath();
       c.arc(f.x,f.y,rr,0,Math.PI*2);c.fill()}
@@ -2394,7 +2445,7 @@ function render(g){
   c.beginPath();c.arc(0,0,p.r,0,Math.PI*2);c.fill();clearShadow(c);
   // weapon type ring with idle pulse
   var wCol=g.weapon.type==="melee"?C.accent:g.weapon.type==="ranged"?C.moss:
-    g.weapon.type==="aoe"?"rgba(77,97,86,0.6)":C.gold;
+    g.weapon.type==="aoe"?"rgba(77,97,86,0.6)":g.weapon.type==="summon"?C.accent:C.gold;
   // weapon-specific silhouette accent
   c.globalAlpha=0.4;c.fillStyle=wCol;c.strokeStyle=wCol;
   if(g.weapon.type==="melee"){c.lineWidth=3;c.beginPath();
@@ -2408,6 +2459,9 @@ function render(g){
     c.lineWidth=1.5;c.beginPath();c.moveTo(0,-p.r-2);c.lineTo(0,-p.r-10);c.stroke()}
   else if(g.weapon.type==="dash"){c.lineWidth=2.5;c.beginPath();
     c.arc(0,0,p.r+8,p.facing+Math.PI*0.6,p.facing+Math.PI*1.4);c.stroke()}
+  else if(g.weapon.type==="summon"){c.fillRect(-2,-p.r-14,4,10);
+    c.fillRect(-6,-p.r-16,12,6);c.font='700 6px serif';c.textAlign="center";
+    c.fillText("魂",0,-p.r-12)}
   c.globalAlpha=1;
   var idlePulse=Math.min(1,p.idleT/90);var pulseAlpha=0.3+0.18*Math.sin(g.time*0.06)*idlePulse;
   var pulseR=p.r+2+Math.sin(g.time*0.05)*2*idlePulse;
@@ -3440,6 +3494,7 @@ function pickEvolutionChoices(g,pool){
 }
 
 function pickRelicChoices(g){
+  if(g.relics.length>=6)return[];
   var owned={},unowned=[];
   g.relics.forEach(function(r){owned[r.id]=true});
   RELICS.forEach(function(r){if(!owned[r.id])unowned.push(r)});

@@ -864,6 +864,16 @@ body.game-active #gameCanvas {
   background: var(--ink);
   transform: translateY(6px);
 }
+/* 召魂幡：竖旗 */
+.weapon-pick[data-icon="fan"] .ink-icon::before {
+  width: 2px; height: 17px; background: var(--ink);
+  transform: translateY(6px);
+}
+.weapon-pick[data-icon="fan"] .ink-icon::after {
+  width: 14px; height: 10px;
+  background: var(--accent); border-radius: 2px;
+  transform: translate(-1px, -1px);
+}
 
 /* ===== 遗物选择 ===== */
 .relic-choices {
