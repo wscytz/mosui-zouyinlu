@@ -3217,6 +3217,7 @@ var BUFF_DEFS={
   ringSlow:{label:"声波减速",cat:"permanent",ch:"波"},
   dashReturn:{label:"折返闪",cat:"permanent",ch:"折"},
   killShield:{label:"杀盾",cat:"permanent",ch:"盾"},
+  killSlowPool:{label:"墨池",cat:"permanent",ch:"池"},
   lowHpFury:{label:"低血狂暴",cat:"permanent",ch:"狂"},
   decoyOnDodge:{label:"闪避诱饵",cat:"permanent",ch:"饵"},
   killSpdTimer:{label:"加速",cat:"temp",ch:"速"},
