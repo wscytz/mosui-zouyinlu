@@ -1769,12 +1769,16 @@ body.game-active #gameCanvas {
 /* Boss portrait image slot — shown when data-portrait attribute is set */
 .boss-portrait {
   display: none;
+  position: absolute;
+  top: max(80px, calc(env(safe-area-inset-top, 0px) + 80px));
+  left: 50%; transform: translateX(-50%);
   width: 64px;
   height: 64px;
   border-radius: 8px;
   border: 2px solid var(--accent);
   object-fit: cover;
-  margin: 0 auto 8px;
+  z-index: 4;
+  pointer-events: none;
 }
 .boss-portrait[src] { display: block; }
 

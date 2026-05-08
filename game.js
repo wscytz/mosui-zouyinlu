@@ -2764,27 +2764,38 @@ function render(g){
     c.globalAlpha=0.35*biCl;c.fillStyle=C.ink;
     c.fillRect(0,0,wm+Math.floor(Math.sin(g.time*0.08)*8),H);
     c.fillRect(W-wm-Math.floor(Math.sin(g.time*0.08+1)*8),0,wm+8,H);
-    // intro particle burst on first frame
-    if(g.bossIntroT===110&&g.time>10){for(var bpi=0;bpi<24;bpi++)spawnP(g,W/2+rn(-30,30),H/2+rn(-20,20),"accent",1)}
+    // boss portrait image (large, centered)
+    var bpImg=window._bossPortraitImgs&&window._bossPortraitImgs[g.bossType];
+    if(bpImg){
+      c.globalAlpha=0.85*biCl;var portR=80;var portY=H/2-95;
+      // ink wash glow behind portrait
+      c.fillStyle="rgba(23,19,16,0.25)";c.beginPath();c.arc(W/2,portY+portR,portR+8,0,Math.PI*2);c.fill();
+      // portrait with border
+      c.strokeStyle=C.accent;c.lineWidth=3;
+      c.strokeRect(W/2-portR-3,portY-3,portR*2+6,portR*2+6);
+      c.drawImage(bpImg,W/2-portR,portY,portR*2,portR*2);
+      // ink splash overlay
+      c.globalAlpha=0.12*biCl;c.fillStyle=C.ink;
+      c.beginPath();c.arc(W/2-portR+10,portY+10,portR*0.5,0,Math.PI*2);c.fill();
+    }
     // outer scroll frame
-    c.globalAlpha=0.5*biCl;c.strokeStyle=C.accent;c.lineWidth=3;
-    c.strokeRect(W/2-220,H/2-65,440,130);
-    c.globalAlpha=0.28*biCl;c.strokeStyle=C.gold;c.lineWidth=1;
-    c.setLineDash([4,3]);c.strokeRect(W/2-225,H/2-70,450,140);c.setLineDash([]);
+    c.globalAlpha=0.45*biCl;c.strokeStyle=C.accent;c.lineWidth=3;
+    c.strokeRect(W/2-220,H/2-55,440,120);
+    c.globalAlpha=0.25*biCl;c.strokeStyle=C.gold;c.lineWidth=1;
+    c.setLineDash([4,3]);c.strokeRect(W/2-225,H/2-60,450,130);c.setLineDash([]);
     // corner seal marks
-    c.globalAlpha=0.2*biCl;c.fillStyle=C.accent;
-    c.fillRect(W/2-209,H/2-59,8,8);c.fillRect(W/2+193,H/2-59,8,8);c.fillRect(W/2-209,H/2+43,8,8);c.fillRect(W/2+193,H/2+43,8,8);
-    // boss name with ink wash backdrop
-    c.globalAlpha=0.22*biCl;c.fillStyle=C.ink;c.fillRect(W/2-180,H/2-24,360,52);
-    c.globalAlpha=0.9*biCl;c.fillStyle=C.accent;
-    c.font='700 52px "STKaiti","KaiTi","Kaiti SC",serif';c.textAlign="center";
-    if(g._pm>=0.5){c.shadowColor="rgba(163,58,45,0.5)";c.shadowBlur=14}
-    c.fillText(g.bossIntroName,W/2,H/2);
+    c.globalAlpha=0.18*biCl;c.fillStyle=C.accent;
+    c.fillRect(W/2-209,H/2-49,8,8);c.fillRect(W/2+193,H/2-49,8,8);c.fillRect(W/2-209,H/2+39,8,8);c.fillRect(W/2+193,H/2+39,8,8);
+    // boss name
+    c.globalAlpha=0.88*biCl;c.fillStyle=C.accent;
+    c.font='700 46px "STKaiti","KaiTi","Kaiti SC",serif';c.textAlign="center";
+    if(g._pm>=0.5){c.shadowColor="rgba(163,58,45,0.5)";c.shadowBlur=12}
+    c.fillText(g.bossIntroName,W/2,H/2+8);
     c.shadowBlur=0;
     // boss subtitle
-    if(g.bossIntroSub){c.globalAlpha=0.58*biCl;c.fillStyle=C.ash;
-      c.font='400 15px "STKaiti","KaiTi",serif';
-      c.fillText(g.bossIntroSub,W/2,H/2+38)}
+    if(g.bossIntroSub){c.globalAlpha=0.55*biCl;c.fillStyle=C.ash;
+      c.font='400 14px "STKaiti","KaiTi",serif';
+      c.fillText(g.bossIntroSub,W/2,H/2+36)}
     c.globalAlpha=1}
 
   // boss hp bar
@@ -4056,6 +4067,14 @@ function init(){
     tryImg("subArt",_artBase+"ui/subtitle_calligraphy.png");
     // Boss portraits — lazy loaded when boss appears
     window._bossPortraitBase=_artBase+"portraits/";
+    // Preload boss portrait images for canvas rendering
+    window._bossPortraitImgs={};
+    ["boss","mojiangjun","moguiwang"].forEach(function(bt){
+      var bpi=new Image();
+      bpi.onload=function(){window._bossPortraitImgs[bt]=bpi;if(window._loadLog)window._loadLog("肖像:"+bt+" ✓")};
+      bpi.onerror=function(){};
+      bpi.src=window._bossPortraitBase+"portrait-"+bt+".png";
+    });
     window._weaponIconBase=_artBase+"ui/";
   })()}catch(e){}
   setupWeaponSelect();if(window._loadLog)window._loadLog("init() 完成 ✓ loop启动");loop();
