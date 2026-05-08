@@ -729,7 +729,7 @@ function onEnemyKilled(g,e,source,opts){
     spawnP(g,e.x+Math.cos(ba)*30,e.y+Math.sin(ba)*30,"gold",1)}
     for(var bi2=0;bi2<24;bi2++){var ba2=bi2*Math.PI*2/24;
       spawnInk(g,e.x+Math.cos(ba2)*rn(20,50),e.y+Math.sin(ba2)*rn(20,50),2,"boss")}
-    g.freezeT=Math.max(g.freezeT,30);shake(g,20,10);
+    g.freezeT=Math.max(g.freezeT,30);shake(g,20,10);g.slowMo=Math.max(g.slowMo||0,30);
     pushLimited(g.floatTexts,{x:e.x,y:e.y-40,text:"邪祟伏诛",life:80,maxLife:80,reason:"bossDeath"},LIMITS.floatTexts)}
   g.execFlash=e;
   stageOnEnemyKilled(g,e);
@@ -1833,7 +1833,7 @@ function update(g){
   for(var i=g.fires.length-1;i>=0;i--){var f=g.fires[i];f.life--;
     if(f.life<=0){g.fires.splice(i,1);continue}
     if(f.slow){g.enemies.forEach(function(e){if(e.hp>0){if(collideSq(f,e))e.slowT=Math.max(e.slowT,15)}})}
-    else if(f.owner==="player"){
+    else if(f.owner==="player"&&!f.isBanner){
       forEachLiveEnemy(g,function(e){var mr=f.r+e.r;if(dstSq(f,e)<mr*mr&&((g.time+f.tickOffset)%TUNING.fireTickInterval===0)){
         if(damageEnemy(g,e,f.dmg,"fire"))spawnInk(g,e.x,e.y,10,"fire");
       }})}
@@ -1956,6 +1956,7 @@ function update(g){
     // wave continues — enemies keep spawning until quota met
   }else if(g.enemies.length===0&&g.announceT<=0&&!g.waveCleared){
     g.waveCleared=true;g.waveClearT=80;
+    g.waveInkRipple={x:p.x,y:p.y,t:40};
     if(g.waveFirstKillT>0&&(g.time-g.waveFirstKillT)<=1800)g.fastWaveClear=true;
     spawnInk(g,p.x,p.y,18,"accent");
     var sCol={calm:"ghost",ash:"ash",well:"moss",mask:"ghost",lantern:"gold",inkpool:"ink"}[g.stage?g.stage.id:"calm"]||"accent";
@@ -2035,6 +2036,16 @@ function render(g){
     c.rect(0,0,W,H);
     c.arc(W/2,H/2,Math.max(1,wipeR),0,Math.PI*2,true);
     c.fill();c.globalAlpha=1}
+
+  // wave clear ink ripple
+  if(g.waveInkRipple&&g.waveInkRipple.t>0){
+    var rip=g.waveInkRipple;rip.t--;
+    var ripProg=1-rip.t/40;var ripR=ripProg*300;
+    c.globalAlpha=(1-ripProg)*0.4;c.strokeStyle=C.accent;c.lineWidth=2+ripProg*4;
+    c.beginPath();c.arc(rip.x,rip.y,Math.max(1,ripR),0,Math.PI*2);c.stroke();
+    c.globalAlpha=(1-ripProg)*0.15;c.strokeStyle=C.ink;c.lineWidth=1;
+    c.beginPath();c.arc(rip.x,rip.y,Math.max(1,ripR*0.7),0,Math.PI*2);c.stroke();
+    c.globalAlpha=1}
 
   // Elite wave gold ambient overlay (cached gradient)
   if((g.waveSpecial==="elite"||g.waveSpecial==="elite_horde")&&g.state==="playing"){
@@ -3258,7 +3269,7 @@ function updateHUD(g){
   if(g.evolution2)wn+=" + "+g.evolution2.name;
   if(g.evolution3)wn+=" + "+g.evolution3.name;
   if(wn!==_lastWeaponName){_lastWeaponName=wn;el=_hudEl("hudWeapon");if(el)el.textContent=wn;}
-  var wt=(({normal:"",hard:"险途 · ",nightmare:"噩梦 · "})[g.diff]||"")+(g.announce||"第"+(g.wave+1)+"波")+(st&&st.name!=="净坛"?" · "+st.name:"");
+  var wt=(({normal:"",hard:"险途 · ",nightmare:"噩梦 · "})[g.diff]||"")+(g.curse?"【"+g.curse.name+"】":"")+(g.announce||"第"+(g.wave+1)+"波")+(st&&st.name!=="净坛"?" · "+st.name:"");
   var aliveCount=0;for(var _ai=0;_ai<g.enemies.length;_ai++){if(g.enemies[_ai].hp>0)aliveCount++;}
   if(aliveCount>0)wt+=" · 余"+aliveCount;
   if(wt!==_lastWaveText){_lastWaveText=wt;el=_hudEl("waveInfo");if(el)el.textContent=wt;}
