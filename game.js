@@ -1048,13 +1048,13 @@ function pAtk(g){
     var banDmg=Math.floor(dmg*(p.bannerDmgMult||1));
     pushLimited(g.fires,{x:bx,y:by,r:banR,life:200,maxLife:200,dmg:banDmg,owner:"player",
       tickOffset:ri(0,15),healTickOffset:0,isBanner:true,bannerPierce:!!p.bannerPierce,
-      bannerBurst:!!p.bannerBurst,spawned:0},LIMITS.fires);
+      bannerBurst:!!p.bannerBurst},LIMITS.fires);
     spawnInk(g,bx,by,6,"accent");spawnP(g,bx,by,"accent",4);
     if(p.bannerDouble){
       var bx2=p.x+Math.cos(p.facing+Math.PI)*50,by2=p.y+Math.sin(p.facing+Math.PI)*50;
       pushLimited(g.fires,{x:bx2,y:by2,r:banR,life:200,maxLife:200,dmg:banDmg,owner:"player",
         tickOffset:ri(0,15),healTickOffset:0,isBanner:true,bannerPierce:!!p.bannerPierce,
-        bannerBurst:!!p.bannerBurst,spawned:0},LIMITS.fires);
+        bannerBurst:!!p.bannerBurst},LIMITS.fires);
       spawnP(g,bx2,by2,"accent",3);
     }
   }
@@ -1323,6 +1323,7 @@ function update(g){
   if(g.bossWaveEntrance>0){g.bossWaveEntrance--;shake(g,4,3)}
 
   var p=g.player,dx=0,dy=0;
+  if(p.recallMark&&p.recallMark.life>0)p.recallMark.life--;
   // 清理已死的墨蛭
   for(var li=p.leeches.length-1;li>=0;li--){if(p.leeches[li].hp<=0)p.leeches.splice(li,1)}
 
@@ -1807,6 +1808,12 @@ function update(g){
             pushLimited(g.floatTexts,{x:p.x+rn(-8,8),y:p.y-p.r-10,text:"+1",life:20,maxLife:20,reason:"heal"},LIMITS.floatTexts)}
         }});
     }else if(atk.type==="spirit"){
+      // 追踪最近敌人
+      var sNr=findNearestEnemy(g,atk.x,atk.y,200*200);
+      if(sNr.enemy){var sdx=sNr.enemy.x-atk.x,sdy=sNr.enemy.y-atk.y,sl=Math.sqrt(sdx*sdx+sdy*sdy)||1;
+        var curA=Math.atan2(atk.vy,atk.vx),tgtA=Math.atan2(sdy,sdx);
+        var da=tgtA-curA;while(da>Math.PI)da-=Math.PI*2;while(da<-Math.PI)da+=Math.PI*2;
+        curA+=da*0.12;atk.vx=Math.cos(curA)*5;atk.vy=Math.sin(curA)*5}
       atk.x+=atk.vx;atk.y+=atk.vy;
       if(atk.x<A.l||atk.x>A.r||atk.y<A.t||atk.y>A.b){g.attacks.splice(i,1);continue}
       forEachLiveEnemy(g,function(e){if(atk.life<=0||atk.hitMap[e.id])return;
@@ -2054,7 +2061,6 @@ function render(g){
       c.beginPath();c.arc(f.x,f.y,f.r,0,Math.PI*2);c.fill();
       c.globalAlpha=1;return}
     var ml=f.maxLife||f.life;var t=f.life/ml;var a=t*0.5;var rr=Math.max(1,f.r*Math.pow(t,0.7));
-    var ml=f.maxLife||f.life;var t=f.life/ml;var a=t*0.5;var rr=Math.max(1,f.r*Math.pow(t,0.7));
     if(f.slow){c.globalAlpha=a;c.fillStyle="rgba(23,19,16,0.35)";c.beginPath();
       c.arc(f.x,f.y,rr,0,Math.PI*2);c.fill()}
     else if(f.poison){c.globalAlpha=a*0.7;c.fillStyle="rgba(77,107,86,0.5)";c.beginPath();
@@ -2062,7 +2068,7 @@ function render(g){
       c.beginPath();c.arc(f.x,f.y,rr*0.4,0,Math.PI*2);c.fill()}
     else{c.globalAlpha=a;c.fillStyle=C.fire;setShadow(c,C.fire,g._pm>=0.6?12:0,g);
       c.beginPath();c.arc(f.x,f.y,rr,0,Math.PI*2);c.fill();
-      clearShadow(c);c.globalAlpha=a*0.5;c.fillStyle="C.ivory";
+      clearShadow(c);c.globalAlpha=a*0.5;c.fillStyle=C.ivory;
       c.beginPath();c.arc(f.x,f.y,rr*0.35,0,Math.PI*2);c.fill()}});
   c.globalAlpha=1;
 
@@ -2084,7 +2090,7 @@ function render(g){
     c.beginPath();c.arc(ep.x-ep.vx*0.5,ep.y-ep.vy*0.5,ep.r*0.6,0,Math.PI*2);c.fill();
     c.globalAlpha=0.85;c.fillStyle=C.soft;setShadow(c,C.ink,g._pm>=0.6?6:0,g);
     c.beginPath();c.arc(ep.x,ep.y,ep.r,0,Math.PI*2);c.fill();clearShadow(c);
-    c.globalAlpha=0.4;c.fillStyle="C.ivory";
+    c.globalAlpha=0.4;c.fillStyle=C.ivory;
     c.beginPath();c.arc(ep.x,ep.y,ep.r*0.35,0,Math.PI*2);c.fill();
     c.globalAlpha=1});
   // off-screen enemy projectile warnings (edge indicators for incoming threats)
@@ -2113,7 +2119,7 @@ function render(g){
       if(g._pm>=0.45){c.shadowColor=C.accent;c.shadowBlur=14}c.beginPath();
       c.arc(0,0,dR,-atk.arc/2,atk.arc/2);c.stroke();
       // bright core
-      c.shadowBlur=0;if(g._pm>=0.5){c.globalAlpha=0.5*(1-prog);c.strokeStyle="C.ivory";c.lineWidth=1.5;c.beginPath();
+      c.shadowBlur=0;if(g._pm>=0.5){c.globalAlpha=0.5*(1-prog);c.strokeStyle=C.ivory;c.lineWidth=1.5;c.beginPath();
       c.arc(0,0,dR*0.95,-atk.arc/2,atk.arc/2);c.stroke()}
       // umbrella ribs radiating from center
       if(g._pm>=0.5){c.globalAlpha=0.18*(1-prog);c.strokeStyle=C.accent;c.lineWidth=1;
@@ -2128,7 +2134,7 @@ function render(g){
       c.arc(0,0,sR,-atk.arc/2,atk.arc/2);c.stroke();
       c.shadowBlur=0;
       // white inner arc for sharpness
-      if(g._pm>=0.5){c.globalAlpha=0.35*(1-prog);c.strokeStyle="C.ivory";c.lineWidth=1.5;c.beginPath();
+      if(g._pm>=0.5){c.globalAlpha=0.35*(1-prog);c.strokeStyle=C.ivory;c.lineWidth=1.5;c.beginPath();
       c.arc(0,0,sR*0.92,-atk.arc/2,atk.arc/2);c.stroke()}
       // ink splatter dots along arc
       if(g._pm>=0.5){c.globalAlpha=0.3*(1-prog);c.fillStyle=C.ink;
@@ -2167,7 +2173,7 @@ function render(g){
       c.globalAlpha=0.5*(1-prog);c.strokeStyle=C.moss;c.lineWidth=4+prog*6;
       if(g._pm>=0.45){c.shadowColor=C.moss;c.shadowBlur=14}c.beginPath();c.arc(atk.x,atk.y,r,0,Math.PI*2);c.stroke();
       // inner bright edge
-      c.shadowBlur=0;if(g._pm>=0.5){c.globalAlpha=0.2*(1-prog);c.strokeStyle="C.ivory";c.lineWidth=1.5;
+      c.shadowBlur=0;if(g._pm>=0.5){c.globalAlpha=0.2*(1-prog);c.strokeStyle=C.ivory;c.lineWidth=1.5;
       c.beginPath();c.arc(atk.x,atk.y,r*0.88,0,Math.PI*2);c.stroke()}
       c.globalAlpha=1;
     }
@@ -2182,7 +2188,7 @@ function render(g){
     if(e.mimic&&e.disguised){
       c.globalAlpha=0.6+Math.sin(g.time*0.08)*0.2;c.fillStyle=C.moss;
       c.beginPath();c.arc(0,0,e.r*0.6,0,Math.PI*2);c.fill();
-      c.globalAlpha=1;c.fillStyle="C.ivory";
+      c.globalAlpha=1;c.fillStyle=C.ivory;
       c.beginPath();c.arc(0,0,e.r*0.25,0,Math.PI*2);c.fill();
       c.restore();return}
     // spawn fade-in
@@ -2196,7 +2202,7 @@ function render(g){
       c.globalAlpha=Math.max(0,sg*0.7);c.strokeStyle=C.accent;c.lineWidth=2.5*sg+0.5;
       if(g._pm>=0.45){c.shadowColor=e.isBoss?C.accent:C.ink;c.shadowBlur=16*sg}
       c.beginPath();c.arc(0,0,e.r+18*sg,0,Math.PI*2);c.stroke();c.shadowBlur=0;
-      c.globalAlpha=Math.max(0,sg*0.5);c.strokeStyle="C.ivory";c.lineWidth=1.5;
+      c.globalAlpha=Math.max(0,sg*0.5);c.strokeStyle=C.ivory;c.lineWidth=1.5;
       c.beginPath();c.arc(0,0,e.r+6*sg,0,Math.PI*2);c.stroke();
       if(sg>0.5){c.globalAlpha=Math.max(0,(sg-0.5)*1.2);c.fillStyle=C.accent;
         for(var spk=0;spk<4;spk++){var spA=spk*Math.PI/2+sg*1.5;
@@ -2211,7 +2217,7 @@ function render(g){
         var deathRings=g._pm>=0.5?3:1;
         for(var dri=0;dri<deathRings;dri++){c.beginPath();c.arc(0,0,e.r+14+(1-dt)*30+dri*10,0,Math.PI*2);c.stroke()}
         c.shadowBlur=0;
-        c.globalAlpha=Math.max(0,dt*0.7-0.3);c.fillStyle="C.ivory";
+        c.globalAlpha=Math.max(0,dt*0.7-0.3);c.fillStyle=C.ivory;
         c.beginPath();c.arc(0,0,e.r*dt,0,Math.PI*2);c.fill();
       }
       c.globalAlpha=dt}
@@ -2479,7 +2485,7 @@ function render(g){
   c.quadraticCurveTo(Math.cos(tailAng)*(p.r+6),Math.sin(tailAng)*(p.r+6),
     Math.cos(tailAng+0.3)*p.r,Math.sin(tailAng+0.3)*p.r);
   c.fill();c.globalAlpha=1;
-  c.strokeStyle="C.ivory";c.lineWidth=2;c.lineCap="round";c.beginPath();
+  c.strokeStyle=C.ivory;c.lineWidth=2;c.lineCap="round";c.beginPath();
   c.moveTo(Math.cos(p.facing)*6,Math.sin(p.facing)*6);
   c.lineTo(Math.cos(p.facing)*(p.r+4),Math.sin(p.facing)*(p.r+4));c.stroke();
   // weapon-specific forward indicator dot
@@ -2650,7 +2656,7 @@ function render(g){
     c.beginPath();c.arc(mt.x,mt.y,16,0,Math.PI*2);c.stroke();
     // inner glow
     c.globalAlpha=0.5;
-    c.fillStyle="C.ivory";
+    c.fillStyle=C.ivory;
     c.beginPath();c.arc(mt.x,mt.y,7,0,Math.PI*2);c.fill();
     // floating coins above
     c.globalAlpha=0.35+0.1*Math.sin(g.time*0.1);
@@ -2716,7 +2722,7 @@ function render(g){
   c.globalAlpha=1;
 
   // 墨移标记
-  if(p.recallMark&&p.recallMark.life>0){p.recallMark.life--;
+  if(p.recallMark&&p.recallMark.life>0){
     c.globalAlpha=0.25+0.1*Math.sin(g.time*0.15);c.strokeStyle=C.accent;c.lineWidth=1.5;
     c.setLineDash([2,4]);c.beginPath();c.arc(p.recallMark.x,p.recallMark.y,8+Math.sin(g.time*0.2)*2,0,Math.PI*2);c.stroke();
     c.setLineDash([]);c.globalAlpha=0.08;c.fillStyle=C.accent;
@@ -3015,7 +3021,7 @@ function render(g){
       c.beginPath();c.arc(ex,ey,er,0,Math.PI*2);c.fill();
     });
     // player dot
-    c.globalAlpha=0.9;c.fillStyle="C.ivory";
+    c.globalAlpha=0.9;c.fillStyle=C.ivory;
     c.beginPath();c.arc(mmCx,mmCy,2.5,0,Math.PI*2);c.fill();
     c.globalAlpha=1;
   }
@@ -3133,7 +3139,7 @@ function render(g){
   if(g.fogActive){var fogR=120+20*Math.sin(g.time*0.08);
     c.save();c.globalCompositeOperation="destination-in";
     var fogGrad=c.createRadialGradient(p.x,p.y,fogR*0.5,p.x,p.y,fogR);
-    fogGrad.addColorStop(0,"rgba(0,0,0,1)");fogGrad.addColorStop(1,"C.clear");
+    fogGrad.addColorStop(0,"rgba(0,0,0,1)");fogGrad.addColorStop(1,C.clear);
     c.fillStyle=fogGrad;c.fillRect(0,0,W,H);c.restore();
     c.save();c.globalCompositeOperation="destination-over";c.fillStyle=C.ink;c.fillRect(0,0,W,H);c.restore()}
   // 鬼火诅咒：魂球渲染
@@ -3148,7 +3154,7 @@ function render(g){
       c.globalAlpha=hA*0.3;c.fillStyle=C.ash;c.beginPath();c.arc(ho.x,ho.y,ho.r*0.4,0,Math.PI*2);c.fill()}
     else if(ho.type==="guihuoyan"){c.globalAlpha=hA*0.8;c.fillStyle=C.fire;if(g._pm>=0.45){c.shadowColor=C.fire;c.shadowBlur=8}
       c.beginPath();c.arc(ho.x,ho.y,ho.r,0,Math.PI*2);c.fill();c.shadowBlur=0;
-      c.globalAlpha=hA*0.5;c.fillStyle="C.ivory";c.beginPath();c.arc(ho.x,ho.y,ho.r*0.3,0,Math.PI*2);c.fill()}
+      c.globalAlpha=hA*0.5;c.fillStyle=C.ivory;c.beginPath();c.arc(ho.x,ho.y,ho.r*0.3,0,Math.PI*2);c.fill()}
     else if(ho.type==="mozhang"){c.globalAlpha=hA*0.25;c.fillStyle=C.moss;
       c.beginPath();c.arc(ho.x,ho.y,ho.r+Math.sin(g.time*0.03+ho.x)*3,0,Math.PI*2);c.fill();
       c.globalAlpha=hA*0.15;c.fillStyle="rgba(77,97,86,0.4)";
