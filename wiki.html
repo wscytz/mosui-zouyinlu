@@ -228,10 +228,10 @@
     <section class="wiki-section" id="sec-weapons">
       <div class="section__heading">
         <p class="section__eyebrow">Weapons</p>
-        <h2>四把兵器</h2>
+        <h2>五把兵器</h2>
         <p class="wiki-section__summary">每局选一把，风格各异。进化后解锁更强形态。</p>
       </div>
-      <div id="weaponGrid" class="wiki-grid wiki-grid--4"></div>
+      <div id="weaponGrid" class="wiki-grid"></div>
     </section>
 
     <section class="wiki-section" id="sec-relics">
@@ -447,7 +447,7 @@
 
     // --- Evolutions ---
     var eg=document.getElementById('evoGrid');
-    var wNames={melee:'斩妖剑',ranged:'符骨笔',aoe:'镇魂铃',dash:'伏魔伞'};
+    var wNames={melee:'斩妖剑',ranged:'符骨笔',aoe:'镇魂铃',dash:'伏魔伞',summon:'召魂幡'};
     Object.keys(EVOLUTIONS).forEach(function(wtype){
       var sec=document.createElement('div');
       sec.style.marginBottom='24px';
@@ -494,6 +494,8 @@
       if(e.swoop)extra=' · 俯冲';
             if(e.deathBuff)extra=' · 死后鼓舞';
             if(e.spawnsOnDeath)extra=' · 死后孵化';
+      if(e.webShot)extra=' · 吐丝';
+      if(e.reviveOnce)extra=' · 再生';
       c.innerHTML='<h4>'+e.name+(e.isBoss?' (Boss)':'')+'</h4>'
         +'<div class="wiki-card__meta">HP:'+hpStr+' · 速度:'+e.spd+' · 伤害:'+e.dmg+extra+'</div>';
       eng.appendChild(c);
