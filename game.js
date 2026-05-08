@@ -259,8 +259,10 @@ function mkPlayer(){
     spiritHpCost:false,spiritDmgBonus:0,mimicFirstCrit:false,leechBuff:false,
     stillT:0,defFormation:false,atkFormation:false,formBoost:false,formDouble:false,atkFormCount:0,
     reflectChance:0,reflectDmgMult:0,healFormation:false,vortexOnKill:false,vortexKills:0,
+    autoReflect:false,autoReflectReady:false,autoReflectCd:0,
     formationLeech:false,formDef:false,formationDetonate:false,inkStrings:false,attackPin:false,formClarity:false,killPulse:false,formRipple:false,recallDash:false,speedBurstT:0,scentStreak:false,formDmgBonus:false,critShrapnel:false,corrosive:false,lowHpFury:false,
     execCritT:0,
+    nineSealCount:0,nineSealReady:false,
     // curse flags
     noDodge:false,noWaveHeal:false,noEvolution:false,
     fogCurse:false,soulOrbCurse:false,
@@ -1076,6 +1078,15 @@ function pAtk(g){
         seek:true,seekTarget:nr.enemy});
     }
   }
+  // 九转墨符：命中6次后触发全方向AOE爆发
+  if(p.nineSealReady){
+    var nsDmg=Math.floor(dmg*1.2);var nsR=100;
+    forEachLiveEnemy(g,function(oe){if(dstSq(p,oe)<nsR*nsR)damageEnemy(g,oe,nsDmg,"nineSeal")});
+    spawnP(g,p.x,p.y,"accent",12);spawnInk(g,p.x,p.y,8,"accent");
+    shake(g,8,6);snd("bossEnrage");
+    pushLimited(g.floatTexts,{x:p.x,y:p.y-p.r-20,text:"九转!",life:40,maxLife:40,reason:"critDmg"},LIMITS.floatTexts);
+    p.nineSealReady=false;
+  }
   if(p.charged){spawnInk(g,p.x,p.y,10,"accent");p.charged=false}
   if(w.type==="melee")snd("swordSlash");
   else if(w.type==="ranged")snd("brushShot");
@@ -1156,6 +1167,8 @@ function hitE(g,atk,e){
   if(p.slowOnHit>0)e.slowT=Math.max(e.slowT,30);
   // 仙螺纹：幡魂弹减速
   if(p.bannerSpiritSlow&&atk.type==="spirit")e.slowT=Math.max(e.slowT,18);
+  // 九转墨符：命中计数，6次后下次攻击AOE
+  if(p.nineSealCount>=0){p.nineSealCount++;if(p.nineSealCount>=6){p.nineSealReady=true;p.nineSealCount=0}}
   // 墨契：暴击回血
   if(atk.crit&&p.critHeal){var _ch=Math.min(3,p.maxHp-p.hp);if(_ch>0){p.hp+=_ch;snd("critHeal");pushLimited(g.floatTexts,{x:p.x,y:p.y-p.r-12,text:"+"+_ch,life:30,maxLife:30,reason:"heal"},LIMITS.floatTexts)}}
   // 裂冰诀：暴击留冰冻区
@@ -1453,6 +1466,13 @@ function update(g){
   if(p.killSpdTimer>0)p.killSpdTimer--;
   if(p.speedBurstT>0)p.speedBurstT--;
   if(p.killAtkTimer>0)p.killAtkTimer--;
+  // 墨镜碎影：站定0.5秒激活自动反射
+  if(p.autoReflect){
+    if(p.autoReflectCd>0)p.autoReflectCd--;
+    else if(!movedThisFrame){p.stillT=(p.stillT||0)+1;if(p.stillT>=30)p.autoReflectReady=true}
+    else{p.stillT=0;p.autoReflectReady=false}
+    if(p.autoReflectReady){for(var ari=g.eProj.length-1;ari>=0;ari--){var aep=g.eProj[ari];if(collideSq(aep,p,p.r+40)){aep.vx*=-1;aep.vy*=-1;aep.dmg=Math.floor(aep.dmg*2);aep._reflected=true;snd("reflect");pushAttack(g,{x:aep.x,y:aep.y,vx:aep.vx,vy:aep.vy,life:aep.life,dmg:aep.dmg,r:5,type:"proj",hitMap:{}});g.eProj.splice(ari,1);spawnP(g,aep.x,aep.y,"accent",6);p.autoReflectReady=false;p.autoReflectCd=240;p.stillT=0;break}}}
+  }
   if(p.execCritT>0)p.execCritT--;
   // 弱点标记计时
   Object.keys(p.weakTargets).forEach(function(k){if(p.weakTargets[k]>0)p.weakTargets[k]--;if(p.weakTargets[k]<=0)delete p.weakTargets[k]})
@@ -3662,7 +3682,8 @@ function rebuildPlayerStats(g){
     'comboCount','comboTimer','comboHitId','comboHitCount',
     'chargeTimer','charged','killSpdTimer','killAtkTimer','stillT','idleT',
     'lastDx','lastDy','weakTargets','leeches','hasRevived','shieldStack',
-    'execCritT','speedBurstT','atkFormCount','kiteKills','_killBoost','recallMark','justDodged'];
+    'execCritT','speedBurstT','atkFormCount','kiteKills','_killBoost','recallMark','justDodged',
+    'nineSealCount','nineSealReady','autoReflectReady','autoReflectCd'];
   var ck=['noDodge','noWaveHeal','noEvolution','fogCurse','soulOrbCurse',
     'maxHpOverride','extraStartRelics','extraRelicChoice','enemyHpMult','enemySpdMult','maxRelicsOverride','allElite',
     'relicPower','_relicPowerApplied'];

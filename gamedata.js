@@ -205,7 +205,12 @@ var RELICS=[
   {id:"moshizhu",name:"墨师珠",type:"珠玉",tags:["法术","击杀"],
     effect:"击杀时在敌人位置生成微型墨池，减速附近敌人",fn:function(p){p.killSlowPool=true}},
   {id:"xianluowen",name:"仙螺纹",type:"螺器",tags:["控场","召物"],
-    effect:"铃铛范围+20%，幡的魂弹附带0.3秒减速",fn:function(p){p.stats.range+=0.2;p.bannerSpiritSlow=true}}
+    effect:"铃铛范围+20%，幡的魂弹附带0.3秒减速",fn:function(p){p.stats.range+=0.2;p.bannerSpiritSlow=true}},
+  // v4.7 new relics
+  {id:"mojingsui",name:"墨镜碎影",type:"镜器",tags:["防御","法术"],
+    effect:"站定0.5秒后自动反射最近一颗敌方弹道，冷却4秒",fn:function(p){p.autoReflect=true}},
+  {id:"jiuzhuanmofu",name:"九转墨符",type:"符器",tags:["法术","爆发"],
+    effect:"每命中6次敌人，下次攻击变为全方向AOE爆发",fn:function(p){p.nineSealCount=0;p.nineSealReady=false}}
 ];
 
 var EVOLUTIONS={
@@ -274,11 +279,11 @@ var EVOLUTIONS={
 var WAVES=[
   {label:"第壹波 · 纸门",mod:"calm",flavor:"纸门之后，邪祟初现。小心试探。",list:[{t:"zhikui",n:5}]},
   {label:"第贰波 · 纸灰巷",mod:"ash",flavor:"灰巷深处，纸灰迷目，游魂徘徊。",list:[{t:"zhikui",n:3},{t:"youhun",n:3},{t:"zhikuang",n:1}]},
-  {label:"第叁波 · 悬井口",mod:"well",flavor:"井口之下引力难辨，焚灵与游魂交织。",list:[{t:"zhikui",n:3},{t:"youhun",n:3},{t:"fenling",n:2}]},
+  {label:"第叁波 · 悬井口",mod:"well",flavor:"井口之下引力难辨，焚灵与游魂交织。",list:[{t:"zhikui",n:3},{t:"youhun",n:3},{t:"fenling",n:2}],special:"survival"},
   {label:"第肆波 · 鬼灯廊",mod:"lantern",flavor:"鬼灯吐焰，分身鬼在暗处窥伺。",list:[{t:"youhun",n:2},{t:"gudeng",n:2},{t:"fenshen",n:2}],special:"horde"},
-  {label:"第伍波 · 无面台",mod:"mask",flavor:"无面台上群邪毕至，食灰、僵客、墨盾齐出。",list:[{t:"zhikui",n:2},{t:"shigui",n:2},{t:"jiangshi",n:1},{t:"modun",n:1},{t:"fenshen",n:1}]},
+  {label:"第伍波 · 无面台",mod:"mask",flavor:"无面台上群邪毕至，食灰、僵客、墨盾齐出。",list:[{t:"zhikui",n:2},{t:"shigui",n:2},{t:"jiangshi",n:1},{t:"modun",n:1},{t:"fenshen",n:1}],special:"horde"},
   {label:"第陆波 · 灰潮",mod:"ash",flavor:"灰潮涌来，焚灵成群，食灰鬼挡道。",list:[{t:"shigui",n:3},{t:"fenling",n:3},{t:"gudeng",n:2},{t:"zhikuang",n:1}],special:"elite"},
-  {label:"第柒波 · 墨池",mod:"inkpool",flavor:"墨池深处敌人暴虐。净化池水方为上策。",list:[{t:"jiangshi",n:2},{t:"youhun",n:3},{t:"gudeng",n:2},{t:"modun",n:2}]},
+  {label:"第柒波 · 墨池",mod:"inkpool",flavor:"墨池深处敌人暴虐。净化池水方为上策。",list:[{t:"jiangshi",n:2},{t:"youhun",n:3},{t:"gudeng",n:2},{t:"modun",n:2}],special:"survival"},
   {label:"第捌波 · 百鬼面",mod:"mask",flavor:"百鬼夜行，全面围攻。这是最终考验。",list:[{t:"zhikui",n:3},{t:"shigui",n:2},{t:"jiangshi",n:2},{t:"fenshen",n:2},{t:"zhikuang",n:1},{t:"modun",n:1}]},
   {label:"镇守 · 画皮堂",mod:"lantern",flavor:"画皮娘子镇守此地。她有千面，你的刀只有一面。",list:[{t:"boss",n:1},{t:"gudeng",n:1},{t:"jiangshi",n:1},{t:"zhikuang",n:1},{t:"fenshen",n:2}]}
 ];
