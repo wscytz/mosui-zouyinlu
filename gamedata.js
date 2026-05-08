@@ -379,7 +379,7 @@ var RANGES={weakSpread:100,fireExpand:60,fear:100,soulChain:80,burst:50,
 var TUNING={
   comboWindow:45,chargeThreshold:50,
   playerSpd:3.4,playerHp:100,playerR:15,
-  dodgeDuration:10,dodgeCooldown:42,dodgeInvFrames:14,justDodgedWindow:28,
+  dodgeDuration:10,dodgeCooldown:36,dodgeInvFrames:16,justDodgedWindow:28,
   hurtInvFrames:30,lowHpThreshold:0.3,bossEnrageHp:0.5,bossDesperateHp:0.25,
   bossEnrageSpdMult:1.3,reviveHpRatio:0.3,
   fastAtkCdMult:0.55,fastAtkParticleMult:0.5,

@@ -219,7 +219,7 @@ function buildBg(){
 function mkPlayer(){
   return{x:W/2,y:H/2,r:TUNING.playerR,hp:TUNING.playerHp,maxHp:TUNING.playerHp,spd:TUNING.playerSpd,facing:0,
     atkCd:0,atkCount:0,invTimer:0,hurtFlash:0,dashT:0,dashDx:0,dashDy:0,
-    dodgeT:0,dodgeDx:0,dodgeDy:0,dodgeCd:0,dodgeQueued:false,justDodgedT:0,
+    dodgeT:0,dodgeDx:0,dodgeDy:0,dodgeCd:0,dodgeQueued:false,justDodgedT:0,dodgeBufferT:0,dodgeBufferDx:0,dodgeBufferDy:0,
     // 基础属性（遗物/强化统一修改）
     stats:{dmg:1,spd:1,range:1,critRate:0.2,critDmg:1.5,
       atkSpd:1,multi:1,projSize:1,def:0,returnInk:0},
@@ -1227,9 +1227,13 @@ function ptInArc(px,py,cx,cy,a,arc,range){
 function startDodge(g,dx,dy){
   var p=g.player;
   if(p.noDodge){p.dodgeQueued=false;return}
-  if(p.dodgeCd>0||p.dodgeT>0){p.dodgeQueued=false;return}
+  if(p.dodgeT>0){p.dodgeQueued=false;return}
+  // 输入缓冲：冷却最后8帧内按键会自动排队
+  if(p.dodgeCd>8){p.dodgeQueued=false;return}
+  if(p.dodgeCd>0){p.dodgeBufferT=8;p.dodgeBufferDx=dx;p.dodgeBufferDy=dy;p.dodgeQueued=false;return}
   var len=Math.sqrt(dx*dx+dy*dy),a=p.facing;
   if(len>0.1)a=Math.atan2(dy,dx);
+  else if(p.lastDx||p.lastDy){a=Math.atan2(p.lastDy,p.lastDx)}
   p.dodgeT=TUNING.dodgeDuration;var cd=TUNING.dodgeCooldown;
   if(p.dodgeSpdScale){var excess=Math.round((p.stats.spd-1)*10)/10;if(excess>0)cd-=Math.min(10,Math.floor(excess/0.1)*2)}
   p.dodgeCd=cd;
@@ -1432,6 +1436,9 @@ function update(g){
   if(p.invTimer>0)p.invTimer--;
   if(p.hurtFlash>0)p.hurtFlash--;
   if(p.dodgeCd>0)p.dodgeCd--;
+  // 闪避输入缓冲
+  if(p.dodgeBufferT>0){p.dodgeBufferT--;
+    if(p.dodgeCd<=0&&p.dodgeT<=0){startDodge(g,p.dodgeBufferDx,p.dodgeBufferDy);p.dodgeBufferT=0}}
   if(p.justDodgedT>0){p.justDodgedT--;if(p.justDodgedT<=0)p.justDodged=false}
   // 连段计时器
   if(p.comboTimer>0){p.comboTimer--;
@@ -3651,7 +3658,7 @@ function showRelic(g){
 function rebuildPlayerStats(g){
   var o=g.player,f=mkPlayer();
   var rk=['x','y','facing','hp','atkCd','atkCount','invTimer','hurtFlash',
-    'dashT','dashDx','dashDy','dodgeT','dodgeDx','dodgeDy','dodgeCd','dodgeQueued','justDodgedT',
+    'dashT','dashDx','dashDy','dodgeT','dodgeDx','dodgeDy','dodgeCd','dodgeQueued','justDodgedT','dodgeBufferT','dodgeBufferDx','dodgeBufferDy',
     'comboCount','comboTimer','comboHitId','comboHitCount',
     'chargeTimer','charged','killSpdTimer','killAtkTimer','stillT','idleT',
     'lastDx','lastDy','weakTargets','leeches','hasRevived','shieldStack',
