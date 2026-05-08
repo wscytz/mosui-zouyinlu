@@ -1794,6 +1794,14 @@ body.game-active #gameCanvas {
 }
 .end-portrait[src] { display: block; }
 
+/* Grade reveal animation */
+@keyframes gradeReveal {
+  0% { transform: scale(0); opacity: 0 }
+  50% { transform: scale(1.2); opacity: 1 }
+  100% { transform: scale(1); opacity: 1 }
+}
+.end-grade { animation: gradeReveal 0.6s ease-out both; }
+
 /* Weapon HUD indicator glow */
 .hud__weapon {
   transition: color 0.3s ease, text-shadow 0.3s ease;

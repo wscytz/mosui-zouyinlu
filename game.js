@@ -292,7 +292,7 @@ function newGame(wid,diff){
     hurtCount:0,usedMoveKey:false,bossHurtThisWave:false,fastWaveClear:false,
     waveFirstKillT:0,
     hints:{relic:false,evo:false,boss:false},encountered:{},
-    inkWipe:0,
+    inkWipe:0,bossCelebrationT:0,
     player:mkPlayer(),enemies:[],attacks:[],particles:[],fires:[],eProj:[],
     relics:[],relicPool:shuf(RELICS.slice()),
     stage:null,stageDesc:"",announce:"",announceT:0,execFlash:null,evolution:null,evolution2:null,evolution3:null,floatTexts:[],decoys:[],
@@ -730,6 +730,7 @@ function onEnemyKilled(g,e,source,opts){
   stageOnEnemyKilled(g,e);
   if(e.isBoss&&!e.midBoss){g.bossKilled=true;if(e.type==="mojiangjun")g.mojiangjunKilled=true;
     // Boss kill celebration
+    g.bossCelebrationT=120;g.freezeT=Math.max(g.freezeT,120);
     shake(g,28,14);if(g.freezeT<8)g.freezeT=8;
     for(var bpi2=0;bpi2<10;bpi2++)spawnP(g,W/2+rn(-50,50),H/2+rn(-40,40),"gold",1);
     for(var bci=0;bci<20;bci++){var bca=bci*Math.PI*2/20;
@@ -1281,6 +1282,7 @@ function update(g){
   if(IS_TOUCH&&window._tickMobileAutoAim)window._tickMobileAutoAim();
   if(g.announceT>0)g.announceT--;
   if(g.bossIntroT>0)g.bossIntroT--;
+  if(g.bossCelebrationT>0)g.bossCelebrationT--;
   if(g.hintT>0)g.hintT--;
   if(g.killStreakT>0){g.killStreakT--;if(g.killStreakT<=0)g.killStreak=0}
   if(g.relicFlash>0)g.relicFlash--;
@@ -2838,6 +2840,48 @@ function render(g){
     c.beginPath();c.arc(ef.x,ef.y,20,0,Math.PI*2);c.fill();c.globalAlpha=1}
   if(g.freezeT<=0)g.execFlash=null;
 
+  // Boss击杀庆祝过场
+  if(g.bossCelebrationT>0){
+    var bcT=g.bossCelebrationT,bcMax=120;
+    var bcA=bcT>90?(bcMax-bcT)/30:bcT>30?1:bcT/30;
+    var bcCl=cl(bcA,0,1);
+    // 全屏暗色遮罩
+    c.globalAlpha=0.6*bcCl;c.fillStyle=C.ink;c.fillRect(0,0,W,H);
+    // Boss肖像
+    var bpI=window._bossPortraitImgs&&window._bossPortraitImgs[g.bossType];
+    if(bpI){
+      var portR=80,portY=H/2-110;
+      var bcScale=bcT>90?cl((bcMax-bcT)/15,0,1):1;
+      c.save();c.translate(W/2,portY+portR);c.scale(bcScale,bcScale);
+      // 墨晕光晕
+      c.globalAlpha=0.2*bcCl;c.fillStyle=C.ink;
+      c.beginPath();c.arc(0,0,portR+12,0,Math.PI*2);c.fill();
+      // 肖像
+      c.globalAlpha=0.88*bcCl;
+      c.drawImage(bpI,-portR,-portR,portR*2,portR*2);
+      // 朱砂边框
+      c.globalAlpha=0.7*bcCl;c.strokeStyle=C.accent;c.lineWidth=3;
+      c.strokeRect(-portR-3,-portR-3,portR*2+6,portR*2+6);
+      c.restore();
+    }
+    // Boss名称
+    c.globalAlpha=0.85*bcCl;c.fillStyle=C.accent;c.textAlign="center";
+    c.font='700 40px "STKaiti","KaiTi","Kaiti SC",serif';
+    if(g._pm>=0.5){c.shadowColor="rgba(163,58,45,0.4)";c.shadowBlur=10}
+    var bcName=g.bossType==="mojiangjun"?"墨将军":g.bossType==="moguiwang"?"墨鬼王":"画皮娘子";
+    c.fillText(bcName,W/2,H/2+30);
+    c.shadowBlur=0;
+    // 判词
+    var bcVerdict=g.bossType==="mojiangjun"?"书不成剑，墨终归土":
+      g.bossType==="moguiwang"?"墨渊无底，汝为过客":"画皮之下，不过纸灰";
+    c.globalAlpha=0.55*bcCl;c.fillStyle=C.ash;
+    c.font='400 16px "STKaiti","KaiTi",serif';
+    c.fillText(bcVerdict,W/2,H/2+60);
+    // 底部渐消金线
+    c.globalAlpha=0.3*bcCl;c.strokeStyle=C.gold;c.lineWidth=1;
+    var lw=100*bcCl;c.beginPath();c.moveTo(W/2-lw,H/2+80);c.lineTo(W/2+lw,H/2+80);c.stroke();
+    c.globalAlpha=1}
+
   // wave progress bar (bottom edge)
   if(g.waveTotal>0&&g.state==="playing"){
     var alive=0;for(var _ai=0;_ai<g.enemies.length;_ai++){if(g.enemies[_ai].hp>0)alive++}
@@ -3654,7 +3698,7 @@ function showEnd(g){
   var deathLine=!won&&g.deathCause?"<br><span style='color:#c4523d'>死因：</span>"+g.deathCause:"";
   el=document.getElementById("endStats");
   if(el)el.innerHTML=
-    "<div style='font-family:var(--title-face);font-size:2.4rem;color:"+(gradeColors[grade]||"var(--ink)")+
+    "<div class='end-grade' style='font-family:var(--title-face);font-size:2.4rem;color:"+(gradeColors[grade]||"var(--ink)")+
     ";margin-bottom:8px;letter-spacing:0.1em'>"+grade+"</div>"+
     "<span style='color:"+diffColor+";font-weight:600'>"+diffLabel+"</span> · 历时 "+timeStr+
     " · 斩祟 "+g.kills+" · 波次 "+g.wave+"/"+WAVE_BUDGETS.length+" · 遗物 "+g.relics.length+"件"+
