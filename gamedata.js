@@ -275,9 +275,9 @@ var WAVES=[
   {label:"第壹波 · 纸门",mod:"calm",flavor:"纸门之后，邪祟初现。小心试探。",list:[{t:"zhikui",n:5}]},
   {label:"第贰波 · 纸灰巷",mod:"ash",flavor:"灰巷深处，纸灰迷目，游魂徘徊。",list:[{t:"zhikui",n:3},{t:"youhun",n:3},{t:"zhikuang",n:1}]},
   {label:"第叁波 · 悬井口",mod:"well",flavor:"井口之下引力难辨，焚灵与游魂交织。",list:[{t:"zhikui",n:3},{t:"youhun",n:3},{t:"fenling",n:2}]},
-  {label:"第肆波 · 鬼灯廊",mod:"lantern",flavor:"鬼灯吐焰，分身鬼在暗处窥伺。",list:[{t:"youhun",n:2},{t:"gudeng",n:2},{t:"fenshen",n:2}]},
+  {label:"第肆波 · 鬼灯廊",mod:"lantern",flavor:"鬼灯吐焰，分身鬼在暗处窥伺。",list:[{t:"youhun",n:2},{t:"gudeng",n:2},{t:"fenshen",n:2}],special:"horde"},
   {label:"第伍波 · 无面台",mod:"mask",flavor:"无面台上群邪毕至，食灰、僵客、墨盾齐出。",list:[{t:"zhikui",n:2},{t:"shigui",n:2},{t:"jiangshi",n:1},{t:"modun",n:1},{t:"fenshen",n:1}]},
-  {label:"第陆波 · 灰潮",mod:"ash",flavor:"灰潮涌来，焚灵成群，食灰鬼挡道。",list:[{t:"shigui",n:3},{t:"fenling",n:3},{t:"gudeng",n:2},{t:"zhikuang",n:1}]},
+  {label:"第陆波 · 灰潮",mod:"ash",flavor:"灰潮涌来，焚灵成群，食灰鬼挡道。",list:[{t:"shigui",n:3},{t:"fenling",n:3},{t:"gudeng",n:2},{t:"zhikuang",n:1}],special:"elite"},
   {label:"第柒波 · 墨池",mod:"inkpool",flavor:"墨池深处敌人暴虐。净化池水方为上策。",list:[{t:"jiangshi",n:2},{t:"youhun",n:3},{t:"gudeng",n:2},{t:"modun",n:2}]},
   {label:"第捌波 · 百鬼面",mod:"mask",flavor:"百鬼夜行，全面围攻。这是最终考验。",list:[{t:"zhikui",n:3},{t:"shigui",n:2},{t:"jiangshi",n:2},{t:"fenshen",n:2},{t:"zhikuang",n:1},{t:"modun",n:1}]},
   {label:"镇守 · 画皮堂",mod:"lantern",flavor:"画皮娘子镇守此地。她有千面，你的刀只有一面。",list:[{t:"boss",n:1},{t:"gudeng",n:1},{t:"jiangshi",n:1},{t:"zhikuang",n:1},{t:"fenshen",n:2}]}
