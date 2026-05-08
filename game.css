@@ -176,6 +176,39 @@ body.is-mobile-ui .hud__buff-icon {
   opacity: 0;
   animation: title-fade-in 1.4s ease-out 0.2s forwards;
 }
+/* Title art image — hidden by default, shown when src loads */
+.title-art {
+  display: none;
+  height: clamp(60px, 10vw, 100px);
+  width: auto;
+  vertical-align: middle;
+}
+.title-art[src]:not([src=""]) {
+  display: inline-block;
+}
+/* Subtitle art image */
+.title-sub-art {
+  display: none;
+  height: clamp(20px, 3vw, 36px);
+  width: auto;
+  vertical-align: middle;
+}
+.title-sub-art[src]:not([src=""]) {
+  display: inline-block;
+}
+/* Cover background art — full bleed behind title screen */
+.title-cover {
+  display: none;
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  opacity: 0.3;
+  pointer-events: none;
+}
+.title-cover[src]:not([src=""]) {
+  display: block;
+}
 .title-screen__sub {
   font-family: var(--title-face);
   font-size: clamp(1.1rem, 3vw, 1.5rem);
@@ -238,18 +271,19 @@ body.is-mobile-ui .hud__buff-icon {
 }
 
 /* Title screen: deeper atmosphere */
-#titleScreen {
-  background: rgba(23,19,16,0.5);
-  backdrop-filter: blur(10px);
-}
 #titleScreen .overlay__inner {
-  padding: 52px 40px;
-  border-radius: 36px;
+  padding: 48px 40px;
 }
 #titleScreen .seal {
-  border-color: rgba(163,58,45,0.6);
-  background: linear-gradient(180deg, rgba(163,58,45,0.22), rgba(163,58,45,0.08));
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.3), 0 0 16px rgba(163,58,45,0.08);
+  border-color: rgba(163,58,45,0.55);
+  background: linear-gradient(180deg, rgba(163,58,45,0.2), rgba(163,58,45,0.07));
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.28), 0 0 12px rgba(163,58,45,0.06);
+}
+/* Unify seal style across all overlays */
+.overlay .seal {
+  border-color: rgba(163,58,45,0.55);
+  background: linear-gradient(180deg, rgba(163,58,45,0.2), rgba(163,58,45,0.07));
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.28), 0 0 12px rgba(163,58,45,0.06);
 }
 
 /* ===== Overlay Enter Animation ===== */
@@ -508,15 +542,15 @@ body.game-active #gameCanvas {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(23,19,16,0.35);
-  backdrop-filter: blur(6px);
+  background: rgba(23,19,16,0.45);
+  backdrop-filter: blur(8px);
 }
 
 .overlay__inner {
   text-align: center;
   max-width: 720px;
   width: 90%;
-  padding: 48px 40px;
+  padding: 44px 36px;
   border-radius: 32px;
   background:
     linear-gradient(180deg, rgba(255,250,243,0.94), rgba(241,230,212,0.92)),
@@ -535,7 +569,7 @@ body.game-active #gameCanvas {
 
 .overlay__subtitle {
   color: rgba(23,19,16,0.65);
-  margin: 0 0 24px;
+  margin: 0 0 20px;
   font-size: 0.95rem;
   line-height: 1.6;
 }
@@ -543,7 +577,7 @@ body.game-active #gameCanvas {
 .overlay__stats {
   color: var(--ash);
   font-size: 0.88rem;
-  margin: 0 0 24px;
+  margin: 0 0 20px;
   line-height: 1.7;
 }
 
@@ -556,7 +590,7 @@ body.game-active #gameCanvas {
 }
 
 /* Pause overlay: cleaner layout */
-#pauseOverlay .overlay__inner { max-width: 480px; padding: 40px 32px; }
+#pauseOverlay .overlay__inner { max-width: 520px; padding: 40px 32px; }
 #pauseOverlay .overlay__subtitle {
   font-size: 0.8rem;
   line-height: 1.5;
@@ -611,7 +645,7 @@ body.game-active #gameCanvas {
 
 .back-link {
   display: inline-block;
-  margin-top: 20px;
+  margin-top: 16px;
   color: var(--ash);
   text-decoration: none;
   font-size: 0.88rem;
@@ -734,6 +768,13 @@ body.game-active #gameCanvas {
     radial-gradient(circle at 50% 58%, rgba(23,19,16,0.12), rgba(23,19,16,0.02) 68%);
   box-shadow: inset 0 0 0 2px rgba(255,250,243,0.32), 0 6px 14px rgba(23,19,16,0.08);
 }
+/* When a weapon icon image is loaded, it replaces the CSS pseudo-element */
+.ink-icon .weapon-icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  border-radius: 2px;
+}
 
 .ink-icon::before,
 .ink-icon::after {
@@ -835,7 +876,7 @@ body.game-active #gameCanvas {
   position: relative;
   overflow: hidden;
   border: 1px solid var(--line);
-  border-radius: 18px;
+  border-radius: 20px;
   padding: 18px 14px;
   background:
     linear-gradient(180deg, rgba(255,248,240,0.92), rgba(236,221,198,0.88));
@@ -1590,7 +1631,7 @@ body.game-active #gameCanvas {
 }
 
 /* ===== Game Over / Victory Overlay ===== */
-#gameOver .overlay__inner { max-width: 540px; padding: 42px 36px; }
+#gameOver .overlay__inner { max-width: 560px; padding: 44px 36px; }
 #gameOver .overlay__title { font-size: clamp(2rem, 5vw, 3rem); letter-spacing: 0.08em; }
 #gameOver .overlay__subtitle { margin-bottom: 8px; }
 #gameOver .overlay__stats {
@@ -1724,6 +1765,30 @@ body.game-active #gameCanvas {
   0%, 100% { text-shadow: 0 0 8px rgba(163,58,45,0.3); }
   50% { text-shadow: 0 0 20px rgba(196,82,61,0.6); }
 }
+
+/* Boss portrait image slot — shown when data-portrait attribute is set */
+.boss-portrait {
+  display: none;
+  width: 64px;
+  height: 64px;
+  border-radius: 8px;
+  border: 2px solid var(--accent);
+  object-fit: cover;
+  margin: 0 auto 8px;
+}
+.boss-portrait[src] { display: block; }
+
+/* End screen boss portrait slot */
+.end-portrait {
+  display: none;
+  width: 96px;
+  height: 96px;
+  border-radius: 12px;
+  border: 3px solid var(--ink);
+  object-fit: cover;
+  margin: 0 auto 12px;
+}
+.end-portrait[src] { display: block; }
 
 /* Weapon HUD indicator glow */
 .hud__weapon {

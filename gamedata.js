@@ -270,7 +270,8 @@ var STAGE_MODS={
   lantern:{name:"鬼灯阵",desc:"鬼灯会间歇吐出阴火，击杀可让灯暂歇。"},
   inkpool:{name:"墨池",desc:"墨池中敌人攻击力+30%，击杀可净化为加速区。"},
   guishi:{name:"鬼市",desc:"地宫深处偶遇鬼市商贩，可用遗物换购。"},
-  mirror:{name:"镜殿",desc:"敌人死亡时射出残影弹，保持移动避免被击中。"}
+  mirror:{name:"镜殿",desc:"敌人死亡时射出残影弹，保持移动避免被击中。"},
+  inktide:{name:"墨潮",desc:"墨潮周期涌退，潮中敌人加速、玩家减速。"}
 };
 
 var ETYPE={
@@ -289,19 +290,25 @@ var ETYPE={
     hasShield:true,shield:30,maxShield:30,shieldRegen:300},
   mojiangjun:{name:"墨将军",tip:"古代镇墓将军，以墨为甲，以书为兵",hp:480,spd:0.8,r:28,dmg:15,atkR:45,atkCd:55,
     col:"rgba(23,19,16,0.55)",edge:C.ink,isBoss:true,desperate:false},
+  moguiwang:{name:"墨鬼王",tip:"墨渊深处的古老存在，吞噬一切光明",hp:500,spd:0.75,r:30,dmg:18,atkR:50,atkCd:60,
+    col:"rgba(23,19,16,0.6)",edge:C.accent,isBoss:true,desperate:false},
   moya:{name:"墨鸦",tip:"飞行远程，快速且脆弱，优先点杀",hp:35,spd:1.9,r:11,dmg:5,atkR:240,atkCd:72,col:"rgba(23,19,16,0.35)",edge:C.ink,ranged:true,pSpd:5.2},
   shiyong:{name:"石俑",tip:"重甲盾兵，破盾后集火击杀",hp:95,spd:0.55,r:20,dmg:13,atkR:34,atkCd:68,col:"rgba(100,95,88,0.4)",edge:C.soft,hasShield:true,shield:28,maxShield:28,shieldRegen:360},
   yanyong:{name:"炎俑",tip:"重甲火径，走位时注意脚下",hp:95,spd:0.7,r:18,dmg:12,atkR:34,atkCd:62,col:"rgba(196,90,45,0.35)",edge:C.fire,fireTrail:true},
   sukui:{name:"速傀",tip:"极速近战，优先点杀",hp:38,spd:2.2,r:11,dmg:6,atkR:28,atkCd:32,col:"rgba(220,210,190,0.5)",edge:C.ash},
   duzhu:{name:"毒蛛",tip:"毒径减速，保持距离",hp:50,spd:1.6,r:13,dmg:8,atkR:30,atkCd:50,col:"rgba(77,97,86,0.45)",edge:C.moss,poisonTrail:true},
   gushi:{name:"蛊师",tip:"增益同伴，优先击杀",hp:65,spd:1.1,r:14,dmg:0,atkR:0,atkCd:0,col:"rgba(107,58,92,0.4)",edge:C.boss,summoner:false,buffAura:true},
-  huapi:{name:"画皮",tip:"伪装成掉落物，靠近后突袭",hp:58,spd:2.1,r:13,dmg:14,atkR:30,atkCd:38,col:"rgba(196,90,45,0.3)",edge:C.accent,mimic:true},
+  huapi:{name:"画皮",tip:"伪装成掉落物，靠近后突袭",hp:58,spd:2.1,r:13,dmg:12,atkR:30,atkCd:38,col:"rgba(196,90,45,0.3)",edge:C.accent,mimic:true},
   mozhi:{name:"墨蛭",tip:"近身吸附吸血，闪避可甩脱",hp:32,spd:2.5,r:8,dmg:0,atkR:0,atkCd:0,col:"rgba(23,19,16,0.4)",edge:C.ink,leech:true},
   motong:{name:"墨童",tip:"死后延迟爆炸，远离尸体",hp:28,spd:1.7,r:9,dmg:8,atkR:28,atkCd:42,col:"rgba(23,19,16,0.35)",edge:C.ink,deathBomb:true,deathBombR:60,deathBombDmg:12,deathBombDelay:55},
   mofu:{name:"墨蝠",tip:"高速俯冲撞击，优先点杀",hp:25,spd:3.2,r:9,dmg:10,atkR:60,atkCd:50,col:"rgba(23,19,16,0.3)",edge:C.ink,swoop:true,swoopPrep:35},
   modie:{name:"墨蝶",tip:"脆弱飞行，死后鼓舞附近敌人",hp:18,spd:2.8,r:8,dmg:6,atkR:200,atkCd:80,col:"rgba(77,97,86,0.35)",edge:C.moss,ranged:true,pSpd:4.8,deathBuff:true,deathBuffR:130,deathBuffT:180},
   moyong:{name:"墨蛹",tip:"死后孵化墨蚋，优先清除",hp:55,spd:1.2,r:12,dmg:0,atkR:0,atkCd:0,col:"rgba(60,55,50,0.4)",edge:C.ink,spawnsOnDeath:true,spawnType:"morui",spawnCount:2},
-  morui:{name:"墨蚋",tip:"蛹体孵化，高速近战",hp:12,spd:3.6,r:5,dmg:5,atkR:22,atkCd:26,col:"rgba(23,19,16,0.3)",edge:C.accent}
+  morui:{name:"墨蚋",tip:"蛹体孵化，高速近战",hp:12,spd:3.6,r:5,dmg:5,atkR:22,atkCd:26,col:"rgba(23,19,16,0.3)",edge:C.accent},
+  // v3.4 new enemies
+  mozhu:{name:"墨蛛",tip:"远程吐丝减速，击杀后蛛网消散",hp:52,spd:1.4,r:13,dmg:7,atkR:220,atkCd:78,col:"rgba(60,55,50,0.4)",edge:C.moss,ranged:true,pSpd:4.0,webShot:true},
+  mogu:{name:"墨骨",tip:"死后骨架重组一次，二次击杀才彻底",hp:72,spd:0.65,r:17,dmg:11,atkR:32,atkCd:60,col:"rgba(180,170,155,0.35)",edge:C.ash,reviveOnce:true,reviveHpRatio:0.4},
+  momian:{name:"墨面",tip:"高速冲脸，被打前会蓄力",hp:42,spd:1.8,r:12,dmg:12,atkR:28,atkCd:44,col:"rgba(23,19,16,0.4)",edge:C.ink,swoop:true,swoopPrep:28}
 };
 
 var LIMITS={particles:260,fires:72,attacks:90,eProj:90,floatTexts:18,decoys:12,kites:4,frosts:12,enemies:80,inkSpirits:6};
@@ -375,7 +382,7 @@ var TUNING={
 };
 
 var DEATH_COLOR={zhikui:"ash",youhun:"moss",fenling:"fire",shigui:"soft",gudeng:"gold",jiangshi:"ink",boss:"accent",
-  zhikuang:"ghost",fenshen:"soul",modun:"soft",mojiangjun:"ink",moya:"ink",shiyong:"soft",yanyong:"fire",sukui:"ash",duzhu:"moss",gushi:"boss",huapi:"accent",mozhi:"ink",motong:"ink",mofu:"ink",modie:"moss",moyong:"ink",morui:"accent"};
+  zhikuang:"ghost",fenshen:"soul",modun:"soft",mojiangjun:"ink",moguiwang:"accent",moya:"ink",shiyong:"soft",yanyong:"fire",sukui:"ash",duzhu:"moss",gushi:"boss",huapi:"accent",mozhi:"ink",motong:"ink",mofu:"ink",modie:"moss",moyong:"ink",morui:"accent",mozhu:"moss",mogu:"ash",momian:"ink"};
 
 var JUDGMENTS=["斩业已断","纸命归灰","照见真形","朱批落定","一念归尘","墨尽灯枯","形消魄散","笔落惊魂"];
 
@@ -392,14 +399,14 @@ var BUILD_PREFS={
 function _ri(a,b){return Math.floor(a+Math.random()*(b-a+1))}
 function _pick(a){return a[Math.floor(Math.random()*a.length)]}
 // --- Procedural wave generation ---
-var ENEMY_COST={zhikui:1,youhun:1.5,zhikuang:1.5,fenling:2,gudeng:2,shigui:2.5,fenshen:2.5,modun:2.5,jiangshi:3,moya:1.8,shiyong:3,yanyong:2.2,sukui:1.3,duzhu:1.7,gushi:2.8,huapi:1.9,mozhi:1.4,motong:1.2,mofu:1.1,modie:1.6,moyong:2.0,morui:0.7,boss:99,mojiangjun:99};
+var ENEMY_COST={zhikui:1,youhun:1.5,zhikuang:1.5,fenling:2,gudeng:2,shigui:2.5,fenshen:2.5,modun:2.5,jiangshi:3,moya:1.8,shiyong:3,yanyong:2.2,sukui:1.3,duzhu:1.7,gushi:2.8,huapi:1.9,mozhi:1.4,motong:1.2,mofu:1.1,modie:1.6,moyong:2.0,morui:0.7,mozhu:1.8,mogu:2.8,momian:1.6,boss:99,mojiangjun:99,moguiwang:99};
 var WAVE_BUDGETS=[5,7,9.5,12,14.5,17.5,21,25,28,32,36,0];
 var WAVE_TIERS=[
   ["zhikui","youhun"],
   ["zhikui","youhun","fenling","zhikuang","moya","sukui","huapi","mozhi","motong","mofu","modie"],
-  ["zhikui","youhun","fenling","gudeng","shigui","fenshen","moya","shiyong","sukui","yanyong","duzhu"],
-  ["zhikuang","fenling","gudeng","shigui","fenshen","modun","jiangshi","moya","shiyong","yanyong","gushi"],
-  ["fenling","gudeng","shigui","fenshen","modun","jiangshi","moya","shiyong","yanyong","duzhu","gushi"]
+  ["zhikui","youhun","fenling","gudeng","shigui","fenshen","moya","shiyong","sukui","yanyong","duzhu","mozhu"],
+  ["zhikuang","fenling","gudeng","shigui","fenshen","modun","jiangshi","moya","shiyong","yanyong","gushi","mozhu","mogu"],
+  ["fenling","gudeng","shigui","fenshen","modun","jiangshi","moya","shiyong","yanyong","duzhu","gushi","mozhu","mogu","momian"]
 ];
 var WAVE_PLACES=["纸门","纸灰巷","悬井口","鬼灯廊","无面台","墨池","灰潮","百鬼面","黄泉路","枯骨桥","阴风道","鬼市","鸦栖楼","幽冥渡"];
 var WAVE_FLAVORS=["此处邪祟暗藏，小心试探。","前方鬼影绰绰，不可大意。","阴气渐重，步步为营。","群邪毕至，殊死一搏。","地宫深处，杀机四伏。"];
@@ -407,8 +414,8 @@ var STAGE_POOLS=[
   ["calm"],
   ["calm","ash"],
   ["ash","well","lantern"],
-  ["ash","well","lantern","mask","inkpool","mirror","guishi"],
-  ["mask","inkpool","mirror","lantern"]
+  ["ash","well","lantern","mask","inkpool","mirror","guishi","inktide"],
+  ["mask","inkpool","mirror","lantern","inktide"]
 ];
 var CN_NUM=["壹","贰","叁","肆","伍","陆","柒","捌","玖","拾","拾壹","拾贰"];
 
@@ -499,7 +506,17 @@ var CURSES=[
 
   {id:"kuangmo",name:"狂墨",type:"誓印",tags:["攻速","诅咒"],
     desc:"攻速+30%，每次攻击消耗1HP，但击杀回复8HP",
-    fn:function(p){p.stats.atkSpd-=0.18;p.atkHpCost=true;p.killHeal=(p.killHeal||0)+8}}
+    fn:function(p){p.stats.atkSpd-=0.18;p.atkHpCost=true;p.killHeal=(p.killHeal||0)+8}},
+  // v3.4 new curses
+  {id:"xushi",name:"虚实",type:"誓印",tags:["生存","暴击"],
+    desc:"敌人周期隐身，但暴击伤害+50%",
+    fn:function(p){p.enemyFlicker=true;p.stats.critDmg+=0.5}},
+  {id:"moyin_brand",name:"墨印",type:"誓印",tags:["生存","遗物"],
+    desc:"追踪墨球威胁你，但开局多2件遗物",
+    fn:function(p){p.inkBrandCurse=true;p.extraStartRelics=(p.extraStartRelics||0)+2}},
+  {id:"jinghua",name:"镜花",type:"誓印",tags:["法术","诅咒"],
+    desc:"攻击20%几率落空，但命中时伤害x1.8",
+    fn:function(p){p.missChance=0.2;p.hitDmgMult=1.8}}
 ];
 // --- Stage Hazards (random per wave) ---
 var STAGE_HAZARDS=[

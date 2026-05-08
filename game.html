@@ -23,10 +23,11 @@
   <div class="paper-noise" aria-hidden="true"></div>
 
   <div id="titleScreen" class="overlay">
+    <img id="coverArt" class="title-cover" src="" alt="">
     <div class="overlay__inner title-screen">
       <span class="seal" style="margin-bottom:20px;">夜行客</span>
-      <h1 class="title-screen__title">墨　祟</h1>
-      <p class="title-screen__sub">：　走　阴　录</p>
+      <h1 class="title-screen__title"><img id="titleArt" class="title-art" src="" alt="墨　祟" onerror="this.style.display='none';this.parentNode.appendChild(document.createTextNode('墨　祟'))">墨　祟</h1>
+      <p class="title-screen__sub"><img id="subArt" class="title-sub-art" src="" alt="：　走　阴　录" onerror="this.style.display='none'">：　走　阴　录</p>
       <p class="title-screen__desc">你扮演一名替亡者走阴的夜行客，<br>手持法器深入地宫，斩妖除祟。</p>
       <div id="achRow" class="ach-row" style="display:none"></div>
       <div id="unlockHint" class="unlock-hint"></div>
@@ -86,6 +87,7 @@
       <div class="hud__relics" id="hudRelics"></div>
       <div class="hud__buffs" id="hudBuffs"></div>
       <div class="hud__boss-name" id="hudBossName"></div>
+      <img class="boss-portrait" id="bossPortrait" alt="">
     </div>
   </div>
 
@@ -109,6 +111,7 @@
 
   <div id="gameOver" class="overlay" style="display:none;">
     <div class="overlay__inner">
+      <img class="end-portrait" id="endPortrait" alt="">
       <h2 class="overlay__title" id="endTitle"></h2>
       <p class="overlay__subtitle" id="endSubtitle"></p>
       <p class="overlay__stats" id="endStats"></p>

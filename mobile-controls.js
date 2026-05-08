@@ -86,18 +86,18 @@
     fitCanvas();
 
     var W = 960, H = 640;
-    var ATTACK_THRESHOLD = 0.08;
+    var ATTACK_THRESHOLD = PROF.attackThresh;
 
     if(!cvs){_log('警告: canvas未找到');}else{_log('canvas尺寸:'+cvs.offsetWidth+'x'+cvs.offsetHeight);}
 
     function updateControlSizes() {
       var rect = cvs ? cvs.getBoundingClientRect() : null;
       var logicalScale = rect && rect.width > 0 ? 960 / rect.width : 1;
-      CTRL.STICK_R = Math.round(62 * logicalScale);
-      CTRL.THUMB_R = Math.round(30 * logicalScale);
-      CTRL.DEAD    = Math.round(22 * logicalScale);
+      CTRL.STICK_R = Math.round(PROF.stickR * logicalScale);
+      CTRL.THUMB_R = Math.round(PROF.thumbR * logicalScale);
+      CTRL.DEAD    = Math.round(PROF.deadZone * logicalScale);
       // Touch hit area — wider than visual so sloppy taps register
-      CTRL.HIT_R   = CTRL.STICK_R + 55;
+      CTRL.HIT_R   = CTRL.STICK_R + PROF.hitPad;
     }
 
     // ================================================================
@@ -108,7 +108,7 @@
     var _ctrlSettings = {};
     try { _ctrlSettings = JSON.parse(localStorage.getItem("mosui_ctrl_settings") || "{}"); } catch(e) {}
     var _rawSens = _ctrlSettings.sensitivity;
-    var SENSITIVITY = (typeof _rawSens === "number" && isFinite(_rawSens)) ? _rawSens : 1.0;
+    var SENSITIVITY = (typeof _rawSens === "number" && isFinite(_rawSens)) ? _rawSens : PROF.defaultSens;
 
     // Safe-area bottom compensation for joysticks
     var _safeBottom = 0;
@@ -123,8 +123,8 @@
     var _safeY = _safeBottom * (960 / (cvs ? cvs.offsetWidth || 960 : 960));
 
     // Fixed joystick positions — compensated for bottom safe area
-    var leftBase  = { x: W * 0.15, y: H * 0.72 - _safeY };
-    var rightBase = { x: W * 0.78, y: H * 0.72 - _safeY };
+    var leftBase  = { x: W * PROF.leftBaseX, y: H * PROF.leftBaseY - _safeY };
+    var rightBase = { x: W * PROF.rightBaseX, y: H * PROF.rightBaseY - _safeY };
 
     // Sticks: bx/by are ALWAYS at the fixed base, never move
     var sticks = {
@@ -143,6 +143,24 @@
     window.MOSUI.platform=window.MOSUI.platform||{};
     window.MOSUI.profiles=window.MOSUI.profiles||{control:{},render:{},ui:{}};
     window.MOSUI.profiles.control=window.MOSUI.profiles.control||{};
+    // Centralized control profile — all tunable params in one place
+    var PROF = window.MOSUI.profiles.control;
+    if (!PROF.stickR) PROF.stickR = 62;         // joystick base radius (logical px)
+    if (!PROF.thumbR) PROF.thumbR = 30;         // thumb radius
+    if (!PROF.deadZone) PROF.deadZone = 22;      // dead zone radius
+    if (!PROF.hitPad) PROF.hitPad = 55;          // extra hit area padding
+    if (!PROF.attackThresh) PROF.attackThresh = 0.08;  // right stick magnitude to trigger manual aim
+    if (!PROF.curvePower) PROF.curvePower = 3;   // response curve exponent (3 = cubic)
+    if (!PROF.defaultSens) PROF.defaultSens = 1.0;     // default sensitivity
+    if (!PROF.leftBaseX) PROF.leftBaseX = 0.15;  // left joystick X as fraction of W
+    if (!PROF.leftBaseY) PROF.leftBaseY = 0.72;  // left joystick Y as fraction of H
+    if (!PROF.rightBaseX) PROF.rightBaseX = 0.78; // right joystick X as fraction of W
+    if (!PROF.rightBaseY) PROF.rightBaseY = 0.72; // right joystick Y as fraction of H
+    if (!PROF.panelY) PROF.panelY = 0.80;        // bottom panel start as fraction of H
+    if (!PROF.aimSmoothTick) PROF.aimSmoothTick = 0.2;  // lerp factor per-frame auto-aim
+    if (!PROF.aimSmoothTouch) PROF.aimSmoothTouch = 0.25; // lerp factor on touch event
+    if (!PROF.aimReturnDelay) PROF.aimReturnDelay = 5;   // frames before returning to auto
+    if (!PROF.targetSwitchRatio) PROF.targetSwitchRatio = 0.65; // switch if new is 35%+ closer
     window.MOSUI.input.mobile=input;
     Object.defineProperty(window._mobileInput, 'sensitivity', {set:function(v){SENSITIVITY=v},get:function(){return SENSITIVITY}});
 
@@ -176,9 +194,9 @@
       stick.tx = stick.bx + dx;
       stick.ty = stick.by + dy;
       if (d < CTRL.DEAD) return { dx: 0, dy: 0 };
-      // Cubic response: small movements are dampened, large movements ramp up fast
+      // Nonlinear response: small movements dampened, large movements ramp up fast
       var norm = (d - CTRL.DEAD) / (CTRL.STICK_R - CTRL.DEAD); // 0..1
-      var curved = norm * norm * norm; // cubic — gentle start, sharp end
+      var curved = Math.pow(norm, PROF.curvePower); // configurable curve power
       var s = SENSITIVITY || 1;
       var outScale = curved * s;
       var angle = Math.atan2(dy, dx);
@@ -212,7 +230,7 @@
           if (ed < bestD) { bestD = ed; best = en; }
         }
         // Switch only if new target is 35%+ closer
-        if (best && best.id !== _lockedTargetId && bestD < lockD * 0.65) {
+        if (best && best.id !== _lockedTargetId && bestD < lockD * PROF.targetSwitchRatio) {
           _lockedTargetId = best.id;
           return { dx: best.x - pp.x, dy: best.y - pp.y, target: best };
         }
@@ -256,7 +274,7 @@
           if (autoAim) {
             var targetAngle = Math.atan2(autoAim.dy, autoAim.dx);
             // Smooth interpolation — fast tracking but no jitter
-            _aimAngleSmooth = lerpAngle(_aimAngleSmooth, targetAngle, 0.25);
+            _aimAngleSmooth = lerpAngle(_aimAngleSmooth, targetAngle, PROF.aimSmoothTouch);
             input.aimAngle = _aimAngleSmooth;
             input.lastAimMode = "auto";
             input.autoAtk = true;
@@ -277,7 +295,7 @@
         input.autoAtk = false;
         // Clear lock and set return delay when manually aiming
         _lockedTargetId = -1;
-        _aimReturnDelay = 5; // 5 frames (~83ms) before returning to auto
+        _aimReturnDelay = PROF.aimReturnDelay;
       }
     }
 
@@ -448,7 +466,7 @@
         var autoAim = nearestAimVector();
         if (autoAim) {
           var targetAngle = Math.atan2(autoAim.dy, autoAim.dx);
-          _aimAngleSmooth = lerpAngle(_aimAngleSmooth, targetAngle, 0.2);
+          _aimAngleSmooth = lerpAngle(_aimAngleSmooth, targetAngle, PROF.aimSmoothTick);
           input.aimAngle = _aimAngleSmooth;
           input.autoAtk = true;
           input.lastAimMode = "auto";
@@ -460,7 +478,7 @@
       } else {
         // Right stick active — clear lock, set return delay
         _lockedTargetId = -1;
-        _aimReturnDelay = 5;
+        _aimReturnDelay = PROF.aimReturnDelay;
       }
     };
 
@@ -470,7 +488,7 @@
       pulseT++;
 
       // Bottom panel — solid dark background for joystick contrast
-      var panelTop = h * 0.80;
+      var panelTop = h * PROF.panelY;
       c.globalAlpha = 0.55;
       c.fillStyle = "rgba(23,19,16,0.9)";
       c.fillRect(0, panelTop, w, h - panelTop);
