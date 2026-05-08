@@ -714,6 +714,8 @@ function onEnemyKilled(g,e,source,opts){
   }
   // 鬼火诅咒：死亡产生追踪魂球
   if(p.soulOrbCurse&&!e.isBoss){g.soulOrbs.push({x:e.x,y:e.y,r:6,spd:1.5,dmg:Math.max(3,Math.ceil(e.dmg*0.4)),life:180})}
+  // 墨师珠：击杀产生减速墨池
+  if(p.killSlowPool&&!e.isBoss){pushLimited(g.fires,{x:e.x,y:e.y,r:28,life:60,maxLife:60,dmg:0,owner:"player",slow:true},LIMITS.fires)}
   // 武器特化击杀粒子
   var wt=g.weapon.type;
   if(wt==="melee"){for(var wi=0;wi<5;wi++)spawnP(g,e.x+rn(-8,8),e.y+rn(-8,8),"ink",1)}
@@ -1152,6 +1154,8 @@ function hitE(g,atk,e){
   var killed=damageEnemy(g,e,dmg,"hit",{crit:!!atk.crit,weakpoint:isWeak,combo3:p.comboCount%3===0});
   if(killed&&p.comboHitId===e)p.comboHitId=null;
   if(p.slowOnHit>0)e.slowT=Math.max(e.slowT,30);
+  // 仙螺纹：幡魂弹减速
+  if(p.bannerSpiritSlow&&atk.type==="spirit")e.slowT=Math.max(e.slowT,18);
   // 墨契：暴击回血
   if(atk.crit&&p.critHeal){var _ch=Math.min(3,p.maxHp-p.hp);if(_ch>0){p.hp+=_ch;snd("critHeal");pushLimited(g.floatTexts,{x:p.x,y:p.y-p.r-12,text:"+"+_ch,life:30,maxLife:30,reason:"heal"},LIMITS.floatTexts)}}
   // 裂冰诀：暴击留冰冻区
@@ -3413,7 +3417,13 @@ var RELIC_RULES={
   fengmofu:[{c:function(s){return s.weaponType==="aoe"||s.slowOnHit>0||s.ringSlow},n:9,w:"控场增强"},
     {c:function(s){return s.ownedTags["冰"]},n:7,w:"冰减速联动"}],
   huihunxiang:[{c:function(s){return s.noSurvival},n:9,w:"缺生存"},
-    {c:function(s){return s.ownedTags["击杀"]||s.wave>=4},n:6,w:"击杀链"}]
+    {c:function(s){return s.ownedTags["击杀"]||s.wave>=4},n:6,w:"击杀链"}],
+  hunfanling:[{c:function(s){return s.weaponType==="summon"},n:10,w:"幡系核心"},
+    {c:function(s){return s.ownedIds["hunfanling"]},n:-10,w:"已拥有"}],
+  moshizhu:[{c:function(s){return s.hasKill||s.ownedTags["击杀"]},n:8,w:"击杀联动"},
+    {c:function(s){return s.slowOnHit>0||s.ringSlow},n:6,w:"减速联动"}],
+  xianluowen:[{c:function(s){return s.weaponType==="aoe"||s.weaponType==="summon"},n:9,w:"范围控场"},
+    {c:function(s){return s.slowOnHit>0},n:6,w:"减速联动"}]
 };
 
 function scoreRelicChoice(r,state,mode){

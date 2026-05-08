@@ -1135,9 +1135,11 @@ code+='\n'+[
 '  if(!ach135)errors.push("135a: all_weapons not found in ACHIEVEMENTS");',
 '  if(ach135&&ach135.check(m135))errors.push("135b: 3 weapons should NOT unlock");',
 '  m135.weaponsCleared.san=1;',
-'  if(ach135&&!ach135.check(m135))errors.push("135c: 4 weapons SHOULD unlock");',
+'  if(ach135&&ach135.check(m135))errors.push("135c: 4 weapons should NOT unlock");',
+'  m135.weaponsCleared.fan=1;',
+'  if(ach135&&!ach135.check(m135))errors.push("135d: 5 weapons SHOULD unlock");',
 '  var m135b={weaponsCleared:{}};',
-'  if(ach135&&ach135.check(m135b))errors.push("135d: 0 weapons should NOT unlock");',
+'  if(ach135&&ach135.check(m135b))errors.push("135e: 0 weapons should NOT unlock");',
 '}catch(e){errors.push("135: "+e.message)}',
 // Test 136: spawnPulse is set on elite and boss enemies
 'try{',
@@ -1305,10 +1307,10 @@ code+='\n'+[
 '  if(!g147.player.justDodged)errors.push("147c: justDodged lost");',
 '}catch(e){errors.push("147: "+e.message)}',
 
-// Test 148: PREREQS count = 30 (v3.0)
+// Test 148: PREREQS count = 32 (v4.3)
 'try{',
 '  var _pc148=Object.keys(PREREQS).length;',
-'  if(_pc148!==30)errors.push("148a: PREREQS count="+_pc148+" expected 30");',
+'  if(_pc148!==32)errors.push("148a: PREREQS count="+_pc148+" expected 32");',
 '}catch(e){errors.push("148: "+e.message)}',
 
 // Test 149: mobile controls must be APK/debug gated (v3.0.1)

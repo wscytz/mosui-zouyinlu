@@ -198,7 +198,14 @@ var RELICS=[
   {id:"moshi",name:"墨蚀",type:"墨具",tags:["持续","法术"],
     effect:"攻击附加墨蚀，每秒2点伤害持续5秒，可叠3层",fn:function(p){p.corrosive=true}},
   {id:"monu",name:"墨怒",type:"墨具",tags:["生命","爆发"],
-    effect:"生命低于50%时，伤害+25%移速+15%",fn:function(p){p.lowHpFury=true}}
+    effect:"生命低于50%时，伤害+25%移速+15%",fn:function(p){p.lowHpFury=true}},
+  // v4.3 new relics
+  {id:"hunfanling",name:"魂幡灵",type:"幡器",tags:["召物","法术"],
+    effect:"幡的魂弹伤害+40%，寻敌范围+50",fn:function(p){p.bannerDmgMult=(p.bannerDmgMult||1)+0.4;p.bannerRangeBonus=(p.bannerRangeBonus||0)+50}},
+  {id:"moshizhu",name:"墨师珠",type:"珠玉",tags:["法术","击杀"],
+    effect:"击杀时在敌人位置生成微型墨池，减速附近敌人",fn:function(p){p.killSlowPool=true}},
+  {id:"xianluowen",name:"仙螺纹",type:"螺器",tags:["控场","召物"],
+    effect:"铃铛范围+20%，幡的魂弹附带0.3秒减速",fn:function(p){p.stats.range+=0.2;p.bannerSpiritSlow=true}}
 ];
 
 var EVOLUTIONS={
@@ -357,7 +364,9 @@ var PREREQS={
   baomo:function(s){return !!s.ownedIds.molingyu},
   yumo:function(s){return !!s.ownedIds.molingyu},
   hanmo:function(s){return !!s.ownedIds.molingyu},
-  fengmofu:function(s){return s.slowOnHit>0||s.ringSlow}
+  fengmofu:function(s){return s.slowOnHit>0||s.ringSlow},
+  hunfanling:function(s){return s.weaponType==="summon"},
+  xianluowen:function(s){return s.weaponType==="aoe"||s.weaponType==="summon"}
 };
 
 var CAPS={critRate:0.65,bellCombo:15,shieldStack:3,atkCdFloor:4,soulChain:4,ringSoul:6,projSize:2.0};
@@ -406,7 +415,8 @@ var BUILD_PREFS={
   melee:["近战","处决","暴击","击杀","生存","魂"],
   ranged:["远程","法术","分裂","魂","暴击","击杀","召物"],
   aoe:["控场","召物","魂","冰","暴击","击杀"],
-  dash:["闪避","反击","机动","远程","火","击杀","生存"]
+  dash:["闪避","反击","机动","远程","火","击杀","生存"],
+  summon:["召物","法术","魂","击杀","生存","火"]
 };
 
 // --- Procedural wave generation helpers ---
@@ -549,8 +559,9 @@ var ACHIEVEMENTS=[
   {id:"win_bi",name:"笔诛邪",desc:"用符骨笔通关",check:function(m){return (m.weaponsCleared.bi||0)>0},reward:null},
   {id:"win_ling",name:"铃镇煞",desc:"用镇魂铃通关",check:function(m){return (m.weaponsCleared.ling||0)>0},reward:null},
   {id:"win_san",name:"伞伏魔",desc:"用伏魔伞通关",check:function(m){return (m.weaponsCleared.san||0)>0},reward:null},
-  {id:"all_weapons",name:"法器皆通",desc:"用全部四种武器通关",check:function(m){
-    return["jian","bi","ling","san"].every(function(w){return(m.weaponsCleared[w]||0)>0})},reward:"startRelic"},
+  {id:"win_fan",name:"幡招魂",desc:"用召魂幡通关",check:function(m){return (m.weaponsCleared.fan||0)>0},reward:null},
+  {id:"all_weapons",name:"法器皆通",desc:"用全部武器通关",check:function(m){
+    return["jian","bi","ling","san","fan"].every(function(w){return(m.weaponsCleared[w]||0)>0})},reward:"startRelic"},
   {id:"kill_mojiangjun",name:"墨将军克星",desc:"击杀墨将军",check:function(m){return m.mojiangjunKills>0},reward:"goldInk"},
   {id:"relic_20",name:"遗物学徒",desc:"发现20件遗物",check:function(m){return Object.keys(m.relicsDiscovered).length>=20},reward:null},
   {id:"relic_30",name:"遗物大师",desc:"发现30件遗物",check:function(m){return Object.keys(m.relicsDiscovered).length>=30},reward:"startRelic"},
