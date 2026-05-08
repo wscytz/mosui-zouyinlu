@@ -1842,7 +1842,7 @@ function update(g){
       else if(p.invTimer<=0){hurtP(g,f.dmg);p.slowT=Math.max(p.slowT,30)}}}
     else{var mr=f.r+p.r;if(dstSq(f,p)<mr*mr&&p.invTimer<=0&&((g.time+f.tickOffset)%15===0))hurtP(g,f.dmg)}
     // 召魂幡：周期发射追踪魂弹
-    if(f.isBanner&&((g.time+f.tickOffset)%30===0)){
+    if(f.isBanner&&((g.time+f.tickOffset)%25===0)){
       var nr=findNearestEnemy(g,f.x,f.y);
       var bannerRange=200+(p.bannerRangeBonus||0);
       if(nr.enemy&&nr.distSq<bannerRange*bannerRange){
@@ -2040,6 +2040,7 @@ function render(g){
   // wave clear ink ripple
   if(g.waveInkRipple&&g.waveInkRipple.t>0){
     var rip=g.waveInkRipple;rip.t--;
+    if(rip.t<=0){g.waveInkRipple=null}
     var ripProg=1-rip.t/40;var ripR=ripProg*300;
     c.globalAlpha=(1-ripProg)*0.4;c.strokeStyle=C.accent;c.lineWidth=2+ripProg*4;
     c.beginPath();c.arc(rip.x,rip.y,Math.max(1,ripR),0,Math.PI*2);c.stroke();
