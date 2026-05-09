@@ -3904,7 +3904,8 @@ function showEnd(g){
       newAch.map(function(a){return"<span style='display:inline-block;margin:2px 4px;padding:1px 6px;border:1px solid var(--accent);border-radius:3px;font-size:0.78rem;color:var(--accent)'>"+a.name+"</span>"}).join("")+
       "</div>":"")+
     "<br><span style='font-size:0.78rem;color:var(--ash);margin-top:6px;display:inline-block'>"+
-    "累计 "+meta.totalRuns+" 次走阴 · 斩祟 "+meta.totalKills+" · 图鉴 "+relicCount+"/"+RELICS.length+"</span>";
+    "累计 "+meta.totalRuns+" 次走阴 · 斩祟 "+meta.totalKills+" · 图鉴 "+relicCount+"/"+RELICS.length+
+    " · 成就 "+Object.keys(meta.achievements||{}).length+"/"+ACHIEVEMENTS.length+"</span>";
   el=document.getElementById("gameOver");if(el)el.style.display="";
 }
 
