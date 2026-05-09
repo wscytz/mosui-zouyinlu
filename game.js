@@ -807,9 +807,9 @@ function onEnemyKilled(g,e,source,opts){
 function damageEnemy(g,e,dmg,source,opts){
   if(!e||e.hp<=0||e.killed)return false;
   var p=g.player;
-  // v3.4 curse: 镜花 — miss chance + hit damage multiplier
+  // v3.4 curse: 镜花 — miss chance + hit damage multiplier (only for direct hits)
   if(source==="hit"&&p.missChance&&Math.random()<p.missChance){spawnP(g,e.x,e.y-15,"ash",3);return false}
-  if(p.hitDmgMult)dmg=Math.floor(dmg*p.hitDmgMult);
+  if(source==="hit"&&p.hitDmgMult)dmg=Math.floor(dmg*p.hitDmgMult);
   // kill streak bonus: 5+ → +10%, 10+ → +20%
   if(g.killStreak>=10)dmg=Math.floor(dmg*TUNING.killStreak10Dmg);
   else if(g.killStreak>=5)dmg=Math.floor(dmg*TUNING.killStreak5Dmg);
@@ -837,6 +837,8 @@ function cleanupWave(g){
   g.particles.length=0;
   g.floatTexts.length=0;
   g.decoys.length=0;
+  g.pendingDeathbursts.length=0;
+  if(g.soulOrbs)g.soulOrbs.length=0;
   g.fires=g.fires.filter(function(f){return f.owner==="player"});
 }
 
@@ -889,6 +891,7 @@ function startWave(g){
     // Shorten announce for boss waves — boss card takes priority
     g.announceT=70;}
   g.waveFirstKillT=0;
+  g.player.nineSealCount=0;g.player.nineSealReady=false;
   g.survivalCleared=false;g.survivalSpawnTimer=0;
   g.waveFlavor=w.flavor||"";
   if(g.wave>0)g.inkWipe=30;
@@ -1424,7 +1427,7 @@ function update(g){
   }
   else if(dx||dy){var spdMul=moveScale(p)*stageSpeedFactor(g,p.x,p.y);
     if(inkPoolCheck(g,p.x,p.y)===2)spdMul*=1.2;
-    var len=Math.sqrt(dx*dx+dy*dy);
+    var len=Math.sqrt(dx*dx+dy*dy)||1;
     var mx=(dx/len)*p.spd*spdMul,my=(dy/len)*p.spd*spdMul;
     p.x+=mx;p.y+=my;p.lastDx=mx;p.lastDy=my;movedThisFrame=true;
   }
@@ -1471,11 +1474,11 @@ function update(g){
   if(p.killSpdTimer>0)p.killSpdTimer--;
   if(p.speedBurstT>0)p.speedBurstT--;
   if(p.killAtkTimer>0)p.killAtkTimer--;
-  // 墨镜碎影：站定0.5秒激活自动反射
+  // 墨镜碎影：站定0.5秒激活自动反射（stillT由下方统一管理）
   if(p.autoReflect){
     if(p.autoReflectCd>0)p.autoReflectCd--;
-    else if(!movedThisFrame){p.stillT=(p.stillT||0)+1;if(p.stillT>=30)p.autoReflectReady=true}
-    else{p.stillT=0;p.autoReflectReady=false}
+    if(p.autoReflectCd<=0&&p.stillT>=30&&!p.autoReflectReady)p.autoReflectReady=true;
+    if(movedThisFrame)p.autoReflectReady=false;
     if(p.autoReflectReady){for(var ari=g.eProj.length-1;ari>=0;ari--){var aep=g.eProj[ari];if(collideSq(aep,p,p.r+40)){aep.vx*=-1;aep.vy*=-1;aep.dmg=Math.floor(aep.dmg*2);aep._reflected=true;snd("reflect");pushAttack(g,{x:aep.x,y:aep.y,vx:aep.vx,vy:aep.vy,life:aep.life,dmg:aep.dmg,r:5,type:"proj",hitMap:{}});g.eProj.splice(ari,1);spawnP(g,aep.x,aep.y,"accent",6);p.autoReflectReady=false;p.autoReflectCd=240;p.stillT=0;break}}}
   }
   if(p.execCritT>0)p.execCritT--;
@@ -3688,7 +3691,7 @@ function rebuildPlayerStats(g){
     'chargeTimer','charged','killSpdTimer','killAtkTimer','stillT','idleT',
     'lastDx','lastDy','weakTargets','leeches','hasRevived','shieldStack',
     'execCritT','speedBurstT','atkFormCount','kiteKills','_killBoost','recallMark','justDodged',
-    'nineSealCount','nineSealReady','autoReflectReady','autoReflectCd'];
+    'autoReflectReady','autoReflectCd'];
   var ck=['noDodge','noWaveHeal','noEvolution','fogCurse','soulOrbCurse',
     'maxHpOverride','extraStartRelics','extraRelicChoice','enemyHpMult','enemySpdMult','maxRelicsOverride','allElite',
     'relicPower','_relicPowerApplied','moveSlowTrail','stillDmgMult'];
