@@ -625,6 +625,9 @@ var ACHIEVEMENTS=[
   {id:"max_relics",name:"六器加身",desc:"单局集满6件遗物",check:function(m){return (m.maxRelicsInRun||0)>=6},reward:null},
 	  {id:"ash_road",name:"灰烬之路",desc:"单局战斗结束时磷火覆盖过半场",check:function(m){return (m.bestFireCoverage||0)>=0.5},reward:"goldInk"},
   {id:"swift_step",name:"疾风步",desc:"单局墨迹残步充能释放10次以上",check:function(m){return (m.bestMoveChargeFires||0)>=10},reward:null},
+  {id:"chain_reaction",name:"连锁墨爆",desc:"墨爆印单局爆炸击杀10个以上敌人",check:function(m){return (m.bestKillExplodeKills||0)>=10},reward:null},
+  {id:"blind_fight",name:"盲斗",desc:"致盲状态下累计击杀10个敌人",check:function(m){return (m.bestBlindKills||0)>=10},reward:null},
+  {id:"bone_life",name:"百骨长生",desc:"骨续泉单局累计回复20点以上生命",check:function(m){return (m.bestWaveHpHealed||0)>=20},reward:null},
 ];
 
 // Starting relic pool for unlocked rewards

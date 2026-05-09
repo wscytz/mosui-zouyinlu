@@ -163,6 +163,9 @@ function metaRecordRun(g){
   if(won&&g.diff==="nightmare")meta.nightmareWins++;
   meta.eliteKills=(meta.eliteKills||0)+g.eliteKills;
   if(g.fireKills>(meta.bestFireKills||0))meta.bestFireKills=g.fireKills;
+  if((g.killExplodeKills||0)>(meta.bestKillExplodeKills||0))meta.bestKillExplodeKills=g.killExplodeKills;
+  if((g.blindKills||0)>(meta.bestBlindKills||0))meta.bestBlindKills=g.blindKills;
+  if((g.waveHpHealed||0)>(meta.bestWaveHpHealed||0))meta.bestWaveHpHealed=g.waveHpHealed;
   // Easter egg tracking
   if(won&&!g.usedMoveKey)meta.noMoveWins=(meta.noMoveWins||0)+1;
   if(won&&g.hurtCount<=3)meta.lowHurtWins=(meta.lowHurtWins||0)+1;
@@ -316,6 +319,7 @@ function newGame(wid,diff){
     hazard:null,hazardTimer:0,hazardObjs:[],
     inkSpirits:[],
     formations:[],
+    killExplodeKills:0,blindKills:0,waveHpHealed:0,
     perf:{lastT:0,fps:60,pressure:0,peaks:{enemies:0,attacks:0,particles:0,fires:0,eProj:0,floatTexts:0,decoys:0,kites:0,frosts:0}}}
 }
 
@@ -699,6 +703,8 @@ function onEnemyKilled(g,e,source,opts){
   if(g.killStreak>g.maxCombo)g.maxCombo=g.killStreak;
   if(e.elite){g.eliteKills++;spawnP(g,e.x,e.y,"gold",3);shake(g,6,4)}
   if(source==="fire")g.fireKills++;
+  if(source==="killExplode")g.killExplodeKills++;
+  if(p.blindT>0)g.blindKills++;
   if(g.kills===10||g.kills===25||g.kills===50||g.kills===100)snd("killMilestone");
   // 回斩进化：击杀后下次攻击增伤
   if(p.killDmgBoost)p._killBoost=true;
@@ -2042,6 +2048,7 @@ function update(g){
     if(p.waveHpBonus&&(p.waveHpAdded||0)<(p.waveHpMax||10)){
       var gain=p.waveHpGain||2;p.waveHpAdded=(p.waveHpAdded||0)+gain;
       p.maxHp+=gain;p.hp=Math.min(p.maxHp,p.hp+gain);
+      g.waveHpHealed=(g.waveHpHealed||0)+gain;
       pushLimited(g.floatTexts,{x:p.x,y:p.y-p.r-22,text:"+HP"+gain,life:35,maxLife:35,reason:"heal"},LIMITS.floatTexts);
       spawnP(g,p.x,p.y,"moss",4)}
     if(g.waveFirstKillT>0&&(g.time-g.waveFirstKillT)<=1800)g.fastWaveClear=true;
