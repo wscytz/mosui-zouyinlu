@@ -688,7 +688,7 @@ body.game-active #gameCanvas {
 /* ===== 武器选择 ===== */
 .weapon-choices {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 14px;
   margin-bottom: 8px;
 }
@@ -721,6 +721,12 @@ body.game-active #gameCanvas {
   opacity: 0.55;
   transform: rotate(-18deg);
   pointer-events: none;
+  z-index: 0;
+}
+.weapon-pick > *,
+.relic-pick > * {
+  position: relative;
+  z-index: 1;
 }
 
 .weapon-pick:hover {

@@ -1872,7 +1872,7 @@ function update(g){
     else if(f.poison){var mr=f.r+p.r;if(dstSq(f,p)<mr*mr&&((g.time+f.tickOffset)%TUNING.fireTickInterval===0)){
       if(p.poisonHeal){p.hp=Math.min(p.maxHp,p.hp+2);pushLimited(g.floatTexts,{x:p.x,y:p.y-p.r-14,text:"+2",life:20,maxLife:20,reason:"heal"},LIMITS.floatTexts)}
       else if(p.invTimer<=0){hurtP(g,f.dmg);p.slowT=Math.max(p.slowT,30)}}}
-    else{var mr=f.r+p.r;if(dstSq(f,p)<mr*mr&&p.invTimer<=0&&((g.time+f.tickOffset)%15===0))hurtP(g,f.dmg)}
+    else if(!f.isBanner){var mr=f.r+p.r;if(dstSq(f,p)<mr*mr&&p.invTimer<=0&&((g.time+f.tickOffset)%15===0))hurtP(g,f.dmg)}
     // 召魂幡：周期发射追踪魂弹
     if(f.isBanner&&((g.time+f.tickOffset)%25===0)){
       var nr=findNearestEnemy(g,f.x,f.y);
