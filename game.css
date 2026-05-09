@@ -1387,6 +1387,25 @@ body.game-active #gameCanvas {
   border-radius: 1px;
   transform: translate(1px,-6px) skewX(-8deg);
 }
+/* ===== v4.2+ missing relic icons ===== */
+.relic-pick[data-icon="baomo"] .ink-icon::before { width:10px;height:10px;border-radius:50%;background:var(--ink);transform:scale(1.2) }
+.relic-pick[data-icon="baomo"] .ink-icon::after { width:8px;height:8px;border-radius:50%;background:var(--accent);transform:translate(2px,2px) }
+.relic-pick[data-icon="yumo"] .ink-icon::before { width:10px;height:10px;border-radius:50%;background:var(--paper);border:1.5px solid var(--accent); }
+.relic-pick[data-icon="yumo"] .ink-icon::after { width:4px;height:4px;border-radius:50%;background:var(--accent);transform:translate(2px,3px) }
+.relic-pick[data-icon="hanmo"] .ink-icon::before { width:10px;height:10px;border-radius:50%;background:rgba(160,200,220,0.5);border:1.5px solid var(--ink) }
+.relic-pick[data-icon="hanmo"] .ink-icon::after { width:3px;height:3px;background:var(--paper);border-radius:50%;transform:translate(3px,3px) }
+.relic-pick[data-icon="fenmo"] .ink-icon::before { width:10px;height:10px;border-radius:50%;background:var(--ink); }
+.relic-pick[data-icon="fenmo"] .ink-icon::after { width:5px;height:5px;border-radius:50%;border:1px solid var(--paper);transform:translate(5px,-3px) }
+.relic-pick[data-icon="hunfanling"] .ink-icon::before { width:2px;height:14px;background:var(--ink);transform:translateY(4px) }
+.relic-pick[data-icon="hunfanling"] .ink-icon::after { width:12px;height:8px;background:var(--accent);border-radius:1px;transform:translate(1px,-3px) skewX(-6deg) }
+.relic-pick[data-icon="moshizhu"] .ink-icon::before { width:10px;height:10px;border-radius:50%;background:var(--ink) }
+.relic-pick[data-icon="moshizhu"] .ink-icon::after { width:6px;height:6px;border-radius:50%;background:var(--accent);transform:translate(2px,2px) }
+.relic-pick[data-icon="xianluowen"] .ink-icon::before { width:12px;height:12px;border:2px solid var(--accent);border-radius:50% }
+.relic-pick[data-icon="xianluowen"] .ink-icon::after { width:8px;height:8px;border:1px solid var(--ink);border-radius:50%;transform:translate(2px,2px) }
+.relic-pick[data-icon="huanguquan"] .ink-icon::before { width:12px;height:8px;border:1.5px solid var(--accent);border-radius:0 0 6px 6px;border-top:none }
+.relic-pick[data-icon="huanguquan"] .ink-icon::after { width:6px;height:3px;background:var(--accent);border-radius:0 0 3px 3px;transform:translate(3px,2px) }
+.relic-pick[data-icon="mosancui"] .ink-icon::before { width:8px;height:12px;background:var(--ink);transform:skewX(-5deg) }
+.relic-pick[data-icon="mosancui"] .ink-icon::after { width:6px;height:2px;background:var(--accent);transform:translate(1px,-2px) rotate(-15deg) }
 /* ===== Spirit icons (molingyu/molingqi/judou/guishouyin) ===== */
 .relic-pick[data-icon="molingyu"] .ink-icon::before,
 .relic-pick[data-icon="molingqi"] .ink-icon::before,
