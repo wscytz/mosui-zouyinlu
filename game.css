@@ -1412,6 +1412,8 @@ body.game-active #gameCanvas {
 .relic-pick[data-icon="shimoChi"] .ink-icon::after { width:4px;height:4px;border-radius:50%;background:var(--ink);transform:translate(3px,3px) }
 .relic-pick[data-icon="guxuquan"] .ink-icon::before { width:12px;height:8px;border:2px solid var(--accent);border-radius:0 0 6px 6px;border-top:none }
 .relic-pick[data-icon="guxuquan"] .ink-icon::after { width:4px;height:4px;background:var(--moss);border-radius:50%;transform:translate(4px,2px) }
+.relic-pick[data-icon="bingmobi"] .ink-icon::before { width:12px;height:12px;border:2px solid var(--accent);border-radius:3px;transform:rotate(45deg) scale(0.7) }
+.relic-pick[data-icon="bingmobi"] .ink-icon::after { width:4px;height:4px;background:var(--accent);border-radius:50%;transform:translate(4px,4px) }
 /* ===== Spirit icons (molingyu/molingqi/judou/guishouyin) ===== */
 .relic-pick[data-icon="molingyu"] .ink-icon::before,
 .relic-pick[data-icon="molingqi"] .ink-icon::before,

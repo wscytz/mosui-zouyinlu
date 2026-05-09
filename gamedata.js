@@ -224,7 +224,9 @@ var RELICS=[
   {id:"shimoChi",name:"蚀墨池",type:"池具",tags:["持续","击杀"],
     effect:"击杀敌人留下蚀墨区域，持续3秒对范围内敌人造成伤害并减速",fn:function(p){p.killDotZone=true;p.killDotDmg=(p.killDotDmg||0)+1}},
   {id:"guxuquan",name:"骨续泉",type:"泉器",tags:["生命","生存"],
-    effect:"每清一波，最大生命+2（最多+10），同时回复等量生命",fn:function(p){p.waveHpBonus=true;p.waveHpMax=(p.waveHpMax||0)+10;p.waveHpGain=(p.waveHpGain||0)+2}}
+    effect:"每清一波，最大生命+2（最多+10），同时回复等量生命",fn:function(p){p.waveHpBonus=true;p.waveHpMax=(p.waveHpMax||0)+10;p.waveHpGain=(p.waveHpGain||0)+2}},
+  {id:"bingmobi",name:"冰墨壁",type:"壁具",tags:["防御","冰"],
+    effect:"受伤时在自身周围生成冰墨区域，减速附近敌人3秒",fn:function(p){p.hurtFrost=true}}
 ];
 
 var EVOLUTIONS={

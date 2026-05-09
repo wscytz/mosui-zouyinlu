@@ -278,6 +278,7 @@ function mkPlayer(){
     killExplode:false,killExplodeRatio:0,
     killDotZone:false,killDotDmg:0,
     waveHpBonus:false,waveHpMax:0,waveHpGain:0,waveHpAdded:0,
+    hurtFrost:false,
     maxHpOverride:0,extraStartRelics:0,extraRelicChoice:false,
     enemyHpMult:1,enemySpdMult:1,allElite:false,relicPower:1,_relicPowerApplied:false,
     enemyFlicker:false,inkBrandCurse:false,missChance:0,hitDmgMult:0,
@@ -1153,6 +1154,9 @@ function hurtP(g,dmg,src){
   if(p.killShield&&p.shieldStack>0){dmg=Math.max(1,dmg-p.shieldStack*4);p.shieldStack=0;
     snd("shieldBreak");spawnInk(g,p.x,p.y,6,"gold")}
   snd("playerHurt");
+  // 冰墨壁：受伤生成冰墨区域
+  if(p.hurtFrost){pushLimited(g.frosts,{x:p.x,y:p.y,r:50,life:60,maxLife:60},LIMITS.frosts);
+    spawnP(g,p.x,p.y,"accent",4);snd("frostCreate")}
   if(p.decoyHP>0){var oldDecoy=p.decoyHP;p.decoyHP-=dmg;
     if(p.decoyHP<0){p.hp+=p.decoyHP;p.decoyHP=0}
     if(p.decoyHP<oldDecoy)spawnInk(g,p.x,p.y,4,"ghost")}
@@ -3758,7 +3762,8 @@ function rebuildPlayerStats(g){
     'killHealChance','killHealAmt','meleeSplash','meleeSplashRatio',
     'comboDmgScale','comboVuln',
     'killExplode','killExplodeRatio','killDotZone','killDotDmg',
-    'waveHpBonus','waveHpMax','waveHpGain','waveHpAdded'];
+    'waveHpBonus','waveHpMax','waveHpGain','waveHpAdded',
+    'hurtFrost'];
   rk.concat(ck).forEach(function(k){f[k]=o[k]});
   g.relics.forEach(function(r){try{r.fn(f)}catch(e){}});
   if(g.evolution)g.evolution.fn(f);

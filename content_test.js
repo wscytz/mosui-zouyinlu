@@ -1666,8 +1666,20 @@ code+='\n'+[
 '    if(!e166.summoner)errors.push("166j: summoner not set on spawned enemy");}',
 '}catch(e){errors.push("166: "+e.message)}',
 
+'// Test 167: v4.19 冰墨壁 — 防御/冰遗物+属性+hurtP frost生成',
+'try{',
+'  var r167=RELICS.find(function(r){return r.id==="bingmobi"});',
+'  if(!r167)errors.push("167a: bingmobi not found");',
+'  else{',
+'    if(r167.tags.indexOf("防御")<0)errors.push("167b: missing 防御 tag");',
+'    if(r167.tags.indexOf("冰")<0)errors.push("167c: missing 冰 tag");',
+'    var g167=newGame("jian","normal");r167.fn(g167.player);',
+'    if(!g167.player.hurtFrost)errors.push("167d: hurtFrost not set");',
+'  }',
+'}catch(e){errors.push("167: "+e.message)}',
+
 'if(errors.length){console.log("FAIL ("+errors.length+"):");errors.forEach(function(e){console.log("  - "+e)});process.exit(1)}',
-'else{console.log("ALL 145 TESTS PASSED");',
+'else{console.log("ALL 146 TESTS PASSED");',
 '  console.log(" 37-62. (previous 26 tests)");',
 '  console.log(" 63-68. v2.10 (墨阵/墨童/阵眼/墨竭)");',
 '  console.log(" 69-78. v2.11 (墨镜/回春阵/墨涡/墨蝠/墨瘴/墨吸/墨甲)");',
@@ -1709,6 +1721,7 @@ code+='\n'+[
 '  console.log(" 164. v4.17 骨续泉 — 生命/生存+波次HP");',
 '  console.log(" 165. v4.18 成就补全 — 连锁墨爆/盲斗/百骨长生");',
 '  console.log(" 166. v4.18 墨偶师 — 远程召唤型敌人");',
+'  console.log(" 167. v4.19 冰墨壁 — 防御/冰+受伤frost");',
 '}',
 ].join('\n');
 
