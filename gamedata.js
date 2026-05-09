@@ -226,7 +226,11 @@ var RELICS=[
   {id:"guxuquan",name:"骨续泉",type:"泉器",tags:["生命","生存"],
     effect:"每清一波，最大生命+2（最多+10），同时回复等量生命",fn:function(p){p.waveHpBonus=true;p.waveHpMax=(p.waveHpMax||0)+10;p.waveHpGain=(p.waveHpGain||0)+2}},
   {id:"bingmobi",name:"冰墨壁",type:"壁具",tags:["防御","冰"],
-    effect:"受伤时在自身周围生成冰墨区域，减速附近敌人3秒",fn:function(p){p.hurtFrost=true}}
+    effect:"受伤时在自身周围生成冰墨区域，减速附近敌人3秒",fn:function(p){p.hurtFrost=true}},
+  {id:"moquanyan",name:"墨泉眼",type:"泉具",tags:["治疗","生存"],
+    effect:"波次结束时若生命低于50%，回复20%最大生命",fn:function(p){p.lowHpWaveHeal=true}},
+  {id:"moyanqian",name:"墨焰溅",type:"溅具",tags:["溅射","火"],
+    effect:"火焰击杀敌人时向四周溅射火滴，对附近敌人造成20%攻击力的火焰伤害",fn:function(p){p.fireSplash=true;p.fireSplashRatio=(p.fireSplashRatio||0)+0.2}}
 ];
 
 var EVOLUTIONS={
@@ -580,7 +584,10 @@ var CURSES=[
   // v4.16 new curse
   {id:"moxue",name:"墨血",type:"誓印",tags:["近战","暴击"],
     desc:"连击越高伤害越高(每层+8%)，但受伤也随连击增加(每层+5%)",
-    fn:function(p){p.comboDmgScale=true;p.comboVuln=true}}
+    fn:function(p){p.comboDmgScale=true;p.comboVuln=true}},
+  {id:"mosuo",name:"墨锁",type:"誓印",tags:["召物","诅咒"],
+    desc:"墨灵上限+2但每只墨灵使最大生命-10",
+    fn:function(p){p.inkSpiritCount=(p.inkSpiritCount||0)+2;p.hasInkSpirit=true;p.spiritHpPenalty=(p.spiritHpPenalty||0)+10}}
 ];
 // --- Stage Hazards (random per wave) ---
 var STAGE_HAZARDS=[

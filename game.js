@@ -279,6 +279,9 @@ function mkPlayer(){
     killDotZone:false,killDotDmg:0,
     waveHpBonus:false,waveHpMax:0,waveHpGain:0,waveHpAdded:0,
     hurtFrost:false,
+    lowHpWaveHeal:false,
+    fireSplash:false,fireSplashRatio:0,
+    spiritCapBonus:0,spiritHpPenalty:0,
     maxHpOverride:0,extraStartRelics:0,extraRelicChoice:false,
     enemyHpMult:1,enemySpdMult:1,allElite:false,relicPower:1,_relicPowerApplied:false,
     enemyFlicker:false,inkBrandCurse:false,missChance:0,hitDmgMult:0,
@@ -704,6 +707,11 @@ function onEnemyKilled(g,e,source,opts){
   if(g.killStreak>g.maxCombo)g.maxCombo=g.killStreak;
   if(e.elite){g.eliteKills++;spawnP(g,e.x,e.y,"gold",3);shake(g,6,4)}
   if(source==="fire")g.fireKills++;
+  // 墨焰溅：火焰击杀溅射
+  if(p.fireSplash&&source==="fire"&&!e.isBoss){
+    var fsR=55;var fsDmg=Math.max(1,Math.ceil(p.stats.dmg*(p.fireSplashRatio||0.2)));
+    forEachLiveEnemy(g,function(oe){if(dstSq(e,oe)<fsR*fsR)damageEnemy(g,oe,fsDmg,"fire")});
+    spawnP(g,e.x,e.y,"fire",6)}
   if(source==="killExplode")g.killExplodeKills++;
   if(p.blindT>0)g.blindKills++;
   if(g.kills===10||g.kills===25||g.kills===50||g.kills===100)snd("killMilestone");
@@ -2056,6 +2064,12 @@ function update(g){
       snd("critHeal");
       pushLimited(g.floatTexts,{x:p.x,y:p.y-p.r-22,text:"+HP"+gain,life:35,maxLife:35,reason:"heal"},LIMITS.floatTexts);
       spawnP(g,p.x,p.y,"moss",4)}
+    // 墨泉眼：低血波次回血
+    if(p.lowHpWaveHeal&&p.hp<p.maxHp*0.5){
+      var lhg=Math.floor(p.maxHp*0.2);p.hp=Math.min(p.maxHp,p.hp+lhg);
+      g.waveHpHealed=(g.waveHpHealed||0)+lhg;
+      pushLimited(g.floatTexts,{x:p.x,y:p.y-p.r-18,text:"+"+lhg,life:35,maxLife:35,reason:"heal"},LIMITS.floatTexts);
+      snd("critHeal");spawnP(g,p.x,p.y,"moss",3)}
     if(g.waveFirstKillT>0&&(g.time-g.waveFirstKillT)<=1800)g.fastWaveClear=true;
     spawnInk(g,p.x,p.y,18,"accent");
     var sCol={calm:"ghost",ash:"ash",well:"moss",mask:"ghost",lantern:"gold",inkpool:"ink"}[g.stage?g.stage.id:"calm"]||"accent";
@@ -3763,7 +3777,9 @@ function rebuildPlayerStats(g){
     'comboDmgScale','comboVuln',
     'killExplode','killExplodeRatio','killDotZone','killDotDmg',
     'waveHpBonus','waveHpMax','waveHpGain','waveHpAdded',
-    'hurtFrost'];
+    'hurtFrost',
+    'lowHpWaveHeal','fireSplash','fireSplashRatio',
+    'spiritCapBonus','spiritHpPenalty'];
   rk.concat(ck).forEach(function(k){f[k]=o[k]});
   g.relics.forEach(function(r){try{r.fn(f)}catch(e){}});
   if(g.evolution)g.evolution.fn(f);
@@ -3771,6 +3787,7 @@ function rebuildPlayerStats(g){
   if(g.evolution3)g.evolution3.fn(f);
   if(f.relicPower>1){f.stats.dmg+=(f.relicPower-1)*0.12;f.stats.critDmg+=(f.relicPower-1)*0.2;if(f.soulDmg)f.soulDmg=Math.floor(f.soulDmg*f.relicPower);if(f.killHeal)f.killHeal=Math.floor(f.killHeal*f.relicPower);if(f.decoyHP)f.decoyHP=Math.floor(f.decoyHP*f.relicPower)}
   if(f.maxHpOverride>0)f.maxHp=f.maxHpOverride;
+  if(f.spiritHpPenalty>0&&f.inkSpiritCount>0)f.maxHp=Math.max(20,f.maxHp-f.spiritHpPenalty*f.inkSpiritCount);
   if(f.hp>f.maxHp)f.hp=f.maxHp;
   g.player=f;
 }
