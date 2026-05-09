@@ -1,133 +1,111 @@
-# 墨祟：走阴录 路线书 v3.2+
+# 墨祟：走阴录 路线书 v4.13+
 
-> 这份文档是给后续一段时间的施工用的。目标不是“多做点东西”，而是让程序慢慢长成一款完整作品。
+> 这份文档驱动开发节奏。每完成一个阶段就更新状态。
 
-## 现状
+## 现状 (v4.13)
 
-- 架构已稳：`v3.1.1`
-- 测试基线：`187` 项全绿
-- 分层已定：`data / input / core / render / ui / platform`
-- 控制参数已集中：`window.MOSUI.profiles.control`
-- 美术文档已就位：`ART_DIRECTION.md`
-- 资产清单已就位：`ASSET_MANIFEST.md`
-- 提示词已准备：`ART_PROMPTS.md`
-- 资产目录已建：`assets/concept` / `assets/ui` / `assets/portraits` / `assets/sprites` / `assets/vfx`
-- 关键接入口已开：
-  - `game.html` 的 `bossPortrait` / `endPortrait`
-  - `game.css` 的 `data-img` 标题图槽位
-  - `mobile-controls.js` 的 `PROF` 参数表
+- **测试基线**: 190 项全绿 (37 smoke + 5 wave + 138 content + 10 stress)
+- **内容体量**: 5武器 / 86遗物 / 25进化 / 29敌人(3Boss) / 9关卡 / 17誓印 / 32成就 / 12波
+- **技术栈**: Canvas 2D (960x640), 纯手写 ~4300行, 零框架, IIFE 单文件
+- **构建产物**: www/ + Capacitor APK (android/)
+- **远程仓库**: https://github.com/wscytz/mosui-zouyinlu
 
-## 现在的真实判断
+## 已完成阶段
 
-程序已经不缺“能跑”，缺的是“像一款完整游戏”。
+### v3.2 美术接入期 ✅
+- 封面 × 3, Boss 肖像 × 3, 武器图标 × 4 (AI 生成)
+- game.html/game.css 图片接入位, data-img fallback
+- generate-assets.js 批量生图脚本
 
-因此后续工作的重心应该变成：
-1. 视觉统一
-2. 资产接入
-3. 内容扩容
-4. 演出增强
-5. 发布准备
+### v3.3 视觉统一期 ✅
+- 全页面 CSS 一致化 (index.html / game.html / wiki.html)
+- 卡片、印章、按钮、头像边距比例统一
+- 移动端和桌面端视觉一致
 
-## 阶段路线
+### v3.4 内容扩容期 ✅
+- 墨鬼王 (HP 500, 3阶段 AI)
+- 3 新敌人 (墨蛛/墨骨/墨面)
+- 墨潮关卡调制器
+- 3 新誓印
 
-### v3.2  美术接入期
+### v3.5 手感演出期 ✅
+- Boss 入场过场 (Canvas 肖像 + 判词)
+- Boss 击杀庆祝 (120帧肖像过场 + Grade 弹入动画)
+- 波次清场墨纹扩散
+- 击杀顿帧加强
 
-目标是把最值钱、最先被看到的地方做漂亮。
+### v4.0 发布准备期 ✅
+- Capacitor APK 打包链
+- 187→190 测试基线
+- DEVDOC / ARCHITECTURE / DEVELOPMENT 文档
 
-优先顺序：
-1. 主封面 / 标题页视觉
-2. Boss 肖像
-3. 结算页肖像
-4. 武器图标
-5. 印章 / 徽记 / 关键 UI 小图
+### v4.1-v4.6 发布后维护 ✅
+- v4.1: Boss 击杀结算演出
+- v4.2: 遗物上限6 + 成就补全 + 第5武器召魂幡
+- v4.2.1: 13处颜色引用bug + fire重复行 + 召魂幡追踪
+- v4.3: 召唤补全 (3新遗物 + BUILD_PREFS + 成就)
+- v4.4: 性能+手感+QoL (波次墨纹/boss顿帧/banner免碰撞)
+- v4.5: 闪避手感重做 + 文档更新
+- v4.6: 墨潮关卡 + 波次多样性 (survival/horde/elite)
 
-原则：
-- 只改“不会伤逻辑”的地方
-- 所有图都要有文件名、尺寸、用途
-- 没图时必须保留文本 fallback
+### v4.7-v4.13 深度内容期 ✅ (当前)
+- v4.7: 2新遗物 (墨镜碎影/九转墨符) + 波次特殊标签 (5/9波有特殊类型)
+- v4.8: 新誓印墨旋 (移动留减速+静止受伤加重)
+- v4.9: CSS图标+BUILD_PREFS标签修复+首页数字同步
+- v4.10: 召魂幡自伤修复 + 武器选择5列 + 图标z-index
+- v4.11: 7项代码审计Bug修复 (stillT/cleanupWave/hitDmgMult等)
+- v4.12: 新敌人墨罐 (死后减速墨池)
+- v4.13: 新遗物墨迹残步 (移动充能+静止释放) + 成就疾风步
 
-### v3.3  视觉统一期
+## 下一步方向
 
-目标是把 UI 语言统一成一套完整风格。
+### v4.14 内容继续+打磨
 
-重点：
-- 标题页、选器页、暂停页、结算页统一
-- 卡片、印章、按钮、头像、提示的边距和比例统一
-- 移动端和网页端看起来是同一个世界
+可选方向（按性价比排序）：
+1. **新誓印** — 现有17个，可以加1-2个与"充能/蓄力"或"连击"相关的
+2. **新敌人** — 扩充 tier 2/3 池，增加"远程+召唤"组合型敌人
+3. **成就补全** — 检查 BUILD_PREFS 中是否有死标签（无遗物匹配的标签）
+4. **移动端适配修复** — 横屏武器网格已修为5列，确认实际效果
+5. **音效扩展** — 新遗物/敌人的专属音效
 
-### v3.4  内容扩容期
+### v5.0 发布 2.0
 
-目标是让构筑开始变厚，而不是只换外观。
-
-重点：
-- 新敌人家族
-- 新 Boss
-- 新章节调制器
-- 新武器 / 遗物 / 誓印
-- 新波次节奏
-
-### v3.5  手感和演出期
-
-目标是让战斗更像“会呼吸的战斗”。
-
-重点：
-- 移动端操控再调一轮
-- 击杀反馈更强
-- Boss 登场更有压迫感
-- 胜负演出更完整
-- 中端手机帧率更稳
-
-### v4.0  发布准备期
-
-目标是让它可以被正式展示、录屏、发给别人玩。
+目标：让游戏从"可玩原型"升级到"有完成感的作品"。
 
 重点：
-- 封面、截图、简介、图标、演示材料
-- 全局回归测试
+- 封面/截图/简介/图标 制作
+- 全局回归测试 190+ 项
 - 明显技术债清理
 - APK / 网页端双端收口
+- 第一批试玩反馈收集
 
-## 明天开工包
+## 开发规范流程
 
-如果明天只做最划算的事，顺序应该是：
-
-1. 生成主封面 `cover_main.png`
-2. 生成标题页备选 `cover_symmetry.png`
-3. 生成压迫感备选 `cover_temple_pressure.png`
-4. 生成 `portrait-mojiangjun.png`
-5. 生成 `portrait-boss.png`
-6. 生成 4 个武器图标
-
-如果只想先试一张，就先做主封面。
+每个版本必须：
+1. **改代码** → `node --check game.js` 语法检查
+2. **跑测试** → `node smoke_test.js && node wave_test.js && node content_test.js && node stress_test.js` (190项)
+3. **补测试** → 新机制必须在 content_test.js 中有对应测试
+4. **更新文档** → DEVDOC.md 版本记录 + ROADMAP.md 状态
+5. **提交** → `git add` + `git commit` (wscytz 身份，无 AI 署名)
+6. **推送** → `git push origin main` (失败就攒着下次推)
+7. **同步** → `cp game.js game.css www/ && cp game.js game.css android/app/src/main/assets/public/`
 
 ## 先别碰的东西
 
-- 不要先改战斗判定
-- 不要先改波次逻辑
-- 不要先把程序绘制的敌人全换成 sprite
+- 不要先改战斗判定核心
+- 不要先改波次生成核心逻辑
 - 不要一次性做太多风格分支
+- 不要在没有测试覆盖的情况下改核心系统
 
 ## 风险点
 
-1. `game.css` 的 `data-img` 方案需要浏览器实测
-   - 如果兼容性不稳，改成 JS 设 `backgroundImage` 或直接 `<img>` 接入
-2. `bossPortrait` / `endPortrait` 目前是接入口，不是完整资产系统
-   - 先接图片，再决定是否做更深的头像管理
-3. `assets/sprites` 现在不该优先动
-   - 战斗实体 sprite 属于后续增强，不该抢第一批资源
+1. 移动端横屏布局需要真机实测
+2. banner PNG 图标缺失 (CSS fallback 可用)
+3. 部分遗物 PREREQS 条件链需定期审查
 
-## 已准备好的材料
+## 资产材料
 
-- `ART_DIRECTION.md`
-- `ASSET_MANIFEST.md`
-- `ART_PROMPTS.md`
-- `assets/concept/README.md`
-- `assets/ui/README.md`
-- `assets/portraits/README.md`
-- `assets/sprites/README.md`
-- `assets/vfx/README.md`
-
-## 结论
-
-下一阶段不是“继续堆功能”，而是把这个游戏从“能玩”推进到“有作品感”。
-最先动手的应该是封面、标题、Boss 肖像和几个关键 UI 图，而不是战斗主体。
+- `ART_DIRECTION.md` — 美术方向
+- `ASSET_MANIFEST.md` — 资产清单
+- `ART_PROMPTS.md` — 提示词 (待批量生成)
+- `assets/` — concept/ui/portraits/sprites/vfx
