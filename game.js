@@ -741,7 +741,7 @@ function onEnemyKilled(g,e,source,opts){
   if(p.killExplode&&g.weapon.type==="melee"&&!e.isBoss){
     var keR=50;var keDmg=Math.max(1,Math.ceil(p.stats.dmg*(p.killExplodeRatio||0.4)));
     forEachLiveEnemy(g,function(oe){if(dstSq(e,oe)<keR*keR)damageEnemy(g,oe,keDmg,"killExplode")});
-    spawnP(g,e.x,e.y,"ink",8);spawnP(g,e.x,e.y,"accent",4);shake(g,4,3)}
+    spawnP(g,e.x,e.y,"ink",8);spawnP(g,e.x,e.y,"accent",4);shake(g,4,3);snd("hit")}
   // 蚀墨池：击杀留持续伤害区
   if(p.killDotZone&&!e.isBoss){
     pushLimited(g.frosts,{x:e.x,y:e.y,r:40,life:90,maxLife:90,dmg:p.killDotDmg||1},LIMITS.frosts);
@@ -2049,6 +2049,7 @@ function update(g){
       var gain=p.waveHpGain||2;p.waveHpAdded=(p.waveHpAdded||0)+gain;
       p.maxHp+=gain;p.hp=Math.min(p.maxHp,p.hp+gain);
       g.waveHpHealed=(g.waveHpHealed||0)+gain;
+      snd("critHeal");
       pushLimited(g.floatTexts,{x:p.x,y:p.y-p.r-22,text:"+HP"+gain,life:35,maxLife:35,reason:"heal"},LIMITS.floatTexts);
       spawnP(g,p.x,p.y,"moss",4)}
     if(g.waveFirstKillT>0&&(g.time-g.waveFirstKillT)<=1800)g.fastWaveClear=true;
