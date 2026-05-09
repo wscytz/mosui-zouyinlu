@@ -271,6 +271,7 @@ function mkPlayer(){
     moveChargeMax:false,moveChargeT:0,
     killHealChance:0,killHealAmt:0,meleeSplash:false,meleeSplashRatio:0,
     blindT:0,
+    comboDmgScale:false,comboVuln:false,
     maxHpOverride:0,extraStartRelics:0,extraRelicChoice:false,
     enemyHpMult:1,enemySpdMult:1,allElite:false,relicPower:1,_relicPowerApplied:false,
     enemyFlicker:false,inkBrandCurse:false,missChance:0,hitDmgMult:0,
@@ -1128,6 +1129,8 @@ function hurtP(g,dmg,src){
   if(p.stillDmgMult>0&&p.idleT>3)dmg=Math.floor(dmg*p.stillDmgMult);
   // 额外受伤（血墨混染）
   if(p.extraDmgTaken>0)dmg=Math.floor(dmg*(1+p.extraDmgTaken));
+  // 墨血誓印：连击越高受伤越重（每层+5%，上限10层）
+  if(p.comboVuln){var cvl=Math.min(g.killStreak,10);if(cvl>0)dmg=Math.floor(dmg*(1+cvl*0.05))}
   // 收阴袋护盾（在扣血前生效）
   if(p.killShield&&p.shieldStack>0){dmg=Math.max(1,dmg-p.shieldStack*4);p.shieldStack=0;
     snd("shieldBreak");spawnInk(g,p.x,p.y,6,"gold")}
@@ -1167,6 +1170,8 @@ function hitE(g,atk,e){
       dmg=Math.floor(dmg*(1+p.comboHitCount*0.08))}
     else p.comboHitCount=0;
     p.comboHitId=e}
+  // 墨血誓印：连击增伤（每层+8%，上限10层）
+  if(p.comboDmgScale){var cbs=Math.min(p.comboCount-1,10);if(cbs>0)dmg=Math.floor(dmg*(1+cbs*0.08))}
   // 弱点标记（铜镜照妖）
   if(atk.crit&&p.weakpointDmg>0){p.weakTargets[e.id]=90}
   // 破妄瞳：首次攻击现形画皮必暴击+50%伤害
@@ -3724,7 +3729,8 @@ function rebuildPlayerStats(g){
   var ck=['noDodge','noWaveHeal','noEvolution','fogCurse','soulOrbCurse',
     'maxHpOverride','extraStartRelics','extraRelicChoice','enemyHpMult','enemySpdMult','maxRelicsOverride','allElite',
     'relicPower','_relicPowerApplied','moveSlowTrail','stillDmgMult','moveChargeMax',
-    'killHealChance','killHealAmt','meleeSplash','meleeSplashRatio'];
+    'killHealChance','killHealAmt','meleeSplash','meleeSplashRatio',
+    'comboDmgScale','comboVuln'];
   rk.concat(ck).forEach(function(k){f[k]=o[k]});
   g.relics.forEach(function(r){try{r.fn(f)}catch(e){}});
   if(g.evolution)g.evolution.fn(f);

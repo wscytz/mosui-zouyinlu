@@ -567,7 +567,11 @@ var CURSES=[
     fn:function(p){p.maxRelicsOverride=3;p.stats.dmg+=0.5}},
   {id:"moxuan",name:"墨旋",type:"誓印",tags:["机动","法术"],
     desc:"移动留下减速墨迹，但静止时受伤+30%",
-    fn:function(p){p.moveSlowTrail=true;p.stillDmgMult=1.3}}
+    fn:function(p){p.moveSlowTrail=true;p.stillDmgMult=1.3}},
+  // v4.16 new curse
+  {id:"moxue",name:"墨血",type:"誓印",tags:["近战","暴击"],
+    desc:"连击越高伤害越高(每层+8%)，但受伤也随连击增加(每层+5%)",
+    fn:function(p){p.comboDmgScale=true;p.comboVuln=true}}
 ];
 // --- Stage Hazards (random per wave) ---
 var STAGE_HAZARDS=[
