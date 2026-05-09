@@ -1552,8 +1552,38 @@ code+='\n'+[
 '  if(p159.hp<hpBefore)errors.push("159: banner fire damaged player! hp before="+hpBefore+" after="+p159.hp);',
 '}catch(e){errors.push("159: "+e.message)}',
 
+// Test 160: v4.14 huanguquan/mosancui relic data
+'try{',
+'  var rel160a=RELICS.find(function(r){return r.id==="huanguquan"});',
+'  if(!rel160a)errors.push("160a: huanguquan relic not found");',
+'  else{if(rel160a.tags.indexOf("治疗")<0)errors.push("160b: huanguquan missing 治疗 tag");',
+'    if(rel160a.tags.indexOf("生存")<0)errors.push("160c: huanguquan missing 生存 tag")}',
+'  var rel160b=RELICS.find(function(r){return r.id==="mosancui"});',
+'  if(!rel160b)errors.push("160d: mosancui relic not found");',
+'  else{if(rel160b.tags.indexOf("溅射")<0)errors.push("160e: mosancui missing 溅射 tag");',
+'    if(rel160b.tags.indexOf("近战")<0)errors.push("160f: mosancui missing 近战 tag")}',
+'  var g160=newGame("jian");g160.player.killHealChance=0.15;g160.player.killHealAmt=3;',
+'  if(g160.player.killHealChance!==0.15)errors.push("160g: killHealChance not set");',
+'  g160.player.meleeSplash=true;g160.player.meleeSplashRatio=0.3;',
+'  if(!g160.player.meleeSplash)errors.push("160h: meleeSplash not set");',
+'}catch(e){errors.push("160: "+e.message)}',
+
+// Test 161: v4.15 moying enemy blindShot + blindT mechanism
+'try{',
+'  var et161=ETYPE.moying;',
+'  if(!et161)errors.push("161a: moying not in ETYPE");',
+'  else{if(!et161.blindShot)errors.push("161b: moying should have blindShot:true");',
+'    if(!et161.ranged)errors.push("161c: moying should be ranged");}',
+'  if(!DEATH_COLOR.moying)errors.push("161d: moying missing from DEATH_COLOR");',
+'  if(!ENEMY_COST.moying)errors.push("161e: moying missing from ENEMY_COST");',
+'  var found161=false;WAVE_TIERS.forEach(function(t){if(t.indexOf("moying")>=0)found161=true});',
+'  if(!found161)errors.push("161f: moying not in any WAVE_TIERS");',
+'  var g161=newGame("jian");g161.player.blindT=90;',
+'  if(g161.player.blindT!==90)errors.push("161g: blindT not initialized");',
+'}catch(e){errors.push("161: "+e.message)}',
+
 'if(errors.length){console.log("FAIL ("+errors.length+"):");errors.forEach(function(e){console.log("  - "+e)});process.exit(1)}',
-'else{console.log("ALL 138 TESTS PASSED");',
+'else{console.log("ALL 140 TESTS PASSED");',
 '  console.log(" 37-62. (previous 26 tests)");',
 '  console.log(" 63-68. v2.10 (墨阵/墨童/阵眼/墨竭)");',
 '  console.log(" 69-78. v2.11 (墨镜/回春阵/墨涡/墨蝠/墨瘴/墨吸/墨甲)");',
@@ -1588,6 +1618,8 @@ code+='\n'+[
 '  console.log(" 157. v4.12 墨罐deathSlow — 数据+运行时frost zone生成");',
 '  console.log(" 158. v4.13 墨迹残步 — 遗物数据+成就+属性传播");',
 '  console.log(" 159. v4.13 召魂幡自伤回归保护");',
+'  console.log(" 160. v4.14 还骨泉+墨散淬遗物数据+属性设置");',
+'  console.log(" 161. v4.15 墨萤blindShot — 数据+blindT机制");',
 '}',
 ].join('\n');
 
