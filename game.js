@@ -272,6 +272,9 @@ function mkPlayer(){
     killHealChance:0,killHealAmt:0,meleeSplash:false,meleeSplashRatio:0,
     blindT:0,
     comboDmgScale:false,comboVuln:false,
+    killExplode:false,killExplodeRatio:0,
+    killDotZone:false,killDotDmg:0,
+    waveHpBonus:false,waveHpMax:0,waveHpGain:0,waveHpAdded:0,
     maxHpOverride:0,extraStartRelics:0,extraRelicChoice:false,
     enemyHpMult:1,enemySpdMult:1,allElite:false,relicPower:1,_relicPowerApplied:false,
     enemyFlicker:false,inkBrandCurse:false,missChance:0,hitDmgMult:0,
@@ -728,6 +731,15 @@ function onEnemyKilled(g,e,source,opts){
   // 墨罐死后减速墨池
   if(e.deathSlow){pushLimited(g.frosts,{x:e.x,y:e.y,r:e.deathSlowR||80,life:e.deathSlowT||120,maxLife:e.deathSlowT||120},LIMITS.frosts);
     spawnInk(g,e.x,e.y,12,"ink");spawnP(g,e.x,e.y,"ink",6)}
+  // 墨爆印：近战击杀爆炸
+  if(p.killExplode&&g.weapon.type==="melee"&&!e.isBoss){
+    var keR=50;var keDmg=Math.max(1,Math.ceil(p.stats.dmg*(p.killExplodeRatio||0.4)));
+    forEachLiveEnemy(g,function(oe){if(dstSq(e,oe)<keR*keR)damageEnemy(g,oe,keDmg,"killExplode")});
+    spawnP(g,e.x,e.y,"ink",8);spawnP(g,e.x,e.y,"accent",4);shake(g,4,3)}
+  // 蚀墨池：击杀留持续伤害区
+  if(p.killDotZone&&!e.isBoss){
+    pushLimited(g.frosts,{x:e.x,y:e.y,r:40,life:90,maxLife:90,dmg:p.killDotDmg||1},LIMITS.frosts);
+    spawnInk(g,e.x,e.y,6,"ink")}
   // 武器特化击杀粒子
   var wt=g.weapon.type;
   if(wt==="melee"){for(var wi=0;wi<5;wi++)spawnP(g,e.x+rn(-8,8),e.y+rn(-8,8),"ink",1)}
@@ -2026,6 +2038,12 @@ function update(g){
   }else if(g.enemies.length===0&&g.announceT<=0&&!g.waveCleared){
     g.waveCleared=true;g.waveClearT=80;
     g.waveInkRipple={x:p.x,y:p.y,t:40};
+    // 骨续泉：波次清场回血
+    if(p.waveHpBonus&&(p.waveHpAdded||0)<(p.waveHpMax||10)){
+      var gain=p.waveHpGain||2;p.waveHpAdded=(p.waveHpAdded||0)+gain;
+      p.maxHp+=gain;p.hp=Math.min(p.maxHp,p.hp+gain);
+      pushLimited(g.floatTexts,{x:p.x,y:p.y-p.r-22,text:"+HP"+gain,life:35,maxLife:35,reason:"heal"},LIMITS.floatTexts);
+      spawnP(g,p.x,p.y,"moss",4)}
     if(g.waveFirstKillT>0&&(g.time-g.waveFirstKillT)<=1800)g.fastWaveClear=true;
     spawnInk(g,p.x,p.y,18,"accent");
     var sCol={calm:"ghost",ash:"ash",well:"moss",mask:"ghost",lantern:"gold",inkpool:"ink"}[g.stage?g.stage.id:"calm"]||"accent";
@@ -3730,7 +3748,9 @@ function rebuildPlayerStats(g){
     'maxHpOverride','extraStartRelics','extraRelicChoice','enemyHpMult','enemySpdMult','maxRelicsOverride','allElite',
     'relicPower','_relicPowerApplied','moveSlowTrail','stillDmgMult','moveChargeMax',
     'killHealChance','killHealAmt','meleeSplash','meleeSplashRatio',
-    'comboDmgScale','comboVuln'];
+    'comboDmgScale','comboVuln',
+    'killExplode','killExplodeRatio','killDotZone','killDotDmg',
+    'waveHpBonus','waveHpMax','waveHpGain','waveHpAdded'];
   rk.concat(ck).forEach(function(k){f[k]=o[k]});
   g.relics.forEach(function(r){try{r.fn(f)}catch(e){}});
   if(g.evolution)g.evolution.fn(f);
