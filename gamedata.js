@@ -210,7 +210,10 @@ var RELICS=[
   {id:"mojingsui",name:"墨镜碎影",type:"镜器",tags:["防御","法术"],
     effect:"站定0.5秒后自动反射最近一颗敌方弹道，冷却4秒",fn:function(p){p.autoReflect=true}},
   {id:"jiuzhuanmofu",name:"九转墨符",type:"符器",tags:["法术","爆发"],
-    effect:"每命中6次敌人，下次攻击变为全方向AOE爆发",fn:function(p){p.nineSealCount=0;p.nineSealReady=false}}
+    effect:"每命中6次敌人，下次攻击变为全方向AOE爆发",fn:function(p){p.nineSealCount=0;p.nineSealReady=false}},
+  // v4.13 new relic
+  {id:"mojicanbu",name:"墨迹残步",type:"步具",tags:["机动","爆发"],
+    effect:"连续移动充能，停下时释放墨爆（充能越久范围越大，最大120帧蓄满）",fn:function(p){p.moveChargeMax=true;p.moveChargeT=0}}
 ];
 
 var EVOLUTIONS={
@@ -604,6 +607,7 @@ var ACHIEVEMENTS=[
   {id:"triple_boss",name:"三祟皆灭",desc:"击败过全部三个Boss",check:function(m){return (m.bossKills||0)>=1&&(m.mojiangjunKills||0)>=1&&(m.moguiwangKills||0)>=1},reward:"goldInk"},
   {id:"max_relics",name:"六器加身",desc:"单局集满6件遗物",check:function(m){return (m.maxRelicsInRun||0)>=6},reward:null},
 	  {id:"ash_road",name:"灰烬之路",desc:"单局战斗结束时磷火覆盖过半场",check:function(m){return (m.bestFireCoverage||0)>=0.5},reward:"goldInk"},
+  {id:"swift_step",name:"疾风步",desc:"单局墨迹残步充能释放10次以上",check:function(m){return (m.bestMoveChargeFires||0)>=10},reward:null},
 ];
 
 // Starting relic pool for unlocked rewards

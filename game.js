@@ -170,6 +170,7 @@ function metaRecordRun(g){
   if(won&&g.player.maxHpOverride&&g.player.maxHpOverride<=60)meta.paperWins=(meta.paperWins||0)+1;
   if(won&&g.relics.length===0)meta.noRelicWins=(meta.noRelicWins||0)+1;
   if(g.kills>(meta.bestSingleRunKills||0))meta.bestSingleRunKills=g.kills;
+  if((g.moveChargeFires||0)>(meta.bestMoveChargeFires||0))meta.bestMoveChargeFires=g.moveChargeFires;
   if(g.relics.length>(meta.maxRelicsInRun||0))meta.maxRelicsInRun=g.relics.length;
   if(won&&g._isBossWave&&!g.bossHurtThisWave)meta.perfectBossKills=(meta.perfectBossKills||0)+1;
   if(won&&g.player.noEvolution)meta.noEvolveWins=(meta.noEvolveWins||0)+1;
@@ -267,6 +268,7 @@ function mkPlayer(){
     noDodge:false,noWaveHeal:false,noEvolution:false,
     fogCurse:false,soulOrbCurse:false,
     moveSlowTrail:false,stillDmgMult:0,
+    moveChargeMax:false,moveChargeT:0,
     maxHpOverride:0,extraStartRelics:0,extraRelicChoice:false,
     enemyHpMult:1,enemySpdMult:1,allElite:false,relicPower:1,_relicPowerApplied:false,
     enemyFlicker:false,inkBrandCurse:false,missChance:0,hitDmgMult:0,
@@ -1443,6 +1445,17 @@ function update(g){
     spawnP(g,p.x+rn(-8,8),p.y+rn(-8,8),"ink",1)}
   // 墨旋誓印：移动留减速墨迹
   if(movedThisFrame&&p.moveSlowTrail&&g.time%20===0){pushLimited(g.frosts,{x:p.x,y:p.y,r:22,life:70,maxLife:70},LIMITS.frosts)}
+  // 墨迹残步：移动充能，停止释放墨爆
+  if(p.moveChargeMax){
+    if(movedThisFrame){p.moveChargeT=Math.min(120,p.moveChargeT+1)}
+    else if(p.moveChargeT>0){
+      var mcRatio=p.moveChargeT/120;var mcR=40+mcRatio*80;var mcDmg=Math.ceil(p.stats.dmg*mcRatio*2);
+      forEachLiveEnemy(g,function(oe){if(dstSq(p,oe)<mcR*mcR)damageEnemy(g,oe,mcDmg,"moveCharge")});
+      spawnP(g,p.x,p.y,"ink",Math.floor(6+mcRatio*10));spawnInk(g,p.x,p.y,Math.floor(4+mcRatio*8),"ink");
+      if(mcRatio>0.5){spawnP(g,p.x,p.y,"accent",4);shake(g,Math.floor(mcRatio*6),4);snd("bossEnrage")}
+      else{snd("hit")}
+      if(mcRatio>0.3)g.moveChargeFires=(g.moveChargeFires||0)+1;
+      p.moveChargeT=0}}
   if((dx||dy)&&g.time%4===0){
     var trvx=p.lastDx?p.lastDx*0.3+rn(-0.3,0.3):rn(-0.3,0.3);
     var trvy=p.lastDy?p.lastDy*0.3+rn(-0.3,0.3):rn(-0.3,0.3);
@@ -3698,7 +3711,7 @@ function rebuildPlayerStats(g){
     'autoReflectReady','autoReflectCd'];
   var ck=['noDodge','noWaveHeal','noEvolution','fogCurse','soulOrbCurse',
     'maxHpOverride','extraStartRelics','extraRelicChoice','enemyHpMult','enemySpdMult','maxRelicsOverride','allElite',
-    'relicPower','_relicPowerApplied','moveSlowTrail','stillDmgMult'];
+    'relicPower','_relicPowerApplied','moveSlowTrail','stillDmgMult','moveChargeMax'];
   rk.concat(ck).forEach(function(k){f[k]=o[k]});
   g.relics.forEach(function(r){try{r.fn(f)}catch(e){}});
   if(g.evolution)g.evolution.fn(f);
