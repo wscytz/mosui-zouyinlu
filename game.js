@@ -269,6 +269,7 @@ function mkPlayer(){
     fogCurse:false,soulOrbCurse:false,
     moveSlowTrail:false,stillDmgMult:0,
     moveChargeMax:false,moveChargeT:0,
+    killHealChance:0,killHealAmt:0,meleeSplash:false,meleeSplashRatio:0,
     maxHpOverride:0,extraStartRelics:0,extraRelicChoice:false,
     enemyHpMult:1,enemySpdMult:1,allElite:false,relicPower:1,_relicPowerApplied:false,
     enemyFlicker:false,inkBrandCurse:false,missChance:0,hitDmgMult:0,
@@ -763,6 +764,8 @@ function onEnemyKilled(g,e,source,opts){
     g.pendingDeathbursts.push({x:e.x,y:e.y,dmg:e.deathBombDmg,timer:e.deathBombDelay,maxTimer:e.deathBombDelay,r:e.deathBombR,type:"motong"})}
   if(p.killHeal>0){var oldHp=p.hp;p.hp=Math.min(p.maxHp,p.hp+p.killHeal);
     var healed=p.hp-oldHp;if(healed>0)pushLimited(g.floatTexts,{x:p.x,y:p.y-p.r-12,text:"+"+healed,life:30,maxLife:30,reason:"heal"},LIMITS.floatTexts)}
+  if(p.killHealChance>0&&Math.random()<p.killHealChance){var oldHp2=p.hp;p.hp=Math.min(p.maxHp,p.hp+(p.killHealAmt||2));
+    var healed2=p.hp-oldHp2;if(healed2>0)pushLimited(g.floatTexts,{x:p.x,y:p.y-p.r-18,text:"+"+healed2,life:30,maxLife:30,reason:"heal"},LIMITS.floatTexts)}
   if(p.killSpeed)p.killSpdTimer=45;
   if(p.killAtkSpd)p.killAtkTimer=90;
   // v1.3 遗物触发
@@ -1181,6 +1184,10 @@ function hitE(g,atk,e){
   if(p.bannerSpiritSlow&&atk.type==="spirit")e.slowT=Math.max(e.slowT,18);
   // 九转墨符：命中计数，6次后下次攻击AOE
   if(p.nineSealCount>=0){p.nineSealCount++;if(p.nineSealCount>=6){p.nineSealReady=true;p.nineSealCount=0}}
+  // 墨散淬：近战溅射
+  if(p.meleeSplash&&g.weapon.type==="melee"){var splashR=50;var splashDmg=Math.max(1,Math.floor(dmg*(p.meleeSplashRatio||0.3)));
+    forEachLiveEnemy(g,function(oe){if(oe!==e&&!oe.killed&&dstSq(e,oe)<splashR*splashR)damageEnemy(g,oe,splashDmg,"splash")});
+    spawnP(g,e.x,e.y,"ink",3)}
   // 墨契：暴击回血
   if(atk.crit&&p.critHeal){var _ch=Math.min(3,p.maxHp-p.hp);if(_ch>0){p.hp+=_ch;snd("critHeal");pushLimited(g.floatTexts,{x:p.x,y:p.y-p.r-12,text:"+"+_ch,life:30,maxLife:30,reason:"heal"},LIMITS.floatTexts)}}
   // 裂冰诀：暴击留冰冻区
