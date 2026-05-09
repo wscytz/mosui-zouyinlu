@@ -45,7 +45,7 @@ Chinese dark fantasy cover art, a small lone exorcist standing at the center of 
 ### 镇魂铃 ui-weapon-ling-48.png ✅
 ### 伏魔伞 ui-weapon-san-48.png ✅
 
-### 召魂幡 ui-weapon-fan-48.png ❌ 待生成
+### 召魂幡 ui-weapon-fan-48.png ✅ (v4.13 生成)
 
 ```text
 A game item icon of a Chinese ghost-summoning banner (召魂幡), top-down view.
@@ -61,4 +61,14 @@ Resolution: 48x48 pixels, pixel-art adjacent but painterly.
 ```text
 Chinese ink-wash game item icon, top-down view, dark ink and cinnabar red palette, xuan paper texture, minimalist, painterly, transparent background, 48x48 pixels, no text, no border
 ```
+
+---
+
+## v4.7+ 新遗物图标 (v4.13 生成)
+
+### 墨镜碎影 ui-relic-mojingsui-48.png ✅
+### 九转墨符 ui-relic-jiuzhuanmofu-48.png ✅
+### 墨迹残步 ui-relic-mojicanbu-48.png ✅
+
+PNG 资产已生成存放于 `assets/ui/`，当前游戏内仍用 CSS 伪元素图标，PNG 作为高质量备选待后续统一切换。
 
