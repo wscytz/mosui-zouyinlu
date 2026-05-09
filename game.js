@@ -287,6 +287,9 @@ function mkPlayer(){
     critExplosion:false,critExplosionRatio:0,
     hitDot:false,hitDotDmg:0,hitDotLife:0,
     lowHpBurst:false,lowHpBurstUsed:false,lowHpBurstT:0,
+    executeExplode:false,executeExplodeRatio:0,
+    splashDot:false,splashDotDmg:0,splashDotLife:0,
+    healToShield:false,
     maxHpOverride:0,extraStartRelics:0,extraRelicChoice:false,
     enemyHpMult:1,enemySpdMult:1,allElite:false,relicPower:1,_relicPowerApplied:false,
     enemyFlicker:false,inkBrandCurse:false,missChance:0,hitDmgMult:0,
@@ -800,8 +803,11 @@ function onEnemyKilled(g,e,source,opts){
     g.pendingDeathbursts.push({x:e.x,y:e.y,dmg:e.deathBombDmg,timer:e.deathBombDelay,maxTimer:e.deathBombDelay,r:e.deathBombR,type:"motong"})}
   if(p.killHeal>0){var oldHp=p.hp;p.hp=Math.min(p.maxHp,p.hp+p.killHeal);
     var healed=p.hp-oldHp;if(healed>0)pushLimited(g.floatTexts,{x:p.x,y:p.y-p.r-12,text:"+"+healed,life:30,maxLife:30,reason:"heal"},LIMITS.floatTexts)}
-  if(p.killHealChance>0&&Math.random()<p.killHealChance){var oldHp2=p.hp;p.hp=Math.min(p.maxHp,p.hp+(p.killHealAmt||2));
-    var healed2=p.hp-oldHp2;if(healed2>0)pushLimited(g.floatTexts,{x:p.x,y:p.y-p.r-18,text:"+"+healed2,life:30,maxLife:30,reason:"heal"},LIMITS.floatTexts)}
+  if(p.killHealChance>0&&Math.random()<p.killHealChance){var oldHp2=p.hp;var healAmt2=p.killHealAmt||2;
+    p.hp=Math.min(p.maxHp,p.hp+healAmt2);
+    var healed2=p.hp-oldHp2;if(healed2>0)pushLimited(g.floatTexts,{x:p.x,y:p.y-p.r-18,text:"+"+healed2,life:30,maxLife:30,reason:"heal"},LIMITS.floatTexts);
+    // 续命墨：溢出治疗转护盾
+    if(p.healToShield){var overflow=healAmt2-healed2;if(overflow>0){p.shieldStack=(p.shieldStack||0)+overflow;pushLimited(g.floatTexts,{x:p.x,y:p.y-p.r-24,text:"盾+"+overflow,life:30,maxLife:30,reason:"shield"},LIMITS.floatTexts);spawnP(g,p.x,p.y,"accent",3)}}}
   if(p.killSpeed)p.killSpdTimer=45;
   if(p.killAtkSpd)p.killAtkTimer=90;
   // v1.3 遗物触发
@@ -862,6 +868,12 @@ function damageEnemy(g,e,dmg,source,opts){
   dmg=Math.floor(dmg*(e.armorMult||1));
   var actualDmg=Math.max(1,dmg);
   e.hp-=actualDmg;e.hitFlash=6;
+  // 墨爆弹：敌人HP低于30%时自动引爆
+  if(p.executeExplode&&e.hp>0&&e.hp<e.maxHp*0.3&&!e._execExploded){
+    e._execExploded=true;
+    var eeR=50;var eeDmg=Math.max(1,Math.ceil(p.stats.dmg*(p.executeExplodeRatio||0.5)));
+    forEachLiveEnemy(g,function(oe){if(oe!==e&&dstSq(e,oe)<eeR*eeR)damageEnemy(g,oe,eeDmg,"executeExplode")});
+    spawnP(g,e.x,e.y,"ink",8);spawnP(g,e.x,e.y,"accent",4);shake(g,4,3);snd("hit")}
   if(g)g.totalDmg+=actualDmg;
   if(e.hasShield&&e.shield>0){
     e.shield-=Math.max(1,Math.floor(dmg));
@@ -1259,6 +1271,10 @@ function hitE(g,atk,e){
   // 墨符坛：命中留DOT区
   if(p.hitDot){
     pushLimited(g.frosts,{x:e.x,y:e.y,r:35,life:p.hitDotLife||60,maxLife:p.hitDotLife||60,dmg:p.hitDotDmg||1},LIMITS.frosts)}
+  // 墨蚀域：命中留大范围持续溅射区
+  if(p.splashDot){
+    pushLimited(g.frosts,{x:e.x,y:e.y,r:50,life:p.splashDotLife||180,maxLife:p.splashDotLife||180,dmg:p.splashDotDmg||1},LIMITS.frosts);
+    spawnP(g,e.x,e.y,"ink",4)}
   if(atk.crit){g.critFlash=18;for(var ci=0;ci<8;ci++){var ca=ci*Math.PI/4;
     spawnP(g,e.x+Math.cos(ca)*10,e.y+Math.sin(ca)*10,"accent",2)}}
   if(atk.crit&&p.critShrapnel){var splDmg=Math.floor(atk.dmg*0.35);forEachLiveEnemy(g,function(oe){if(oe===e)return;if(dstSq(e,oe)<RANGES.critShrapnel*RANGES.critShrapnel)damageEnemy(g,oe,splDmg,"shrapnel")});spawnP(g,e.x,e.y,"accent",5)}
@@ -3804,7 +3820,10 @@ function rebuildPlayerStats(g){
     'spiritCapBonus','spiritHpPenalty',
     'critExplosion','critExplosionRatio',
     'hitDot','hitDotDmg','hitDotLife',
-    'lowHpBurst','lowHpBurstUsed','lowHpBurstT'];
+    'lowHpBurst','lowHpBurstUsed','lowHpBurstT',
+    'executeExplode','executeExplodeRatio',
+    'splashDot','splashDotDmg','splashDotLife',
+    'healToShield'];
   rk.concat(ck).forEach(function(k){f[k]=o[k]});
   g.relics.forEach(function(r){try{r.fn(f)}catch(e){}});
   if(g.evolution)g.evolution.fn(f);

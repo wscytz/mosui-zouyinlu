@@ -236,7 +236,13 @@ var RELICS=[
   {id:"mofutan",name:"墨符坛",type:"坛具",tags:["持续","法术"],
     effect:"攻击命中时在目标位置留下墨符，持续2秒对范围内敌人造成伤害",fn:function(p){p.hitDot=true;p.hitDotDmg=(p.hitDotDmg||0)+1;p.hitDotLife=(p.hitDotLife||0)+60}},
   {id:"mohundan",name:"墨魂丹",type:"丹具",tags:["生命","爆发"],
-    effect:"生命低于25%时，攻击力+50%持续5秒，每波触发一次",fn:function(p){p.lowHpBurst=true}}
+    effect:"生命低于25%时，攻击力+50%持续5秒，每波触发一次",fn:function(p){p.lowHpBurst=true}},
+  {id:"mobaodan",name:"墨爆弹",type:"弹具",tags:["爆炸","爆发"],
+    effect:"对HP低于30%的敌人造成伤害时自动引爆，对周围造成50%攻击力伤害",fn:function(p){p.executeExplode=true;p.executeExplodeRatio=(p.executeExplodeRatio||0)+0.5}},
+  {id:"moshiyu",name:"墨蚀域",type:"域具",tags:["持续","溅射"],
+    effect:"攻击命中时留下持续3秒的墨蚀区域，每秒对范围内敌人造成溅射伤害",fn:function(p){p.splashDot=true;p.splashDotDmg=(p.splashDotDmg||0)+1;p.splashDotLife=(p.splashDotLife||0)+180}},
+  {id:"xumingmo",name:"续命墨",type:"墨具",tags:["治疗","生命"],
+    effect:"击杀敌人时35%几率回复4点生命，溢出治疗转化为临时护盾",fn:function(p){p.killHealChance=(p.killHealChance||0)+0.35;p.killHealAmt=(p.killHealAmt||0)+4;p.healToShield=true}}
 ];
 
 var EVOLUTIONS={
