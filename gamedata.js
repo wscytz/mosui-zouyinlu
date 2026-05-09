@@ -645,6 +645,8 @@ var ACHIEVEMENTS=[
   {id:"chain_reaction",name:"连锁墨爆",desc:"墨爆印单局爆炸击杀10个以上敌人",check:function(m){return (m.bestKillExplodeKills||0)>=10},reward:null},
   {id:"blind_fight",name:"盲斗",desc:"致盲状态下累计击杀10个敌人",check:function(m){return (m.bestBlindKills||0)>=10},reward:null},
   {id:"bone_life",name:"百骨长生",desc:"骨续泉单局累计回复20点以上生命",check:function(m){return (m.bestWaveHpHealed||0)>=20},reward:null},
+  {id:"last_stand",name:"绝地逢生",desc:"墨魂丹低血爆发状态下击杀20个敌人",check:function(m){return (m.bestLowHpBurstKills||0)>=20},reward:null},
+  {id:"spider_slayer",name:"蛛后克星",desc:"单局击杀3只墨蛛后",check:function(m){return (m.mozhuhouKills||0)>=3},reward:null},
 ];
 
 // Starting relic pool for unlocked rewards

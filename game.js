@@ -166,6 +166,8 @@ function metaRecordRun(g){
   if((g.killExplodeKills||0)>(meta.bestKillExplodeKills||0))meta.bestKillExplodeKills=g.killExplodeKills;
   if((g.blindKills||0)>(meta.bestBlindKills||0))meta.bestBlindKills=g.blindKills;
   if((g.waveHpHealed||0)>(meta.bestWaveHpHealed||0))meta.bestWaveHpHealed=g.waveHpHealed;
+  if((g.lowHpBurstKills||0)>(meta.bestLowHpBurstKills||0))meta.bestLowHpBurstKills=g.lowHpBurstKills;
+  if((g.mozhuhouKills||0)>(meta.mozhuhouKills||0))meta.mozhuhouKills=g.mozhuhouKills;
   // Easter egg tracking
   if(won&&!g.usedMoveKey)meta.noMoveWins=(meta.noMoveWins||0)+1;
   if(won&&g.hurtCount<=3)meta.lowHurtWins=(meta.lowHurtWins||0)+1;
@@ -326,7 +328,7 @@ function newGame(wid,diff){
     hazard:null,hazardTimer:0,hazardObjs:[],
     inkSpirits:[],
     formations:[],
-    killExplodeKills:0,blindKills:0,waveHpHealed:0,
+    killExplodeKills:0,blindKills:0,waveHpHealed:0,lowHpBurstKills:0,mozhuhouKills:0,
     perf:{lastT:0,fps:60,pressure:0,peaks:{enemies:0,attacks:0,particles:0,fires:0,eProj:0,floatTexts:0,decoys:0,kites:0,frosts:0}}}
 }
 
@@ -717,6 +719,8 @@ function onEnemyKilled(g,e,source,opts){
     spawnP(g,e.x,e.y,"fire",6)}
   if(source==="killExplode")g.killExplodeKills++;
   if(p.blindT>0)g.blindKills++;
+  if(p.lowHpBurstT>0)g.lowHpBurstKills=(g.lowHpBurstKills||0)+1;
+  if(e.type==="mozhuhou")g.mozhuhouKills=(g.mozhuhouKills||0)+1;
   if(g.kills===10||g.kills===25||g.kills===50||g.kills===100)snd("killMilestone");
   // 回斩进化：击杀后下次攻击增伤
   if(p.killDmgBoost)p._killBoost=true;
