@@ -270,6 +270,7 @@ function mkPlayer(){
     moveSlowTrail:false,stillDmgMult:0,
     moveChargeMax:false,moveChargeT:0,
     killHealChance:0,killHealAmt:0,meleeSplash:false,meleeSplashRatio:0,
+    blindT:0,
     maxHpOverride:0,extraStartRelics:0,extraRelicChoice:false,
     enemyHpMult:1,enemySpdMult:1,allElite:false,relicPower:1,_relicPowerApplied:false,
     enemyFlicker:false,inkBrandCurse:false,missChance:0,hitDmgMult:0,
@@ -371,7 +372,7 @@ function spawnEnemy(g,type,opts){
     fanShot:t.fanShot||1,charge:!!t.charge,chargeCd:t.chargeCd||100,chargeSpeed:t.chargeSpeed||4,
     mimic:!!t.mimic,disguised:!!t.mimic,
     leech:!!t.leech,attached:false,
-    swoop:!!t.swoop,swoopPrep:t.swoopPrep||35,webShot:!!t.webShot,reviveOnce:!!t.reviveOnce,_revived:false,
+    swoop:!!t.swoop,swoopPrep:t.swoopPrep||35,webShot:!!t.webShot,blindShot:!!t.blindShot,reviveOnce:!!t.reviveOnce,_revived:false,
     deathBomb:!!t.deathBomb,deathBombR:t.deathBombR||60,deathBombDmg:t.deathBombDmg||12,deathBombDelay:t.deathBombDelay||55,
     deathBuff:!!t.deathBuff,deathBuffR:t.deathBuffR||130,deathBuffT:t.deathBuffT||180,
     deathSlow:!!t.deathSlow,deathSlowR:t.deathSlowR||80,deathSlowT:t.deathSlowT||120,
@@ -962,6 +963,7 @@ function pAtk(g){
   p.chargeTimer=0;
 
   var rng=w.range*s.range;
+  if(p.blindT>0)rng=Math.floor(rng*0.6);
   var effectiveSoul=p.soulDmg+(p.soulDmgPerRelic?g.relics.length:0);
   var dmg=Math.floor(w.dmg*s.dmg)+effectiveSoul;
   if(p.formDmgBonus&&g.formations.length>0)dmg=Math.floor(dmg*(1+g.formations.length*0.06));
@@ -1479,6 +1481,7 @@ function update(g){
   if(inp.attacking&&p.atkCd<=0)pAtk(g);
   if(p.atkCd>0)p.atkCd--;
   if(p.invTimer>0)p.invTimer--;
+  if(p.blindT>0)p.blindT--;
   if(p.hurtFlash>0)p.hurtFlash--;
   if(p.dodgeCd>0)p.dodgeCd--;
   // 闪避输入缓冲
@@ -1824,7 +1827,9 @@ function update(g){
         ep.vx*=-1;ep.vy*=-1;ep.dmg=Math.floor(ep.dmg*(1+(p.reflectDmgMult||0)));ep._reflected=true;snd("reflect");
         pushAttack(g,{x:ep.x,y:ep.y,vx:ep.vx,vy:ep.vy,life:ep.life,dmg:ep.dmg,r:5,type:"proj",hitMap:{}});
         g.eProj.splice(i,1);spawnP(g,ep.x,ep.y,"accent",4);snd("playerDodge");continue}
-      hurtP(g,ep.dmg,ep._src);if(ep._src&&ep._src.webShot)p.slowT=Math.max(p.slowT||0,60);g.eProj.splice(i,1);continue}}}
+      hurtP(g,ep.dmg,ep._src);if(ep._src&&ep._src.webShot)p.slowT=Math.max(p.slowT||0,60);
+      if(ep._src&&ep._src.blindShot){p.blindT=90;pushLimited(g.floatTexts,{x:p.x,y:p.y-p.r-14,text:"盲",life:25,maxLife:25,reason:"blind"},LIMITS.floatTexts)}
+      g.eProj.splice(i,1);continue}}}
 
   // player attacks
   for(var i=g.attacks.length-1;i>=0;i--){
@@ -3712,13 +3717,14 @@ function rebuildPlayerStats(g){
   var rk=['x','y','facing','hp','atkCd','atkCount','invTimer','hurtFlash',
     'dashT','dashDx','dashDy','dodgeT','dodgeDx','dodgeDy','dodgeCd','dodgeQueued','justDodgedT','dodgeBufferT','dodgeBufferDx','dodgeBufferDy',
     'comboCount','comboTimer','comboHitId','comboHitCount',
-    'chargeTimer','charged','killSpdTimer','killAtkTimer','stillT','idleT',
+    'chargeTimer','charged','killSpdTimer','killAtkTimer','stillT','idleT','blindT',
     'lastDx','lastDy','weakTargets','leeches','hasRevived','shieldStack',
     'execCritT','speedBurstT','atkFormCount','kiteKills','_killBoost','recallMark','justDodged',
     'autoReflectReady','autoReflectCd'];
   var ck=['noDodge','noWaveHeal','noEvolution','fogCurse','soulOrbCurse',
     'maxHpOverride','extraStartRelics','extraRelicChoice','enemyHpMult','enemySpdMult','maxRelicsOverride','allElite',
-    'relicPower','_relicPowerApplied','moveSlowTrail','stillDmgMult','moveChargeMax'];
+    'relicPower','_relicPowerApplied','moveSlowTrail','stillDmgMult','moveChargeMax',
+    'killHealChance','killHealAmt','meleeSplash','meleeSplashRatio'];
   rk.concat(ck).forEach(function(k){f[k]=o[k]});
   g.relics.forEach(function(r){try{r.fn(f)}catch(e){}});
   if(g.evolution)g.evolution.fn(f);
