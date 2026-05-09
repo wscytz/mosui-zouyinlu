@@ -242,7 +242,11 @@ var RELICS=[
   {id:"moshiyu",name:"墨蚀域",type:"域具",tags:["持续","溅射"],
     effect:"攻击命中时留下持续3秒的墨蚀区域，每秒对范围内敌人造成溅射伤害",fn:function(p){p.splashDot=true;p.splashDotDmg=(p.splashDotDmg||0)+1;p.splashDotLife=(p.splashDotLife||0)+180}},
   {id:"xumingmo",name:"续命墨",type:"墨具",tags:["治疗","生命"],
-    effect:"击杀敌人时35%几率回复4点生命，溢出治疗转化为临时护盾",fn:function(p){p.killHealChance=(p.killHealChance||0)+0.35;p.killHealAmt=(p.killHealAmt||0)+4;p.healToShield=true}}
+    effect:"击杀敌人时35%几率回复4点生命，溢出治疗转化为临时护盾",fn:function(p){p.killHealChance=(p.killHealChance||0)+0.35;p.killHealAmt=(p.killHealAmt||0)+4;p.healToShield=true}},
+  {id:"moliefu",name:"墨裂符",type:"符具",tags:["分裂","法术"],
+    effect:"攻击命中时20%几率分裂出额外弹幕，追踪附近敌人",fn:function(p){p.splitOnHit=true;p.splitChance=(p.splitChance||0)+0.2}},
+  {id:"motiebi",name:"墨铁壁",type:"壁具",tags:["防御","反击"],
+    effect:"受击后获得1秒无敌+向周围释放反击波",fn:function(p){p.hurtRetaliate=true;p.hurtRetaliateDmg=(p.hurtRetaliateDmg||0)+5}}
 ];
 
 var EVOLUTIONS={
@@ -417,7 +421,7 @@ var CAPS={critRate:0.65,bellCombo:15,shieldStack:3,atkCdFloor:4,soulChain:4,ring
 var RANGES={weakSpread:100,fireExpand:60,fear:100,soulChain:80,burst:50,
   decoyAttract:120,chargeMax:240,chargeMin:54,rangedMin:50,
   killPulse:100,critShrapnel:80,dodgeSoulGrab:120,inkSpirit:220,
-  spiritExplode:60,swoop:180,mimicReveal:55,buffAura:90};
+  spiritExplode:60,swoop:180,mimicReveal:55,buffAura:90,split:120,retaliate:80};
 
 var TUNING={
   comboWindow:45,chargeThreshold:50,

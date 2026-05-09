@@ -290,6 +290,8 @@ function mkPlayer(){
     executeExplode:false,executeExplodeRatio:0,
     splashDot:false,splashDotDmg:0,splashDotLife:0,
     healToShield:false,
+    splitOnHit:false,splitChance:0,
+    hurtRetaliate:false,hurtRetaliateDmg:0,
     maxHpOverride:0,extraStartRelics:0,extraRelicChoice:false,
     enemyHpMult:1,enemySpdMult:1,allElite:false,relicPower:1,_relicPowerApplied:false,
     enemyFlicker:false,inkBrandCurse:false,missChance:0,hitDmgMult:0,
@@ -1184,6 +1186,12 @@ function hurtP(g,dmg,src){
   // 冰墨壁：受伤生成冰墨区域
   if(p.hurtFrost){pushLimited(g.frosts,{x:p.x,y:p.y,r:50,life:60,maxLife:60},LIMITS.frosts);
     spawnP(g,p.x,p.y,"accent",4);snd("frostCreate")}
+  // 墨铁壁：受击后短暂无敌+反击波
+  if(p.hurtRetaliate){
+    p.invTimer=Math.max(p.invTimer||0,60);
+    var retDmg=p.hurtRetaliateDmg||5;
+    forEachLiveEnemy(g,function(oe){if(dstSq(oe,p)<RANGES.retaliate*RANGES.retaliate)damageEnemy(g,oe,retDmg,"retaliate")});
+    spawnP(g,p.x,p.y,"accent",8);shake(g,5,3);snd("shieldBreak")}
   if(p.decoyHP>0){var oldDecoy=p.decoyHP;p.decoyHP-=dmg;
     if(p.decoyHP<0){p.hp+=p.decoyHP;p.decoyHP=0}
     if(p.decoyHP<oldDecoy)spawnInk(g,p.x,p.y,4,"ghost")}
@@ -1275,6 +1283,14 @@ function hitE(g,atk,e){
   if(p.splashDot){
     pushLimited(g.frosts,{x:e.x,y:e.y,r:50,life:p.splashDotLife||180,maxLife:p.splashDotLife||180,dmg:p.splashDotDmg||1},LIMITS.frosts);
     spawnP(g,e.x,e.y,"ink",4)}
+  // 墨裂符：命中几率分裂弹幕
+  if(p.splitOnHit&&Math.random()<(p.splitChance||0.2)){
+    var nearE=null,nearD=RANGES.split*RANGES.split;
+    forEachLiveEnemy(g,function(oe){if(oe!==e){var d=dstSq(oe,e);if(d<nearD){nearD=d;nearE=oe}}});
+    if(nearE){
+      var sd=nearE.x-e.x,sl2=Math.sqrt(sd*sd+(nearE.y-e.y)*(nearE.y-e.y))||1;
+      pushLimited(g.attacks,{x:e.x,y:e.y,vx:sd/sl2*6,vy:(nearE.y-e.y)/sl2*6,dmg:Math.max(1,Math.ceil(p.stats.dmg*0.4)),r:4,life:40,type:"proj",hitOnce:true,owner:"player"},LIMITS.attacks);
+      spawnP(g,e.x,e.y,"accent",3)}}
   if(atk.crit){g.critFlash=18;for(var ci=0;ci<8;ci++){var ca=ci*Math.PI/4;
     spawnP(g,e.x+Math.cos(ca)*10,e.y+Math.sin(ca)*10,"accent",2)}}
   if(atk.crit&&p.critShrapnel){var splDmg=Math.floor(atk.dmg*0.35);forEachLiveEnemy(g,function(oe){if(oe===e)return;if(dstSq(e,oe)<RANGES.critShrapnel*RANGES.critShrapnel)damageEnemy(g,oe,splDmg,"shrapnel")});spawnP(g,e.x,e.y,"accent",5)}
@@ -3823,7 +3839,9 @@ function rebuildPlayerStats(g){
     'lowHpBurst','lowHpBurstUsed','lowHpBurstT',
     'executeExplode','executeExplodeRatio',
     'splashDot','splashDotDmg','splashDotLife',
-    'healToShield'];
+    'healToShield',
+    'splitOnHit','splitChance',
+    'hurtRetaliate','hurtRetaliateDmg'];
   rk.concat(ck).forEach(function(k){f[k]=o[k]});
   g.relics.forEach(function(r){try{r.fn(f)}catch(e){}});
   if(g.evolution)g.evolution.fn(f);

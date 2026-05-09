@@ -1430,6 +1430,10 @@ body.game-active #gameCanvas {
 .relic-pick[data-icon="moshiyu"] .ink-icon::after { width:4px;height:4px;border-radius:50%;background:var(--ink);transform:translate(4px,4px) }
 .relic-pick[data-icon="xumingmo"] .ink-icon::before { width:6px;height:10px;border-radius:3px;background:var(--accent);transform:rotate(-15deg) }
 .relic-pick[data-icon="xumingmo"] .ink-icon::after { width:4px;height:4px;border-radius:50%;background:var(--paper);transform:translate(4px,-2px) }
+.relic-pick[data-icon="moliefu"] .ink-icon::before { width:10px;height:10px;background:transparent;border:2px solid var(--ink);clip-path:polygon(50% 0%,100% 50%,50% 100%,0% 50%) }
+.relic-pick[data-icon="moliefu"] .ink-icon::after { width:3px;height:3px;border-radius:50%;background:var(--accent);transform:translate(3px,3px) }
+.relic-pick[data-icon="motiebi"] .ink-icon::before { width:10px;height:8px;border-radius:2px;background:var(--ink);border:2px solid var(--accent) }
+.relic-pick[data-icon="motiebi"] .ink-icon::after { width:4px;height:4px;border-radius:50%;background:var(--accent);transform:translate(3px,2px) }
 /* ===== Spirit icons (molingyu/molingqi/judou/guishouyin) ===== */
 .relic-pick[data-icon="molingyu"] .ink-icon::before,
 .relic-pick[data-icon="molingqi"] .ink-icon::before,
