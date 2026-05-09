@@ -1345,6 +1345,30 @@ body.game-active #gameCanvas {
   border-radius: 50%;
   transform: translate(-1px,-1px);
 }
+/* ===== v4.7 relic icons (mojingsui/jiuzhuanmofu) ===== */
+.relic-pick[data-icon="mojingsui"] .ink-icon::before {
+  width: 12px; height: 16px;
+  border: 2px solid var(--accent);
+  border-radius: 2px;
+  transform: rotate(12deg);
+}
+.relic-pick[data-icon="mojingsui"] .ink-icon::after {
+  width: 10px; height: 2px;
+  background: var(--accent);
+  transform: rotate(-25deg) translate(2px,4px);
+}
+.relic-pick[data-icon="jiuzhuanmofu"] .ink-icon::before {
+  width: 14px; height: 14px;
+  border: 2px solid var(--ink);
+  border-radius: 2px;
+  transform: rotate(45deg);
+}
+.relic-pick[data-icon="jiuzhuanmofu"] .ink-icon::after {
+  width: 5px; height: 5px;
+  background: var(--accent);
+  border-radius: 50%;
+  transform: translate(-1px,-1px);
+}
 /* ===== Spirit icons (molingyu/molingqi/judou/guishouyin) ===== */
 .relic-pick[data-icon="molingyu"] .ink-icon::before,
 .relic-pick[data-icon="molingqi"] .ink-icon::before,
