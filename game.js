@@ -371,6 +371,7 @@ function spawnEnemy(g,type,opts){
     swoop:!!t.swoop,swoopPrep:t.swoopPrep||35,webShot:!!t.webShot,reviveOnce:!!t.reviveOnce,_revived:false,
     deathBomb:!!t.deathBomb,deathBombR:t.deathBombR||60,deathBombDmg:t.deathBombDmg||12,deathBombDelay:t.deathBombDelay||55,
     deathBuff:!!t.deathBuff,deathBuffR:t.deathBuffR||130,deathBuffT:t.deathBuffT||180,
+    deathSlow:!!t.deathSlow,deathSlowR:t.deathSlowR||80,deathSlowT:t.deathSlowT||120,
     spawnsOnDeath:!!t.spawnsOnDeath,spawnType:t.spawnType||"",spawnCount:t.spawnCount||2,
     bossChargeT:t.isBoss?0:undefined,bossChargeCdT:t.isBoss?120:undefined,
     bossPrepT:t.isBoss?0:undefined,bossPrepAng:0,
@@ -719,6 +720,9 @@ function onEnemyKilled(g,e,source,opts){
   if(p.soulOrbCurse&&!e.isBoss){g.soulOrbs.push({x:e.x,y:e.y,r:6,spd:1.5,dmg:Math.max(3,Math.ceil(e.dmg*0.4)),life:180})}
   // 墨师珠：击杀产生减速墨池
   if(p.killSlowPool&&!e.isBoss){pushLimited(g.fires,{x:e.x,y:e.y,r:28,life:60,maxLife:60,dmg:0,owner:"player",slow:true},LIMITS.fires)}
+  // 墨罐死后减速墨池
+  if(e.deathSlow){pushLimited(g.frosts,{x:e.x,y:e.y,r:e.deathSlowR||80,life:e.deathSlowT||120,maxLife:e.deathSlowT||120},LIMITS.frosts);
+    spawnInk(g,e.x,e.y,12,"ink");spawnP(g,e.x,e.y,"ink",6)}
   // 武器特化击杀粒子
   var wt=g.weapon.type;
   if(wt==="melee"){for(var wi=0;wi<5;wi++)spawnP(g,e.x+rn(-8,8),e.y+rn(-8,8),"ink",1)}
