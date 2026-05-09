@@ -1709,8 +1709,24 @@ code+='\n'+[
 '  }',
 '}catch(e){errors.push("169: "+e.message)}',
 
+'// Test 170: v4.21 3遗物+墨蛛后 — 数据+属性',
+'try{',
+'  ["mohuoyan","mofutan","mohundan"].forEach(function(id,idx){',
+'    var r=RELICS.find(function(x){return x.id===id});',
+'    if(!r)errors.push("170"+idx+"a: "+id+" not found");',
+'    else{var g=newGame("jian","normal");r.fn(g.player);',
+'      if(id==="mohuoyan"&&!g.player.critExplosion)errors.push("170b");',
+'      if(id==="mofutan"&&!g.player.hitDot)errors.push("170c");',
+'      if(id==="mohundan"&&!g.player.lowHpBurst)errors.push("170d");}',
+'  });',
+'  var et=ETYPE.mozhuhou;if(!et)errors.push("170e: mozhuhou not found");',
+'  else{if(!et.summoner)errors.push("170f: mozhuhou should be summoner");',
+'    if(!DEATH_COLOR.mozhuhou)errors.push("170g: missing DEATH_COLOR");',
+'    if(!ENEMY_COST.mozhuhou)errors.push("170h: missing ENEMY_COST");}',
+'}catch(e){errors.push("170: "+e.message)}',
+
 'if(errors.length){console.log("FAIL ("+errors.length+"):");errors.forEach(function(e){console.log("  - "+e)});process.exit(1)}',
-'else{console.log("ALL 148 TESTS PASSED");',
+'else{console.log("ALL 149 TESTS PASSED");',
 '  console.log(" 37-62. (previous 26 tests)");',
 '  console.log(" 63-68. v2.10 (墨阵/墨童/阵眼/墨竭)");',
 '  console.log(" 69-78. v2.11 (墨镜/回春阵/墨涡/墨蝠/墨瘴/墨吸/墨甲)");',
@@ -1755,6 +1771,7 @@ code+='\n'+[
 '  console.log(" 167. v4.19 冰墨壁 — 防御/冰+受伤frost");',
 '  console.log(" 168. v4.20 墨泉眼+墨焰溅 — 治疗/溅射遗物");',
 '  console.log(" 169. v4.20 墨锁誓印 — 召物/诅咒+墨灵HP代价");',
+'  console.log(" 170. v4.21 3遗物(墨火眼/墨符坛/墨魂丹)+墨蛛后");',
 '}',
 ].join('\n');
 

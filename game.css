@@ -1418,6 +1418,12 @@ body.game-active #gameCanvas {
 .relic-pick[data-icon="moquanyan"] .ink-icon::after { width:4px;height:4px;background:var(--moss);border-radius:50%;transform:translate(3px,3px) }
 .relic-pick[data-icon="moyanqian"] .ink-icon::before { width:8px;height:12px;background:var(--ink);transform:skewX(-5deg) }
 .relic-pick[data-icon="moyanqian"] .ink-icon::after { width:6px;height:6px;border-radius:50%;background:rgba(180,80,40,0.7);transform:translate(1px,-2px) }
+.relic-pick[data-icon="mohuoyan"] .ink-icon::before { width:12px;height:12px;border-radius:50%;background:var(--ink) }
+.relic-pick[data-icon="mohuoyan"] .ink-icon::after { width:6px;height:6px;border-radius:50%;background:rgba(180,80,40,0.8);transform:translate(3px,3px) }
+.relic-pick[data-icon="mofutan"] .ink-icon::before { width:10px;height:12px;border:1.5px solid var(--ink);border-radius:2px }
+.relic-pick[data-icon="mofutan"] .ink-icon::after { width:4px;height:4px;background:var(--accent);transform:translate(3px,4px) }
+.relic-pick[data-icon="mohundan"] .ink-icon::before { width:10px;height:10px;border-radius:50%;background:var(--accent) }
+.relic-pick[data-icon="mohundan"] .ink-icon::after { width:4px;height:4px;border-radius:50%;background:var(--paper);transform:translate(3px,3px) }
 /* ===== Spirit icons (molingyu/molingqi/judou/guishouyin) ===== */
 .relic-pick[data-icon="molingyu"] .ink-icon::before,
 .relic-pick[data-icon="molingqi"] .ink-icon::before,

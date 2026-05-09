@@ -282,6 +282,9 @@ function mkPlayer(){
     lowHpWaveHeal:false,
     fireSplash:false,fireSplashRatio:0,
     spiritCapBonus:0,spiritHpPenalty:0,
+    critExplosion:false,critExplosionRatio:0,
+    hitDot:false,hitDotDmg:0,hitDotLife:0,
+    lowHpBurst:false,lowHpBurstUsed:false,lowHpBurstT:0,
     maxHpOverride:0,extraStartRelics:0,extraRelicChoice:false,
     enemyHpMult:1,enemySpdMult:1,allElite:false,relicPower:1,_relicPowerApplied:false,
     enemyFlicker:false,inkBrandCurse:false,missChance:0,hitDmgMult:0,
@@ -1230,6 +1233,11 @@ function hitE(g,atk,e){
   // 裂冰诀：暴击留冰冻区
   if(atk.crit&&p.frostOnCrit){
     pushLimited(g.frosts,{x:e.x,y:e.y,r:45,life:60,maxLife:60},LIMITS.frosts);snd("frostCreate")}
+  // 墨火眼：暴击爆炸
+  if(atk.crit&&p.critExplosion){
+    var ceR=45;var ceDmg=Math.max(1,Math.ceil(p.stats.dmg*(p.critExplosionRatio||0.25)));
+    forEachLiveEnemy(g,function(oe){if(oe!==e&&dstSq(e,oe)<ceR*ceR)damageEnemy(g,oe,ceDmg,"critExplosion")});
+    spawnP(g,e.x,e.y,"accent",5)}
   // 单次遍历：恐惧 + 魂链 + 爆裂
   if((atk.crit&&p.fearOnCrit)||p.soulChain||atk.burst){
     var doFear=atk.crit&&p.fearOnCrit;
@@ -1244,6 +1252,9 @@ function hitE(g,atk,e){
     });
   }
   spawnInk(g,e.x,e.y,atk.crit?8:4,"ink");
+  // 墨符坛：命中留DOT区
+  if(p.hitDot){
+    pushLimited(g.frosts,{x:e.x,y:e.y,r:35,life:p.hitDotLife||60,maxLife:p.hitDotLife||60,dmg:p.hitDotDmg||1},LIMITS.frosts)}
   if(atk.crit){g.critFlash=18;for(var ci=0;ci<8;ci++){var ca=ci*Math.PI/4;
     spawnP(g,e.x+Math.cos(ca)*10,e.y+Math.sin(ca)*10,"accent",2)}}
   if(atk.crit&&p.critShrapnel){var splDmg=Math.floor(atk.dmg*0.35);forEachLiveEnemy(g,function(oe){if(oe===e)return;if(dstSq(e,oe)<RANGES.critShrapnel*RANGES.critShrapnel)damageEnemy(g,oe,splDmg,"shrapnel")});spawnP(g,e.x,e.y,"accent",5)}
@@ -1517,6 +1528,12 @@ function update(g){
   if(p.atkCd>0)p.atkCd--;
   if(p.invTimer>0)p.invTimer--;
   if(p.blindT>0)p.blindT--;
+  // 墨魂丹：低血爆发
+  if(p.lowHpBurstT>0){p.lowHpBurstT--;if(p.lowHpBurstT<=0){p.stats.dmg-=0.5;p.lowHpBurstUsed=false}}
+  if(p.lowHpBurst&&!p.lowHpBurstUsed&&p.hp>0&&p.hp<p.maxHp*0.25){
+    p.stats.dmg+=0.5;p.lowHpBurstUsed=true;p.lowHpBurstT=300;
+    pushLimited(g.floatTexts,{x:p.x,y:p.y-p.r-20,text:"爆",life:40,maxLife:40,reason:"burst"},LIMITS.floatTexts);
+    spawnP(g,p.x,p.y,"accent",8);snd("bossEnrage")}
   if(p.hurtFlash>0)p.hurtFlash--;
   if(p.dodgeCd>0)p.dodgeCd--;
   // 闪避输入缓冲
@@ -2055,6 +2072,7 @@ function update(g){
     // wave continues — enemies keep spawning until quota met
   }else if(g.enemies.length===0&&g.announceT<=0&&!g.waveCleared){
     g.waveCleared=true;g.waveClearT=80;
+    if(p.lowHpBurst)p.lowHpBurstUsed=false;
     g.waveInkRipple={x:p.x,y:p.y,t:40};
     // 骨续泉：波次清场回血
     if(p.waveHpBonus&&(p.waveHpAdded||0)<(p.waveHpMax||10)){
@@ -3779,7 +3797,10 @@ function rebuildPlayerStats(g){
     'waveHpBonus','waveHpMax','waveHpGain','waveHpAdded',
     'hurtFrost',
     'lowHpWaveHeal','fireSplash','fireSplashRatio',
-    'spiritCapBonus','spiritHpPenalty'];
+    'spiritCapBonus','spiritHpPenalty',
+    'critExplosion','critExplosionRatio',
+    'hitDot','hitDotDmg','hitDotLife',
+    'lowHpBurst','lowHpBurstUsed','lowHpBurstT'];
   rk.concat(ck).forEach(function(k){f[k]=o[k]});
   g.relics.forEach(function(r){try{r.fn(f)}catch(e){}});
   if(g.evolution)g.evolution.fn(f);
