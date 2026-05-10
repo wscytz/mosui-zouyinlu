@@ -64,7 +64,6 @@ Object.values(BUILD_PREFS).forEach(function(arr){arr.forEach(function(t){bpTags.
 // 遗物中出现但不在 BUILD_PREFS 中的标签
 var relicTags=new Set();
 RELICS.forEach(function(r){r.tags.forEach(function(t){relicTags.add(t)})});
-var missing=relicTags.filter ? null : null; // 用差集
 relicTags.forEach(function(t){if(!bpTags.has(t))console.log('遗物标签不在BUILD_PREFS: '+t)});
 bpTags.forEach(function(t){if(!relicTags.has(t))console.log('BUILD_PREFS标签无遗物: '+t)});
 ```

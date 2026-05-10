@@ -63,13 +63,16 @@ out.push('ACHIEVEMENTS: '+ACHIEVEMENTS.length);
 out.push('CURSES: '+CURSES.length);
 out.push('RANGES: '+Object.keys(RANGES).length);
 
-// test numbers
+// test numbers - scan ALL Test N: to find max (ALL N TESTS PASSED is unreliable)
 var testSrc=fs.readFileSync('content_test.js','utf8');
-var testMatch=testSrc.match(/Test (\d+):[^']*$/m);
-var totalMatch=testSrc.match(/ALL (\d+) TESTS PASSED/);
+var testNums=[];
+var re=/\/\/ Test (\d+):/g;
+var m;
+while((m=re.exec(testSrc))!==null) testNums.push(parseInt(m[1]));
+var maxTest=testNums.length>0?Math.max.apply(null,testNums):0;
 out.push('\n=== 测试 ===');
-if(testMatch) out.push('Last test: '+testMatch[0]);
-if(totalMatch) out.push('Total content tests: '+totalMatch[1]);
-out.push('Next test number: '+(parseInt(totalMatch[1])+1));
+out.push('content_test测试用例数(扫描): '+testNums.length);
+out.push('最高Test编号: '+maxTest);
+out.push('下一个可用Test编号: '+(maxTest+1));
 
 console.log(out.join('\n'));

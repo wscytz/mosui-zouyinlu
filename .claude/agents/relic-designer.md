@@ -33,12 +33,42 @@
 
 ## 机制代码模板（选一个触发时机）
 
-**hitE — 命中触发**（DOT区/AOE溅射/分裂弹幕）：
+**hitE DOT区 — 命中留持续伤害区域**：
 ```js
-if(p.__prop__){
-  pushLimited(g.frosts,{x:e.x,y:e.y,r:__R__,life:p.__life__||60,maxLife:p.__life__||60,dmg:p.__dmg__||1},LIMITS.frosts)}
-// 或AOE: forEachLiveEnemy(g,function(oe){if(dstSq(e,oe)<RANGES.xx*RANGES.xx)damageEnemy(g,oe,dmg,"source")});
-  spawnP(g,e.x,e.y,"accent",4)}
+  // __遗物名__：命中留DOT区
+  if(p.__prop__){
+    pushLimited(g.frosts,{x:e.x,y:e.y,r:__R__,life:p.__life__||__L__,maxLife:p.__life__||__L__,dmg:p.__dmg__||1},LIMITS.frosts)}
+```
+
+**hitE AOE溅射 — 命中时周围敌人受伤**：
+```js
+  // __遗物名__：命中AOE溅射
+  if(p.__prop__){
+    var _r=RANGES.__range__*RANGES.__range__;
+    forEachLiveEnemy(g,function(oe){if(dstSq(e,oe)<_r)damageEnemy(g,oe,__dmg__,"__source__")});
+    spawnP(g,e.x,e.y,"accent",4)}
+```
+
+**hitE 分裂弹幕 — 命中几率生成追踪弹**：
+```js
+  // __遗物名__：命中分裂弹幕
+  if(p.__prop__&&Math.random()<(p.__chance__||0.2)){
+    var _near=null,_nd=RANGES.__range__*RANGES.__range__;
+    forEachLiveEnemy(g,function(oe){if(oe!==e){var d=dstSq(oe,e);if(d<_nd){_nd=d;_near=oe}}});
+    if(_near){
+      var _dx=_near.x-e.x,_dy=_near.y-e.y,_dl=Math.sqrt(_dx*_dx+_dy*_dy)||1;
+      pushLimited(g.attacks,{x:e.x,y:e.y,vx:_dx/_dl*6,vy:_dy/_dl*6,dmg:Math.max(1,Math.ceil(p.stats.dmg*0.4)),r:4,life:40,type:"proj",hitOnce:true,owner:"player"},LIMITS.attacks);
+      spawnP(g,e.x,e.y,"accent",3)}}
+```
+
+**damageEnemy — HP阈值触发（处决引爆类）**：
+```js
+  // 放在 e.hp-=actualDmg;e.hitFlash=6; 之后
+  if(p.__prop__&&e.hp>0&&e.hp<e.maxHp*__ratio__&&!e._flag){
+    e._flag=true;
+    var _r=RANGES.__range__*RANGES.__range__;var _d=Math.max(1,Math.ceil(p.stats.dmg*(p.__ratio__||0.5)));
+    forEachLiveEnemy(g,function(oe){if(oe!==e&&dstSq(e,oe)<_r)damageEnemy(g,oe,_d,"__source__")});
+    spawnP(g,e.x,e.y,"ink",8);spawnP(g,e.x,e.y,"accent",4);shake(g,4,3);snd("hit")}
 ```
 
 **pAtk — 伤害修改**（必须在 `var dmg=...` 之后）：
@@ -50,17 +80,20 @@ if(p.__prop__){
 
 **hurtP — 受伤触发**（反击/防御/无敌）：
 ```js
-if(p.__prop__){
-  p.invTimer=Math.max(p.invTimer||0,60);
-  forEachLiveEnemy(g,function(oe){if(dstSq(oe,p)<RANGES.xx*RANGES.xx)damageEnemy(g,oe,retDmg,"retaliate")});
-  spawnP(g,p.x,p.y,"accent",8);shake(g,5,3)}
+  // __遗物名__：受击反击
+  if(p.__prop__){
+    p.invTimer=Math.max(p.invTimer||0,60);
+    var _d=p.__dmg__||5;
+    forEachLiveEnemy(g,function(oe){if(dstSq(oe,p)<RANGES.__range__*RANGES.__range__)damageEnemy(g,oe,_d,"__source__")});
+    spawnP(g,p.x,p.y,"accent",8);shake(g,5,3);snd("shieldBreak")}
 ```
 
 **onEnemyKilled — 击杀触发**（留区域/治疗/爆炸）：
 ```js
-if(p.__prop__&&!e.isBoss){
-  pushLimited(g.frosts,{x:e.x,y:e.y,r:40,life:90,maxLife:90,dmg:p.__dmg__||1},LIMITS.frosts);
-  spawnInk(g,e.x,e.y,6,"ink")}
+  // __遗物名__：击杀留区域
+  if(p.__prop__&&!e.isBoss){
+    pushLimited(g.frosts,{x:e.x,y:e.y,r:__R__,life:__L__,maxLife:__L__,dmg:p.__dmg__||1},LIMITS.frosts);
+    spawnInk(g,e.x,e.y,6,"ink")}
 ```
 
 ## ck数组模板

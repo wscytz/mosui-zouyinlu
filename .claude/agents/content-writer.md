@@ -47,7 +47,7 @@ if((g.__counter__||0)>(meta.__bestCounter__||0))meta.__bestCounter__=g.__counter
 '  if(g.__counter__!==0)errors.push("__N__e: counter not 0");',
 '}catch(e){errors.push("__N__: "+e.message)}',
 ```
-注意更新 test 165j 中的成就数量断言。
+注意更新 test 165j 中的成就数量断言。建议把 165j 改成 `ACHIEVEMENTS.length>=38` 而非 `!==38`，避免每次加成就都要改历史断言。
 
 ## 誓印模式
 
@@ -95,6 +95,6 @@ if((g.__counter__||0)>(meta.__bestCounter__||0))meta.__bestCounter__=g.__counter
 - [ ] onEnemyKilled/对应位置有递增
 - [ ] metaRecordRun有记录（成就）
 - [ ] mkPlayer+ck都注册（誓印）
-- [ ] content_test覆盖check成功+失败+计数器
+- [ ] content_test覆盖check成功+失败+计数器初始化+metaRecordRun写入验证
 - [ ] 无HTML实体
 - [ ] 成就check合理，threshold≥3

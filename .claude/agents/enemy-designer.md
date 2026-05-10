@@ -27,8 +27,9 @@ ranged+pSpd / summoner+summonCd+summonMax / splitter+splitCount+splitHpRatio
 hasShield+shield+maxShield+shieldRegen / charge+chargeCd+chargeSpeed
 swoop+swoopPrep / deathBomb+deathBombR+deathBombDmg+deathBombDelay
 deathSlow+deathSlowR+deathSlowT / deathBuff+deathBuffR+deathBuffT
-poisonTrail / fireTrail / webShot / blindShot / mimic / leech
+poisonTrail / fireTrail / webShot / blindShot / mimic / leech / fanShot
 buffAura / reviveOnce+reviveHpRatio / spawnsOnDeath+spawnType+spawnCount
+**禁止普通敌人使用的属性**：isBoss/desperate（仅Boss agent可用）
 
 ## ENEMY_COST
 
@@ -42,7 +43,7 @@ Tier 1: 1.0-1.5, Tier 2: 1.7-2.5, Tier 3: 2.5-3.0, Boss: 99（不加）
 ```js
 ,__id__:"__color__"
 ```
-颜色: ink/accent/moss/soul/fire/ash/soft/gold/ghost
+颜色: ink/accent/moss/soul/fire/ash/soft/gold/ghost（不要用boss，PCOL里没有）
 
 ## WAVE_TIERS
 
@@ -80,8 +81,9 @@ Tier 1: 1.0-1.5, Tier 2: 1.7-2.5, Tier 3: 2.5-3.0, Boss: 99（不加）
 
 - [ ] id不与现有ID冲突
 - [ ] ENEMY_COST+DEATH_COLOR+WAVE_TIERS都加了
+- [ ] tip非空且是有效战斗提示
 - [ ] hp/spd/dmg在合理范围
 - [ ] 优先用现有行为标记
-- [ ] 不是Boss不加isBoss
+- [ ] 不是Boss不加isBoss/desperate
 - [ ] content_test覆盖数据+spawn
 - [ ] 无HTML实体
