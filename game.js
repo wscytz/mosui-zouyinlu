@@ -332,6 +332,12 @@ function mkPlayer(){
     killSurvive:false,
     spiritSpeed:false,
     fireBurst:false,
+    rangedKillSpirit:false,
+    soulHitBoost:false,
+    dashFireTrail:false,
+    dashCritBoost:false,
+    aoeDotHit:false,
+    aoeGuardBond:false,
     idleT:0}
 }
 
@@ -4092,6 +4098,18 @@ function rebuildPlayerStats(g){
     'killSurvive',
     'spiritSpeed',
     'fireBurst'
+    ,
+    'rangedKillSpirit'
+    ,
+    'soulHitBoost'
+    ,
+    'dashFireTrail'
+    ,
+    'dashCritBoost'
+    ,
+    'aoeDotHit'
+    ,
+    'aoeGuardBond'
     ];
   rk.concat(ck).forEach(function(k){f[k]=o[k]});
   g.relics.forEach(function(r){try{r.fn(f)}catch(e){}});

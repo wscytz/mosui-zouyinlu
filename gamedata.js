@@ -330,7 +330,13 @@ var RELICS=[
   {id:"moyanbao",name:"墨焰爆",type:"焰具",tags:["溅射","火"],effect:"命中时概率生成火焰区",fn:function(p){p.splashFire=true}},
   {id:"moxuming",name:"墨续命",type:"命具",tags:["击杀","生存"],effect:"击杀敌人时回复2血并获得短暂无敌",fn:function(p){p.killSurvive=true}},
   {id:"mohunbu",name:"墨魂步",type:"步具",tags:["魂","机动"],effect:"每拥有一个墨魂移速+3%",fn:function(p){p.spiritSpeed=true}},
-  {id:"mofenxin",name:"墨焚心",type:"心具",tags:["火","爆发"],effect:"低血时攻击附带火焰爆发",fn:function(p){p.fireBurst=true}}
+  {id:"mofenxin",name:"墨焚心",type:"心具",tags:["火","爆发"],effect:"低血时攻击附带火焰爆发",fn:function(p){p.fireBurst=true}},
+  {id:"moyaohun",name:"墨遥魂",type:"魂具",tags:["召唤","远程"],effect:"远程击杀敌人时墨魂上限+1",fn:function(p){p.rangedKillSpirit=true;p.inkSpiritMax=(p.inkSpiritMax||0)+1}},
+  {id:"mohunsi",name:"墨魂嗣",type:"魂具",tags:["召唤","魂"],effect:"墨魂存在时魂伤+2",fn:function(p){p.soulHitBoost=true;p.stats.soulDmg=(p.stats.soulDmg||0)+2}},
+  {id:"mofenying",name:"墨焚影",type:"步具",tags:["冲刺","火"],effect:"冲刺时路径留下墨焰",fn:function(p){p.dashFireTrail=true}},
+  {id:"moxunren",name:"墨迅刃",type:"刃具",tags:["冲刺","暴击"],effect:"冲刺后暴击率+15%",fn:function(p){p.dashCritBoost=true;p.stats.critRate=(p.stats.critRate||0)+0.15}},
+  {id:"moguangshi",name:"墨广蚀",type:"域具",tags:["范围","持续"],effect:"范围+15%，攻击附带持续伤害",fn:function(p){p.aoeDotHit=true;p.stats.area=(p.stats.area||1)+0.15}},
+  {id:"mobiyin",name:"墨庇印",type:"护具",tags:["范围","防御"],effect:"范围+10%，防御+12%",fn:function(p){p.aoeGuardBond=true;p.stats.area=(p.stats.area||1)+0.1;p.stats.def=(p.stats.def||0)+0.12}}
 ];
 
 var EVOLUTIONS={
