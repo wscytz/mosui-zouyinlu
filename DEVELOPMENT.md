@@ -13,6 +13,13 @@
 | `README.md` | 玩家/运行入口，保持短 | 只写当前版本、启动、测试、文件说明 |
 | `DEVELOPMENT.md` | 开发规范和交接清单 | 每次流程变化或踩坑后更新 |
 | `AGENT_SYSTEM.md` | agent 自动化总纲 | 每次改 skill、agent、validator 后更新 |
+| `.claude/skills/add-content/SKILL.md` | add-content skill 源文件 | 先改这里并提交，再同步到全局 Claude skill |
+| `.claude/skills/idea-lab/SKILL.md` | 点子审核/创新侦察 skill | 按需触发，不进入默认实现流程 |
+| `.claude/skills/agent-retro/SKILL.md` | agent 复盘/经验提取 skill | 只记录可复发失败模式 |
+| `.claude/sync-skills.ps1` | skill 安装脚本 | 同步前备份全局 skill |
+| `.claude/check-skills.ps1` | skill 同步检查 | 对比项目源和全局副本 hash |
+| `.claude/IDEA_BANK.md` | 未实现点子库 | 只存精简候选，不存长聊天 |
+| `.claude/agent-lessons.md` | agent 经验库 | 第二次复发才记录，第三次进 validator/template |
 | `ROADMAP.md` | 路线和阶段目标 | 每个版本或阶段收口时更新 |
 | `ARCHITECTURE.md` | 分层、边界、关键不变量 | 架构入口或文件职责变化后更新 |
 | `DEVDOC.md` | 技术历史、版本记录、Bug追踪 | 每个小版本追加变更记录 |
@@ -60,6 +67,7 @@ node stress_test.js
 | `game.css` | DOM UI、卡片、HUD、移动端布局、CSS图标 | 不影响 canvas 内战斗逻辑 |
 | `mobile-controls.js` | 触摸输入桥接到 `_mobileInput` | 不复制桌面战斗逻辑 |
 | `.claude/` | agent 模板、上下文提取、输出校验 | 不放会改变游戏运行时的代码 |
+| `.claude/skills/` | Claude skill 的项目内源文件 | 不只改全局副本，避免 git 追不到 skill 变化 |
 | `content_test.js` | 数据和机制单元测试 | 不依赖真实 DOM |
 | `smoke_test.js` | 长跑、流程、回归测试 | 不做复杂数值断言 |
 | `wave_test.js` | 波次推进、召唤、分裂、护盾等流程 | 不测纯数据表 |
@@ -81,6 +89,10 @@ node stress_test.js
 - 高频循环优先用 `dstSq()`，不要在热路径里滥用 `Math.sqrt()`。
 - 新 UI 不要阻塞 `playing/waveClear/paused/over/victory` 状态机。
 - 项目运行时代码保持 ES5 风格：`var`、普通 `function`、双引号字符串。
+- 新遗物必须有 CSS `data-icon` 图标块，ID 和 `RELICS` id 完全一致。
+- CSS 图标选择器必须是 `.relic-pick[data-icon="ID"] .ink-icon::before/after`。
+- CSS 变量只允许 `var(--ink)` / `var(--accent)` / `var(--paper)` / `var(--game-bg)`。
+- 不要编造 `C.purple` 等颜色常量；只使用 `gamedata.js` 中已有 `C.*` 键。
 
 ## 新增遗物检查表
 
@@ -110,6 +122,35 @@ node stress_test.js
 5. 检查 agent 没有直接 push 到 `g.attacks/g.fires/g.eProj`。
 6. 检查 agent 没有用测试框架函数、复杂 CSS、`arguments[0]`、`fn` 内重置累加器。
 7. 合并后跑 `npm run test:all`。
+
+## Skill 本体维护
+
+全局 `~/.claude/skills/add-content/SKILL.md` 是安装副本，项目内 `.claude/skills/add-content/SKILL.md` 是源文件。
+
+修改 skill 时：
+
+1. 先改项目内 `.claude/skills/add-content/SKILL.md`。
+2. 检查 diff，确认没有误改 ccswitch 或其他全局配置。
+3. 运行 `npm run skill:sync` 同步到全局。
+4. 运行 `npm run skill:check` 确认项目源文件和全局副本一致。
+5. 把项目内 skill 源文件和相关文档一起提交。
+
+不要只改全局 skill；否则后续无法用 git 回滚或审计 skill 变化。
+
+新增或修改任何 `.claude/skills/**/SKILL.md` 后，最终回复必须说明是否已经运行 `npm run skill:sync` 和 `npm run skill:check`。
+
+## 文档更新钩子
+
+| 改动 | 必更 | 条件更新 |
+|------|------|----------|
+| 新内容落地 | `DEVDOC.md` | `README.md` 数量变化；`ROADMAP.md` 阶段变化 |
+| 新机制/不变量 | `DEVDOC.md` | `ARCHITECTURE.md` / `DEVELOPMENT.md` |
+| skill | `.claude/skills/*/SKILL.md` | 同步全局；`AGENT_SYSTEM.md` 流程变化 |
+| agent 模板 | `.claude/agents/*.md` | `AGENT_SYSTEM.md` 规则变化 |
+| validator | `.claude/validate-agent-output.js` | `.claude/agent-lessons.md` 复发记录 |
+| 未实现点子 | 无 | 用户明确要求才写 `.claude/IDEA_BANK.md` |
+
+省 token 规则：长历史进 `DEVDOC.md`，短规则进 skill/AGENT_SYSTEM，点子进 IDEA_BANK，失败模式进 agent-lessons；不要在多个文件重复粘贴同一段长说明。
 
 ## 交接给另一个模型时的提示模板
 

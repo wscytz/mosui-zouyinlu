@@ -90,6 +90,13 @@ var ngMatch=gameSrc.match(/killExplodeKills:0[\s\S]{0,220}?perf:/);
 if(ngMatch)pushSection("newGame计数器",oneLine(ngMatch[0]));
 var mrMatch=gameSrc.match(/if\(\(g\.executeKills[\s\S]{0,420}?won&&/);
 if(mrMatch)pushSection("metaRecordRun末尾",oneLine(mrMatch[0]));
+pushSection("关键函数签名",[
+  "hurtP(g, dmg, src) — src 可能是敌人对象或 {name:\"\"}",
+  "damageEnemy(g, e, dmg, src)",
+  "pushAttack(g, atk)",
+  "forEachLiveEnemy(g, function(oe){...})",
+  "dstSq(a, b)"
+].join("\n"));
 
 // === CSS ICONS ===
 var iconRe=/\.relic-pick\[data-icon="([^"]+)"\]/g;

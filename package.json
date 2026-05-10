@@ -9,6 +9,8 @@
     "test:syntax": "node --check gamedata.js && node --check game.js && node --check mobile-controls.js && node --check .claude/ctx-extract.js && node --check .claude/validate-agent-output.js",
     "test:all": "npm run test:syntax && node smoke_test.js && node wave_test.js && node content_test.js && node stress_test.js",
     "validate:agent": "node .claude/validate-agent-output.js",
+    "skill:sync": "powershell -NoProfile -ExecutionPolicy Bypass -File .claude/sync-skills.ps1",
+    "skill:check": "powershell -NoProfile -ExecutionPolicy Bypass -File .claude/check-skills.ps1",
     "www": "node -e \"var f=require('fs');f.copyFileSync('game.html','www/index.html');['game.css','game.js','gamedata.js','sound.js','mobile-controls.js','styles.css','wiki.html'].forEach(function(n){f.copyFileSync(n,'www/'+n)})\"",
     "cap:sync": "npm run www && npx cap sync",
     "cap:open:android": "npm run cap:sync && npx cap open android"

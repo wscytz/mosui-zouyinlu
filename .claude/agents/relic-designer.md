@@ -109,7 +109,7 @@
 .relic-pick[data-icon="__ID__"] .ink-icon::before { __形状__ }
 .relic-pick[data-icon="__ID__"] .ink-icon::after { __装饰__ }
 ```
-配色: var(--ink)墨, var(--accent)朱砂, var(--paper)纸白
+配色只允许: var(--ink)墨, var(--accent)朱砂, var(--paper)纸白, var(--game-bg)背景
 
 ## content_test模板
 
@@ -140,7 +140,11 @@
 ### CSS图标（必须遵守）
 - 只用 **width/height/border-radius/background/border/transform/clip-path**
 - 禁止用 **content:**，包括 `content:""` 空内容
-- 禁止用 **position** / **box-shadow** / **inset** / **opacity**
+- 禁止用 **position** / **box-shadow** / **inset** / **opacity** / **top** / **left** / **right** / **bottom**
+- 禁止用 var(--moss)/var(--fire)/var(--gold)，CSS 变量只允许 var(--ink)/var(--accent)/var(--paper)/var(--game-bg)
+- 每个新遗物都必须输出 `.relic-pick[data-icon="__ID__"]` 的 `::before` 和 `::after`
+- 选择器必须精确包含 `.ink-icon::before` 和 `.ink-icon::after`，不要漏 `.ink-icon`，不要写 `.ink-icon ::before`
+- 不要说“无需新增CSS”；新增遗物一定要有图标块
 
 ### content_test（必须遵守）
 用字符串拼接格式：
@@ -166,6 +170,7 @@
 - [ ] pushLimited不用.push
 - [ ] mkPlayer默认值+ck数组都写了
 - [ ] CSS ::before+::after都有
+- [ ] 每个新遗物都有 data-icon，ID 和 RELICS id 完全一致
 - [ ] content_test覆盖属性设置
 - [ ] 没有 content_test()/assert()/test() 等测试框架函数
 - [ ] 没有 position/box-shadow/inset/content/opacity 复杂CSS

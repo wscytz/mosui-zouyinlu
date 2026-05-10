@@ -44,6 +44,7 @@ Tier 1: 1.0-1.5, Tier 2: 1.7-2.5, Tier 3: 2.5-3.0, Boss: 99（不加）
 ,__id__:"__color__"
 ```
 颜色: ink/accent/moss/soul/fire/ash/soft/gold/ghost（不要用boss，PCOL里没有）
+渲染颜色只能用项目已有 C.* 常量；不要编造 C.purple/C.violet 等新键。
 
 ## WAVE_TIERS
 

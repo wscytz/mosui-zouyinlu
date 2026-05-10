@@ -19,6 +19,11 @@
 | `~/.claude/skills/add-content/SKILL.md` | 调度 skill，决定何时召唤专职 agent |
 | `.claude/ctx-extract.js` | 自动提取当前内容、标签、测试编号、代码片段 |
 | `.claude/validate-agent-output.js` | 校验 agent 输出是否可合并 |
+| `.claude/skills/add-content/SKILL.md` | add-content skill 的项目内源文件，纳入 git 管理 |
+| `.claude/skills/idea-lab/SKILL.md` | 点子审核、创新侦察、IDEA_BANK 维护 |
+| `.claude/skills/agent-retro/SKILL.md` | agent 失败复盘、经验提取、门禁升级建议 |
+| `.claude/sync-skills.ps1` | 将项目内所有 skill 备份并安装到全局 Claude skills |
+| `.claude/check-skills.ps1` | 比对项目内 skill 源文件和全局安装副本 hash |
 | `.claude/agents/relic-designer.md` | 遗物专员模板 |
 | `.claude/agents/enemy-designer.md` | 敌人专员模板 |
 | `.claude/agents/content-writer.md` | 内容专员模板 |
@@ -46,6 +51,10 @@
 - 禁止直接写 `g.xxx.push()`，除非该池没有专用入口且主 Claude 明确确认。
 - 禁止直接 `e.hp -= dmg`；伤害必须走 `damageEnemy(g,e,dmg,src)`。
 - CSS 遗物图标只能用形状、边框、渐变和伪元素；禁止 `content`、`position`、`box-shadow`、`inset`、`opacity`。
+- 新遗物必须有 `game.css` 的 `.relic-pick[data-icon="ID"]` 图标块，不能跳过 CSS。
+- CSS 图标选择器必须精确包含 `.relic-pick[data-icon="ID"] .ink-icon::before` 和 `::after`。
+- CSS 变量只允许 `var(--ink)` / `var(--accent)` / `var(--paper)` / `var(--game-bg)`。
+- 颜色常量只能使用项目已有 `C.*`，不要编造 `C.purple` 等新键。
 - `content_test.js` 必须沿用字符串数组 + `try/errors.push` 格式，禁止 `content_test()`、`test()`、`assert()` 等测试框架函数。
 - 机制代码必须使用已有实参名，禁止 `arguments[0]`。
 - 遗物 `fn` 只能设置布尔或累加数值，禁止在 `fn` 内重置 `p._xxx=0` 这类运行时累加器。
@@ -80,6 +89,57 @@
 - 文案风格不稳。
 - 遗物触发时机选错。
 - 成就埋点位置容易混淆。
+
+## Skill 版本保护
+
+`~/.claude/skills/add-content/SKILL.md` 是 Claude 实际加载的副本，但不要把它当唯一真源。skill 的可回滚源文件放在项目内：
+
+```text
+.claude/skills/add-content/SKILL.md
+```
+
+维护规则：
+
+- 先改项目内源文件，让 git 记录 diff。
+- 再运行 `npm run skill:sync` 安装到全局副本。
+- 同步后运行 `npm run skill:check`，确认项目源文件和全局副本 hash 一致。
+- 同步脚本会备份旧的全局 `SKILL.md`，避免误改后无法恢复。
+- 如果全局副本和项目源文件不一致，以项目源文件为准。
+- skill 只存流程和调度规则；失败历史放 agent lessons，未实现点子放 idea bank，版本事实放 DEVDOC/ROADMAP。
+
+## 创新与复盘分层
+
+不要把点子发散和失败复盘塞进 add-content 默认流程。
+
+| skill | 触发 | 作用 | 默认成本 |
+|-------|------|------|----------|
+| add-content | 加遗物/敌人/成就/誓印 | 实现内容、校验、测试、提交 | 中高 |
+| idea-lab | 找点子/审核点子/收进点子库 | 只做概念评审和 IDEA_BANK 维护 | 低 |
+| agent-retro | 复盘 agent/提取经验/记错误 | 只做 lessons、模板、validator 经验沉淀 | 低 |
+
+规则：
+
+- 普通内容实现不自动跑 idea-lab 或 agent-retro。
+- add-content 默认最多 2 个 agent 并发；超过 2 个必须用户明确要求。
+- idea-lab 不写代码，不跑实现 agent。
+- agent-retro 默认只处理最近一次失败，不总结整段长对话。
+- 未实现点子放 `.claude/IDEA_BANK.md`。
+- 可复发失败模式放 `.claude/agent-lessons.md`。
+- 已实现事实放 `DEVDOC.md` / `ROADMAP.md`。
+
+## 文档更新钩子
+
+保持低 token：只更新必要文件，不把长对话写进长期文档。
+
+| 事件 | 必更 | 条件更新 |
+|------|------|----------|
+| 内容进游戏 | `DEVDOC.md` | `README.md` 数量变化；`ROADMAP.md` 阶段变化；`wiki.html` 展示变化 |
+| 新机制/边界变化 | `DEVDOC.md` | `ARCHITECTURE.md` / `DEVELOPMENT.md` |
+| skill 改动 | 项目内 `.claude/skills/*/SKILL.md` | `AGENT_SYSTEM.md` / `DEVELOPMENT.md`；然后 `npm run skill:sync && npm run skill:check` |
+| agent 模板改动 | `.claude/agents/*.md` | `AGENT_SYSTEM.md` 规则变化 |
+| validator 改动 | `.claude/validate-agent-output.js` | `.claude/agent-lessons.md` 记录复发来源 |
+| 点子未实现 | 无 | 用户明确收录才写 `.claude/IDEA_BANK.md` |
+| agent 复盘 | 无 | 第二次复发才写 `.claude/agent-lessons.md` |
 
 ## 下一轮优先审计
 

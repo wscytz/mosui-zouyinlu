@@ -48,6 +48,16 @@ function isCkArrayBlock(block){
 function isCssBlock(block){
   return /\.css/i.test(block.label)||/\.relic-pick\[data-icon=/.test(block.body)||/\.ink-icon::(?:before|after)/.test(block.body);
 }
+function eachMatch(re,text,fn){
+  var m;
+  while((m=re.exec(text))!==null)fn(m);
+}
+function escapeRegExp(s){
+  return s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+}
+
+var C_KEYS={paper:1,edge:1,ink:1,soft:1,accent:1,ash:1,moss:1,ghost:1,ghostE:1,fire:1,fireG:1,spirit:1,spiritG:1,boss:1,bossG:1,gold:1,goldG:1,frost:1,frostE:1,ivory:1,clear:1,fontBody:1,fontTitle:1};
+var CSS_VARS={"--ink":1,"--accent":1,"--paper":1,"--game-bg":1};
 
 // Whole-output checks.
 testRegex("html-entity",/&(?:gt|lt|amp|quot|#\d+);/g,input,"HTML entity found; use literal characters");
@@ -62,6 +72,19 @@ if(mode==="raw"){
 if(mode==="merged"){
   if(/TEST_ID_PLACEHOLDER/.test(input))add("test-placeholder","Merged output still contains TEST_ID_PLACEHOLDER");
 }
+
+// Relic outputs must include a CSS icon for each new relic id.
+var relicIds=[];
+eachMatch(/\{id:"([A-Za-z0-9_]+)"[\s\S]{0,260}?tags:\[/g,input,function(m){
+  if(relicIds.indexOf(m[1])<0)relicIds.push(m[1]);
+});
+relicIds.forEach(function(id){
+  var eid=escapeRegExp(id);
+  var beforeRe=new RegExp("\\.relic-pick\\s*\\[\\s*data-icon\\s*=\\s*[\"']"+eid+"[\"']\\s*\\]\\s+\\.ink-icon::before");
+  var afterRe=new RegExp("\\.relic-pick\\s*\\[\\s*data-icon\\s*=\\s*[\"']"+eid+"[\"']\\s*\\]\\s+\\.ink-icon::after");
+  if(!beforeRe.test(input))add("css-missing","Relic "+id+" is missing exact .relic-pick[data-icon=\""+id+"\"] .ink-icon::before selector");
+  if(!afterRe.test(input))add("css-missing","Relic "+id+" is missing exact .relic-pick[data-icon=\""+id+"\"] .ink-icon::after selector");
+});
 
 var blocks=extractBlocks(input);
 blocks.forEach(function(block){
@@ -81,7 +104,9 @@ blocks.forEach(function(block){
     {kind:"hp-mutation",re:/\be\.hp\s*[-+*/]?=/g,msg:"Direct e.hp mutation found; use damageEnemy/onEnemyKilled pattern"},
     {kind:"arguments",re:/\barguments\s*\[/g,msg:"Do not use arguments[]; use named parameters already in the function signature"},
     {kind:"bad-function",re:/\b(?:giveRelic|mkGame|spawnFloatText|content_test|test|it|describe|assert|ok|eq|expect)\s*\(/g,msg:"Unknown/wrong function name found; use project helpers"},
-    {kind:"test-style",re:/errors\.push\s*\(\s*'/g,msg:"Use double-quote strings inside errors.push()"}
+    {kind:"test-style",re:/errors\.push\s*\(\s*'/g,msg:"Use double-quote strings inside errors.push()"},
+    {kind:"raw-loop",re:/\bg\.enemies\.forEach\s*\(/g,msg:"Raw g.enemies.forEach found; use forEachLiveEnemy(g, function(oe){...})"},
+    {kind:"manual-dist",re:/\bdxdx\s*\+\s*dydy\b/g,msg:"Manual distance variable sum found; use dstSq(a, b)"}
   ];
   checks.forEach(function(c){
     var m=c.re.exec(body);
@@ -102,21 +127,29 @@ blocks.forEach(function(block){
     var hexColor=/:\s*#[0-9a-fA-F]{3,8}\b/g;
     var hm=hexColor.exec(body);
     if(hm)add("css-hex","CSS uses hex color; use var(--ink)/var(--accent)/var(--paper) in "+label+" (line "+blockLine(hm.index)+")");
-    var rgbColor=/\brgb\s*\(/g;
+    var rgbColor=/\b(?:rgb|rgba|hsl|hsla)\s*\(/g;
     var rm=rgbColor.exec(body);
-    if(rm)add("css-rgb","CSS uses rgb() color; use var(--ink)/var(--accent)/var(--paper) in "+label+" (line "+blockLine(rm.index)+")");
+    if(rm)add("css-rgb","CSS uses rgb/rgba/hsl color; use var(--ink)/var(--accent)/var(--paper)/var(--game-bg) in "+label+" (line "+blockLine(rm.index)+")");
+    eachMatch(/var\(\s*(--[A-Za-z0-9_-]+)\s*\)/g,body,function(vm){
+      if(!CSS_VARS[vm[1]])add("css-var","CSS uses unsupported var("+vm[1]+"); allowed: --ink, --accent, --paper, --game-bg in "+label+" (line "+blockLine(vm.index)+")");
+    });
     var cssForbidden=[
       {kind:"css-position",re:/\bposition\s*:/g,msg:"CSS icon uses position; keep icon shapes simple"},
       {kind:"css-shadow",re:/\bbox-shadow\s*:/g,msg:"CSS icon uses box-shadow; keep icon shapes simple"},
       {kind:"css-inset",re:/\binset\s*:/g,msg:"CSS icon uses inset; keep icon shapes simple"},
       {kind:"css-opacity",re:/\bopacity\s*:/g,msg:"CSS icon uses opacity; keep icon shapes simple"},
-      {kind:"css-content",re:/\bcontent\s*:/g,msg:"CSS icon uses content; content is forbidden even when empty"}
+      {kind:"css-content",re:/\bcontent\s*:/g,msg:"CSS icon uses content; content is forbidden even when empty"},
+      {kind:"css-offset",re:/\b(?:top|left|right|bottom)\s*:/g,msg:"CSS icon uses positional offset; use transform/shape-only icon rules"}
     ];
     cssForbidden.forEach(function(c){
       var m=c.re.exec(body);
       if(m)add(c.kind,c.msg+" in "+label+" (line "+blockLine(m.index)+")");
     });
   }
+
+  eachMatch(/\bC\.([A-Za-z0-9_]+)/g,body,function(cm){
+    if(!C_KEYS[cm[1]])add("bad-color","Unknown C."+cm[1]+" color constant in "+label+" (line "+blockLine(cm.index)+")");
+  });
 
   if(isContentTestBlock(block)){
     var varContentTest=/\bvar\s+content_test\s*=\s*\[/g;

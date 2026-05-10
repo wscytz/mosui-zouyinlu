@@ -1,0 +1,4 @@
+interface:
+  display_name: "Agent Retro"
+  short_description: "Extract reusable lessons from agent failures"
+  default_prompt: "Summarize the latest agent failure into reusable lessons and gates."

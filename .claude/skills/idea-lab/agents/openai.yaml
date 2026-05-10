@@ -1,0 +1,4 @@
+interface:
+  display_name: "Idea Lab"
+  short_description: "Review and scout Mosui gameplay ideas"
+  default_prompt: "Review or scout a Mosui gameplay idea without writing code."
