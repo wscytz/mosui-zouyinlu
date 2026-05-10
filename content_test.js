@@ -1962,8 +1962,17 @@ code+='\n'+[
 '  if(!g.player.dotAccumBoom)errors.push("191d: not set");',
 '}catch(e){errors.push("191: "+e.message)}',
 
+'// Test 192: v4.28 墨裂盛甲',
+'try{',
+'  var r=RELICS.find(function(x){return x.id==="molieshengjia"});',
+'  if(!r)errors.push("192a: not found");',
+'  else{if(!r.tags||r.tags.length<2)errors.push("192b");if(!r.fn)errors.push("192c");}',
+'  var g=newGame("jian","normal");r.fn(g.player);',
+'  if(!g.player.splitShieldActive)errors.push("192d: not set");',
+'}catch(e){errors.push("192: "+e.message)}',
+
 'if(errors.length){console.log("FAIL ("+errors.length+"):");errors.forEach(function(e){console.log("  - "+e)});process.exit(1)}',
-'else{console.log("ALL 153 TESTS PASSED");',
+'else{console.log("ALL 154 TESTS PASSED");',
 '  console.log(" 37-62. (previous 26 tests)");',
 '  console.log(" 63-68. v2.10 (墨阵/墨童/阵眼/墨竭)");',
 '  console.log(" 69-78. v2.11 (墨镜/回春阵/墨涡/墨蝠/墨瘴/墨吸/墨甲)");',
@@ -2030,6 +2039,7 @@ code+='\n'+[
 '  console.log(" 189. v4.28 墨震甲(爆炸/防御) — Boss命中反击");',
 '  console.log(" 190. v4.28 墨盈溢(治疗/爆炸) — 治疗溢出转AOE(创新)");',
 '  console.log(" 191. v4.28 墨焚域(持续/爆炸) — DoT累计爆炸(创新)");',
+'  console.log(" 192. v4.28 墨裂盛甲(分裂/防御) — 分裂命中刷减伤窗口(spec流程)");',
 '}',
 ].join('\n');
 

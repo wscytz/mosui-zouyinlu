@@ -311,6 +311,7 @@ function mkPlayer(){
     bossHurtGuard:false,
     healOverflowBoom:false,
     dotAccumBoom:false,
+    splitShieldActive:false,splitShieldTicks:0,
     idleT:0}
 }
 
@@ -1230,6 +1231,8 @@ function hurtP(g,dmg,src){
     var _bgR=RANGES.splashBoom*RANGES.splashBoom*0.5;
     forEachLiveEnemy(g,function(oe){if(dstSq(oe,p)<_bgR)damageEnemy(g,oe,6,"bossGuard")});
     spawnP(g,p.x,p.y,"fire",6);spawnP(g,p.x,p.y,"accent",3);shake(g,5,3)}
+  // 墨裂盛甲：分裂命中窗口内减伤35%
+  if(p.splitShieldActive&&p.splitShieldTicks>0){dmg=Math.ceil(dmg*0.65);spawnP(g,p.x,p.y,"frost",3)}
   // 墨池加成：敌人在墨池中攻击力+30%
   if(src&&inkPoolCheck(g,src.x,src.y)===1)dmg=Math.floor(dmg*TUNING.inkPoolDmgMult);
   // 伤害减免
@@ -1399,6 +1402,8 @@ function hitE(g,atk,e){
     if(Math.random()<0.25){var _sr=RANGES.splashBoom*RANGES.splashBoom*0.64;var _sd=Math.max(1,Math.ceil(atk.dmg*0.45));
       forEachLiveEnemy(g,function(oe){if(oe!==e&&dstSq(e,oe)<_sr)damageEnemy(g,oe,_sd,"splitBoom")});
       spawnP(g,e.x,e.y,"fire",5);spawnP(g,e.x,e.y,"accent",3)}}
+  // 墨裂盛甲：分裂命中刷新减伤窗口
+  if(p.splitShieldActive&&atk.split){p.splitShieldTicks=120;spawnP(g,p.x,p.y,"frost",2)}
   // 铃木鱼：ring命中减速敌人追加魂伤（每ring限6次）
   if(p.ringSoulHit&&atk.type==="ring"&&e.slowT>0){
     if(!atk._soulHits)atk._soulHits=0;
@@ -1675,6 +1680,7 @@ function update(g){
   if(p.speedBurstT>0)p.speedBurstT--;
   if(p.killAtkTimer>0)p.killAtkTimer--;
   if(p.hurtShieldTicks>0)p.hurtShieldTicks--;
+  if(p.splitShieldTicks>0)p.splitShieldTicks--;
   // 墨息珠：击杀后持续回血
   if(p.breathOnKill&&p.breathTicks>0){
     p.breathTicks--;
@@ -3946,7 +3952,8 @@ function rebuildPlayerStats(g){
     'splitBoomOnHit',
     'bossHurtGuard',
     'healOverflowBoom',
-    'dotAccumBoom'];
+    'dotAccumBoom',
+    'splitShieldActive','splitShieldTicks'];
   rk.concat(ck).forEach(function(k){f[k]=o[k]});
   g.relics.forEach(function(r){try{r.fn(f)}catch(e){}});
   if(g.evolution)g.evolution.fn(f);

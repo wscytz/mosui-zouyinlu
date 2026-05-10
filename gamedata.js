@@ -276,7 +276,9 @@ var RELICS=[
   {id:"moyingyi",name:"墨盈溢",type:"墨具",tags:["治疗","爆炸"],
     effect:"满血时受到治疗，溢出部分转化为3倍伤害墨爆溅射到周围",fn:function(p){p.healOverflowBoom=true}},
   {id:"mofenyu",name:"墨焚域",type:"域具",tags:["持续","爆炸"],
-    effect:"持续伤害累计30点后，该敌人引爆，对周围造成累计伤害一半的AOE",fn:function(p){p.dotAccumBoom=true}}
+    effect:"持续伤害累计30点后，该敌人引爆，对周围造成累计伤害一半的AOE",fn:function(p){p.dotAccumBoom=true}},
+  {id:"molieshengjia",name:"墨裂盛甲",type:"甲具",tags:["分裂","防御"],
+    effect:"分裂弹命中敌人后2秒内受伤减伤35%，每次分裂命中刷新时长",fn:function(p){p.splitShieldActive=true}}
 ];
 
 var EVOLUTIONS={
