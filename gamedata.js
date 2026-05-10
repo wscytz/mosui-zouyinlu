@@ -272,7 +272,11 @@ var RELICS=[
   {id:"molefubao",name:"墨烈符爆",type:"符具",tags:["分裂","爆炸"],
     effect:"分裂命中25%几率在敌人身上引爆小型墨焰，对周围敌人造成主伤45%溅射",fn:function(p){p.splitBoomOnHit=true}},
   {id:"mozhenjia",name:"墨震甲",type:"甲具",tags:["爆炸","防御"],
-    effect:"受Boss伤害-30%，同时向周围墨震爆裂反击6点",fn:function(p){p.bossHurtGuard=true}}
+    effect:"受Boss伤害-30%，同时向周围墨震爆裂反击6点",fn:function(p){p.bossHurtGuard=true}},
+  {id:"moyingyi",name:"墨盈溢",type:"墨具",tags:["治疗","爆炸"],
+    effect:"满血时受到治疗，溢出部分转化为3倍伤害墨爆溅射到周围",fn:function(p){p.healOverflowBoom=true}},
+  {id:"mofenyu",name:"墨焚域",type:"域具",tags:["持续","爆炸"],
+    effect:"持续伤害累计30点后，该敌人引爆，对周围造成累计伤害一半的AOE",fn:function(p){p.dotAccumBoom=true}}
 ];
 
 var EVOLUTIONS={

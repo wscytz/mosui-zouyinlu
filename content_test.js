@@ -1944,8 +1944,26 @@ code+='\n'+[
 '  if(!g.player.bossHurtGuard)errors.push("189d: not set");',
 '}catch(e){errors.push("189: "+e.message)}',
 
+'// Test 190: v4.28 墨盈溢',
+'try{',
+'  var r=RELICS.find(function(x){return x.id==="moyingyi"});',
+'  if(!r)errors.push("190a: not found");',
+'  else{if(!r.tags||r.tags.length<2)errors.push("190b");if(!r.fn)errors.push("190c");}',
+'  var g=newGame("jian","normal");r.fn(g.player);',
+'  if(!g.player.healOverflowBoom)errors.push("190d: not set");',
+'}catch(e){errors.push("190: "+e.message)}',
+
+'// Test 191: v4.28 墨焚域',
+'try{',
+'  var r=RELICS.find(function(x){return x.id==="mofenyu"});',
+'  if(!r)errors.push("191a: not found");',
+'  else{if(!r.tags||r.tags.length<2)errors.push("191b");if(!r.fn)errors.push("191c");}',
+'  var g=newGame("jian","normal");r.fn(g.player);',
+'  if(!g.player.dotAccumBoom)errors.push("191d: not set");',
+'}catch(e){errors.push("191: "+e.message)}',
+
 'if(errors.length){console.log("FAIL ("+errors.length+"):");errors.forEach(function(e){console.log("  - "+e)});process.exit(1)}',
-'else{console.log("ALL 151 TESTS PASSED");',
+'else{console.log("ALL 153 TESTS PASSED");',
 '  console.log(" 37-62. (previous 26 tests)");',
 '  console.log(" 63-68. v2.10 (墨阵/墨童/阵眼/墨竭)");',
 '  console.log(" 69-78. v2.11 (墨镜/回春阵/墨涡/墨蝠/墨瘴/墨吸/墨甲)");',
@@ -2010,6 +2028,8 @@ code+='\n'+[
 '  console.log(" 187. v4.28 墨散芝(治疗/溅射) — 击杀大溅射+回血");',
 '  console.log(" 188. v4.28 墨烈符爆(分裂/爆炸) — 分裂命中爆裂");',
 '  console.log(" 189. v4.28 墨震甲(爆炸/防御) — Boss命中反击");',
+'  console.log(" 190. v4.28 墨盈溢(治疗/爆炸) — 治疗溢出转AOE(创新)");',
+'  console.log(" 191. v4.28 墨焚域(持续/爆炸) — DoT累计爆炸(创新)");',
 '}',
 ].join('\n');
 

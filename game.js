@@ -309,6 +309,8 @@ function mkPlayer(){
     killSplashWideHeal:false,
     splitBoomOnHit:false,
     bossHurtGuard:false,
+    healOverflowBoom:false,
+    dotAccumBoom:false,
     idleT:0}
 }
 
@@ -845,7 +847,12 @@ function onEnemyKilled(g,e,source,opts){
     p.hp=Math.min(p.maxHp,p.hp+healAmt2);
     var healed2=p.hp-oldHp2;if(healed2>0)pushLimited(g.floatTexts,{x:p.x,y:p.y-p.r-18,text:"+"+healed2,life:30,maxLife:30,reason:"heal"},LIMITS.floatTexts);
     // 续命墨：溢出治疗转护盾
-    if(p.healToShield){var overflow=healAmt2-healed2;if(overflow>0){p.shieldStack=(p.shieldStack||0)+overflow;pushLimited(g.floatTexts,{x:p.x,y:p.y-p.r-24,text:"盾+"+overflow,life:30,maxLife:30,reason:"shield"},LIMITS.floatTexts);spawnP(g,p.x,p.y,"accent",3)}}}
+    if(p.healToShield){var overflow=healAmt2-healed2;if(overflow>0){p.shieldStack=(p.shieldStack||0)+overflow;pushLimited(g.floatTexts,{x:p.x,y:p.y-p.r-24,text:"盾+"+overflow,life:30,maxLife:30,reason:"shield"},LIMITS.floatTexts);spawnP(g,p.x,p.y,"accent",3)}}
+    // 墨盈溢：溢出治疗转爆炸AOE(3倍)
+    if(p.healOverflowBoom){var ovb=healAmt2-healed2;if(ovb>0){var obDmg=ovb*3;var obR=RANGES.splashBoom*RANGES.splashBoom*0.64;
+      forEachLiveEnemy(g,function(oe){if(dstSq(oe,p)<obR)damageEnemy(g,oe,obDmg,"healBoom")});
+      pushLimited(g.floatTexts,{x:p.x,y:p.y-p.r-28,text:"溢"+obDmg,life:30,maxLife:30,reason:"dmg"},LIMITS.floatTexts);
+      spawnP(g,p.x,p.y,"fire",5);spawnP(g,p.x,p.y,"accent",3);shake(g,4,3)}}}
   if(p.killSpeed)p.killSpdTimer=45;
   if(p.killAtkSpd)p.killAtkTimer=90;
   // v1.3 遗物触发
@@ -906,6 +913,12 @@ function damageEnemy(g,e,dmg,source,opts){
   dmg=Math.floor(dmg*(e.armorMult||1));
   var actualDmg=Math.max(1,dmg);
   e.hp-=actualDmg;e.hitFlash=6;
+  // 墨焚域：持续伤害累计30后引爆
+  if(p.dotAccumBoom&&(source==="frost"||source==="fire"||source==="dot"||source==="splitDot"||source==="wideHeal")&&!e._dotBoomed){
+    e._dotAccum=(e._dotAccum||0)+actualDmg;
+    if(e._dotAccum>=30){e._dotBoomed=true;var dbDmg=Math.ceil(e._dotAccum*0.5);var dbR=RANGES.splashBoom*RANGES.splashBoom*0.5;
+      forEachLiveEnemy(g,function(oe){if(oe!==e&&dstSq(e,oe)<dbR)damageEnemy(g,oe,dbDmg,"dotBoom")});
+      spawnP(g,e.x,e.y,"fire",6);spawnP(g,e.x,e.y,"accent",4);shake(g,3,2)}}
   // 墨爆弹：敌人HP低于30%时自动引爆
   if(p.executeExplode&&e.hp>0&&e.hp<e.maxHp*0.3&&!e._execExploded){
     e._execExploded=true;
@@ -3931,7 +3944,9 @@ function rebuildPlayerStats(g){
     'hurtShieldActive','hurtShieldTicks',
     'killSplashWideHeal',
     'splitBoomOnHit',
-    'bossHurtGuard'];
+    'bossHurtGuard',
+    'healOverflowBoom',
+    'dotAccumBoom'];
   rk.concat(ck).forEach(function(k){f[k]=o[k]});
   g.relics.forEach(function(r){try{r.fn(f)}catch(e){}});
   if(g.evolution)g.evolution.fn(f);
