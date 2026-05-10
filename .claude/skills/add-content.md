@@ -130,3 +130,15 @@ git push
 - 每次合并后都跑全量测试，不要跳过
 - 测试数必须递增，content_test 总数要更新
 - agent 文件末尾的版本号是维护的关键信号——过时了就更新
+- **HTML实体问题**：agent 产出的 `>=` `<=` `>` `<` 可能被编码为 `&gt;=` `&lt;=` `&gt;` `&lt;`，合并时必须替换
+- **agent 可能直接改文件**：有些 agent 会绕过"只输出代码块"的指令直接编辑文件，合并前先 `git diff` 检查
+- **变量声明顺序**：agent 建议的插入点可能在变量声明之前（如 dmg 在 line 1019 才声明但 agent 建议在 line 1016 使用），合并时验证变量可用性
+- **BUILD_PREFS 死标签**：定期运行 balance-auditor 检查，发现死标签及时补遗物标签或从 BUILD_PREFS 移除
+
+## 调试记录
+
+### v4.25 测试轮次发现的问题
+1. **relic-designer**: 块3插入点在 `var dmg` 声明之前 → 已在 agent 文件中加 pAtk 插入点警告
+2. **enemy-designer**: 测试代码含 HTML 实体 `&gt;=` → 已在 agent 文件中记录
+3. **content-writer**: 直接改了源文件而非输出代码块 → 已在 agent 文件中加警告
+4. **balance-auditor**: 发现 BUILD_PREFS "攻速" 死标签 → 已补遗物标签修复
