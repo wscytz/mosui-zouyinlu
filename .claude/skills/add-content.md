@@ -20,33 +20,55 @@
 
 如果用户没指定细节，参考 balance-auditor 的最新报告决定填什么。
 
-### Step 2: 读取 agent 定义
+### Step 2: 构建上下文包（省 token 关键）
 
-根据内容类型读取对应文件：
-- `.claude/agents/relic-designer.md`
-- `.claude/agents/enemy-designer.md`
-- `.claude/agents/content-writer.md`
-- `.claude/agents/balance-auditor.md`
+**不要让 agent 自己去搜索！** 主 Claude 用一次 bash 提取所有 agent 需要的上下文，打包进去。
 
-### Step 3: 派发 agent
-
-**单类型**：spawn 1 个 agent，传入 agent 定义 + 用户需求。
-
-**多类型并发**：如用户要"加个遗物和个敌人"，spawn 2 个 agent **并行**（同一消息多个 Agent 调用）。
-
-Agent prompt 模板：
-```
-你是墨祟：走阴录的[角色名]。
-
-以下是你的规则和模板：
-[agent文件完整内容]
-
-用户需求：[用户的具体要求]
-
-请按输出格式要求产出代码块。确保通过质量自检清单。
+```bash
+# 一键提取所有 agent 需要的上下文
+node -e "
+eval(require('fs').readFileSync('gamedata.js','utf8'));
+console.log('=== EXISTING_IDS ===');
+console.log('RELICS:');RELICS.forEach(function(r){console.log(' '+r.id)});
+console.log('ETYPE:');Object.keys(ETYPE).forEach(function(k){console.log(' '+k)});
+console.log('ACHIEVEMENTS:');ACHIEVEMENTS.forEach(function(a){console.log(' '+a.id)});
+console.log('CURSES:');CURSES.forEach(function(c){console.log(' '+c.id)});
+console.log('=== COUNTS ===');
+console.log('RELICS:'+RELICS.length+' ACH:'+ACHIEVEMENTS.length+' CURSES:'+CURSES.length+' ETYPE:'+Object.keys(ETYPE).length);
+"
 ```
 
-**重要**：agent 用 `subagent_type: "general-purpose"`，不要用 worktree（因为 agent 不改文件，只输出代码）。
+### Step 3: 读取精简 agent 定义
+
+不用完整 agent 文件！读关键规则摘要即可：
+- 输出块数量 + 格式
+- mkPlayer/rebuildPlayerStats 当前最后几个字段（用 grep 获取）
+- 禁止事项清单
+- 质量自检清单
+
+### Step 4: 派发 agent（高效版）
+
+Agent prompt 结构：
+```
+[角色一句话] + [需求一句话]
+
+=== 上下文（已提取，无需搜索）===
+- 现有ID列表：[...]
+- 当前最后mkPlayer字段：[...]
+- 当前rebuildPlayerStats ck末尾：[...]
+- 测试编号: N / 总数: M
+
+=== 输出要求 ===
+[N块代码，块名+插入位置标注]
+
+不要修改任何文件，只输出代码块。不要搜索代码库。
+```
+
+- 单类型：1个 agent
+- 多类型并发：N个 agent 同时派发
+- agent 用 `subagent_type: "general-purpose"`，不用 worktree
+
+**关键原则：agent 只设计+填空，不搜索。**
 
 ### Step 4: 合并产出
 
@@ -142,3 +164,9 @@ git push
 2. **enemy-designer**: 测试代码含 HTML 实体 `&gt;=` → 已在 agent 文件中记录
 3. **content-writer**: 直接改了源文件而非输出代码块 → 已在 agent 文件中加警告
 4. **balance-auditor**: 发现 BUILD_PREFS "攻速" 死标签 → 已补遗物标签修复
+
+### v4.26 并发测试发现
+1. **并发可行**: relic-designer + enemy-designer 同时派发，产出互不冲突（改不同区段）
+2. **测试编号冲突**: 两个 agent 都用了 test 176 → 主 Claude 需重编号（relic=176, enemy=177）
+3. **本次 agent 都只输出代码块**，没有直接改文件 — 提示词中的"不要修改任何文件"有效
+4. **墨碑设计优秀**: agent 主动选择了 hasShield+deathBuff 组合（现有敌人无此组合），展示了现有标记复用能力

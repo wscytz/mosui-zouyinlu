@@ -295,6 +295,7 @@ function mkPlayer(){
     hurtRetaliate:false,hurtRetaliateDmg:0,
     blindDmgBoost:0,
     splashDeathBoom:false,splashDeathBoomChance:0,splashDeathBoomRatio:0,
+    splashRippleStack:false,splashRippleMax:0,splashRippleBonus:0,_rippleStacks:0,
     maxHpOverride:0,extraStartRelics:0,extraRelicChoice:false,
     enemyHpMult:1,enemySpdMult:1,allElite:false,relicPower:1,_relicPowerApplied:false,
     enemyFlicker:false,inkBrandCurse:false,missChance:0,hitDmgMult:0,
@@ -3854,7 +3855,8 @@ function rebuildPlayerStats(g){
     'splitOnHit','splitChance',
     'hurtRetaliate','hurtRetaliateDmg',
     'blindDmgBoost',
-    'splashDeathBoom','splashDeathBoomChance','splashDeathBoomRatio'];
+    'splashDeathBoom','splashDeathBoomChance','splashDeathBoomRatio',
+    'splashRippleStack','splashRippleMax','splashRippleBonus','_rippleStacks'];
   rk.concat(ck).forEach(function(k){f[k]=o[k]});
   g.relics.forEach(function(r){try{r.fn(f)}catch(e){}});
   if(g.evolution)g.evolution.fn(f);

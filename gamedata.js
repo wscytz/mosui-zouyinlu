@@ -250,7 +250,9 @@ var RELICS=[
   {id:"mangmou",name:"盲牟",type:"瞳器",tags:["诅咒","爆发"],
     effect:"致盲期间攻击伤害+60%（致盲反而变强）",fn:function(p){p.blindDmgBoost=(p.blindDmgBoost||0)+0.6}},
   {id:"molianbao",name:"墨涟爆",type:"爆具",tags:["溅射","爆炸"],
-    effect:"溅射击杀敌人时有40%概率触发二次墨爆，对周围造成35%攻击力伤害",fn:function(p){p.splashDeathBoom=true;p.splashDeathBoomChance=(p.splashDeathBoomChance||0)+0.4;p.splashDeathBoomRatio=(p.splashDeathBoomRatio||0)+0.35}}
+    effect:"溅射击杀敌人时有40%概率触发二次墨爆，对周围造成35%攻击力伤害",fn:function(p){p.splashDeathBoom=true;p.splashDeathBoomChance=(p.splashDeathBoomChance||0)+0.4;p.splashDeathBoomRatio=(p.splashDeathBoomRatio||0)+0.35}},
+  {id:"molielian",name:"墨裂涟",type:"漪具",tags:["分裂","溅射"],
+    effect:"溅射伤害命中时蓄墨涟层数（最多3层），下次攻击消耗层数，每层+8%伤害",fn:function(p){p.splashRippleStack=true;p.splashRippleMax=3;p.splashRippleBonus=0.08}}
 ];
 
 var EVOLUTIONS={
@@ -386,7 +388,11 @@ var ETYPE={
   // v4.26 new enemy
   mobei:{name:"墨碑",tip:"带盾辅助型，死后增益周围敌人，先孤立再击杀",hp:82,spd:0.6,r:19,dmg:9,atkR:32,atkCd:65,col:"rgba(141,125,105,0.4)",edge:C.ash,
     hasShield:true,shield:32,maxShield:32,shieldRegen:340,
-    deathBuff:true,deathBuffR:150,deathBuffT:220}
+    deathBuff:true,deathBuffR:150,deathBuffT:220},
+  // v4.27 new enemy
+  mozhang:{name:"墨瘴",tip:"移动散布瘴气，死后释放墨潭减速，远程击杀为上",hp:62,spd:1.3,r:14,dmg:7,atkR:32,atkCd:54,col:"rgba(55,70,60,0.45)",edge:C.moss,
+    poisonTrail:true,
+    deathSlow:true,deathSlowR:85,deathSlowT:130}
 };
 
 var LIMITS={particles:260,fires:72,attacks:90,eProj:90,floatTexts:18,decoys:12,kites:4,frosts:12,enemies:80,inkSpirits:6};
@@ -462,7 +468,7 @@ var TUNING={
 };
 
 var DEATH_COLOR={zhikui:"ash",youhun:"moss",fenling:"fire",shigui:"soft",gudeng:"gold",jiangshi:"ink",boss:"accent",
-  zhikuang:"ghost",fenshen:"soul",modun:"soft",mojiangjun:"ink",moguiwang:"accent",moya:"ink",shiyong:"soft",yanyong:"fire",sukui:"ash",duzhu:"moss",gushi:"boss",huapi:"accent",mozhi:"ink",motong:"ink",mofu:"ink",modie:"moss",moyong:"ink",morui:"accent",mozhu:"moss",mogu:"ash",momian:"ink",mojar:"ink",moying:"moss",mooushi:"ghost",mozhuhou:"ink",moling:"moss",mobei:"ash"};
+  zhikuang:"ghost",fenshen:"soul",modun:"soft",mojiangjun:"ink",moguiwang:"accent",moya:"ink",shiyong:"soft",yanyong:"fire",sukui:"ash",duzhu:"moss",gushi:"boss",huapi:"accent",mozhi:"ink",motong:"ink",mofu:"ink",modie:"moss",moyong:"ink",morui:"accent",mozhu:"moss",mogu:"ash",momian:"ink",mojar:"ink",moying:"moss",mooushi:"ghost",mozhuhou:"ink",moling:"moss",mobei:"ash",mozhang:"moss"};
 
 var JUDGMENTS=["斩业已断","纸命归灰","照见真形","朱批落定","一念归尘","墨尽灯枯","形消魄散","笔落惊魂"];
 
@@ -480,12 +486,12 @@ var BUILD_PREFS={
 function _ri(a,b){return Math.floor(a+Math.random()*(b-a+1))}
 function _pick(a){return a[Math.floor(Math.random()*a.length)]}
 // --- Procedural wave generation ---
-var ENEMY_COST={zhikui:1,youhun:1.5,zhikuang:1.5,fenling:2,gudeng:2,shigui:2.5,fenshen:2.5,modun:2.5,jiangshi:3,moya:1.8,shiyong:3,yanyong:2.2,sukui:1.3,duzhu:1.7,gushi:2.8,huapi:1.9,mozhi:1.4,motong:1.2,mofu:1.1,modie:1.5,moyong:2.0,morui:0.7,mozhu:1.8,mogu:2.8,momian:1.6,mojar:2.0,moying:1.5,mooushi:2.5,mozhuhou:3.0,moling:1.8,mobei:2.5,boss:99,mojiangjun:99,moguiwang:99};
+var ENEMY_COST={zhikui:1,youhun:1.5,zhikuang:1.5,fenling:2,gudeng:2,shigui:2.5,fenshen:2.5,modun:2.5,jiangshi:3,moya:1.8,shiyong:3,yanyong:2.2,sukui:1.3,duzhu:1.7,gushi:2.8,huapi:1.9,mozhi:1.4,motong:1.2,mofu:1.1,modie:1.5,moyong:2.0,morui:0.7,mozhu:1.8,mogu:2.8,momian:1.6,mojar:2.0,moying:1.5,mooushi:2.5,mozhuhou:3.0,moling:1.8,mobei:2.5,mozhang:2.0,boss:99,mojiangjun:99,moguiwang:99};
 var WAVE_BUDGETS=[5,7,9.5,12,14.5,17.5,21,25,28,32,36,0];
 var WAVE_TIERS=[
   ["zhikui","youhun"],
   ["zhikui","youhun","fenling","zhikuang","moya","sukui","huapi","mozhi","motong","mofu","modie","moying"],
-  ["zhikui","youhun","fenling","gudeng","shigui","fenshen","moya","shiyong","sukui","yanyong","duzhu","mozhu","moying","mooushi","moling"],
+  ["zhikui","youhun","fenling","gudeng","shigui","fenshen","moya","shiyong","sukui","yanyong","duzhu","mozhu","moying","mooushi","moling","mozhang"],
   ["zhikuang","fenling","gudeng","shigui","fenshen","modun","jiangshi","moya","shiyong","yanyong","gushi","mozhu","mogu","mojar","mooushi","mobei"],
   ["fenling","gudeng","shigui","fenshen","modun","jiangshi","moya","shiyong","yanyong","duzhu","gushi","mozhu","mogu","momian","mojar","mooushi","mozhuhou"]
 ];
