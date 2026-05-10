@@ -308,7 +308,12 @@ var RELICS=[
   {id:"motiejie",name:"墨铁界",type:"甲具",tags:["冰","反击"],effect:"减速+18%，反弹+25%",fn:function(p){p.slowOnHit=Math.max(p.slowOnHit||0,0.18);p.thorns=(p.thorns||0)+0.25}},
   {id:"mocanxue",name:"墨残血",type:"禁物",tags:["诅咒","暴击"],effect:"暴击伤害+50%，受伤+10%",fn:function(p){p.stats.critDmg+=0.5;p.extraDmgTaken=(p.extraDmgTaken||0)+0.1}},
   {id:"mopeng",name:"墨篷",type:"篷具",tags:["闪避","机动"],effect:"移速+18%，暴击率+5%",fn:function(p){p.stats.spd+=0.18;p.stats.critRate+=0.05}},
-  {id:"mojianshi",name:"墨间石",type:"石具",tags:["生存","击杀"],effect:"防御+10%，击杀回2HP",fn:function(p){p.stats.def+=0.1;p.killHeal=(p.killHeal||0)+2}}
+  {id:"mojianshi",name:"墨间石",type:"石具",tags:["生存","击杀"],effect:"防御+10%，击杀回2HP",fn:function(p){p.stats.def+=0.1;p.killHeal=(p.killHeal||0)+2}},
+  {id:"moyunshi",name:"墨云石",type:"石具",tags:["生存","机动"],effect:"防御+10%，移速+6%",fn:function(p){p.stats.def+=0.1;p.stats.spd+=0.06}},
+  {id:"mohanfeng",name:"墨寒风",type:"风具",tags:["冰","机动"],effect:"移速+10%，减速+12%",fn:function(p){p.stats.spd+=0.1;p.slowOnHit=Math.max(p.slowOnHit||0,0.12)}},
+  {id:"moxue",name:"墨血",type:"禁物",tags:["诅咒","魂"],effect:"魂伤+6，但受伤+15%",fn:function(p){p.soulDmg+=6;p.extraDmgTaken=(p.extraDmgTaken||0)+0.15}},
+  {id:"mojinbiao",name:"墨金镖",type:"镖具",tags:["远程","暴击"],effect:"弹道穿透，暴击率+8%",fn:function(p){p.projPierce=true;p.stats.critRate+=0.08}},
+  {id:"mozhendang",name:"墨震铛",type:"铛具",tags:["控场","处决"],effect:"范围+18%，伤害+12%",fn:function(p){p.stats.range+=0.18;p.stats.dmg+=0.12}}
 ];
 
 var EVOLUTIONS={
