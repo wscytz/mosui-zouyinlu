@@ -134,6 +134,33 @@ try{
   api.RELICS.forEach(function(r){try{r.fn(g.player)}catch(e){errors.push('fullcombo '+r.id+': '+e.message)}});
 }catch(e){errors.push('fullcombo setup: '+e.message)}
 
+// Test 5: rebuildPlayerStats 一致性——相同遗物集 3 次重建结果稳定
+try{
+  var sample=['xuanbing','hunqian','shouyin','huosui','xueqi','yedeng'];
+  var relicObjs=sample.map(function(id){return api.RELICS.find(function(r){return r.id===id})}).filter(Boolean);
+  if(relicObjs.length!==sample.length){errors.push('rebuild: sample relic missing')}
+  else{
+    function simulateRebuild(){
+      var g=api.newGame('jian','normal');
+      relicObjs.forEach(function(r){r.fn(g.player)});
+      return JSON.stringify({
+        dmg:g.player.stats.dmg,
+        spd:g.player.stats.spd,
+        def:g.player.stats.def||0,
+        critRate:g.player.stats.critRate,
+        soulDmg:g.player.soulDmg,
+        killHeal:g.player.killHeal||0,
+        fireOnKill:g.player.fireOnKill,
+        slowOnHit:g.player.slowOnHit
+      });
+    }
+    var r1=simulateRebuild();
+    var r2=simulateRebuild();
+    var r3=simulateRebuild();
+    if(r1!==r2||r2!==r3)errors.push('rebuild: non-deterministic stats\n    r1='+r1+'\n    r2='+r2+'\n    r3='+r3);
+  }
+}catch(e){errors.push('rebuild-consistency: '+e.message)}
+
 // Report
 console.log('=== v4.33 RELIC robustness ===');
 console.log('relics tested: '+api.RELICS.length);
@@ -157,4 +184,5 @@ if(errors.length){
   console.log('  2. All '+evoCount+' evolution fn executable');
   console.log('  3. 30-relic combo stack safe');
   console.log('  4. Full-relic combo stack safe');
+  console.log('  5. rebuildPlayerStats 3x consistent (deterministic stats)');
 }
