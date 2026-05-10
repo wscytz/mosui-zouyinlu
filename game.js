@@ -294,6 +294,7 @@ function mkPlayer(){
     splitOnHit:false,splitChance:0,
     hurtRetaliate:false,hurtRetaliateDmg:0,
     blindDmgBoost:0,
+    splashDeathBoom:false,splashDeathBoomChance:0,splashDeathBoomRatio:0,
     maxHpOverride:0,extraStartRelics:0,extraRelicChoice:false,
     enemyHpMult:1,enemySpdMult:1,allElite:false,relicPower:1,_relicPowerApplied:false,
     enemyFlicker:false,inkBrandCurse:false,missChance:0,hitDmgMult:0,
@@ -724,6 +725,12 @@ function onEnemyKilled(g,e,source,opts){
     var fsR=55;var fsDmg=Math.max(1,Math.ceil(p.stats.dmg*(p.fireSplashRatio||0.2)));
     forEachLiveEnemy(g,function(oe){if(dstSq(e,oe)<fsR*fsR)damageEnemy(g,oe,fsDmg,"fire")});
     spawnP(g,e.x,e.y,"fire",6)}
+  // 墨涟爆：溅射源击杀时概率二次爆炸
+  if(p.splashDeathBoom&&!e.isBoss&&(source==="splash"||source==="fire"||source==="killExplode"||source==="critShrapnel"||source==="executeExplode")){
+    if(Math.random()<(p.splashDeathBoomChance||0.4)){
+      var sbR=RANGES.splashBoom*RANGES.splashBoom;var sbDmg=Math.max(1,Math.ceil(p.stats.dmg*(p.splashDeathBoomRatio||0.35)));
+      forEachLiveEnemy(g,function(oe){if(dstSq(e,oe)<sbR)damageEnemy(g,oe,sbDmg,"splashBoom")});
+      spawnP(g,e.x,e.y,"ink",8);spawnP(g,e.x,e.y,"accent",4);shake(g,4,3);snd("hit")}}
   if(source==="killExplode")g.killExplodeKills++;
   if(source==="executeExplode")g.executeKills=(g.executeKills||0)+1;
   if(p.blindT>0)g.blindKills++;
@@ -3846,7 +3853,8 @@ function rebuildPlayerStats(g){
     'healToShield',
     'splitOnHit','splitChance',
     'hurtRetaliate','hurtRetaliateDmg',
-    'blindDmgBoost'];
+    'blindDmgBoost',
+    'splashDeathBoom','splashDeathBoomChance','splashDeathBoomRatio'];
   rk.concat(ck).forEach(function(k){f[k]=o[k]});
   g.relics.forEach(function(r){try{r.fn(f)}catch(e){}});
   if(g.evolution)g.evolution.fn(f);

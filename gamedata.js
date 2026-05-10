@@ -248,7 +248,9 @@ var RELICS=[
   {id:"motiebi",name:"墨铁壁",type:"壁具",tags:["防御","反击"],
     effect:"受击后获得1秒无敌+向周围释放反击波",fn:function(p){p.hurtRetaliate=true;p.hurtRetaliateDmg=(p.hurtRetaliateDmg||0)+5}},
   {id:"mangmou",name:"盲牟",type:"瞳器",tags:["诅咒","爆发"],
-    effect:"致盲期间攻击伤害+60%（致盲反而变强）",fn:function(p){p.blindDmgBoost=(p.blindDmgBoost||0)+0.6}}
+    effect:"致盲期间攻击伤害+60%（致盲反而变强）",fn:function(p){p.blindDmgBoost=(p.blindDmgBoost||0)+0.6}},
+  {id:"molianbao",name:"墨涟爆",type:"爆具",tags:["溅射","爆炸"],
+    effect:"溅射击杀敌人时有40%概率触发二次墨爆，对周围造成35%攻击力伤害",fn:function(p){p.splashDeathBoom=true;p.splashDeathBoomChance=(p.splashDeathBoomChance||0)+0.4;p.splashDeathBoomRatio=(p.splashDeathBoomRatio||0)+0.35}}
 ];
 
 var EVOLUTIONS={
@@ -380,7 +382,11 @@ var ETYPE={
   mooushi:{name:"墨偶师",tip:"远程召唤师，边射墨弹边召唤傀儡",hp:55,spd:0.9,r:14,dmg:5,atkR:150,atkCd:70,col:"rgba(60,40,55,0.35)",edge:C.ghost,ranged:true,pSpd:3,summoner:true,summonCd:180,summonMax:3},
   mozhuhou:{name:"墨蛛后",tip:"会生成小蛛的精英型敌人，优先击杀",hp:85,spd:0.75,r:18,dmg:12,atkR:30,atkCd:50,col:"rgba(50,35,30,0.4)",edge:C.ink,summoner:true,summonCd:200,summonMax:4},
   // v4.25 new enemy
-  moling:{name:"墨蛉",tip:"远程减速弹，中弹后行动迟缓",hp:48,spd:1.5,r:10,dmg:6,atkR:200,atkCd:72,col:"rgba(23,19,16,0.35)",edge:C.moss,ranged:true,pSpd:4.2,webShot:true}
+  moling:{name:"墨蛉",tip:"远程减速弹，中弹后行动迟缓",hp:48,spd:1.5,r:10,dmg:6,atkR:200,atkCd:72,col:"rgba(23,19,16,0.35)",edge:C.moss,ranged:true,pSpd:4.2,webShot:true},
+  // v4.26 new enemy
+  mobei:{name:"墨碑",tip:"带盾辅助型，死后增益周围敌人，先孤立再击杀",hp:82,spd:0.6,r:19,dmg:9,atkR:32,atkCd:65,col:"rgba(141,125,105,0.4)",edge:C.ash,
+    hasShield:true,shield:32,maxShield:32,shieldRegen:340,
+    deathBuff:true,deathBuffR:150,deathBuffT:220}
 };
 
 var LIMITS={particles:260,fires:72,attacks:90,eProj:90,floatTexts:18,decoys:12,kites:4,frosts:12,enemies:80,inkSpirits:6};
@@ -425,7 +431,7 @@ var CAPS={critRate:0.65,bellCombo:15,shieldStack:3,atkCdFloor:4,soulChain:4,ring
 var RANGES={weakSpread:100,fireExpand:60,fear:100,soulChain:80,burst:50,
   decoyAttract:120,chargeMax:240,chargeMin:54,rangedMin:50,
   killPulse:100,critShrapnel:80,dodgeSoulGrab:120,inkSpirit:220,
-  spiritExplode:60,swoop:180,mimicReveal:55,buffAura:90,split:120,retaliate:80};
+  spiritExplode:60,swoop:180,mimicReveal:55,buffAura:90,split:120,retaliate:80,splashBoom:55};
 
 var TUNING={
   comboWindow:45,chargeThreshold:50,
@@ -456,7 +462,7 @@ var TUNING={
 };
 
 var DEATH_COLOR={zhikui:"ash",youhun:"moss",fenling:"fire",shigui:"soft",gudeng:"gold",jiangshi:"ink",boss:"accent",
-  zhikuang:"ghost",fenshen:"soul",modun:"soft",mojiangjun:"ink",moguiwang:"accent",moya:"ink",shiyong:"soft",yanyong:"fire",sukui:"ash",duzhu:"moss",gushi:"boss",huapi:"accent",mozhi:"ink",motong:"ink",mofu:"ink",modie:"moss",moyong:"ink",morui:"accent",mozhu:"moss",mogu:"ash",momian:"ink",mojar:"ink",moying:"moss",mooushi:"ghost",mozhuhou:"ink",moling:"moss"};
+  zhikuang:"ghost",fenshen:"soul",modun:"soft",mojiangjun:"ink",moguiwang:"accent",moya:"ink",shiyong:"soft",yanyong:"fire",sukui:"ash",duzhu:"moss",gushi:"boss",huapi:"accent",mozhi:"ink",motong:"ink",mofu:"ink",modie:"moss",moyong:"ink",morui:"accent",mozhu:"moss",mogu:"ash",momian:"ink",mojar:"ink",moying:"moss",mooushi:"ghost",mozhuhou:"ink",moling:"moss",mobei:"ash"};
 
 var JUDGMENTS=["斩业已断","纸命归灰","照见真形","朱批落定","一念归尘","墨尽灯枯","形消魄散","笔落惊魂"];
 
@@ -474,13 +480,13 @@ var BUILD_PREFS={
 function _ri(a,b){return Math.floor(a+Math.random()*(b-a+1))}
 function _pick(a){return a[Math.floor(Math.random()*a.length)]}
 // --- Procedural wave generation ---
-var ENEMY_COST={zhikui:1,youhun:1.5,zhikuang:1.5,fenling:2,gudeng:2,shigui:2.5,fenshen:2.5,modun:2.5,jiangshi:3,moya:1.8,shiyong:3,yanyong:2.2,sukui:1.3,duzhu:1.7,gushi:2.8,huapi:1.9,mozhi:1.4,motong:1.2,mofu:1.1,modie:1.5,moyong:2.0,morui:0.7,mozhu:1.8,mogu:2.8,momian:1.6,mojar:2.0,moying:1.5,mooushi:2.5,mozhuhou:3.0,moling:1.8,boss:99,mojiangjun:99,moguiwang:99};
+var ENEMY_COST={zhikui:1,youhun:1.5,zhikuang:1.5,fenling:2,gudeng:2,shigui:2.5,fenshen:2.5,modun:2.5,jiangshi:3,moya:1.8,shiyong:3,yanyong:2.2,sukui:1.3,duzhu:1.7,gushi:2.8,huapi:1.9,mozhi:1.4,motong:1.2,mofu:1.1,modie:1.5,moyong:2.0,morui:0.7,mozhu:1.8,mogu:2.8,momian:1.6,mojar:2.0,moying:1.5,mooushi:2.5,mozhuhou:3.0,moling:1.8,mobei:2.5,boss:99,mojiangjun:99,moguiwang:99};
 var WAVE_BUDGETS=[5,7,9.5,12,14.5,17.5,21,25,28,32,36,0];
 var WAVE_TIERS=[
   ["zhikui","youhun"],
   ["zhikui","youhun","fenling","zhikuang","moya","sukui","huapi","mozhi","motong","mofu","modie","moying"],
   ["zhikui","youhun","fenling","gudeng","shigui","fenshen","moya","shiyong","sukui","yanyong","duzhu","mozhu","moying","mooushi","moling"],
-  ["zhikuang","fenling","gudeng","shigui","fenshen","modun","jiangshi","moya","shiyong","yanyong","gushi","mozhu","mogu","mojar","mooushi"],
+  ["zhikuang","fenling","gudeng","shigui","fenshen","modun","jiangshi","moya","shiyong","yanyong","gushi","mozhu","mogu","mojar","mooushi","mobei"],
   ["fenling","gudeng","shigui","fenshen","modun","jiangshi","moya","shiyong","yanyong","duzhu","gushi","mozhu","mogu","momian","mojar","mooushi","mozhuhou"]
 ];
 var WAVE_PLACES=["纸门","纸灰巷","悬井口","鬼灯廊","无面台","墨池","灰潮","百鬼面","黄泉路","枯骨桥","阴风道","鬼市","鸦栖楼","幽冥渡"];
