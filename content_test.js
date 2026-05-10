@@ -1971,8 +1971,17 @@ code+='\n'+[
 '  if(!g.player.splitShieldActive)errors.push("192d: not set");',
 '}catch(e){errors.push("192: "+e.message)}',
 
+'// Test 193: v4.28 墨生防',
+'try{',
+'  var r=RELICS.find(function(x){return x.id==="moshengfang"});',
+'  if(!r)errors.push("193a: not found");',
+'  else{if(!r.tags||r.tags.length<2)errors.push("193b");if(!r.fn)errors.push("193c");}',
+'  var g=newGame("jian","normal");r.fn(g.player);',
+'  if(!g.player.fullHpDefense)errors.push("193d: not set");',
+'}catch(e){errors.push("193: "+e.message)}',
+
 'if(errors.length){console.log("FAIL ("+errors.length+"):");errors.forEach(function(e){console.log("  - "+e)});process.exit(1)}',
-'else{console.log("ALL 154 TESTS PASSED");',
+'else{console.log("ALL 155 TESTS PASSED");',
 '  console.log(" 37-62. (previous 26 tests)");',
 '  console.log(" 63-68. v2.10 (墨阵/墨童/阵眼/墨竭)");',
 '  console.log(" 69-78. v2.11 (墨镜/回春阵/墨涡/墨蝠/墨瘴/墨吸/墨甲)");',

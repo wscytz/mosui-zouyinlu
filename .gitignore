@@ -8,3 +8,5 @@ gen-batch.js
 .claude/tmp/*
 !.claude/tmp/.gitkeep
 .claude/skills/**/SKILL.md.bak-*
+.claude/worktrees/
+.claude/patches/

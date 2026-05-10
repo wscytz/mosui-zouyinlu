@@ -312,6 +312,7 @@ function mkPlayer(){
     healOverflowBoom:false,
     dotAccumBoom:false,
     splitShieldActive:false,splitShieldTicks:0,
+    fullHpDefense:false,
     idleT:0}
 }
 
@@ -1233,6 +1234,8 @@ function hurtP(g,dmg,src){
     spawnP(g,p.x,p.y,"fire",6);spawnP(g,p.x,p.y,"accent",3);shake(g,5,3)}
   // 墨裂盛甲：分裂命中窗口内减伤35%
   if(p.splitShieldActive&&p.splitShieldTicks>0){dmg=Math.ceil(dmg*0.65);spawnP(g,p.x,p.y,"frost",3)}
+  // 墨生防：满血时减伤25%
+  if(p.fullHpDefense&&p.hp>=p.maxHp*0.9){dmg=Math.ceil(dmg*0.75);spawnP(g,p.x,p.y,"ash",3)}
   // 墨池加成：敌人在墨池中攻击力+30%
   if(src&&inkPoolCheck(g,src.x,src.y)===1)dmg=Math.floor(dmg*TUNING.inkPoolDmgMult);
   // 伤害减免
@@ -3953,7 +3956,8 @@ function rebuildPlayerStats(g){
     'bossHurtGuard',
     'healOverflowBoom',
     'dotAccumBoom',
-    'splitShieldActive','splitShieldTicks'];
+    'splitShieldActive','splitShieldTicks',
+    'fullHpDefense'];
   rk.concat(ck).forEach(function(k){f[k]=o[k]});
   g.relics.forEach(function(r){try{r.fn(f)}catch(e){}});
   if(g.evolution)g.evolution.fn(f);

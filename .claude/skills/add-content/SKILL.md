@@ -135,6 +135,38 @@ CHANGESET:
 
 并发规则：默认最多 2 个 agent 并发。超过 2 个必须用户明确要求；否则拆成多轮串行。最稳配方是单 agent + 相关完整 context pack + raw/merged 双 validator。测试编号和合并永远由主 Claude 串行处理。
 
+**worktree 隔离（可选，2 并发及以上推荐）**：
+
+用户明确要 worktree、或者并发 ≥ 2 时启用。每个 agent 任务分配独立 git worktree，互不干扰；任一任务失败不影响其他任务。
+
+```bash
+# 主 Claude 在派 agent 前，为每个任务创建 worktree
+npm run wt:create -- <task-id>        # 创建 .claude/worktrees/<task-id>/ + 分支 tmp/add-content/<task-id>
+
+# agent 仍然只输出代码块（方案 A），主 Claude 把代码块合并到 worktree 里
+# cd .claude/worktrees/<task-id> && 改文件 + validate + test:all
+
+# 完成后产出 patch（可先只产出不应用，留人工确认）
+npm run wt:finish -- <task-id>               # 只产 patch 到 .claude/patches/<task-id>.patch
+npm run wt:finish -- <task-id> -- --apply    # 产 patch 并 git apply 到主分支 index
+npm run wt:finish -- <task-id> -- --abort    # 直接丢弃
+
+# 批量清理（任务组全部完成后）
+npm run wt:cleanup
+```
+
+使用约束：
+- worktree 目录在 `.claude/worktrees/`，被 `.gitignore` 挡住
+- patch 文件在 `.claude/patches/`，同样 gitignore
+- task-id 必须 `[a-z0-9_-]{1,31}`
+- apply 是累加到 index（不自动 commit），主 Claude 最终统一 git commit 所有 worktree 的改动
+- 失败 worktree 用 `--abort` 丢弃；**不得**用 `--apply` 合入部分失败的改动
+- 合并冲突通常来自 mkPlayer/ck 字段行。主 Claude 预分配字段名，每个 worktree 负责不同 id/字段；apply 顺序串行（一个接一个）避免同一行多次修改导致 patch 失效
+
+失败恢复：
+- 如果 `finish --apply` 失败（patch 冲突、文件被其他任务改过），保留 worktree，主 Claude 读 patch 手动合并，再 `wt:cleanup` 清除
+- 如果循环中断，`git worktree list` 查残留；`npm run wt:cleanup` 全清
+
 ### 5. 校验和合并产出
 
 收到代码块后：
