@@ -2330,3 +2330,7 @@ body.game-active #gameCanvas {
 .relic-pick[data-icon="moyanbao"] .ink-icon::after { width:4px;height:4px;background:var(--ink);border-radius:50%;transform:translate(4px,-10px) }
 .relic-pick[data-icon="moxuming"] .ink-icon::before { width:14px;height:14px;border:2px solid var(--paper);border-radius:50%;background:transparent;margin:5px auto 0 }
 .relic-pick[data-icon="moxuming"] .ink-icon::after { width:4px;height:4px;background:var(--accent);border-radius:50%;transform:translate(5px,-11px) }
+.relic-pick[data-icon="mohunbu"] .ink-icon::before { width:14px;height:14px;border:2px solid var(--accent);border-radius:50%;background:transparent;margin:5px auto 0 }
+.relic-pick[data-icon="mohunbu"] .ink-icon::after { width:4px;height:4px;background:var(--ink);border-radius:50%;transform:translate(5px,-11px) }
+.relic-pick[data-icon="mofenxin"] .ink-icon::before { width:12px;height:12px;background:var(--accent);border-radius:50% 50% 50% 0;transform:rotate(-45deg);margin:6px auto 2px }
+.relic-pick[data-icon="mofenxin"] .ink-icon::after { width:4px;height:4px;background:var(--ink);border-radius:50%;transform:translate(4px,-10px) }

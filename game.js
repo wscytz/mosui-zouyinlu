@@ -330,6 +330,8 @@ function mkPlayer(){
     burstHealUsed:false,
     splashFire:false,
     killSurvive:false,
+    spiritSpeed:false,
+    fireBurst:false,
     idleT:0}
 }
 
@@ -1413,6 +1415,8 @@ function hitE(g,atk,e){
     spawnP(g,e.x,e.y,"accent",3)}
   // 墨焰爆：命中生火
   if(p.splashFire&&Math.random()<0.2){addFire(g,{x:e.x,y:e.y,r:20,life:60,dmg:Math.max(1,Math.ceil(p.stats.dmg*0.15)),owner:"player",kind:"splashFire"});spawnP(g,e.x,e.y,"accent",3)}
+  // 墨焚心：低血火焰爆发
+  if(p.fireBurst&&p.hp<p.maxHp*0.3){addFire(g,{x:e.x,y:e.y,r:30,life:50,dmg:Math.max(1,Math.ceil(p.stats.dmg*0.2)),owner:"player",kind:"fireBurst"});spawnP(g,e.x,e.y,"accent",4)}
   // 墨蚀域：命中留大范围持续溅射区
   if(p.splashDot){
     pushLimited(g.frosts,{x:e.x,y:e.y,r:50,life:p.splashDotLife||180,maxLife:p.splashDotLife||180,dmg:p.splashDotDmg||1},LIMITS.frosts);
@@ -4050,7 +4054,9 @@ function rebuildPlayerStats(g){
     'burstHeal',
     'burstHealUsed',
     'splashFire',
-    'killSurvive'
+    'killSurvive',
+    'spiritSpeed',
+    'fireBurst'
     ];
   rk.concat(ck).forEach(function(k){f[k]=o[k]});
   g.relics.forEach(function(r){try{r.fn(f)}catch(e){}});
@@ -4062,6 +4068,8 @@ function rebuildPlayerStats(g){
   if(f.summonBurst&&g.inkSpirits&&g.inkSpirits.length>=3)f.stats.dmg+=0.2;
   // 墨咒心：生命加成+高血增伤
   if(f.curseHeart){f.maxHp+=20;if(f.hp>f.maxHp*0.5)f.stats.dmg+=0.1}
+  // 墨魂步：每只墨魂+3%移速
+  if(f.spiritSpeed&&g.inkSpirits&&g.inkSpirits.length>0)f.stats.spd+=g.inkSpirits.length*0.03;
   if(f.maxHpOverride>0)f.maxHp=f.maxHpOverride;
   if(f.spiritHpPenalty>0&&f.inkSpiritCount>0)f.maxHp=Math.max(20,f.maxHp-f.spiritHpPenalty*f.inkSpiritCount);
   if(f.hp>f.maxHp)f.hp=f.maxHp;
