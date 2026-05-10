@@ -262,7 +262,9 @@ var RELICS=[
   {id:"moobaohun",name:"墨爆魂",type:"魂器",tags:["爆炸","生命"],
     effect:"低血量时击杀敌人回复8点生命",fn:function(p){p.killBurstHeal=true}},
   {id:"moxuexing",name:"墨血星",type:"墨具",tags:["溅射","生命"],
-    effect:"击杀小怪时溅射墨血伤敌，回复2点生命",fn:function(p){p.killSplashHeal=true}}
+    effect:"击杀小怪时溅射墨血伤敌，回复2点生命",fn:function(p){p.killSplashHeal=true}},
+  {id:"molieshengfu",name:"墨裂生符",type:"符具",tags:["分裂","生命"],
+    effect:"分裂弹命中敌人时18%几率回复1点生命",fn:function(p){p.splitHitHeal=true}}
 ];
 
 var EVOLUTIONS={

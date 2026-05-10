@@ -304,6 +304,7 @@ function mkPlayer(){
     hurtSplash:false,hurtSplashDmg:0,
     killBurstHeal:false,
     killSplashHeal:false,
+    splitHitHeal:false,
     idleT:0}
 }
 
@@ -1353,6 +1354,11 @@ function hitE(g,atk,e){
         type:"proj",bounce:null,bounced:false,pierce:false});
     }
   }
+  // 墨裂生符：分裂弹命中时18%几率回血
+  if(p.splitHitHeal&&atk.split){
+    if(Math.random()<0.18){p.hp=Math.min(p.hp+1,p.maxHp);
+      pushLimited(g.floatTexts,{x:p.x,y:p.y-p.r-18,text:"+1",life:25,maxLife:25,reason:"heal"},LIMITS.floatTexts);
+      spawnP(g,p.x,p.y,"moss",3)}}
   // 铃木鱼：ring命中减速敌人追加魂伤（每ring限6次）
   if(p.ringSoulHit&&atk.type==="ring"&&e.slowT>0){
     if(!atk._soulHits)atk._soulHits=0;
@@ -3892,7 +3898,8 @@ function rebuildPlayerStats(g){
     'breathOnKill','breathTicks',
     'hurtSplash','hurtSplashDmg',
     'killBurstHeal',
-    'killSplashHeal'];
+    'killSplashHeal',
+    'splitHitHeal'];
   rk.concat(ck).forEach(function(k){f[k]=o[k]});
   g.relics.forEach(function(r){try{r.fn(f)}catch(e){}});
   if(g.evolution)g.evolution.fn(f);

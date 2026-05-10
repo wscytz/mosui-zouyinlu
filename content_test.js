@@ -1899,8 +1899,17 @@ code+='\n'+[
 '  if(!g.player.killSplashHeal)errors.push("184d: not set");',
 '}catch(e){errors.push("184: "+e.message)}',
 
+'// Test 185: v4.27 墨裂生符(分裂/生命)',
+'try{',
+'  var r=RELICS.find(function(x){return x.id==="molieshengfu"});',
+'  if(!r)errors.push("185a: not found");',
+'  else{if(!r.tags||r.tags.length<2)errors.push("185b");if(!r.fn)errors.push("185c");}',
+'  var g=newGame("jian","normal");r.fn(g.player);',
+'  if(!g.player.splitHitHeal)errors.push("185d: not set");',
+'}catch(e){errors.push("185: "+e.message)}',
+
 'if(errors.length){console.log("FAIL ("+errors.length+"):");errors.forEach(function(e){console.log("  - "+e)});process.exit(1)}',
-'else{console.log("ALL 156 TESTS PASSED");',
+'else{console.log("ALL 147 TESTS PASSED");',
 '  console.log(" 37-62. (previous 26 tests)");',
 '  console.log(" 63-68. v2.10 (墨阵/墨童/阵眼/墨竭)");',
 '  console.log(" 69-78. v2.11 (墨镜/回春阵/墨涡/墨蝠/墨瘴/墨吸/墨甲)");',
@@ -1960,6 +1969,7 @@ code+='\n'+[
 '  console.log(" 182. v4.27 墨裂蜥 — 冲锋+分裂敌人");',
 '  console.log(" 183. v4.27 墨爆魂(爆炸/生命) — 低血击杀回血");',
 '  console.log(" 184. v4.27 墨血星(溅射/生命) — 击杀溅射+回血");',
+'  console.log(" 185. v4.27 墨裂生符(分裂/生命) — 分裂命中回血");',
 '}',
 ].join('\n');
 
