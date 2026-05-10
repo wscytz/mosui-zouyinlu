@@ -319,7 +319,10 @@ var RELICS=[
   {id:"mozhoukai",name:"墨咒铠",type:"壁具",tags:["诅咒","生存"],effect:"受击时短暂无敌并反伤周围敌人",fn:function(p){p.curseSurv=true}},
   {id:"mofendan",name:"墨焚弹",type:"弹具",tags:["远程","火"],effect:"远程命中15%几率点燃敌人",fn:function(p){p.rangedFire=true}},
   {id:"mojuling",name:"墨聚灵",type:"聚具",tags:["召唤","爆发"],effect:"墨魂≥3只时伤害+20%",fn:function(p){p.summonBurst=true}},
-  {id:"mochongying",name:"墨冲影",type:"影具",tags:["冲刺","反击"],effect:"冲刺时对身边敌人造成反伤",fn:function(p){p.dashRetaliate=true}}
+  {id:"mochongying",name:"墨冲影",type:"影具",tags:["冲刺","反击"],effect:"冲刺时对身边敌人造成反伤",fn:function(p){p.dashRetaliate=true}},
+  {id:"mojifeng",name:"墨疾风",type:"风具",tags:["近战","机动"],effect:"近战击杀获得攻速+移速加成",fn:function(p){p.meleeMobility=true}},
+  {id:"mojiehuan",name:"墨劫环",type:"环具",tags:["范围","击杀"],effect:"击杀敌人时对周围造成范围伤害",fn:function(p){p.killAOE=true}},
+  {id:"moxueren",name:"墨血刃",type:"刃具",tags:["暴击","治疗"],effect:"暴击时回复少量生命",fn:function(p){p.critHeal=true}}
 ];
 
 var EVOLUTIONS={

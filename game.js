@@ -320,6 +320,9 @@ function mkPlayer(){
     rangedFire:false,
     summonBurst:false,
     dashRetaliate:false,
+    meleeMobility:false,
+    killAOE:false,
+    critHeal:false,
     idleT:0}
 }
 
@@ -755,6 +758,13 @@ function onEnemyKilled(g,e,source,opts){
     p.hp=Math.min(p.hp+3,p.maxHp);
     spawnP(g,e.x,e.y,"moss",5);spawnP(g,p.x,p.y,"moss",3)}
   if(p.scentStreak){g.killStreakT+=15;if(g.killStreakT>150)g.killStreakT=150}
+  // 墨疾风：近战击杀加速
+  if(p.meleeMobility&&g.weapon.type==="melee"){p.killSpdTimer=60;p.killAtkTimer=60;spawnP(g,p.x,p.y,"moss",4)}
+  // 墨劫环：击杀范围伤害
+  if(p.killAOE&&!e.isBoss){
+    var _aor=70*70;var _aod=Math.max(1,Math.ceil(p.stats.dmg*0.25));
+    forEachLiveEnemy(g,function(oe){if(oe!==e&&dstSq(e,oe)<_aor)damageEnemy(g,oe,_aod,"killAOE")});
+    spawnP(g,e.x,e.y,"ink",6);spawnP(g,e.x,e.y,"accent",3)}
   // 墨魂引：击杀追踪弹
   if(p.soulKill&&!e.isBoss){
     var _near=null,_nd=120*120;
@@ -1402,6 +1412,8 @@ function hitE(g,atk,e){
     pushLimited(g.frosts,{x:e.x,y:e.y,r:28,life:90,maxLife:90,dmg:Math.max(1,Math.ceil(p.stats.dmg*0.2))},LIMITS.frosts)}
   if(atk.crit){g.critFlash=18;for(var ci=0;ci<8;ci++){var ca=ci*Math.PI/4;
     spawnP(g,e.x+Math.cos(ca)*10,e.y+Math.sin(ca)*10,"accent",2)}}
+  // 墨血刃：暴击回血
+  if(p.critHeal&&atk.crit){p.hp=Math.min(p.hp+2,p.maxHp);spawnP(g,p.x,p.y,"moss",3)}
   if(atk.crit&&p.critShrapnel){var splDmg=Math.floor(atk.dmg*0.35);forEachLiveEnemy(g,function(oe){if(oe===e)return;if(dstSq(e,oe)<RANGES.critShrapnel*RANGES.critShrapnel)damageEnemy(g,oe,splDmg,"shrapnel")});spawnP(g,e.x,e.y,"accent",5)}
   shake(g,atk.crit?6:3,atk.crit?5:3);
   // floating damage number
@@ -4002,7 +4014,10 @@ function rebuildPlayerStats(g){
     'curseSurv',
     'rangedFire',
     'summonBurst',
-    'dashRetaliate'
+    'dashRetaliate',
+    'meleeMobility',
+    'killAOE',
+    'critHeal'
     ];
   rk.concat(ck).forEach(function(k){f[k]=o[k]});
   g.relics.forEach(function(r){try{r.fn(f)}catch(e){}});
