@@ -55,19 +55,19 @@ Tier 1: 1.0-1.5, Tier 2: 1.7-2.5, Tier 3: 2.5-3.0, Boss: 99（不加）
 ## 内容测试模板
 
 ```js
-'// Test __N__: v__VER__ __名称__',
+'// Test TEST_ID_PLACEHOLDER: v__VER__ __名称__',
 'try{',
-'  var et=ETYPE.__id__;if(!et)errors.push("__N__a: not found");',
+'  var et=ETYPE.__id__;if(!et)errors.push("TEST_ID_PLACEHOLDERa: not found");',
 '  else{',
-'    if(!DEATH_COLOR.__id__)errors.push("__N__b: missing DEATH_COLOR");',
-'    if(!ENEMY_COST.__id__)errors.push("__N__c: missing ENEMY_COST");',
+'    if(!DEATH_COLOR.__id__)errors.push("TEST_ID_PLACEHOLDERb: missing DEATH_COLOR");',
+'    if(!ENEMY_COST.__id__)errors.push("TEST_ID_PLACEHOLDERc: missing ENEMY_COST");',
 '    var f=false;WAVE_TIERS.forEach(function(t){if(t.indexOf("__id__")>=0)f=true});',
-'    if(!f)errors.push("__N__d: not in WAVE_TIERS");',
+'    if(!f)errors.push("TEST_ID_PLACEHOLDERd: not in WAVE_TIERS");',
 '  }',
 '  var g=newGame("jian","normal");spawnEnemy(g,"__id__");',
 '  var e=g.enemies[g.enemies.length-1];',
-'  if(!e||e.hp<=0)errors.push("__N__e: spawn failed");',
-'}catch(e){errors.push("__N__: "+e.message)}',
+'  if(!e||e.hp<=0)errors.push("TEST_ID_PLACEHOLDERe: spawn failed");',
+'}catch(e){errors.push("TEST_ID_PLACEHOLDER: "+e.message)}',
 ```
 
 ## 代码风格（必须遵守）
@@ -75,7 +75,7 @@ Tier 1: 1.0-1.5, Tier 2: 1.7-2.5, Tier 3: 2.5-3.0, Boss: 99（不加）
 - **var** 不用 let/const
 - **function(){}** 不用箭头函数
 - "string" 不用 'string'
-- content_test 用字符串拼接格式（见模板），不用 test()/ok()/eq()
+- content_test 用字符串拼接格式（见模板），不用 content_test()/test()/it()/describe()/ok()/eq()/assert()/expect()
 
 ## 质量自检
 

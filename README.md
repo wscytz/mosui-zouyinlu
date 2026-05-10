@@ -1,4 +1,4 @@
-# 墨祟：走阴录 v4.24
+# 墨祟：走阴录 v4.26
 
 水墨俯视角动作肉鸽。你扮演一名替亡者走阴的夜行客，手持法器深入地宫，斩妖除祟。
 
@@ -9,11 +9,14 @@
 浏览器直接打开 `game.html` 即可游玩。建议 Chrome / Edge。
 
 ```bash
-# 运行测试（37 冒烟 + 5 波次 + 151 内容 + 10 压力 = 203）
-node smoke_test.js && node wave_test.js && node content_test.js && node stress_test.js
+# 取当前内容/测试/标签事实源
+npm run ctx
+
+# 运行完整回归（syntax + smoke + wave + content + stress）
+npm run test:all
 ```
 
-开发接手先读 [`DEVELOPMENT.md`](DEVELOPMENT.md)，架构边界见 [`ARCHITECTURE.md`](ARCHITECTURE.md)，完整技术历史和 Bug 追踪见 [`DEVDOC.md`](DEVDOC.md)。
+开发接手先读 [`DEVELOPMENT.md`](DEVELOPMENT.md)。agent 自动化规则见 [`AGENT_SYSTEM.md`](AGENT_SYSTEM.md)，架构边界见 [`ARCHITECTURE.md`](ARCHITECTURE.md)，完整技术历史和 Bug 追踪见 [`DEVDOC.md`](DEVDOC.md)。
 
 ## 操作
 
@@ -30,18 +33,20 @@ node smoke_test.js && node wave_test.js && node content_test.js && node stress_t
 ## 内容体量
 
 - **5 把武器**：斩妖剑 / 符骨笔 / 镇魂铃 / 伏魔伞 / 召魂幡
-- **114 件遗物**：标签驱动，按构筑自由组合
+- **117 件遗物**：标签驱动，按构筑自由组合
 - **25 种进化**：3条武器进化链
-- **32 种敌人**（含 3 Boss）：画皮娘子 / 墨将军 / 墨鬼王
+- **35 种敌人**（含 3 Boss）：画皮娘子 / 墨将军 / 墨鬼王
 - **9 个关卡**：含墨潮脉动等特殊关卡调制器
 - **22 条誓印**：含诅咒型誓印
-- **37 个成就**：覆盖各武器/遗物/特殊挑战
+- **38 个成就**：覆盖各武器/遗物/特殊挑战
 - **3 种难度**：平常 / 险途 / 噩梦
 
-## v4.14-v4.24 内容扩充期 (2026-05-09 ~ 05-10)
+## v4.14-v4.26 内容扩充 + 自动化期 (2026-05-09 ~ 05-10)
 
 聚焦冷标签填补和内容深度：
 
+- **v4.26** agent 自动化加固：ctx 提取、输出 validator、专职模板、规则文档收口
+- **v4.25** 内容继续补强并进入主 Claude + 专职 agent 协作准备
 - **v4.24** 墨裂符(分裂/法术)+墨铁壁(防御/反击)
 - **v4.23** 墨爆弹(爆炸/爆发)+墨蚀域(持续/溅射)+续命墨(治疗/生命)
 - **v4.22** 2新成就(绝地逢生/蛛后克星)+BUILD_PREFS标签补全
@@ -53,7 +58,7 @@ node smoke_test.js && node wave_test.js && node content_test.js && node stress_t
 - **v4.16** 新誓印墨血(连击增伤+受伤连动)
 - **v4.15** 墨萤(远程致盲)+blindT机制
 - **v4.14** 还骨泉+墨散淬遗物
-- 测试 187→203 项，标签覆盖率全面提升
+- 标签覆盖率全面提升，测试口径以 `npm run ctx` 扫描结果为准
 
 ## v4.0-v4.13 发布后维护 (2026-05-08 ~ 05-09)
 
@@ -126,11 +131,13 @@ ART_DIRECTION.md   # 美术方向指引
 ART_PROMPTS.md     # 生图提示词备忘
 ASSET_MANIFEST.md  # 资产清单
 ROADMAP.md         # 路线书
+AGENT_SYSTEM.md    # agent 自动化系统总纲
 generate-assets.js # 批量生图脚本
+.claude/           # Claude 专职 agent、上下文提取、输出校验
 
 smoke_test.js      # 冒烟测试（37项，含60秒长跑）
 wave_test.js       # 波次专项测试（5项）
-content_test.js    # 内容/机制测试（151项）
+content_test.js    # 内容/机制测试（active blocks 以 ctx 扫描为准）
 stress_test.js     # 压力测试（10项）
 ARCHITECTURE.md    # 架构文档（六层边界）
 DEVDOC.md          # 开发文档（含完整版本历史）
@@ -150,4 +157,4 @@ game.js（不动，双端共用）
 - 渲染：Canvas 2D（960×640 内部分辨率）
 - 音效：Web Audio API 合成（38 种音效 + 8 种环境氛围）
 - 打包：Capacitor 8.x → Android APK
-- 测试：Node.js 冒烟测试（无框架，203 项）
+- 测试：Node.js 冒烟/波次/内容/压力测试（无框架），`npm run test:all`

@@ -36,16 +36,16 @@ if((g.__counter__||0)>(meta.__bestCounter__||0))meta.__bestCounter__=g.__counter
 
 ### 成就测试模板
 ```js
-'// Test __N__: v__VER__ 成就__名称__',
+'// Test TEST_ID_PLACEHOLDER: v__VER__ 成就__名称__',
 'try{',
 '  var a=ACHIEVEMENTS.find(function(x){return x.id==="__id__"});',
-'  if(!a)errors.push("__N__a: not found");',
-'  else{if(!a.check)errors.push("__N__b");',
-'    if(a.check({}))errors.push("__N__c: should fail empty");',
-'    if(!a.check({__bestCounter__:__threshold__}))errors.push("__N__d: should pass");}',
+'  if(!a)errors.push("TEST_ID_PLACEHOLDERa: not found");',
+'  else{if(!a.check)errors.push("TEST_ID_PLACEHOLDERb");',
+'    if(a.check({}))errors.push("TEST_ID_PLACEHOLDERc: should fail empty");',
+'    if(!a.check({__bestCounter__:__threshold__}))errors.push("TEST_ID_PLACEHOLDERd: should pass");}',
 '  var g=newGame("jian","normal");',
-'  if(g.__counter__!==0)errors.push("__N__e: counter not 0");',
-'}catch(e){errors.push("__N__: "+e.message)}',
+'  if(g.__counter__!==0)errors.push("TEST_ID_PLACEHOLDERe: counter not 0");',
+'}catch(e){errors.push("TEST_ID_PLACEHOLDER: "+e.message)}',
 ```
 注意更新 test 165j 中的成就数量断言。建议把 165j 改成 `ACHIEVEMENTS.length>=38` 而非 `!==38`，避免每次加成就都要改历史断言。
 
@@ -64,20 +64,20 @@ if((g.__counter__||0)>(meta.__bestCounter__||0))meta.__bestCounter__=g.__counter
 ```js
 {id:"__id__",name:"__名称__",type:"誓印",tags:["__A__","__B__"],
   desc:"__效果描述__",
-  fn:function(p){p.__propA__=(p.__propA__||0)+__N__;p.__propB__=true}}
+  fn:function(p){p.__propA__=(p.__propA__||0)+__NUM__;p.__propB__=true}}
 ```
 誓印必须有代价/限制，不能做纯正面效果。
 
 ### 誓印测试模板
 ```js
-'// Test __N__: v__VER__ 誓印__名称__',
+'// Test TEST_ID_PLACEHOLDER: v__VER__ 誓印__名称__',
 'try{',
 '  var c=CURSES.find(function(x){return x.id==="__id__"});',
-'  if(!c)errors.push("__N__a: not found");',
-'  else{if(!c.fn)errors.push("__N__b");if(!c.desc)errors.push("__N__c");}',
+'  if(!c)errors.push("TEST_ID_PLACEHOLDERa: not found");',
+'  else{if(!c.fn)errors.push("TEST_ID_PLACEHOLDERb");if(!c.desc)errors.push("TEST_ID_PLACEHOLDERc");}',
 '  var g=newGame("jian","normal");c.fn(g.player);',
-'  if(!验证属性)errors.push("__N__d: not set");',
-'}catch(e){errors.push("__N__: "+e.message)}',
+'  if(!验证属性)errors.push("TEST_ID_PLACEHOLDERd: not set");',
+'}catch(e){errors.push("TEST_ID_PLACEHOLDER: "+e.message)}',
 ```
 
 ## 代码风格（必须遵守）
@@ -85,7 +85,7 @@ if((g.__counter__||0)>(meta.__bestCounter__||0))meta.__bestCounter__=g.__counter
 - **var** 不用 let/const
 - **function(){}** 不用箭头函数
 - "string" 不用 'string'
-- content_test 用字符串拼接格式（见模板），不用 test()/ok()/eq()
+- content_test 用字符串拼接格式（见模板），不用 content_test()/test()/it()/describe()/ok()/eq()/assert()/expect()
 
 ## 质量自检
 

@@ -3,3 +3,4 @@ www/
 android/
 ios/
 gen-batch.js
+.claude/tmp-agent-output.md

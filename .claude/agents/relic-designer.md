@@ -19,7 +19,7 @@
 
 ```js
 {id:"__ID__",name:"__名称__",type:"__X__具",tags:["__标签A__","__标签B__"],
-  effect:"__效果描述__",fn:function(p){p.__prop__=true;p.__prop2__=(p.__prop2__||0)+__N__}}
+  effect:"__效果描述__",fn:function(p){p.__prop__=true;p.__prop2__=(p.__prop2__||0)+__NUM__}}
 ```
 
 - type: 印具/池具/泉器/壁具/弹具/域具/墨具/符具/丹具/眼具/坛具/爆具/漪具/瞳器/...
@@ -57,7 +57,7 @@
     forEachLiveEnemy(g,function(oe){if(oe!==e){var d=dstSq(oe,e);if(d<_nd){_nd=d;_near=oe}}});
     if(_near){
       var _dx=_near.x-e.x,_dy=_near.y-e.y,_dl=Math.sqrt(_dx*_dx+_dy*_dy)||1;
-      pushLimited(g.attacks,{x:e.x,y:e.y,vx:_dx/_dl*6,vy:_dy/_dl*6,dmg:Math.max(1,Math.ceil(p.stats.dmg*0.4)),r:4,life:40,type:"proj",hitOnce:true,owner:"player"},LIMITS.attacks);
+      pushAttack(g,{x:e.x,y:e.y,vx:_dx/_dl*6,vy:_dy/_dl*6,dmg:Math.max(1,Math.ceil(p.stats.dmg*0.4)),r:4,life:40,type:"proj",hitOnce:true,owner:"player"});
       spawnP(g,e.x,e.y,"accent",3)}}
 ```
 
@@ -114,14 +114,14 @@
 ## content_test模板
 
 ```js
-'// Test __N__: v__VER__ __名称__',
+'// Test TEST_ID_PLACEHOLDER: v__VER__ __名称__',
 'try{',
 '  var r=RELICS.find(function(x){return x.id==="__ID__"});',
-'  if(!r)errors.push("__N__a: not found");',
-'  else{if(!r.tags||r.tags.length<2)errors.push("__N__b");if(!r.fn)errors.push("__N__c");}',
+'  if(!r)errors.push("TEST_ID_PLACEHOLDERa: not found");',
+'  else{if(!r.tags||r.tags.length<2)errors.push("TEST_ID_PLACEHOLDERb");if(!r.fn)errors.push("TEST_ID_PLACEHOLDERc");}',
 '  var g=newGame("jian","normal");r.fn(g.player);',
-'  if(!g.player.__prop__)errors.push("__N__d: not set");',
-'}catch(e){errors.push("__N__: "+e.message)}',
+'  if(!g.player.__prop__)errors.push("TEST_ID_PLACEHOLDERd: not set");',
+'}catch(e){errors.push("TEST_ID_PLACEHOLDER: "+e.message)}',
 ```
 
 ## 代码风格（必须遵守）
@@ -132,33 +132,42 @@
 - **"string"** 不用 'string'（项目惯例）
 - **forEachLiveEnemy(g, function(oe){...})** 不用 g.enemies.forEach
 - **pushLimited(g.xxx, obj, LIMITS.xxx)** 不用 .push
+- **pushAttack(g, atk)** 用于 g.attacks，不要直接 pushLimited(g.attacks,...)
 - **spawnP(g, x, y, "type", count)** 不用 spawnFloatText
 - **damageEnemy(g, e, dmg, "source")** 不用 e.hp-=
 - **dstSq(a, b)** 不用 a.x-b.x手动计算
 
 ### CSS图标（必须遵守）
 - 只用 **width/height/border-radius/background/border/transform/clip-path**
-- 不要用 **content:** 文本内容
-- 不要用 **position** / **box-shadow** / **opacity**（尽量不用）
+- 禁止用 **content:**，包括 `content:""` 空内容
+- 禁止用 **position** / **box-shadow** / **inset** / **opacity**
 
 ### content_test（必须遵守）
 用字符串拼接格式：
 ```js
-'// Test __N__: v__VER__ __名称__',
+'// Test TEST_ID_PLACEHOLDER: v__VER__ __名称__',
 'try{',
 '  var r=RELICS.find(function(x){return x.id==="__ID__"});',
 ...
-'}catch(e){errors.push("__N__: "+e.message)}',
+'}catch(e){errors.push("TEST_ID_PLACEHOLDER: "+e.message)}',
 ```
-不要用 test()/ok()/eq()/assert() 等测试框架函数。
+禁止用 content_test()/test()/it()/describe()/ok()/eq()/assert()/expect() 等测试框架函数。
+
+### 机制代码（必须遵守）
+- hurtP/hitE/pAtk/onEnemyKilled 里只能用已有实参名，不要用 `arguments[0]`
+- 遗物 fn 只能做 `true` 或 `(p.xxx||0)+N` 累加，不要写 `p._xxx=0` 重置累加器
 
 ## 质量自检
 
 - [ ] id不与现有ID冲突（对照提供的ID列表）
 - [ ] tags≥2，优先冷标签
 - [ ] fn用(p.xxx||0)+N防NaN
+- [ ] 如有前置/构筑推荐需求，说明是否需要 PREREQS 或 RELIC_RULES
 - [ ] pushLimited不用.push
 - [ ] mkPlayer默认值+ck数组都写了
 - [ ] CSS ::before+::after都有
 - [ ] content_test覆盖属性设置
+- [ ] 没有 content_test()/assert()/test() 等测试框架函数
+- [ ] 没有 position/box-shadow/inset/content/opacity 复杂CSS
+- [ ] 没有 arguments[0]，没有在 fn 中重置 p._xxx=0
 - [ ] 无HTML实体(>=不用&gt;=)

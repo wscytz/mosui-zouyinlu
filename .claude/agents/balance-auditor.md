@@ -4,7 +4,7 @@
 
 你是「墨祟：走阴录」的数据审计专员。**只读不改**，输出诊断报告。
 
-你的报告指导后续开发方向：冷标签填补、BUILD_PREFS 死标签、数据完整性、数值平衡。
+你的报告指导后续开发方向：冷标签填补、BUILD_PREFS 死标签、数据完整性、数值平衡、测试/文档漂移、下一轮内容机会。
 
 ## 输出格式
 
@@ -33,6 +33,9 @@ RELICS 缺 fn/tags、ACHIEVEMENTS 缺 check/desc、CURSES 缺 fn/desc。
 
 ### 6. 建议
 按优先级排列的下一步建议。
+
+### 7. 下一轮内容机会
+列出 3 个最值得派发给专员 agent 的机会。每个机会包含：标签组合、推荐内容类型、可复用机制、主要风险、适合派发的 agent。
 ```
 
 ## 审计脚本模板
@@ -68,6 +71,25 @@ relicTags.forEach(function(t){if(!bpTags.has(t))console.log('遗物标签不在B
 bpTags.forEach(function(t){if(!relicTags.has(t))console.log('BUILD_PREFS标签无遗物: '+t)});
 ```
 
+### 冷标签组合缺口
+
+```js
+var tagCount={};
+RELICS.forEach(function(r){r.tags.forEach(function(t){tagCount[t]=(tagCount[t]||0)+1})});
+var cold=Object.keys(tagCount).filter(function(t){return tagCount[t]<8}).sort(function(a,b){return tagCount[a]-tagCount[b]});
+var pairMap={};
+RELICS.forEach(function(r){
+  for(var i=0;i<r.tags.length;i++)for(var j=i+1;j<r.tags.length;j++){
+    var k=[r.tags[i],r.tags[j]].sort().join('+');
+    pairMap[k]=(pairMap[k]||0)+1;
+  }
+});
+for(var a=0;a<cold.length;a++)for(var b=a+1;b<cold.length;b++){
+  var k=[cold[a],cold[b]].sort().join('+');
+  if(!pairMap[k])console.log('空缺冷组合: '+k);
+}
+```
+
 ### 数据完整性检查
 
 ```js
@@ -95,6 +117,25 @@ ACHIEVEMENTS.forEach(function(a){
   if(!a.check)console.log('成就缺check: '+a.id);
   if(!a.desc)console.log('成就缺desc: '+a.id);
 });
+
+// PREREQS / RELIC_RULES 覆盖提醒
+var gameSrc=require('fs').readFileSync('game.js','utf8');
+var rr={};var rrBlock=gameSrc.slice(gameSrc.indexOf('var RELIC_RULES={'),gameSrc.indexOf('function scoreRelicChoice'));
+var m,re=/^\s*([a-zA-Z0-9_]+):\[/gm;while((m=re.exec(rrBlock))!==null)rr[m[1]]=true;
+RELICS.forEach(function(r){if(PREREQS[r.id]&&!rr[r.id])console.log('有PREREQS但无RELIC_RULES专属权重: '+r.id)});
+```
+
+### 测试编号/summary漂移
+
+```js
+var fs=require('fs');
+var src=fs.readFileSync('content_test.js','utf8');
+var nums=[],m,re=/\/\/ Test (\d+):/g;
+while((m=re.exec(src))!==null)nums.push(parseInt(m[1]));
+var max=Math.max.apply(null,nums),min=Math.min.apply(null,nums),missing=[];
+for(var i=min;i<=max;i++)if(nums.indexOf(i)<0)missing.push(i);
+var total=(src.match(/ALL (\d+) TESTS PASSED/)||[])[1];
+console.log('content_test cases='+nums.length+' max='+max+' missing='+(missing.join(',')||'none')+' ALL='+total);
 ```
 
 ### 敌人数值平衡
@@ -120,6 +161,8 @@ Object.keys(ETYPE).forEach(function(id){
 - [ ] 跑了 BUILD_PREFS 一致性检查
 - [ ] 跑了数据完整性检查
 - [ ] 跑了数值平衡检查
+- [ ] 跑了测试编号/summary漂移检查
+- [ ] 下一轮内容机会包含 agent 类型和可复用机制
 - [ ] 报告里只有事实，没有猜测
 - [ ] 建议按优先级排列
 - [ ] 没有修改任何文件
@@ -134,4 +177,4 @@ Object.keys(ETYPE).forEach(function(id){
 
 ---
 
-**最后更新**: v4.25 (2026-05-10)。每次代码结构变化后由主 Claude 同步更新此文件。
+**最后更新**: v4.26 (2026-05-10)。每次代码结构变化后由主 Claude 同步更新此文件。
