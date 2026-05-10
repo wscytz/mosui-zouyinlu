@@ -178,7 +178,13 @@ CHANGESET:
 
 1. 检查 `CHANGESET` 是否和用户要求一致，特别是数量是否过量。
 2. 将原始产出保存为 `.claude/tmp-agent-output.md`。
-3. 运行：
+3. **自动修正 HTML entity**（agent 输出通道固有 bug）：
+
+```bash
+node .claude/fix-html-entities.js --write .claude/tmp-agent-output.md
+```
+
+4. 运行：
 
 ```bash
 node .claude/validate-agent-output.js .claude/tmp-agent-output.md
