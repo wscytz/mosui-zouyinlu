@@ -168,6 +168,7 @@ function metaRecordRun(g){
   if((g.waveHpHealed||0)>(meta.bestWaveHpHealed||0))meta.bestWaveHpHealed=g.waveHpHealed;
   if((g.lowHpBurstKills||0)>(meta.bestLowHpBurstKills||0))meta.bestLowHpBurstKills=g.lowHpBurstKills;
   if((g.mozhuhouKills||0)>(meta.mozhuhouKills||0))meta.mozhuhouKills=g.mozhuhouKills;
+  if((g.executeKills||0)>(meta.bestExecuteKills||0))meta.bestExecuteKills=g.executeKills;
   // Easter egg tracking
   if(won&&!g.usedMoveKey)meta.noMoveWins=(meta.noMoveWins||0)+1;
   if(won&&g.hurtCount<=3)meta.lowHurtWins=(meta.lowHurtWins||0)+1;
@@ -334,7 +335,7 @@ function newGame(wid,diff){
     hazard:null,hazardTimer:0,hazardObjs:[],
     inkSpirits:[],
     formations:[],
-    killExplodeKills:0,blindKills:0,waveHpHealed:0,lowHpBurstKills:0,mozhuhouKills:0,
+    killExplodeKills:0,blindKills:0,waveHpHealed:0,lowHpBurstKills:0,mozhuhouKills:0,executeKills:0,
     perf:{lastT:0,fps:60,pressure:0,peaks:{enemies:0,attacks:0,particles:0,fires:0,eProj:0,floatTexts:0,decoys:0,kites:0,frosts:0}}}
 }
 
@@ -724,6 +725,7 @@ function onEnemyKilled(g,e,source,opts){
     forEachLiveEnemy(g,function(oe){if(dstSq(e,oe)<fsR*fsR)damageEnemy(g,oe,fsDmg,"fire")});
     spawnP(g,e.x,e.y,"fire",6)}
   if(source==="killExplode")g.killExplodeKills++;
+  if(source==="executeExplode")g.executeKills=(g.executeKills||0)+1;
   if(p.blindT>0)g.blindKills++;
   if(p.lowHpBurstT>0)g.lowHpBurstKills=(g.lowHpBurstKills||0)+1;
   if(e.type==="mozhuhou")g.mozhuhouKills=(g.mozhuhouKills||0)+1;

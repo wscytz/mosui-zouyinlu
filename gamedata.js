@@ -88,7 +88,7 @@ var RELICS=[
     effect:"站在火场上每秒回复3HP",fn:function(p){p.fireHeal=3}},
   {id:"judou",name:"聚灵墨斗",type:"文房",tags:["法术","魂"],
     effect:"弹道体积+40%",fn:function(p){p.stats.projSize+=0.4}},
-  {id:"jijiu",name:"急就章",type:"文书",tags:["法术","击杀"],
+  {id:"jijiu",name:"急就章",type:"文书",tags:["法术","攻速"],
     effect:"攻速+20%",fn:function(p){p.stats.atkSpd-=0.2}},
   {id:"zhiyuan",name:"纸鸢引",type:"纸器",tags:["召物","远程"],
     effect:"每击杀5敌生成追踪纸鸢",fn:function(p){p.summonKite=true;p.kiteKills=0}},
@@ -104,7 +104,7 @@ var RELICS=[
     effect:"攻击减速效果提升至35%",fn:function(p){p.slowOnHit=Math.max(p.slowOnHit||0,0.35)}},
   {id:"huihunxiang",name:"回魂香",type:"香具",tags:["生存","击杀"],
     effect:"击杀回复3HP，击杀后短暂加速",fn:function(p){p.killHeal=(p.killHeal||0)+3;p.killSpeed=true}},
-  {id:"pilimu",name:"霹雳木",type:"雷具",tags:["法术","击杀"],
+  {id:"pilimu",name:"霹雳木",type:"雷具",tags:["法术","攻速"],
     effect:"击杀后攻速大幅提升，基础攻速+12%",fn:function(p){p.killAtkSpd=true;p.stats.atkSpd-=0.12}},
   {id:"hanxingtie",name:"寒星铁",type:"铁器",tags:["冰","暴击"],
     effect:"暴击时在目标位置留下冰冻区域，暴击率+10%",fn:function(p){p.frostOnCrit=true;p.stats.critRate+=0.1}},
@@ -378,7 +378,9 @@ var ETYPE={
   // v4.12 new enemy
   mojar:{name:"墨罐",tip:"死后留下大范围减速墨迹，远离尸体",hp:55,spd:1.3,r:15,dmg:8,atkR:30,atkCd:55,col:"rgba(23,19,16,0.35)",edge:C.ink,deathSlow:true,deathSlowR:80,deathSlowT:120},
   mooushi:{name:"墨偶师",tip:"远程召唤师，边射墨弹边召唤傀儡",hp:55,spd:0.9,r:14,dmg:5,atkR:150,atkCd:70,col:"rgba(60,40,55,0.35)",edge:C.ghost,ranged:true,pSpd:3,summoner:true,summonCd:180,summonMax:3},
-  mozhuhou:{name:"墨蛛后",tip:"会生成小蛛的精英型敌人，优先击杀",hp:85,spd:0.75,r:18,dmg:12,atkR:30,atkCd:50,col:"rgba(50,35,30,0.4)",edge:C.ink,summoner:true,summonCd:200,summonMax:4}
+  mozhuhou:{name:"墨蛛后",tip:"会生成小蛛的精英型敌人，优先击杀",hp:85,spd:0.75,r:18,dmg:12,atkR:30,atkCd:50,col:"rgba(50,35,30,0.4)",edge:C.ink,summoner:true,summonCd:200,summonMax:4},
+  // v4.25 new enemy
+  moling:{name:"墨蛉",tip:"远程减速弹，中弹后行动迟缓",hp:48,spd:1.5,r:10,dmg:6,atkR:200,atkCd:72,col:"rgba(23,19,16,0.35)",edge:C.moss,ranged:true,pSpd:4.2,webShot:true}
 };
 
 var LIMITS={particles:260,fires:72,attacks:90,eProj:90,floatTexts:18,decoys:12,kites:4,frosts:12,enemies:80,inkSpirits:6};
@@ -454,7 +456,7 @@ var TUNING={
 };
 
 var DEATH_COLOR={zhikui:"ash",youhun:"moss",fenling:"fire",shigui:"soft",gudeng:"gold",jiangshi:"ink",boss:"accent",
-  zhikuang:"ghost",fenshen:"soul",modun:"soft",mojiangjun:"ink",moguiwang:"accent",moya:"ink",shiyong:"soft",yanyong:"fire",sukui:"ash",duzhu:"moss",gushi:"boss",huapi:"accent",mozhi:"ink",motong:"ink",mofu:"ink",modie:"moss",moyong:"ink",morui:"accent",mozhu:"moss",mogu:"ash",momian:"ink",mojar:"ink",moying:"moss",mooushi:"ghost",mozhuhou:"ink"};
+  zhikuang:"ghost",fenshen:"soul",modun:"soft",mojiangjun:"ink",moguiwang:"accent",moya:"ink",shiyong:"soft",yanyong:"fire",sukui:"ash",duzhu:"moss",gushi:"boss",huapi:"accent",mozhi:"ink",motong:"ink",mofu:"ink",modie:"moss",moyong:"ink",morui:"accent",mozhu:"moss",mogu:"ash",momian:"ink",mojar:"ink",moying:"moss",mooushi:"ghost",mozhuhou:"ink",moling:"moss"};
 
 var JUDGMENTS=["斩业已断","纸命归灰","照见真形","朱批落定","一念归尘","墨尽灯枯","形消魄散","笔落惊魂"];
 
@@ -472,12 +474,12 @@ var BUILD_PREFS={
 function _ri(a,b){return Math.floor(a+Math.random()*(b-a+1))}
 function _pick(a){return a[Math.floor(Math.random()*a.length)]}
 // --- Procedural wave generation ---
-var ENEMY_COST={zhikui:1,youhun:1.5,zhikuang:1.5,fenling:2,gudeng:2,shigui:2.5,fenshen:2.5,modun:2.5,jiangshi:3,moya:1.8,shiyong:3,yanyong:2.2,sukui:1.3,duzhu:1.7,gushi:2.8,huapi:1.9,mozhi:1.4,motong:1.2,mofu:1.1,modie:1.5,moyong:2.0,morui:0.7,mozhu:1.8,mogu:2.8,momian:1.6,mojar:2.0,moying:1.5,mooushi:2.5,mozhuhou:3.0,boss:99,mojiangjun:99,moguiwang:99};
+var ENEMY_COST={zhikui:1,youhun:1.5,zhikuang:1.5,fenling:2,gudeng:2,shigui:2.5,fenshen:2.5,modun:2.5,jiangshi:3,moya:1.8,shiyong:3,yanyong:2.2,sukui:1.3,duzhu:1.7,gushi:2.8,huapi:1.9,mozhi:1.4,motong:1.2,mofu:1.1,modie:1.5,moyong:2.0,morui:0.7,mozhu:1.8,mogu:2.8,momian:1.6,mojar:2.0,moying:1.5,mooushi:2.5,mozhuhou:3.0,moling:1.8,boss:99,mojiangjun:99,moguiwang:99};
 var WAVE_BUDGETS=[5,7,9.5,12,14.5,17.5,21,25,28,32,36,0];
 var WAVE_TIERS=[
   ["zhikui","youhun"],
   ["zhikui","youhun","fenling","zhikuang","moya","sukui","huapi","mozhi","motong","mofu","modie","moying"],
-  ["zhikui","youhun","fenling","gudeng","shigui","fenshen","moya","shiyong","sukui","yanyong","duzhu","mozhu","moying","mooushi"],
+  ["zhikui","youhun","fenling","gudeng","shigui","fenshen","moya","shiyong","sukui","yanyong","duzhu","mozhu","moying","mooushi","moling"],
   ["zhikuang","fenling","gudeng","shigui","fenshen","modun","jiangshi","moya","shiyong","yanyong","gushi","mozhu","mogu","mojar","mooushi"],
   ["fenling","gudeng","shigui","fenshen","modun","jiangshi","moya","shiyong","yanyong","duzhu","gushi","mozhu","mogu","momian","mojar","mooushi","mozhuhou"]
 ];
@@ -659,6 +661,8 @@ var ACHIEVEMENTS=[
   {id:"bone_life",name:"百骨长生",desc:"骨续泉单局累计回复20点以上生命",check:function(m){return (m.bestWaveHpHealed||0)>=20},reward:null},
   {id:"last_stand",name:"绝地逢生",desc:"墨魂丹低血爆发状态下击杀20个敌人",check:function(m){return (m.bestLowHpBurstKills||0)>=20},reward:null},
   {id:"spider_slayer",name:"蛛后克星",desc:"单局击杀3只墨蛛后",check:function(m){return (m.mozhuhouKills||0)>=3},reward:null},
+  {id:"chain_execute",name:"墨爆连环",desc:"单局通过墨爆弹引爆击杀15个敌人",
+    check:function(m){return (m.bestExecuteKills||0)>=15},reward:null},
 ];
 
 // Starting relic pool for unlocked rewards
