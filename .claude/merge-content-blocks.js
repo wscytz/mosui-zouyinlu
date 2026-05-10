@@ -53,6 +53,11 @@ blocks.forEach(function(b){
   if(!b.type)errors.push(b._file+": missing type");
   if(b.type!=="evolution"&&b.type!=="relic")errors.push(b._file+": type must be evolution|relic (got "+b.type+")");
   if(b.type==="evolution"&&!b.pool)errors.push(b._file+": evolution requires pool (melee|ranged|aoe|dash|summon)");
+  if(b.type==="relic"){
+    if(b.player_fields&&!Array.isArray(b.player_fields))errors.push(b._file+": player_fields must be array");
+    if(b.ck_fields&&!Array.isArray(b.ck_fields))errors.push(b._file+": ck_fields must be array");
+    if(b.css_rules&&typeof b.css_rules!=="string")errors.push(b._file+": css_rules must be string");
+  }
   if(!b.entry_js||typeof b.entry_js!=="string")errors.push(b._file+": missing entry_js string");
   if(!Array.isArray(b.test_lines)||!b.test_lines.length)errors.push(b._file+": missing test_lines array");
 });
@@ -78,81 +83,93 @@ if(!write){
 // 开始合并
 var gamedataTxt=fs.readFileSync(GAMEDATA,"utf8");
 var ctTxt=fs.readFileSync(CONTENT_TEST,"utf8");
+var GAMEJS=path.join(ROOT,"game.js");
+var GAMECSS=path.join(ROOT,"game.css");
+var gjTxt=fs.readFileSync(GAMEJS,"utf8");
+var ccTxt=fs.readFileSync(GAMECSS,"utf8");
+
+function findArrayEnd(txt,startRe){
+  // 找到匹配的 `]`
+  var o=startRe.exec(txt);
+  if(!o)return -1;
+  var depth=0,i=o.index+o[0].length-1;
+  while(i<txt.length){
+    if(txt[i]==="[")depth++;
+    else if(txt[i]==="]"){depth--;if(depth===0)return i}
+    i++;
+  }
+  return -1;
+}
+
+function insertInArray(txt,startRe,indent,entry){
+  var close=findArrayEnd(txt,startRe);
+  if(close<0)throw new Error("array end not found for "+startRe);
+  var before=txt.slice(0,close);
+  var lastBrace=before.lastIndexOf("}");
+  if(lastBrace<0)throw new Error("array seems empty for "+startRe);
+  return txt.slice(0,lastBrace+1)+",\n"+indent+entry+txt.slice(lastBrace+1);
+}
 
 // ---- 合并 gamedata.js ----
 blocks.forEach(function(b){
-  var entry=b.entry_js.trim();
-  // 去掉 entry 开头的逗号（统一由这里决定）
-  entry=entry.replace(/^,\s*/,"");
+  var entry=b.entry_js.trim().replace(/^,\s*/,"");
 
   if(b.type==="relic"){
-    // RELICS 数组末尾追加
-    // 模式：最后一个 `}` 之前 `,` + entry
-    // 定位：`];` 前面那个 `}`
-    var relicEnd=/([}])(\s*\n\])/;
-    var rm=relicEnd.exec(gamedataTxt);
-    if(!rm){throw new Error("RELICS end not found in gamedata.js")}
-    var insertion="},\n  "+entry+"\n]";
-    // 上面 replace 会把 `}\n]` 变成 `},\n  newentry\n]`
-    gamedataTxt=gamedataTxt.replace(/}\s*\n\];/,"}"+",\n  "+entry+"\n];");
-    // 但 RELICS 和 EVOLUTIONS 末尾都是 `];` — 得精确定位 RELICS
-    // 重新实现：只针对第一个 `];` 前面加。但第一个 `];` 是 RELICS。
-  }
-  if(b.type==="evolution"){
+    gamedataTxt=insertInArray(gamedataTxt,/var\s+RELICS\s*=\s*\[/,"  ",entry);
+  } else if(b.type==="evolution"){
     var pool=b.pool;
-    // EVOLUTIONS.<pool> 数组：格式是 `  <pool>:[...],` 或最后 pool `  <pool>:[...]`
-    // 定位：`<pool>:[` 开始到匹配 `]` 结束
-    // 找 `pool:[`
-    var openPat=new RegExp("\\b"+pool+":\\[");
-    var openMatch=openPat.exec(gamedataTxt);
-    if(!openMatch)throw new Error("EVOLUTIONS."+pool+" not found");
-    // 从 openMatch.index 开始找匹配的 `]`
-    var depth=0,i=openMatch.index+openMatch[0].length-1;
-    while(i<gamedataTxt.length){
-      if(gamedataTxt[i]==="[")depth++;
-      else if(gamedataTxt[i]==="]"){depth--;if(depth===0)break}
-      i++;
-    }
-    if(i>=gamedataTxt.length)throw new Error("EVOLUTIONS."+pool+" closing bracket not found");
-    // i 是匹配的 `]` 位置
-    // 在 ] 之前找最后一个 `}`，它是数组最后一个条目的末尾
-    var beforeClose=gamedataTxt.slice(0,i);
-    var lastBrace=beforeClose.lastIndexOf("}");
-    if(lastBrace<0)throw new Error("EVOLUTIONS."+pool+" empty?");
-    // 在 lastBrace 后面加 `,\n    <entry>`
-    gamedataTxt=gamedataTxt.slice(0,lastBrace+1)+",\n    "+entry+gamedataTxt.slice(lastBrace+1);
+    var openRe=new RegExp("\\b"+pool+":\\[");
+    gamedataTxt=insertInArray(gamedataTxt,openRe,"    ",entry);
   }
 });
 
-// RELIC 特殊处理：因为 RELICS 也是 `];` 结尾，和 EVOLUTIONS 最外层的 `};` 不同。
-// 我重新实现 relic 插入：
-// 上面 relic 部分用了不完整逻辑。把 relic 分支重写：
-(function redoRelicInsertion(){
-  // 已经处理过就跳过；如果只有 relic blocks，需要第二遍修
-  // 简化：用一个占位符标签。第一遍的 relic 分支实际被跳过了，所以现在补上。
-})();
-
-// 重新实现 relic 分支（上面 relic 分支已经 set gamedataTxt，但逻辑有问题）
-// 正确实现：找 RELICS 数组末尾
+// ---- 合并 game.js (relic 的 player_fields / ck_fields / mechanic_insertions) ----
 blocks.filter(function(b){return b.type==="relic"}).forEach(function(b){
-  // 定位 RELICS 数组开始
-  var ro=/var\s+RELICS\s*=\s*\[/.exec(gamedataTxt);
-  if(!ro)throw new Error("RELICS not found");
-  var depth=0,i=ro.index+ro[0].length-1;
-  while(i<gamedataTxt.length){
-    if(gamedataTxt[i]==="[")depth++;
-    else if(gamedataTxt[i]==="]"){depth--;if(depth===0)break}
-    i++;
+  // mkPlayer 字段：在 `idleT:0}` 之前插入
+  if(b.player_fields&&b.player_fields.length){
+    var mkpRe=/(    )idleT:0\}/;
+    if(!mkpRe.exec(gjTxt))throw new Error("mkPlayer idleT:0 anchor not found");
+    var inserted=b.player_fields.map(function(f){return "    "+f}).join("\n")+"\n";
+    gjTxt=gjTxt.replace(mkpRe,inserted+"$1idleT:0}");
   }
-  if(i>=gamedataTxt.length)throw new Error("RELICS closing bracket not found");
-  var beforeClose=gamedataTxt.slice(0,i);
-  var lastBrace=beforeClose.lastIndexOf("}");
-  if(lastBrace<0)throw new Error("RELICS empty?");
-  var entry=b.entry_js.trim().replace(/^,\s*/,"");
-  // 检查是否已有（可能 first pass 就加过了 —— 其实 first pass 的 relic 逻辑没 mutate）
-  if(gamedataTxt.indexOf(entry.slice(0,40))>=0)return; // 已在，跳过
-  gamedataTxt=gamedataTxt.slice(0,lastBrace+1)+",\n  "+entry+gamedataTxt.slice(lastBrace+1);
+
+  // ck 数组：项目里格式是 `var ck=[\n    'a','b',\n    'c']`
+  // 简化：找 `var ck=[` 开始到匹配 `]`，在最后的 `']` 前插入 `,\n    '<new>'`
+  if(b.ck_fields&&b.ck_fields.length){
+    var ckStartRe=/var\s+ck\s*=\s*\[/;
+    var ckClose=findArrayEnd(gjTxt,ckStartRe);
+    if(ckClose<0)throw new Error("var ck=[...] not found in game.js");
+    // 在 ckClose 位置（`]` 字符）之前，找前一个非空白字符
+    // 项目内通常是 `'name']`，我们要变成 `'name',\n    'new1',\n    'new2']`
+    var insertPos=ckClose; // 就在 `]` 之前插入
+    var newItems=b.ck_fields.map(function(f){return "    "+f}).join(",\n");
+    var prefix=",\n"+newItems+"\n    ";
+    // 如果前一个字符已经是换行或逗号，简化
+    gjTxt=gjTxt.slice(0,insertPos)+prefix+gjTxt.slice(insertPos);
+  }
+
+  // 机制插入：在 anchor 之后插入 code
+  if(b.mechanic_insertions&&b.mechanic_insertions.length){
+    b.mechanic_insertions.forEach(function(ins){
+      if(!ins.anchor||!ins.code)throw new Error("mechanic_insertions require {anchor, code}");
+      var idx=gjTxt.indexOf(ins.anchor);
+      if(idx<0)throw new Error("mechanic anchor not found: "+ins.anchor.slice(0,60));
+      // 在 anchor 所在行的下一行开头插入 code
+      var lineEnd=gjTxt.indexOf("\n",idx);
+      if(lineEnd<0)lineEnd=gjTxt.length;
+      gjTxt=gjTxt.slice(0,lineEnd+1)+ins.code+(ins.code.endsWith("\n")?"":"\n")+gjTxt.slice(lineEnd+1);
+    });
+  }
 });
+
+// ---- 合并 game.css (relic css_rules 追加到文件末尾) ----
+blocks.filter(function(b){return b.type==="relic"&&b.css_rules}).forEach(function(b){
+  var rules=b.css_rules.trim();
+  if(ccTxt.indexOf(rules.slice(0,60))>=0)return; // 已在
+  if(!ccTxt.endsWith("\n"))ccTxt+="\n";
+  ccTxt+=rules+"\n";
+});
+
 
 // ---- 合并 content_test.js ----
 // 1. 在 "if(errors.length)" 之前插入所有 test_lines
@@ -189,6 +206,8 @@ ctTxt=before2+newLogChunk+after2;
 // 写回
 fs.writeFileSync(GAMEDATA,gamedataTxt);
 fs.writeFileSync(CONTENT_TEST,ctTxt);
+fs.writeFileSync(GAMEJS,gjTxt);
+fs.writeFileSync(GAMECSS,ccTxt);
 console.log("\nWRITE: "+blocks.length+" blocks merged");
 
 // fix count
