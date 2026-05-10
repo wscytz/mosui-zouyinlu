@@ -3468,6 +3468,29 @@ npm run cap:open:android  # 用 Android Studio 打开
 
 *v4.32 内容治理 更新于 2026-05-10。*
 
+### v4.33 测试硬化首批 (2026-05-10)
+
+**新增测试文件：**
+- `robust_test.js`：186 遗物 × 5 武器 = 930 组合 fn 可执行；38 进化全可执行；30件/全量组合叠加不抛异常。
+- `seeded_test.js`：mulberry32 PRNG 替换 `Math.random` 实现确定性；5武器×同种子→相同 snapshot；5武器×1800帧长跑无崩溃。
+
+**stress_test 扩展：**
+- Test 11 帧时间 P99 预算：1200帧 combined-pressure 场景，预算 avg<3ms / p95<8ms / p99<16ms（60fps 帧时 16.7ms）；实测 avg=0.03ms / p95=0.08ms / p99=0.20ms，远低于预算。
+
+**门禁：**
+- `audit:content --strict` 接入 `test:all`，ERROR 非 0 直接阻塞。
+- `test:all` 从 269 扩到 283 项。
+
+**Bug 修复：**
+- `jiuzhuanmofu`（九转墨符）latent bug：`nineSealCount:0` / `nineSealReady:false` 默认值与 fn 设置值相同，导致不持有遗物也永远触发"每命中6次AOE爆发"机制。改为 `hasNineSeal` 标志位，mkPlayer 加字段、ck 加入、机制入口 `if(p.hasNineSeal)` 判断。
+- `wave_test.killAll` flake：`moyong` 死亡孵化 `morui` 的帧延迟让 alive 敌人在 state 切换后残留。改为两阶段清场——phase 1 循环到 state 切换，phase 2 额外 60 帧 drain 新生敌人。5/5 test:all 连跑零 flake。
+
+**测试基线变化：**
+- v4.32: 275 项（smoke 37 + wave 5 + content 223 + stress 10）
+- v4.33: 283 项（smoke 37 + wave 5 + content 223 + stress 11 + robust 4 + seeded 3 + strict audit）
+
+*v4.33 测试硬化首批 更新于 2026-05-10。*
+
 ### 版本号规则
 
 改完一个bug → 删掉对应条目 → 版本号末尾+1
