@@ -314,7 +314,9 @@ var EVOLUTIONS={
     {id:"e_fenmo",name:"分墨",type:"进化",tags:["远程"],effect:"大弹分裂为3颗小弹",
       fn:function(p){p.bigSplit=true}},
     {id:"e_suopo",name:"梭破",type:"进化",tags:["远程","暴击"],effect:"弹道随飞行距离增伤（最高+50%）",
-      fn:function(p){p.projTravelDmg=true}}
+      fn:function(p){p.projTravelDmg=true}},
+    {id:"e_mojiao",name:"墨蛟",type:"进化",tags:["远程","暴击"],effect:"弹道体积+30%，暴击率+8%",
+      fn:function(p){p.stats.projSize+=0.3;p.stats.critRate+=0.08}}
   ],
   aoe:[
     {id:"e_kuoyu",name:"扩域",type:"进化",tags:["控场"],effect:"范围+40%",
@@ -326,7 +328,9 @@ var EVOLUTIONS={
     {id:"e_shuangpin",name:"双频",type:"进化",tags:["控场"],effect:"第二圈不递减",
       fn:function(p){p.ringNoDecay=true}},
     {id:"e_huiming",name:"回鸣",type:"进化",tags:["控场","生存"],effect:"声波命中回复1HP",
-      fn:function(p){p.ringHeal=true}}
+      fn:function(p){p.ringHeal=true}},
+    {id:"e_hunling",name:"魂灵",type:"进化",tags:["控场","魂"],effect:"攻击范围+25%，伤害+15%",
+      fn:function(p){p.stats.range+=0.25;p.stats.dmg+=0.15}}
   ],
   dash:[
     {id:"e_jifeng",name:"疾风",type:"进化",tags:["突进"],effect:"移速+30%，伞击随速度增伤",
