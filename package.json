@@ -6,8 +6,11 @@
   "scripts": {
     "test": "node smoke_test.js",
     "ctx": "node .claude/ctx-extract.js",
-    "test:syntax": "node --check gamedata.js && node --check game.js && node --check mobile-controls.js && node --check .claude/ctx-extract.js && node --check .claude/validate-agent-output.js",
+    "test:syntax": "node --check gamedata.js && node --check game.js && node --check mobile-controls.js && node --check .claude/ctx-extract.js && node --check .claude/validate-agent-output.js && node --check .claude/content-block-rules.js && node --check .claude/merge-content-blocks.js && node --check .claude/test-content-block-fixtures.js && node --check .claude/audit-content-invariants.js",
     "test:all": "npm run test:syntax && node smoke_test.js && node wave_test.js && node content_test.js && node stress_test.js",
+    "test:block-fixtures": "node .claude/test-content-block-fixtures.js",
+    "test:automation": "npm run test:block-fixtures && node .claude/fix-test-count.js && node .claude/sequencer.js list",
+    "audit:content": "node .claude/audit-content-invariants.js",
     "validate:agent": "node .claude/validate-agent-output.js",
     "fix:entities": "node .claude/fix-html-entities.js --write --source",
     "wt:create": "node .claude/worktree-manager.js create",

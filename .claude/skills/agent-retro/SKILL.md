@@ -1,6 +1,6 @@
 ---
 name: agent-retro
-description: 墨祟：走阴录 agent 复盘和经验提取。用于从 subagent 失败、validator 报错、返工修正、模板漂移中提炼可复用规则，并更新 agent-lessons、agent 模板或 validator。触发词：复盘 agent、提取经验、这次哪里错、更新经验库、记一下这个错误、agent lessons、retro。默认不跑内容实现。
+description: Use when 用户要复盘 agent 失败、validator 报错、返工修正、模板漂移、更新经验库、agent lessons、retro；不是实现游戏内容。
 ---
 
 # Agent 复盘

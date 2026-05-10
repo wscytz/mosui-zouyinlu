@@ -14,6 +14,7 @@
 var fs=require("fs");
 var path=require("path");
 var child=require("child_process");
+var rules=require("./content-block-rules.js");
 
 var ROOT=process.cwd();
 var BLOCKS_DIR=path.join(ROOT,".claude","tmp","content-blocks");
@@ -46,24 +47,14 @@ files.forEach(function(f){
 });
 
 // 校验
-var errors=[];
-blocks.forEach(function(b){
-  if(!b.task_id)errors.push(b._file+": missing task_id");
-  if(typeof b.test_id!=="number")errors.push(b._file+": missing test_id (number)");
-  if(!b.type)errors.push(b._file+": missing type");
-  if(b.type!=="evolution"&&b.type!=="relic")errors.push(b._file+": type must be evolution|relic (got "+b.type+")");
-  if(b.type==="evolution"&&!b.pool)errors.push(b._file+": evolution requires pool (melee|ranged|aoe|dash|summon)");
-  if(b.type==="relic"){
-    if(b.player_fields&&!Array.isArray(b.player_fields))errors.push(b._file+": player_fields must be array");
-    if(b.ck_fields&&!Array.isArray(b.ck_fields))errors.push(b._file+": ck_fields must be array");
-    if(b.css_rules&&typeof b.css_rules!=="string")errors.push(b._file+": css_rules must be string");
-  }
-  if(!b.entry_js||typeof b.entry_js!=="string")errors.push(b._file+": missing entry_js string");
-  if(!Array.isArray(b.test_lines)||!b.test_lines.length)errors.push(b._file+": missing test_lines array");
-});
-if(errors.length){
-  console.error("FAIL ("+errors.length+"):");
-  errors.forEach(function(e){console.error("  - "+e)});
+var check=rules.validateBlocks(blocks);
+if(check.warnings.length){
+  console.error("WARN ("+check.warnings.length+"):");
+  check.warnings.forEach(function(e){console.error("  - "+e)});
+}
+if(!check.ok){
+  console.error("FAIL ("+check.errors.length+"):");
+  check.errors.forEach(function(e){console.error("  - "+e)});
   process.exit(1);
 }
 

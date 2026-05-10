@@ -1,6 +1,6 @@
 ---
 name: add-content-spec
-description: 墨祟：走阴录结构化 spec 内容开发（实验性）。agent 只输出 JSON spec，主 Claude/脚本按模板生成代码。当前只支持遗物。触发词：用 spec 加遗物、spec pipeline、结构化内容、生成 relic spec、add-content-spec。不抢 add-content 默认触发，用户必须明确提到 "spec" 或 "结构化" 才走这套。
+description: Use when 用户明确要求用 spec、结构化、spec pipeline、生成 relic spec 的方式为《墨祟：走阴录》设计遗物；普通加遗物仍用 add-content。
 ---
 
 # add-content-spec — 结构化 spec 内容开发（实验性）
@@ -101,11 +101,7 @@ node .claude/content-spec/validate-relic-spec.js .claude/tmp/relic-<id>.spec.jso
 
 **v0（当前）**：主 Claude 按 schema + icon-templates 手工生成代码块到 `.claude/tmp/relic-<id>.blocks.md`。模板是 deterministic 的——同样 spec 产出同样代码。
 
-**v1（未来）**：
-
-```bash
-node .claude/content-spec/generate-relic-from-spec.js .claude/tmp/relic-<id>.spec.json > .claude/tmp/relic-<id>.blocks.md
-```
+生成器脚本尚未实现；不要调用 `generate-relic-from-spec.js`。
 
 ### 7. 校验最终代码
 

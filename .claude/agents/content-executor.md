@@ -1,90 +1,123 @@
-# content-executor — 方案 B1 内容 executor 模板
+# content-executor — 高并发 JSON block writer
 
-**状态**: 实验性。默认仍走方案 A（add-content）。只在用户明确说 "用 executor" / "让 agent 自跑" / "方案 B" 时启用。
+**状态**: 方案 B 的高并发主线。只在 `add-content` 已经通过 `.claude/sequencer.js reserve` 分配 `task_id` 和 `test_id` 后使用。
 
-目的：让 agent 自己在 worktree 里合并 + 自跑测试，把主 Claude 从合并成本中解放出来。稳定性未超过方案 A；一旦出 blocker，回 A。
+核心规则：agent 只输出一个 JSON block。不要 Edit 文件，不要创建 worktree，不要运行 Bash，不要 git add/commit。
 
-**Agent 类型**: `general-purpose`（需要 Bash / Edit / Read）
+## 主 Claude 派发前
 
-## 主 Claude 派发前的准备
+1. 运行 `node .claude/sequencer.js reserve <type> <count> [--task-id-prefix=<prefix>]`。
+2. 给每个 agent 一个固定 `task_id`、`test_id`、内容 id、字段名、图标方案和机制说明。
+3. agent 返回 JSON 后，主 Claude 保存到 `.claude/tmp/content-blocks/<task-id>.json`。
+4. 主 Claude 统一运行 `node .claude/merge-content-blocks.js`，确认计划后再 `--write --commit`。
 
-1. 创建 worktree: `npm run wt:create -- <task-id>`
-2. 跑 `npm run ctx`，拿到下一个测试号 / 冷标签 / 现有 RELICS id
-3. 预分配 id、field name、icon.template、icon.primary/secondary（所有漂移风险高的值都不让 executor 自选）
-4. 派 executor，prompt 用下方模板
+## 支持范围
 
-## Executor prompt 模板
+`.claude/merge-content-blocks.js` 当前只支持：
+
+- `type:"relic"`
+- `type:"evolution"`，且必须带 `pool:"melee|ranged|aoe|dash|summon"`
+
+不要输出 enemy / achievement / curse block；这些仍走 add-content 方案 A。
+
+## 生产 prompt 规则
+
+- 主 Claude 必须把下面整段模板粘给 agent；不要改成短摘要。
+- 模板里的示例字段不能删。Claude 需要看到 `entry_js` / `player_fields` / `ck_fields` / `css_rules` / `mechanic_insertions` / `test_lines` / `console_log` 的完整形状。
+- 不要在派发 prompt 里写“格式类似上面”“照项目习惯”“省略”。这些词会让 agent 自己发明结构。
+- 对单个任务，只填 `{...}` 占位，不删字段。不需要的字段用空数组或空字符串，不要省略键。
+
+## Prompt 模板
 
 ```md
-你是墨祟：走阴录内容 executor。只在下面指定的工作目录工作，不改主工作区，不 git add / git commit。
+你是墨祟：走阴录 JSON block writer。
 
-工作目录（cd 进去）：{WORKTREE_PATH}
-任务：实现遗物 {ID}，name={NAME}，tags={TAGS}
-机制：{EFFECT_DESC}
-字段预分配：{FIELD_NAME}（bool，默认 false）
-触发点：{TRIGGER_FN}，条件 {TRIGGER_COND}
-触发动作代码片段（照抄）：
-{ACTION_SNIPPET}
-测试号（只用这个）：{TEST_ID}
-icon 模板：{ICON_TEMPLATE}，primary={PRIMARY}，secondary={SECONDARY}
+只输出一个 JSON 代码块。不要解释。不要输出 JS/CSS/测试代码块。不要修改文件。
 
-=== 流程（严格顺序）===
+任务：
+- task_id: {TASK_ID}
+- test_id: {TEST_ID}
+- type: relic/evolution
+- id: {CONTENT_ID}
+- name: {NAME}
+- tags/pool: {TAGS_OR_POOL}
+- 机制: {EFFECT_DESC}
+- 预分配字段: {FIELD_NAME}
+- 图标: {ICON_PLAN}
 
-1. Read .claude/content-spec/icon-templates.md 找 {ICON_TEMPLATE} 段落
-2. Edit gamedata.js：在 RELICS 最末遗物后加新条目（前一条末尾补逗号）
-3. Edit game.js：
-   - mkPlayer 末尾加 `{FIELD_NAME}:false,`（在 `idleT:0}` 之前）
-   - ck 数组加 `'{FIELD_NAME}'`（在 `];` 之前）
-   - 触发点函数里插入动作片段
-4. Edit game.css：找最后一个 `.relic-pick[data-icon=...]` 规则，后面加 ::before + ::after（选择器必须带 `.ink-icon`）
-5. Edit content_test.js：加 Test {TEST_ID} 块（字符串数组 + try/errors.push 格式），更新 `ALL N TESTS PASSED` 的 N，加 console.log 行
-6. Bash: `node smoke_test.js 2>&1 | tail -3` 期望全绿
-7. Bash: `node content_test.js 2>&1 | tail -3` 期望全绿
-8. 失败最多重试 2 次，再不过就 blocked 报告停下
+必须输出符合 `.claude/merge-content-blocks.js` 的 JSON。
 
-=== 硬禁令（违反任一就算失败）===
+relic JSON 形状：
+{
+  "task_id": "{TASK_ID}",
+  "test_id": {TEST_ID},
+  "type": "relic",
+  "entry_js": "{id:\"{CONTENT_ID}\",name:\"{NAME}\",tags:[\"{TAG1}\",\"{TAG2}\"],desc:\"{DESC}\",fn:function(p){p.{FIELD_NAME}=true;}}",
+  "player_fields": ["{FIELD_NAME}:false,"],
+  "ck_fields": ["'{FIELD_NAME}'"],
+  "css_rules": ".relic-pick[data-icon=\"{CONTENT_ID}\"] .ink-icon::before{width:12px;height:12px;border:2px solid var(--ink);border-radius:50%;background:var(--paper);}\\n.relic-pick[data-icon=\"{CONTENT_ID}\"] .ink-icon::after{width:6px;height:6px;border:2px solid var(--accent);border-radius:50%;background:var(--ink);}",
+  "mechanic_insertions": [
+    {"anchor": "{ANCHOR_EXACT_LINE_OR_BLOCK}", "code": "  if(g.player.{FIELD_NAME}){\\n    {ACTION_CODE}\\n  }\\n"}
+  ],
+  "test_lines": [
+    "'// Test {TEST_ID}: v__VER__ {NAME}',",
+    "'try{',",
+    "'  var r=RELICS.find(function(x){return x.id===\"{CONTENT_ID}\"});',",
+    "'  if(!r)errors.push(\"{TEST_ID}a: not found\");',",
+    "'  else{if(!r.tags||r.tags.length<2)errors.push(\"{TEST_ID}b: missing tags\");if(!r.fn)errors.push(\"{TEST_ID}c: missing fn\");}',",
+    "'  var g=newGame(\"jian\");r.fn(g.player);',",
+    "'  if(!g.player.{FIELD_NAME})errors.push(\"{TEST_ID}d: field not set\");',",
+    "'}catch(e){errors.push(\"{TEST_ID}: \"+e.message)}',"
+  ],
+  "console_log": "'  {TEST_ID} relic {CONTENT_ID} OK',"
+}
 
-- 不要 let / const / 箭头 / for...of / for...in / HTML entity
-- content_test 必须字符串数组 + try/errors.push，禁止对象式 {id, name, run}
-- 不要 assert / test / it / describe / expect / ok / eq
-- CSS 必须 `.relic-pick[data-icon="ID"] .ink-icon::before` 和 `::after`（`.ink-icon` 不可省）
-- CSS 颜色只能 var(--ink) / var(--accent) / var(--paper)，禁 hex / rgb / rgba / hsl / position / box-shadow / inset / opacity / top / left / right / bottom
-- spawnP 第 4 参数只能是 ink / accent / moss / fire / frost / gold / ash / soul
-- damageEnemy(g,e,dmg,src) 修改 HP，不要 e.hp -=
-- g 池用 pushLimited / pushAttack，不要 g.xxx.push 直接写
-- forEachLiveEnemy(g, function(oe){...})，不要 g.enemies 手写循环或 g.enemies.forEach
-- dstSq(a, b)，不要手算 dx*dx + dy*dy
-- 遗物 fn 只做 true 或 (p.xxx||0)+N，禁止 p._xxx=0 重置
-- C.* 只能用已有键：ink / accent / moss / spirit / fire / ash / soft / boss / gold / frost / ghost / paper / edge / ivory / clear
+evolution JSON 形状：
+{
+  "task_id": "{TASK_ID}",
+  "test_id": {TEST_ID},
+  "type": "evolution",
+  "pool": "{POOL}",
+  "entry_js": "{id:\"{CONTENT_ID}\",name:\"{NAME}\",tags:[\"{TAG1}\"],desc:\"{DESC}\",fn:function(p){p.stats.dmg*=1.1;}}",
+  "test_lines": [
+    "'// Test {TEST_ID}: v__VER__ 进化{NAME}',",
+    "'try{',",
+    "'  var evo=EVOLUTIONS.{POOL}.find(function(x){return x.id===\"{CONTENT_ID}\"});',",
+    "'  if(!evo)errors.push(\"{TEST_ID}a: not found\");',",
+    "'  else{if(!evo.tags||evo.tags.length<1)errors.push(\"{TEST_ID}b: missing tags\");if(!evo.fn)errors.push(\"{TEST_ID}c: missing fn\");}',",
+    "'  var g=newGame(\"jian\");var before=g.player.stats.dmg;evo.fn(g.player);',",
+    "'  if(g.player.stats.dmg<=before)errors.push(\"{TEST_ID}d: dmg not increased\");',",
+    "'}catch(e){errors.push(\"{TEST_ID}: \"+e.message)}',"
+  ],
+  "console_log": "'  {TEST_ID} evolution {CONTENT_ID} OK',"
+}
 
-=== 报告格式 ===
-
-status: success | blocked
-files: git status --short 结果
-tests: smoke / content 绿不绿
-notes: 1-2 句
-blockers: 若 blocked 写具体 error
-
-报告完就停。
+硬禁令：
+- 不要使用 TEST_ID_PLACEHOLDER；这里必须使用分配给你的具体 test_id。
+- 不要编造 task_id/test_id。
+- 不要写 `ALL N TESTS PASSED`；计数由 `fix-test-count.js` 处理。
+- 不要写入文件路径，不要说“我会保存到...”；只返回 JSON。
+- 不要用 let/const/箭头/for...of/for...in。
+- content_test 行必须是项目现有 string-array + try/errors.push 风格。
+- CSS 选择器必须带 `.ink-icon::before` 和 `.ink-icon::after`。
+- CSS 颜色只用 var(--ink) / var(--accent) / var(--paper) / var(--game-bg)。
+- 机制代码使用项目 helpers：damageEnemy、pushAttack、pushLimited、forEachLiveEnemy、dstSq。
 ```
 
-## 主 Claude 在 executor 完成后
+## 主 Claude 合并
 
-1. 读报告，若 blocked → 接手手动修
-2. success → `npm run wt:finish -- <task-id>`（先只产 patch）
-3. 过一遍 patch 内容
-4. OK → `npm run wt:finish -- <task-id> -- --apply`
-5. 主工作区跑 `npm run test:all` 兜底
-6. `git add` + commit
+```bash
+node .claude/merge-content-blocks.js
+node .claude/merge-content-blocks.js --write --commit
+node .claude/fix-test-count.js
+npm run fix:entities
+npm run test:all
+```
 
-## 何时不要用 executor
+如果 block 不可用：
 
-- 机制创新（需读 healToShield 等已有代码找复用点）：主 Claude 直接做更快
-- 跨文件重构：executor 容易漂移
-- 用户明确说"稳一点"/"别派 agent 写代码"
+```bash
+node .claude/sequencer.js release <task-id>
+```
 
-## 已知限制
-
-- general-purpose 的 Bash 可能有权限提示，用户可能需手动 allow
-- executor 读 SKILL.md 浪费 context；派发前只给硬禁令摘要（上面已嵌入 prompt），不让它再往回读
-- 失败 2 次仍不绿就停，不再试
+不要调用不存在的 `sequence-manager.js`、`content-merger.js`、`sequencer check`。

@@ -1,6 +1,6 @@
 ---
 name: add-content
-description: 墨祟：走阴录内容开发调度。当用户要求新增/设计/补充遗物、敌人、成就、誓印，或审计冷标签/内容平衡时触发。自动提取上下文、裁剪上下文包、派发专职agent、校验产出、合并代码、跑测试、提交。关键词：加遗物、新遗物、设计遗物、新敌人、怪物、小怪、Boss、加成就、新誓印、填冷标签、审计平衡、加点内容、relic、enemy、achievement、curse。
+description: Use when 用户请求为《墨祟：走阴录》新增、设计、审核游戏内容，例如遗物、敌人、成就、誓印、冷标签补全、内容平衡、relic、enemy、achievement、curse。
 ---
 
 # 墨祟内容开发调度
@@ -16,8 +16,8 @@ description: 墨祟：走阴录内容开发调度。当用户要求新增/设计
 | 场景 | 路线 | 触发条件 |
 |------|------|---------|
 | 单项内容（默认） | **A**：设计 agent 输出代码块 + 主 Claude 合并 | 默认 |
-| 并发 ≥ 2 项内容 | **A + worktree 隔离** | 用户要并发多项 或 显式说 "用 worktree" |
-| 实验性：agent 自跑 | **B1**：`.claude/agents/content-executor.md` | 用户显式说 "用 executor"/"让 agent 自跑"/"方案 B" |
+| 批量/高并发内容 | **B**：sequencer + JSON block + merger | 用户要 3 项及以上、批量生产、自由分配并发 |
+| 隔离手修/实验 | **A + worktree 隔离** | 用户显式说 "用 worktree" 或需要隔离失败任务 |
 | 实验性：spec 结构化 | **add-content-spec** skill | 用户显式说 "用 spec"/"结构化" |
 
 走错路线的成本比走保守路线的成本高得多。模糊需求默认 A。
@@ -27,8 +27,29 @@ description: 墨祟：走阴录内容开发调度。当用户要求新增/设计
 - 主 Claude 是唯一合并者；专职 agent 只输出代码块，不搜索代码，不修改文件。
 - 先取上下文，再派发；先校验输出，再合并；先测试全绿，再提交。
 - agent 永远使用 `TEST_ID_PLACEHOLDER`，测试编号只由主 Claude 串行替换。
+- 批量/高并发时，测试号和 task-id 只能来自 `.claude/sequencer.js`；禁止按 `npm run ctx` 手算下一个编号。
 - 用户未指定数量时默认只做 1 个；额外创意只能放建议区，不输出代码块。
 - 同一种错误：第一次主 Claude 修，第二次补 agent 模板，第三次补 validator 或测试。
+
+## 真实工具名（不要脑补）
+
+只使用下面真实存在的工具名：
+
+```bash
+node .claude/sequencer.js reserve <type> <count> [--task-id-prefix=<prefix>]
+node .claude/sequencer.js list
+node .claude/sequencer.js commit <task-id>
+node .claude/sequencer.js release <task-id>
+node .claude/merge-content-blocks.js
+node .claude/merge-content-blocks.js --write --commit
+node .claude/fix-test-count.js
+node .claude/fix-test-count.js --write
+npm run test:block-fixtures
+npm run test:automation
+npm run audit:content
+```
+
+不存在这些命令：`sequence-manager.js`、`content-merger.js`、`sequencer check`、`npm run seq:*`、`generate-relic-from-spec.js`。
 
 ## 工作流程
 
@@ -146,9 +167,59 @@ CHANGESET:
 [对应 agent 文件中的自检清单]
 ```
 
-并发规则：默认最多 2 个 agent 并发。超过 2 个必须用户明确要求；否则拆成多轮串行。最稳配方是单 agent + 相关完整 context pack + raw/merged 双 validator。测试编号和合并永远由主 Claude 串行处理。
+并发规则：1-2 项默认走方案 A。3 项及以上默认走方案 B（sequencer + block merger），不要让多个 agent 同时改 `content_test.js` / `gamedata.js` 末尾。
 
-### worktree 隔离（并发 ≥ 2 或用户明确要求）
+### 方案 B：高并发 block merger（3 项及以上默认）
+
+这是当前高并发主线。agent 不改源文件，只输出 JSON block；主 Claude 保存 block，再统一 merge。
+
+1. 先 reserve 序列资源：
+
+```bash
+node .claude/sequencer.js reserve relic 4 --task-id-prefix=batch6
+```
+
+2. 把返回的 `task_id` / `test_id` / `lease_file` 分配给每个 agent。
+3. 派 `.claude/agents/content-executor.md`，要求只输出一个 JSON block，不输出 JS/CSS 代码块，不 Edit 文件。
+   - 高并发生产 prompt 不允许压缩成自然语言摘要。
+   - 必须粘贴 `content-executor.md` 里的完整 JSON block 模板和完整字段示例。
+   - 不要把模板改成“参考格式/字段类似/略”；缩短模板会导致 RELICS、CSS、content_test、ck、API 字段漂移。
+4. 主 Claude 把每个 JSON 保存为：
+
+```text
+.claude/tmp/content-blocks/<task-id>.json
+```
+
+5. 先 dry run 看合并计划：
+
+```bash
+node .claude/merge-content-blocks.js
+```
+
+dry run 会先过共享门禁 `.claude/content-block-rules.js`，会拦截：
+- 批次内重复 `task_id` / `test_id` / relic id。
+- `entry_js` 使用 let/const/箭头函数/for...of/for...in。
+- 遗物 CSS 缺 `.relic-pick[data-icon="ID"] .ink-icon::before` 或 `::after`。
+- CSS 使用禁用属性、hex/rgb/hsl 色值、非白名单 `var(--*)`。
+- `test_lines` 缺 `// Test N:`、缺 `errors.push`，或使用 assert/test/expect 测试框架。
+
+6. 计划正确再写入并提交 lease：
+
+```bash
+node .claude/merge-content-blocks.js --write --commit
+node .claude/fix-test-count.js
+npm run fix:entities
+npm run test:all
+```
+
+失败处理：
+- agent 没产出可用 JSON：`node .claude/sequencer.js release <task-id>`。
+- merger dry run 失败：不写入主文件，修 block 或 release 对应 lease。
+- `fix-test-count.js` 报 summary 不一致：先 `node .claude/fix-test-count.js --write`，再跑 `npm run test:all`。
+- 如果改了 merger/rules/fixture：追加 `npm run test:block-fixtures` 和 `npm run test:automation`。
+- 批量内容结束后可跑 `npm run audit:content` 看一致性缺口；它默认只报告，不阻塞生产。
+
+### worktree 隔离（只在用户明确要求或隔离手修时用）
 
 每个 agent 任务分配独立 git worktree，互不干扰；任一失败不影响其他。
 
@@ -167,10 +238,10 @@ CHANGESET:
 
 ### 实验路线（不是默认，用户显式触发）
 
-- **executor B1**：agent 自己在 worktree 改文件 + 自跑 validate + 自跑 test。完整 prompt 模板见 `.claude/agents/content-executor.md`。主 Claude 只做 create / finish / commit。
+- **block writer**：见 `.claude/agents/content-executor.md`。agent 只产 JSON block，主 Claude 用 `merge-content-blocks.js` 统一合并。
 - **add-content-spec**：agent 输出 JSON spec，主 Claude/生成器按 schema 产代码。见 `add-content-spec` skill。
 
-两者都是减主 Claude 合并成本的试验，**稳定性未超过方案 A**，出问题先回 A。
+spec 仍是实验路线；用户没明确说 spec 时不要走。
 
 ### 5. 校验和合并产出
 
@@ -191,7 +262,7 @@ node .claude/validate-agent-output.js .claude/tmp-agent-output.md
 ```
 
 4. 不通过则拒收或由主 Claude 修正后重跑 validator；不得跳过 raw validator。
-5. 根据 `npm run ctx` 的最高 Test 编号递增替换所有 `TEST_ID_PLACEHOLDER`。
+5. 单项内容可根据当前最高 Test 编号替换 `TEST_ID_PLACEHOLDER`；批量/并发内容必须使用 `sequencer.js reserve` 分配的 `test_id`。
 6. 保存替换后的产出为 `.claude/tmp-agent-output.merged.md`。
 7. 运行：
 

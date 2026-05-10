@@ -1,10 +1,10 @@
-# 墨祟：走阴录 开发规范 v4.26
+# 墨祟：走阴录 开发规范 v4.31
 
 本文是给 Codex / Claude / 人类开发者的接手入口。现在项目已经进入“主 Claude + 专职 agent”协作期：先读规则，先取上下文，先校验输出，再合并测试。
 
-> 当前内容体量：5武器 / 117遗物 / 25进化 / 35敌人(含3Boss) / 9关卡 / 22誓印 / 38成就。
+> 当前内容体量：5武器 / 180遗物 / 30进化 / 37敌人(含3Boss) / 9关卡 / 22誓印 / 38成就。
 >
-> 当前自动检查：37 smoke + 5 wave + 139 active content blocks + 10 stress。`content_test.js` 的历史 summary 文本可能滞后，实际编号以 `.claude/ctx-extract.js` 扫描结果为准。
+> 当前自动检查：37 smoke + 5 wave + 217 content + 10 stress。`content_test.js` summary 由 `.claude/fix-test-count.js` 校准；高并发测试号由 `.claude/sequencer.js` 分配。
 
 ## 文档分工
 
@@ -18,6 +18,10 @@
 | `.claude/skills/agent-retro/SKILL.md` | agent 复盘/经验提取 skill | 只记录可复发失败模式 |
 | `.claude/sync-skills.ps1` | skill 安装脚本 | 同步前备份全局 skill |
 | `.claude/check-skills.ps1` | skill 同步检查 | 对比项目源和全局副本 hash |
+| `.claude/AUTOMATION_GUIDE.md` | 自动化命令和失败处理 | 方案 B 或脚本变化后更新 |
+| `.claude/content-block-rules.js` | 方案 B block 共享门禁 | merger 和 fixture test 共用，避免规则漂移 |
+| `.claude/test-content-block-fixtures.js` | block 好/坏样例测试 | 每次改 merger/rules 后运行 |
+| `.claude/audit-content-invariants.js` | 内容一致性巡检 | 默认 report-only，发布前可 `--strict` |
 | `.claude/IDEA_BANK.md` | 未实现点子库 | 只存精简候选，不存长聊天 |
 | `.claude/agent-lessons.md` | agent 经验库 | 第二次复发才记录，第三次进 validator/template |
 | `ROADMAP.md` | 路线和阶段目标 | 每个版本或阶段收口时更新 |
@@ -28,10 +32,10 @@
 ## 每次开发顺序
 
 1. 先读 `DEVELOPMENT.md`、`AGENT_SYSTEM.md`、`DEVDOC.md` 末尾记录。
-2. 跑 `npm run ctx`，确认当前内容数量、标签缺口、最大测试号。
+2. 跑 `npm run ctx`，确认当前内容数量、标签缺口；批量任务再用 `.claude/sequencer.js reserve` 分配测试号。
 3. 修 Bug 优先于加内容：崩溃、卡流程、状态错乱、性能尖峰先处理。
 4. 改玩法时优先改 `gamedata.js` 数据表；只有机制需要才改 `game.js`。
-5. 用 agent 时必须先校验原始输出，再由主 Claude 替换测试编号并合并。
+5. 用 agent 时必须按路线合并：方案 A raw/merged validator；方案 B sequencer + JSON block + merger。
 6. 每个新机制至少补一个 `content_test.js`、`wave_test.js` 或 `smoke_test.js` 覆盖。
 7. 最后更新文档和版本号，跑全量测试。
 
@@ -40,6 +44,8 @@
 ```bash
 npm run ctx
 npm run test:all
+npm run test:automation
+npm run audit:content
 ```
 
 等价展开：
@@ -50,6 +56,10 @@ node --check game.js
 node --check mobile-controls.js
 node --check .claude/ctx-extract.js
 node --check .claude/validate-agent-output.js
+node --check .claude/content-block-rules.js
+node --check .claude/merge-content-blocks.js
+node --check .claude/test-content-block-fixtures.js
+node --check .claude/audit-content-invariants.js
 node smoke_test.js
 node wave_test.js
 node content_test.js
@@ -115,13 +125,21 @@ node stress_test.js
 
 ## Agent 合并检查表
 
+方案 A（单项/两项代码块）：
 1. 原始输出必须包含 `TEST_ID_PLACEHOLDER`，不能包含具体新测试号。
 2. 先跑 `node .claude/validate-agent-output.js .claude/tmp-agent-output.md`。
 3. 主 Claude 替换测试编号后，跑 `node .claude/validate-agent-output.js --mode merged .claude/tmp-agent-output.merged.md`。
-4. 检查 agent 没有用 `let/const/=>/for...of`。
-5. 检查 agent 没有直接 push 到 `g.attacks/g.fires/g.eProj`。
-6. 检查 agent 没有用测试框架函数、复杂 CSS、`arguments[0]`、`fn` 内重置累加器。
-7. 合并后跑 `npm run test:all`。
+
+方案 B（三项及以上 JSON block）：
+1. 先跑 `node .claude/sequencer.js reserve <type> <count>`。
+2. agent 只输出 JSON block，主 Claude 保存到 `.claude/tmp/content-blocks/<task-id>.json`；派发 prompt 必须包含完整 block 模板，不能缩短为自然语言说明。
+3. 先跑 `node .claude/merge-content-blocks.js` dry run，再跑 `node .claude/merge-content-blocks.js --write --commit`。
+4. 合并后跑 `node .claude/fix-test-count.js`、`npm run fix:entities`、`npm run test:all`。
+5. 如果改了 merger/rules/fixtures，跑 `npm run test:block-fixtures` 和 `npm run test:automation`。
+
+方案 B dry run 现在会拦截：重复 `task_id/test_id`、ES6 漂移、遗物 CSS 缺 `.ink-icon::before/after`、CSS 变量乱编、`assert()`/`test()` 测试框架、缺 `errors.push`。
+
+通用检查：agent 不能用 `let/const/=>/for...of`，不能直接 push 到运行时池，不能用测试框架函数、复杂 CSS、`arguments[0]` 或在 `fn` 内重置累加器。
 
 ## Skill 本体维护
 
@@ -173,7 +191,7 @@ node stress_test.js
 ## 当前优先级
 
 1. 导入 ccswitch 前封板：文档、agent 模板、validator、测试脚本口径一致。
-2. 修正 `content_test.js` 历史 summary 与实际测试块数量的漂移。
-3. 扩展 validator：从风格拦截升级到缺字段/缺图标/缺权重提示。
+2. 让 `npm run audit:content` 的 ERROR 清零，再考虑发布前接入 `--strict`。
+3. 扩展视觉/鲁棒性测试：Playwright 截图、长跑随机种子、移动端关键路径。
 4. 用 balance-auditor 定期输出“冷标签 + 冷组合 + 死权重”清单。
 5. 实机验证：鬼市交互、镜殿残影弹、墨契狂墨平衡、精英标记识别、移动端摇杆可见度。

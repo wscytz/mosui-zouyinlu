@@ -1,0 +1,18 @@
+{
+  "task_id": "test-good-relic",
+  "test_id": 999,
+  "type": "relic",
+  "entry_js": "{id:\"testgood\",name:\"测试遗物\",type:\"测具\",tags:[\"测试\"],effect:\"测试用\",fn:function(p){p.testField=true}}",
+  "test_lines": [
+    "'// Test 999: test'",
+    "'try{'",
+    "'  var r=RELICS.find(function(x){return x.id===\"testgood\"});'",
+    "'  if(!r)errors.push(\"999a: not found\");'",
+    "'  var g=newGame(\"jian\",\"normal\");r.fn(g.player);'",
+    "'  if(!g.player.testField)errors.push(\"999d: not set\");'",
+    "'}catch(e){errors.push(\"999: \"+e.message)}'"
+  ],
+  "player_fields": ["testField:false,"],
+  "ck_fields": ["'testField'"],
+  "css_rules": ".relic-pick[data-icon=\"testgood\"] .ink-icon::before { width:14px;height:14px;background:var(--ink);border-radius:50%;margin:5px auto 0 }\n.relic-pick[data-icon=\"testgood\"] .ink-icon::after { width:6px;height:6px;background:var(--accent);border-radius:50%;transform:translate(4px,-11px) }"
+}

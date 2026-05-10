@@ -1,4 +1,4 @@
-# 墨祟：走阴录 Agent 自动化系统 v4.26
+# 墨祟：走阴录 Agent 自动化系统 v4.31
 
 本文是给主 Claude、专职 agent、Codex 和人类维护者的统一入口。目标不是让 agent 自由发挥，而是让它们在稳定规则里持续产出可合并的小块内容。
 
@@ -18,6 +18,13 @@
 |------|------|
 | `~/.claude/skills/add-content/SKILL.md` | 调度 skill，决定何时召唤专职 agent |
 | `.claude/ctx-extract.js` | 自动提取当前内容、标签、测试编号、代码片段 |
+| `.claude/sequencer.js` | 高并发唯一发号器，分配 task_id 和 test_id |
+| `.claude/merge-content-blocks.js` | 批量 JSON block 合并器，按 test_id 升序写入 |
+| `.claude/content-block-rules.js` | 方案 B block 共享门禁，供 merger 和 fixtures 复用 |
+| `.claude/test-content-block-fixtures.js` | 方案 B 好/坏样例测试，防止门禁回退 |
+| `.claude/audit-content-invariants.js` | 跨文件内容一致性巡检，默认 report-only |
+| `.claude/AUTOMATION_GUIDE.md` | 自动化命令流、失败处理和职责说明 |
+| `.claude/fix-test-count.js` | 自动校准 `content_test.js` 的 summary 数量 |
 | `.claude/validate-agent-output.js` | 校验 agent 输出是否可合并 |
 | `.claude/skills/add-content/SKILL.md` | add-content skill 的项目内源文件，纳入 git 管理 |
 | `.claude/skills/idea-lab/SKILL.md` | 点子审核、创新侦察、IDEA_BANK 维护 |
@@ -28,19 +35,17 @@
 | `.claude/agents/enemy-designer.md` | 敌人专员模板 |
 | `.claude/agents/content-writer.md` | 内容专员模板 |
 | `.claude/agents/balance-auditor.md` | 审计专员模板 |
+| `.claude/agents/content-executor.md` | 高并发 JSON block writer 模板 |
 
 ## 标准流程
 
 1. 主 Claude 先运行 `npm run ctx`，把输出作为事实源。
-2. 主 Claude 按任务选择一个专员，要求“只输出代码块，不直接改文件”。
-3. 专员必须使用 `TEST_ID_PLACEHOLDER`，不能自己写具体测试编号。
-4. 主 Claude 保存原始输出到 `.claude/tmp-agent-output.md`。
-5. 主 Claude 运行 `node .claude/validate-agent-output.js .claude/tmp-agent-output.md`。
-6. 主 Claude 根据当前最大测试号替换 `TEST_ID_PLACEHOLDER`，保存为 `.claude/tmp-agent-output.merged.md`。
-7. 主 Claude 运行 `node .claude/validate-agent-output.js --mode merged .claude/tmp-agent-output.merged.md`。
-8. 主 Claude 合并代码，跑 `npm run test:all`。
-9. 涉及 APK/网页资源时先 `npm run www` 或 `npm run cap:sync`，确认同步后再提交。
-10. 更新 `README.md`、`ROADMAP.md`、`DEVDOC.md` 或本文件中受影响的规则。
+2. 单项/两项内容走方案 A：专员只输出代码块，使用 `TEST_ID_PLACEHOLDER`，主 Claude raw/merged 双 validator 后合并。
+3. 三项及以上走方案 B：先 `node .claude/sequencer.js reserve <type> <count>`，agent 只输出 JSON block，主 Claude 用 `merge-content-blocks.js` 统一合并。
+4. 合并后运行 `npm run fix:entities`、`node .claude/fix-test-count.js`、`npm run test:all`。
+5. 改自动化脚本时额外运行 `npm run test:block-fixtures`、`npm run test:automation`、`npm run audit:content`。
+6. 涉及 APK/网页资源时先 `npm run www` 或 `npm run cap:sync`，确认同步后再提交。
+7. 更新 `README.md`、`ROADMAP.md`、`DEVDOC.md` 或本文件中受影响的规则。
 
 ## 硬规则
 
@@ -64,10 +69,10 @@
 
 ## 测试编号规则
 
-- agent 永远输出 `// TEST_ID_PLACEHOLDER: ...`。
-- 主 Claude 合并时以 `.claude/ctx-extract.js` 的最大测试号为准递增。
-- 并发 agent 输出不能各自猜编号；全部由主 Claude 串行替换。
-- `content_test.js` 里历史 summary 文本可能滞后，实际编号以扫描出的 `// Test N:` 块为准。
+- 方案 A：agent 永远输出 `// TEST_ID_PLACEHOLDER: ...`，主 Claude 串行替换。
+- 方案 B：agent 使用 `sequencer.js reserve` 分配的具体 `test_id`，不得自选或从 ctx 手算。
+- 并发 agent 不能各自猜编号；task_id/test_id 只能来自 `.claude/sequencer.js`。
+- `content_test.js` summary 由 `.claude/fix-test-count.js` 校准。
 
 ## 自我进化规则
 
@@ -117,10 +122,22 @@
 | idea-lab | 找点子/审核点子/收进点子库 | 只做概念评审和 IDEA_BANK 维护 | 低 |
 | agent-retro | 复盘 agent/提取经验/记错误 | 只做 lessons、模板、validator 经验沉淀 | 低 |
 
+自动化脚本的通用理解：
+
+| 名称 | 比喻 | 职责 |
+|------|------|------|
+| skill | 说明书 | 决定路线、上下文裁剪、测试和同步规则 |
+| validator | 门卫 | 拦截代码块输出中的风格/API/测试漂移 |
+| sequencer | 排队叫号机 | 高并发唯一分配 `task_id` 和 `test_id` |
+| merger | 合并器 | 校验 JSON block，并串行写入主工作区 |
+| fixtures | 门卫演习 | 用好/坏样例保证门禁不会退化 |
+| audit | 巡检表 | 报告跨文件内容一致性问题 |
+
 规则：
 
 - 普通内容实现不自动跑 idea-lab 或 agent-retro。
-- add-content 默认最多 2 个 agent 并发；超过 2 个必须用户明确要求。
+- add-content 单项/两项默认方案 A；三项及以上默认方案 B（sequencer + JSON block + merger）。
+- 方案 B 的 agent prompt 必须包含完整 JSON block 模板和完整字段示例，不允许用短摘要替代模板。
 - idea-lab 不写代码，不跑实现 agent。
 - agent-retro 默认只处理最近一次失败，不总结整段长对话。
 - 未实现点子放 `.claude/IDEA_BANK.md`。
@@ -143,6 +160,6 @@
 
 ## 下一轮优先审计
 
-- 把 `content_test.js` 的 summary 文本和实际测试块重新对齐。
+- 保持 `sequencer.js` / `merge-content-blocks.js` / `fix-test-count.js` 与 add-content skill 同步。
 - 将 `.claude/validate-agent-output.js` 扩展到“缺字段提示”，不仅做语法风格拦截。
 - 给每次 agent 合并产出一份小型 changelog：新增 ID、标签、测试号、风险点。

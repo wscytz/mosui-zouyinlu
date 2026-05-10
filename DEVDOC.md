@@ -3419,6 +3419,33 @@ npm run cap:open:android  # 用 Android Studio 打开
 
 *v4.27~v4.28 方案 B 流水线定型 更新于 2026-05-10。*
 
+### v4.31 自动化治理与发展说明 (2026-05-10)
+
+**目标：** 在高并发内容生产后，把方案 B 从“能跑”收束成“可审计、可测试、可继续扩张”的工程系统。
+
+**新增自动化：**
+- `.claude/content-block-rules.js`：方案 B JSON block 共享门禁，供 merger 和 fixture 测试复用。
+- `.claude/test-content-block-fixtures.js`：好/坏 block 样例测试，覆盖缺 `.ink-icon`、乱用 CSS var、`assert()`、重复测试号。
+- `.claude/audit-content-invariants.js`：跨文件内容巡检，默认 report-only；发布前可加 `--strict`。
+- `.claude/AUTOMATION_GUIDE.md`：统一解释 skill / validator / sequencer / merger / fixture / audit 的职责和命令流。
+
+**脚本：**
+- 新增 `npm run test:block-fixtures`
+- 新增 `npm run test:automation`
+- 新增 `npm run audit:content`
+- `npm run test:syntax` 纳入新的 `.claude` 自动化脚本语法检查
+
+**当前巡检结果：**
+- `audit:content` 报告 `molielian` 缺 CSS 图标。
+- `moyong` / `morui` 未出现在 WAVE_TIERS。
+- RELIC_RULES 覆盖为 40/180，后续内容治理应优先提升。
+
+**测试：**
+- `npm run test:block-fixtures`
+- `npm run audit:content`
+
+*v4.31 自动化治理 更新于 2026-05-10。*
+
 ### 版本号规则
 
 改完一个bug → 删掉对应条目 → 版本号末尾+1
