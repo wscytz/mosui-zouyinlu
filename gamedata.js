@@ -288,7 +288,10 @@ var RELICS=[
   {id:"mowushi",name:"墨雾蚀",type:"雾具",tags:["生存","控场"],effect:"攻击减速提升至30%，防御+10%",fn:function(p){p.slowOnHit=Math.max(p.slowOnHit||0,0.3);p.stats.def+=0.1}},
   {id:"moqianli",name:"墨千里",type:"羽器",tags:["机动","暴击"],effect:"移速+15%，暴击率+8%",fn:function(p){p.stats.spd+=0.15;p.stats.critRate+=0.08}},
   {id:"molianji",name:"墨连击",type:"刃具",tags:["近战","攻速"],effect:"攻速+15%，多重+1",fn:function(p){p.stats.atkSpd-=0.15;p.stats.multi+=1}},
-  {id:"monuhun",name:"墨怒魂",type:"魂器",tags:["魂","生存"],effect:"魂伤+5，防御+10%",fn:function(p){p.soulDmg+=5;p.stats.def+=0.1}}
+  {id:"monuhun",name:"墨怒魂",type:"魂器",tags:["魂","生存"],effect:"魂伤+5，防御+10%",fn:function(p){p.soulDmg+=5;p.stats.def+=0.1}},
+  {id:"mozhanhun",name:"墨斩魂",type:"刃具",tags:["近战","处决"],effect:"伤害+25%，暴击伤害+40%",fn:function(p){p.stats.dmg+=0.25;p.stats.critDmg+=0.4}},
+  {id:"monuxing",name:"墨怒行",type:"行具",tags:["机动","暴击"],effect:"移速+10%，暴击率+15%",fn:function(p){p.stats.spd+=0.1;p.stats.critRate+=0.15}},
+  {id:"moshouren",name:"墨守忍",type:"甲具",tags:["生存","反击"],effect:"防御+20%，反弹伤害+30%",fn:function(p){p.stats.def+=0.2;p.thorns=(p.thorns||0)+0.3}}
 ];
 
 var EVOLUTIONS={
