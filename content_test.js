@@ -1881,6 +1881,15 @@ code+='\n'+[
 '  if(!e||e.hp<=0)errors.push("182e: spawn failed");',
 '}catch(e){errors.push("182: "+e.message)}',
 
+'// Test 183: v4.27 墨爆魂(爆炸/生命)',
+'try{',
+'  var r=RELICS.find(function(x){return x.id==="moobaohun"});',
+'  if(!r)errors.push("183a: not found");',
+'  else{if(!r.tags||r.tags.length<2)errors.push("183b");if(!r.fn)errors.push("183c");}',
+'  var g=newGame("jian","normal");r.fn(g.player);',
+'  if(!g.player.killBurstHeal)errors.push("183d: not set");',
+'}catch(e){errors.push("183: "+e.message)}',
+
 'if(errors.length){console.log("FAIL ("+errors.length+"):");errors.forEach(function(e){console.log("  - "+e)});process.exit(1)}',
 'else{console.log("ALL 156 TESTS PASSED");',
 '  console.log(" 37-62. (previous 26 tests)");',
@@ -1940,6 +1949,7 @@ code+='\n'+[
 '  console.log(" 180. v4.27 墨息珠(持续/生命) — 击杀持续回血");',
 '  console.log(" 181. v4.27 墨棘盾(溅射/防御) — 受伤溅射反击");',
 '  console.log(" 182. v4.27 墨裂蜥 — 冲锋+分裂敌人");',
+'  console.log(" 183. v4.27 墨爆魂(爆炸/生命) — 低血击杀回血");',
 '}',
 ].join('\n');
 
