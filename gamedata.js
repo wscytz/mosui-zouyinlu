@@ -316,7 +316,8 @@ var EVOLUTIONS={
     {id:"e_suopo",name:"梭破",type:"进化",tags:["远程","暴击"],effect:"弹道随飞行距离增伤（最高+50%）",
       fn:function(p){p.projTravelDmg=true}},
     {id:"e_mojiao",name:"墨蛟",type:"进化",tags:["远程","暴击"],effect:"弹道体积+30%，暴击率+8%",
-      fn:function(p){p.stats.projSize+=0.3;p.stats.critRate+=0.08}}
+      fn:function(p){p.stats.projSize+=0.3;p.stats.critRate+=0.08}},
+    {id:"e_shijian",name:"矢箭",type:"进化",tags:["远程","暴击"],effect:"弹速+30%，暴击伤害+25%",fn:function(p){p.stats.projSpd=(p.stats.projSpd||1)+0.3;p.stats.critDmg+=0.25}}
   ],
   aoe:[
     {id:"e_kuoyu",name:"扩域",type:"进化",tags:["控场"],effect:"范围+40%",
@@ -330,7 +331,8 @@ var EVOLUTIONS={
     {id:"e_huiming",name:"回鸣",type:"进化",tags:["控场","生存"],effect:"声波命中回复1HP",
       fn:function(p){p.ringHeal=true}},
     {id:"e_hunling",name:"魂灵",type:"进化",tags:["控场","魂"],effect:"攻击范围+25%，伤害+15%",
-      fn:function(p){p.stats.range+=0.25;p.stats.dmg+=0.15}}
+      fn:function(p){p.stats.range+=0.25;p.stats.dmg+=0.15}},
+    {id:"e_jinggu",name:"惊鼓",type:"进化",tags:["控场","暴击"],effect:"范围+20%，暴击率+10%",fn:function(p){p.stats.range+=0.2;p.stats.critRate+=0.1}}
   ],
   dash:[
     {id:"e_jifeng",name:"疾风",type:"进化",tags:["突进"],effect:"移速+30%，伞击随速度增伤",
@@ -344,7 +346,8 @@ var EVOLUTIONS={
     {id:"e_yingji",name:"影迹",type:"进化",tags:["突进","机动"],effect:"冲刺后留下墨迹减速敌人",
       fn:function(p){p.dashTrail=true}},
     {id:"e_huanying",name:"幻影",type:"进化",tags:["突进","机动"],effect:"移速+25%，闪避冷却-15%",
-      fn:function(p){p.stats.spd+=0.25;p.stats.dodgeCd=(p.stats.dodgeCd||0)-0.15}}
+      fn:function(p){p.stats.spd+=0.25;p.stats.dodgeCd=(p.stats.dodgeCd||0)-0.15}},
+    {id:"e_pinghuo",name:"平霍",type:"进化",tags:["突进","暴击"],effect:"伤害+30%，暴击率+8%",fn:function(p){p.stats.dmg+=0.3;p.stats.critRate+=0.08}}
   ],
   summon:[
     {id:"e_zhaohun",name:"招魂",type:"进化",tags:["召物","法术"],effect:"幡的魂弹穿透敌人",
