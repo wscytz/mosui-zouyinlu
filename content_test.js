@@ -1858,6 +1858,29 @@ code+='\n'+[
 '  if(!g.player.breathOnKill)errors.push("180d: not set");',
 '}catch(e){errors.push("180: "+e.message)}',
 
+'// Test 181: v4.27 墨棘盾(溅射/防御)',
+'try{',
+'  var r=RELICS.find(function(x){return x.id==="mojiedun"});',
+'  if(!r)errors.push("181a: not found");',
+'  else{if(!r.tags||r.tags.length<2)errors.push("181b");if(!r.fn)errors.push("181c");}',
+'  var g=newGame("jian","normal");r.fn(g.player);',
+'  if(!g.player.hurtSplash)errors.push("181d: not set");',
+'}catch(e){errors.push("181: "+e.message)}',
+
+'// Test 182: v4.27 墨裂蜥',
+'try{',
+'  var et=ETYPE.molizexi;if(!et)errors.push("182a: not found");',
+'  else{',
+'    if(!DEATH_COLOR.molizexi)errors.push("182b: missing DEATH_COLOR");',
+'    if(!ENEMY_COST.molizexi)errors.push("182c: missing ENEMY_COST");',
+'    var f=false;WAVE_TIERS.forEach(function(t){if(t.indexOf("molizexi")>=0)f=true});',
+'    if(!f)errors.push("182d: not in WAVE_TIERS");',
+'  }',
+'  var g=newGame("jian","normal");spawnEnemy(g,"molizexi");',
+'  var e=g.enemies[g.enemies.length-1];',
+'  if(!e||e.hp<=0)errors.push("182e: spawn failed");',
+'}catch(e){errors.push("182: "+e.message)}',
+
 'if(errors.length){console.log("FAIL ("+errors.length+"):");errors.forEach(function(e){console.log("  - "+e)});process.exit(1)}',
 'else{console.log("ALL 156 TESTS PASSED");',
 '  console.log(" 37-62. (previous 26 tests)");',
@@ -1915,6 +1938,8 @@ code+='\n'+[
 '  console.log(" 178. v4.27 墨化蜂(分裂/持续) — 命中分裂弹+留DOT区");',
 '  console.log(" 179. v4.27 墨言师 — 远程召唤+死亡爆炸");',
 '  console.log(" 180. v4.27 墨息珠(持续/生命) — 击杀持续回血");',
+'  console.log(" 181. v4.27 墨棘盾(溅射/防御) — 受伤溅射反击");',
+'  console.log(" 182. v4.27 墨裂蜥 — 冲锋+分裂敌人");',
 '}',
 ].join('\n');
 

@@ -256,7 +256,9 @@ var RELICS=[
   {id:"mohuafeng",name:"墨化蜂",type:"墨具",tags:["分裂","持续"],
     effect:"命中时20%几率向附近敌人发射追踪弹，并在落点留下持续伤害墨域",fn:function(p){p.splitDot=true}},
   {id:"moxizhu",name:"墨息珠",type:"饰具",tags:["持续","生命"],
-    effect:"击杀敌人后6秒内每秒恢复2点生命",fn:function(p){p.breathOnKill=true}}
+    effect:"击杀敌人后6秒内每秒恢复2点生命",fn:function(p){p.breathOnKill=true}},
+  {id:"mojiedun",name:"墨棘盾",type:"盾具",tags:["溅射","防御"],
+    effect:"受伤时向周围溅射墨棘，造成范围伤害",fn:function(p){p.hurtSplash=true;p.hurtSplashDmg=(p.hurtSplashDmg||0)+5}}
 ];
 
 var EVOLUTIONS={
@@ -400,7 +402,11 @@ var ETYPE={
   moyanshi:{name:"墨言师",tip:"远程施咒并召唤小鬼，优先击杀以阻止增援",hp:75,spd:0.7,r:14,dmg:8,atkR:220,atkCd:90,col:"rgba(120,80,160,0.9)",edge:C.spirit,
     ranged:true,pSpd:3,
     summoner:true,summonCd:300,summonMax:3,
-    deathBomb:true,deathBombR:50,deathBombDmg:12,deathBombDelay:20}
+    deathBomb:true,deathBombR:50,deathBombDmg:12,deathBombDelay:20},
+  molizexi:{name:"墨裂蜥",tip:"冲锋后分裂为碎片，AOE速清",hp:28,spd:1.8,r:10,dmg:8,atkR:18,atkCd:80,
+    col:"rgba(200,75,45,0.85)",edge:C.fire,
+    charge:true,chargeCd:180,chargeSpeed:5,
+    splitter:true,splitCount:3,splitHpRatio:0.25}
 };
 
 var LIMITS={particles:260,fires:72,attacks:90,eProj:90,floatTexts:18,decoys:12,kites:4,frosts:12,enemies:80,inkSpirits:6};
@@ -476,7 +482,7 @@ var TUNING={
 };
 
 var DEATH_COLOR={zhikui:"ash",youhun:"moss",fenling:"fire",shigui:"soft",gudeng:"gold",jiangshi:"ink",boss:"accent",
-  zhikuang:"ghost",fenshen:"soul",modun:"soft",mojiangjun:"ink",moguiwang:"accent",moya:"ink",shiyong:"soft",yanyong:"fire",sukui:"ash",duzhu:"moss",gushi:"boss",huapi:"accent",mozhi:"ink",motong:"ink",mofu:"ink",modie:"moss",moyong:"ink",morui:"accent",mozhu:"moss",mogu:"ash",momian:"ink",mojar:"ink",moying:"moss",mooushi:"ghost",mozhuhou:"ink",moling:"moss",mobei:"ash",mozhang:"moss",moyanshi:"soul"};
+  zhikuang:"ghost",fenshen:"soul",modun:"soft",mojiangjun:"ink",moguiwang:"accent",moya:"ink",shiyong:"soft",yanyong:"fire",sukui:"ash",duzhu:"moss",gushi:"boss",huapi:"accent",mozhi:"ink",motong:"ink",mofu:"ink",modie:"moss",moyong:"ink",morui:"accent",mozhu:"moss",mogu:"ash",momian:"ink",mojar:"ink",moying:"moss",mooushi:"ghost",mozhuhou:"ink",moling:"moss",mobei:"ash",mozhang:"moss",moyanshi:"soul",molizexi:"fire"};
 
 var JUDGMENTS=["斩业已断","纸命归灰","照见真形","朱批落定","一念归尘","墨尽灯枯","形消魄散","笔落惊魂"];
 
@@ -494,11 +500,11 @@ var BUILD_PREFS={
 function _ri(a,b){return Math.floor(a+Math.random()*(b-a+1))}
 function _pick(a){return a[Math.floor(Math.random()*a.length)]}
 // --- Procedural wave generation ---
-var ENEMY_COST={zhikui:1,youhun:1.5,zhikuang:1.5,fenling:2,gudeng:2,shigui:2.5,fenshen:2.5,modun:2.5,jiangshi:3,moya:1.8,shiyong:3,yanyong:2.2,sukui:1.3,duzhu:1.7,gushi:2.8,huapi:1.9,mozhi:1.4,motong:1.2,mofu:1.1,modie:1.5,moyong:2.0,morui:0.7,mozhu:1.8,mogu:2.8,momian:1.6,mojar:2.0,moying:1.5,mooushi:2.5,mozhuhou:3.0,moling:1.8,mobei:2.5,mozhang:2.0,moyanshi:2.3,boss:99,mojiangjun:99,moguiwang:99};
+var ENEMY_COST={zhikui:1,youhun:1.5,zhikuang:1.5,fenling:2,gudeng:2,shigui:2.5,fenshen:2.5,modun:2.5,jiangshi:3,moya:1.8,shiyong:3,yanyong:2.2,sukui:1.3,duzhu:1.7,gushi:2.8,huapi:1.9,mozhi:1.4,motong:1.2,mofu:1.1,modie:1.5,moyong:2.0,morui:0.7,mozhu:1.8,mogu:2.8,momian:1.6,mojar:2.0,moying:1.5,mooushi:2.5,mozhuhou:3.0,moling:1.8,mobei:2.5,mozhang:2.0,moyanshi:2.3,molizexi:1.9,boss:99,mojiangjun:99,moguiwang:99};
 var WAVE_BUDGETS=[5,7,9.5,12,14.5,17.5,21,25,28,32,36,0];
 var WAVE_TIERS=[
   ["zhikui","youhun"],
-  ["zhikui","youhun","fenling","zhikuang","moya","sukui","huapi","mozhi","motong","mofu","modie","moying"],
+  ["zhikui","youhun","fenling","zhikuang","moya","sukui","huapi","mozhi","motong","mofu","modie","moying","molizexi"],
   ["zhikui","youhun","fenling","gudeng","shigui","fenshen","moya","shiyong","sukui","yanyong","duzhu","mozhu","moying","mooushi","moling","mozhang","moyanshi"],
   ["zhikuang","fenling","gudeng","shigui","fenshen","modun","jiangshi","moya","shiyong","yanyong","gushi","mozhu","mogu","mojar","mooushi","mobei","moyanshi"],
   ["fenling","gudeng","shigui","fenshen","modun","jiangshi","moya","shiyong","yanyong","duzhu","gushi","mozhu","mogu","momian","mojar","mooushi","mozhuhou"]

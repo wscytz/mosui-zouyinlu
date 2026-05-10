@@ -301,6 +301,7 @@ function mkPlayer(){
     enemyFlicker:false,inkBrandCurse:false,missChance:0,hitDmgMult:0,
     splitDot:false,
     breathOnKill:false,breathTicks:0,
+    hurtSplash:false,hurtSplashDmg:0,
     idleT:0}
 }
 
@@ -1207,6 +1208,11 @@ function hurtP(g,dmg,src){
     var retDmg=p.hurtRetaliateDmg||5;
     forEachLiveEnemy(g,function(oe){if(dstSq(oe,p)<RANGES.retaliate*RANGES.retaliate)damageEnemy(g,oe,retDmg,"retaliate")});
     spawnP(g,p.x,p.y,"accent",8);shake(g,5,3);snd("shieldBreak")}
+  // 墨棘盾：受伤溅射反击
+  if(p.hurtSplash){
+    var _r=RANGES.splashBoom*RANGES.splashBoom;var _d=p.hurtSplashDmg||5;
+    forEachLiveEnemy(g,function(oe){if(dstSq(oe,p)<_r)damageEnemy(g,oe,_d,"hurtSplash")});
+    spawnP(g,p.x,p.y,"accent",6);shake(g,4,3)}
   if(p.decoyHP>0){var oldDecoy=p.decoyHP;p.decoyHP-=dmg;
     if(p.decoyHP<0){p.hp+=p.decoyHP;p.decoyHP=0}
     if(p.decoyHP<oldDecoy)spawnInk(g,p.x,p.y,4,"ghost")}
@@ -3874,7 +3880,8 @@ function rebuildPlayerStats(g){
     'splashDeathBoom','splashDeathBoomChance','splashDeathBoomRatio',
     'splashRippleStack','splashRippleMax','splashRippleBonus','_rippleStacks',
     'splitDot',
-    'breathOnKill','breathTicks'];
+    'breathOnKill','breathTicks',
+    'hurtSplash','hurtSplashDmg'];
   rk.concat(ck).forEach(function(k){f[k]=o[k]});
   g.relics.forEach(function(r){try{r.fn(f)}catch(e){}});
   if(g.evolution)g.evolution.fn(f);
