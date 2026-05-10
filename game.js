@@ -323,6 +323,8 @@ function mkPlayer(){
     meleeMobility:false,
     killAOE:false,
     critHeal:false,
+    dodgeSplash:false,
+    curseHeart:false,
     idleT:0}
 }
 
@@ -1500,6 +1502,8 @@ function startDodge(g,dx,dy){
     var _dr=90*90;var _dd=Math.max(1,Math.ceil(p.stats.dmg*0.35));
     forEachLiveEnemy(g,function(oe){if(dstSq(oe,p)<_dr)damageEnemy(g,oe,_dd,"dashRetaliate")});
     spawnP(g,p.x,p.y,"ink",5)}
+  // 墨旋步：闪避留溅射区
+  if(p.dodgeSplash){pushLimited(g.frosts,{x:p.x,y:p.y,r:35,life:60,maxLife:60,dmg:Math.max(1,Math.ceil(p.stats.dmg*0.2))},LIMITS.frosts);spawnP(g,p.x,p.y,"ink",4)}
   // 甩脱墨蛭
   if(p.leeches.length>0){p.leeches.forEach(function(le){le.hp=0;le.attached=false;spawnInk(g,le.x,le.y,6,"accent")});p.leeches=[]}
   snd("playerDodge");spawnInk(g,p.x,p.y,7,"ink");
@@ -4017,7 +4021,9 @@ function rebuildPlayerStats(g){
     'dashRetaliate',
     'meleeMobility',
     'killAOE',
-    'critHeal'
+    'critHeal',
+    'dodgeSplash',
+    'curseHeart'
     ];
   rk.concat(ck).forEach(function(k){f[k]=o[k]});
   g.relics.forEach(function(r){try{r.fn(f)}catch(e){}});
@@ -4027,6 +4033,8 @@ function rebuildPlayerStats(g){
   if(f.relicPower>1){f.stats.dmg+=(f.relicPower-1)*0.12;f.stats.critDmg+=(f.relicPower-1)*0.2;if(f.soulDmg)f.soulDmg=Math.floor(f.soulDmg*f.relicPower);if(f.killHeal)f.killHeal=Math.floor(f.killHeal*f.relicPower);if(f.decoyHP)f.decoyHP=Math.floor(f.decoyHP*f.relicPower)}
   // 墨聚灵：3只墨魂以上伤害加成
   if(f.summonBurst&&g.inkSpirits&&g.inkSpirits.length>=3)f.stats.dmg+=0.2;
+  // 墨咒心：生命加成+高血增伤
+  if(f.curseHeart){f.maxHp+=20;if(f.hp>f.maxHp*0.5)f.stats.dmg+=0.1}
   if(f.maxHpOverride>0)f.maxHp=f.maxHpOverride;
   if(f.spiritHpPenalty>0&&f.inkSpiritCount>0)f.maxHp=Math.max(20,f.maxHp-f.spiritHpPenalty*f.inkSpiritCount);
   if(f.hp>f.maxHp)f.hp=f.maxHp;

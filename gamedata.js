@@ -322,7 +322,9 @@ var RELICS=[
   {id:"mochongying",name:"墨冲影",type:"影具",tags:["冲刺","反击"],effect:"冲刺时对身边敌人造成反伤",fn:function(p){p.dashRetaliate=true}},
   {id:"mojifeng",name:"墨疾风",type:"风具",tags:["近战","机动"],effect:"近战击杀获得攻速+移速加成",fn:function(p){p.meleeMobility=true}},
   {id:"mojiehuan",name:"墨劫环",type:"环具",tags:["范围","击杀"],effect:"击杀敌人时对周围造成范围伤害",fn:function(p){p.killAOE=true}},
-  {id:"moxueren",name:"墨血刃",type:"刃具",tags:["暴击","治疗"],effect:"暴击时回复少量生命",fn:function(p){p.critHeal=true}}
+  {id:"moxueren",name:"墨血刃",type:"刃具",tags:["暴击","治疗"],effect:"暴击时回复少量生命",fn:function(p){p.critHeal=true}},
+  {id:"moxuanbu",name:"墨旋步",type:"步具",tags:["机动","溅射"],effect:"闪避时在原位留下范围伤害区",fn:function(p){p.dodgeSplash=true}},
+  {id:"mozhouxin",name:"墨咒心",type:"心具",tags:["生命","诅咒"],effect:"最大生命+20，高血量时伤害+10%",fn:function(p){p.curseHeart=true}}
 ];
 
 var EVOLUTIONS={
