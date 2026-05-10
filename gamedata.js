@@ -342,7 +342,9 @@ var EVOLUTIONS={
     {id:"e_kaihe",name:"开合",type:"进化",tags:["突进"],effect:"冲后反向补一刀",
       fn:function(p){p.dashReturn=true}},
     {id:"e_yingji",name:"影迹",type:"进化",tags:["突进","机动"],effect:"冲刺后留下墨迹减速敌人",
-      fn:function(p){p.dashTrail=true}}
+      fn:function(p){p.dashTrail=true}},
+    {id:"e_huanying",name:"幻影",type:"进化",tags:["突进","机动"],effect:"移速+25%，闪避冷却-15%",
+      fn:function(p){p.stats.spd+=0.25;p.stats.dodgeCd=(p.stats.dodgeCd||0)-0.15}}
   ],
   summon:[
     {id:"e_zhaohun",name:"招魂",type:"进化",tags:["召物","法术"],effect:"幡的魂弹穿透敌人",
@@ -354,7 +356,9 @@ var EVOLUTIONS={
     {id:"e_lianfan",name:"连幡",type:"进化",tags:["召物","法术"],effect:"同时可存在两面幡",
       fn:function(p){p.bannerDouble=true}},
     {id:"e_guijiang",name:"归将",type:"进化",tags:["召物","生存"],effect:"幡附近持续回血",
-      fn:function(p){p.bannerHeal=true}}
+      fn:function(p){p.bannerHeal=true}},
+    {id:"e_youchong",name:"幽宠",type:"进化",tags:["召物","生存"],effect:"伤害+20%，防御+15%",
+      fn:function(p){p.stats.dmg+=0.2;p.stats.def+=0.15}}
   ]
 };
 
