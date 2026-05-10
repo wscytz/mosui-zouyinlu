@@ -6,8 +6,8 @@
   "scripts": {
     "test": "node smoke_test.js",
     "ctx": "node .claude/ctx-extract.js",
-    "test:syntax": "node --check gamedata.js && node --check game.js && node --check mobile-controls.js && node --check robust_test.js && node --check .claude/ctx-extract.js && node --check .claude/validate-agent-output.js && node --check .claude/content-block-rules.js && node --check .claude/merge-content-blocks.js && node --check .claude/test-content-block-fixtures.js && node --check .claude/audit-content-invariants.js",
-    "test:all": "npm run test:syntax && node smoke_test.js && node wave_test.js && node content_test.js && node stress_test.js && node robust_test.js && node .claude/audit-content-invariants.js --strict",
+    "test:syntax": "node --check gamedata.js && node --check game.js && node --check mobile-controls.js && node --check robust_test.js && node --check seeded_test.js && node --check .claude/ctx-extract.js && node --check .claude/validate-agent-output.js && node --check .claude/content-block-rules.js && node --check .claude/merge-content-blocks.js && node --check .claude/test-content-block-fixtures.js && node --check .claude/audit-content-invariants.js",
+    "test:all": "npm run test:syntax && node smoke_test.js && node wave_test.js && node content_test.js && node stress_test.js && node robust_test.js && node seeded_test.js && node .claude/audit-content-invariants.js --strict",
     "test:block-fixtures": "node .claude/test-content-block-fixtures.js",
     "test:automation": "npm run test:block-fixtures && node .claude/fix-test-count.js && node .claude/sequencer.js list",
     "audit:content": "node .claude/audit-content-invariants.js",
