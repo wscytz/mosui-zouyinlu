@@ -394,7 +394,11 @@ var ETYPE={
   // v4.27 new enemy
   mozhang:{name:"墨瘴",tip:"移动散布瘴气，死后释放墨潭减速，远程击杀为上",hp:62,spd:1.3,r:14,dmg:7,atkR:32,atkCd:54,col:"rgba(55,70,60,0.45)",edge:C.moss,
     poisonTrail:true,
-    deathSlow:true,deathSlowR:85,deathSlowT:130}
+    deathSlow:true,deathSlowR:85,deathSlowT:130},
+  moyanshi:{name:"墨言师",tip:"远程施咒并召唤小鬼，优先击杀以阻止增援",hp:75,spd:0.7,r:14,dmg:8,atkR:220,atkCd:90,col:"rgba(120,80,160,0.9)",edge:C.spirit,
+    ranged:true,pSpd:3,
+    summoner:true,summonCd:300,summonMax:3,
+    deathBomb:true,deathBombR:50,deathBombDmg:12,deathBombDelay:20}
 };
 
 var LIMITS={particles:260,fires:72,attacks:90,eProj:90,floatTexts:18,decoys:12,kites:4,frosts:12,enemies:80,inkSpirits:6};
@@ -470,7 +474,7 @@ var TUNING={
 };
 
 var DEATH_COLOR={zhikui:"ash",youhun:"moss",fenling:"fire",shigui:"soft",gudeng:"gold",jiangshi:"ink",boss:"accent",
-  zhikuang:"ghost",fenshen:"soul",modun:"soft",mojiangjun:"ink",moguiwang:"accent",moya:"ink",shiyong:"soft",yanyong:"fire",sukui:"ash",duzhu:"moss",gushi:"boss",huapi:"accent",mozhi:"ink",motong:"ink",mofu:"ink",modie:"moss",moyong:"ink",morui:"accent",mozhu:"moss",mogu:"ash",momian:"ink",mojar:"ink",moying:"moss",mooushi:"ghost",mozhuhou:"ink",moling:"moss",mobei:"ash",mozhang:"moss"};
+  zhikuang:"ghost",fenshen:"soul",modun:"soft",mojiangjun:"ink",moguiwang:"accent",moya:"ink",shiyong:"soft",yanyong:"fire",sukui:"ash",duzhu:"moss",gushi:"boss",huapi:"accent",mozhi:"ink",motong:"ink",mofu:"ink",modie:"moss",moyong:"ink",morui:"accent",mozhu:"moss",mogu:"ash",momian:"ink",mojar:"ink",moying:"moss",mooushi:"ghost",mozhuhou:"ink",moling:"moss",mobei:"ash",mozhang:"moss",moyanshi:"soul"};
 
 var JUDGMENTS=["斩业已断","纸命归灰","照见真形","朱批落定","一念归尘","墨尽灯枯","形消魄散","笔落惊魂"];
 
@@ -488,13 +492,13 @@ var BUILD_PREFS={
 function _ri(a,b){return Math.floor(a+Math.random()*(b-a+1))}
 function _pick(a){return a[Math.floor(Math.random()*a.length)]}
 // --- Procedural wave generation ---
-var ENEMY_COST={zhikui:1,youhun:1.5,zhikuang:1.5,fenling:2,gudeng:2,shigui:2.5,fenshen:2.5,modun:2.5,jiangshi:3,moya:1.8,shiyong:3,yanyong:2.2,sukui:1.3,duzhu:1.7,gushi:2.8,huapi:1.9,mozhi:1.4,motong:1.2,mofu:1.1,modie:1.5,moyong:2.0,morui:0.7,mozhu:1.8,mogu:2.8,momian:1.6,mojar:2.0,moying:1.5,mooushi:2.5,mozhuhou:3.0,moling:1.8,mobei:2.5,mozhang:2.0,boss:99,mojiangjun:99,moguiwang:99};
+var ENEMY_COST={zhikui:1,youhun:1.5,zhikuang:1.5,fenling:2,gudeng:2,shigui:2.5,fenshen:2.5,modun:2.5,jiangshi:3,moya:1.8,shiyong:3,yanyong:2.2,sukui:1.3,duzhu:1.7,gushi:2.8,huapi:1.9,mozhi:1.4,motong:1.2,mofu:1.1,modie:1.5,moyong:2.0,morui:0.7,mozhu:1.8,mogu:2.8,momian:1.6,mojar:2.0,moying:1.5,mooushi:2.5,mozhuhou:3.0,moling:1.8,mobei:2.5,mozhang:2.0,moyanshi:2.3,boss:99,mojiangjun:99,moguiwang:99};
 var WAVE_BUDGETS=[5,7,9.5,12,14.5,17.5,21,25,28,32,36,0];
 var WAVE_TIERS=[
   ["zhikui","youhun"],
   ["zhikui","youhun","fenling","zhikuang","moya","sukui","huapi","mozhi","motong","mofu","modie","moying"],
-  ["zhikui","youhun","fenling","gudeng","shigui","fenshen","moya","shiyong","sukui","yanyong","duzhu","mozhu","moying","mooushi","moling","mozhang"],
-  ["zhikuang","fenling","gudeng","shigui","fenshen","modun","jiangshi","moya","shiyong","yanyong","gushi","mozhu","mogu","mojar","mooushi","mobei"],
+  ["zhikui","youhun","fenling","gudeng","shigui","fenshen","moya","shiyong","sukui","yanyong","duzhu","mozhu","moying","mooushi","moling","mozhang","moyanshi"],
+  ["zhikuang","fenling","gudeng","shigui","fenshen","modun","jiangshi","moya","shiyong","yanyong","gushi","mozhu","mogu","mojar","mooushi","mobei","moyanshi"],
   ["fenling","gudeng","shigui","fenshen","modun","jiangshi","moya","shiyong","yanyong","duzhu","gushi","mozhu","mogu","momian","mojar","mooushi","mozhuhou"]
 ];
 var WAVE_PLACES=["纸门","纸灰巷","悬井口","鬼灯廊","无面台","墨池","灰潮","百鬼面","黄泉路","枯骨桥","阴风道","鬼市","鸦栖楼","幽冥渡"];

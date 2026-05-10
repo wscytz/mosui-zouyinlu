@@ -1835,6 +1835,20 @@ code+='\n'+[
 '  if(!g.player.splitDot)errors.push("178d: not set");',
 '}catch(e){errors.push("178: "+e.message)}',
 
+'// Test 179: v4.27 墨言师',
+'try{',
+'  var et=ETYPE.moyanshi;if(!et)errors.push("179a: not found");',
+'  else{',
+'    if(!DEATH_COLOR.moyanshi)errors.push("179b: missing DEATH_COLOR");',
+'    if(!ENEMY_COST.moyanshi)errors.push("179c: missing ENEMY_COST");',
+'    var f=false;WAVE_TIERS.forEach(function(t){if(t.indexOf("moyanshi")>=0)f=true});',
+'    if(!f)errors.push("179d: not in WAVE_TIERS");',
+'  }',
+'  var g=newGame("jian","normal");spawnEnemy(g,"moyanshi");',
+'  var e=g.enemies[g.enemies.length-1];',
+'  if(!e||e.hp<=0)errors.push("179e: spawn failed");',
+'}catch(e){errors.push("179: "+e.message)}',
+
 'if(errors.length){console.log("FAIL ("+errors.length+"):");errors.forEach(function(e){console.log("  - "+e)});process.exit(1)}',
 'else{console.log("ALL 156 TESTS PASSED");',
 '  console.log(" 37-62. (previous 26 tests)");',
@@ -1890,6 +1904,7 @@ code+='\n'+[
 '  console.log(" 176. v4.26 墨涟爆(溅射/爆炸) — 溅射击杀二次爆炸");',
 '  console.log(" 177. v4.26 墨碑 — 带盾辅助型敌人(hasShield+deathBuff)");',
 '  console.log(" 178. v4.27 墨化蜂(分裂/持续) — 命中分裂弹+留DOT区");',
+'  console.log(" 179. v4.27 墨言师 — 远程召唤+死亡爆炸");',
 '}',
 ].join('\n');
 
