@@ -5,7 +5,7 @@
 ## 现状 (v4.33)
 
 - **内容体量**: 5武器 / 186遗物 / 30进化 / 37敌人(含3Boss) / 9关卡 / 22誓印 / 38成就 / 12波
-- **测试基线**: 279+ 项（37 smoke + 5 wave + 223 content + 10 stress + 4 robust + strict audit gate）
+- **测试基线**: 283 项（37 smoke + 5 wave + 223 content + 11 stress + 4 robust + 3 seeded + strict audit gate）
 - **自动化主线**: 方案 B，`sequencer -> executor JSON block -> merger -> test:all`
 - **自动化治理**: block rules、fixtures（1好7坏）、audit 接入 strict 门禁；0 errors / 0 warnings
 - **鲁棒性**: 186 遗物 × 5 武器 = 930 组合 fn 可执行；38 进化全可执行；全量组合不抛异常
@@ -47,17 +47,17 @@
 ### v4.33 测试硬化首批
 - 新增 `robust_test.js`：186 遗物 × 5 武器 = 930 组合 fn 可执行
 - 新增全量进化 fn 可执行校验、30件/全量组合叠加不抛异常
+- 新增 `seeded_test.js`：mulberry32 PRNG 确定性长跑（5武器×同种子→相同snapshot；5武器×1800帧不崩）
+- stress_test 新增帧时间 P99 预算（avg<3ms / p95<8ms / p99<16ms @60fps）
 - `audit:content --strict` 接入 `test:all` 门禁（ERROR 非 0 直接阻塞）
 - 发现并修复 `jiuzhuanmofu` latent bug：`nineSealCount:0` 初值让不持有遗物也永远触发机制；改为 `hasNineSeal` 标志位
-- 修复 `wave_test.killAll` flake：死亡孵化敌人（moyong → morui）在状态切换时留在数组，改为只统计 alive 数量
+- 修复 `wave_test.killAll` flake：两阶段清场（phase1 kill until waveClear，phase2 drain 60帧处理 moyong→morui 死亡孵化）
 
 ## 下一步方向
 
 ### v4.33 剩余
 
-1. 种子化长跑：固定随机种子覆盖 5 武器、主流构筑、Boss 波（需改 game.js 支持 seed）。
-2. Playwright 视觉冒烟：首页、武器选择、战斗首屏、遗物选择、结算页不空白不遮挡。
-3. 性能预算进一步细化：帧循环耗时 budget、内存峰值 budget。
+1. Playwright 视觉冒烟：首页、武器选择、战斗首屏、遗物选择、结算页不空白不遮挡（需新增 browser 自动化依赖）。
 
 ### v4.34 自动化生产质量
 
