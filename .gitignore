@@ -11,3 +11,33 @@ gen-batch.js
 .claude/worktrees/
 .claude/patches/
 .claude/state/
+
+# Playwright / test artifacts
+playwright-report/
+test-results/
+.playwright/
+*.screenshot.png
+
+# npm / node
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm/
+
+# Editors / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Env / secrets
+.env
+.env.local
+.env.*.local
