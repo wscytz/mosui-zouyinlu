@@ -305,6 +305,10 @@ function mkPlayer(){
     killBurstHeal:false,
     killSplashHeal:false,
     splitHitHeal:false,
+    hurtShieldActive:false,hurtShieldTicks:0,
+    killSplashWideHeal:false,
+    splitBoomOnHit:false,
+    bossHurtGuard:false,
     idleT:0}
 }
 
@@ -731,6 +735,13 @@ function onEnemyKilled(g,e,source,opts){
       damageEnemy(g,oe,Math.max(1,Math.ceil(p.stats.dmg*0.2)),"killSplashHeal")}});
     var _heal=2;p.hp=Math.min(p.hp+_heal,p.maxHp);
     spawnP(g,e.x,e.y,"moss",4);spawnP(g,e.x,e.y,"accent",3)}
+  // 墨散芝：击杀小怪大范围溅射两次轻伤+回3血
+  if(p.killSplashWideHeal&&!e.isBoss){
+    var _mwR=RANGES.buffAura*RANGES.buffAura*0.36;var _mwD=Math.max(1,Math.ceil(p.stats.dmg*0.12));
+    forEachLiveEnemy(g,function(oe){if(oe!==e&&dstSq(e,oe)<_mwR)damageEnemy(g,oe,_mwD,"wideHeal")});
+    forEachLiveEnemy(g,function(oe){if(oe!==e&&dstSq(e,oe)<_mwR)damageEnemy(g,oe,_mwD,"wideHeal")});
+    p.hp=Math.min(p.hp+3,p.maxHp);
+    spawnP(g,e.x,e.y,"moss",5);spawnP(g,p.x,p.y,"moss",3)}
   if(p.scentStreak){g.killStreakT+=15;if(g.killStreakT>150)g.killStreakT=150}
   if(g.killStreak>g.maxCombo)g.maxCombo=g.killStreak;
   if(e.elite){g.eliteKills++;spawnP(g,e.x,e.y,"gold",3);shake(g,6,4)}
@@ -1195,6 +1206,17 @@ function hurtP(g,dmg,src){
     if(fm.type==="def"&&dstSq(fm,p)<fm.r*fm.r){inDefForm=true;break}}
   if(inDefForm)dmg=Math.floor(dmg*TUNING.defFormReduction);
   if(p.formDef){for(var ffi=0;ffi<g.formations.length;ffi++){if(dstSq(g.formations[ffi],p)<g.formations[ffi].r*g.formations[ffi].r){dmg=Math.floor(dmg*TUNING.formDefReduction);break}}}
+  // 墨魂甲：受伤3秒内再受伤减伤50%
+  if(p.hurtShieldActive){
+    if(p.hurtShieldTicks>0){dmg=Math.ceil(dmg*0.5);
+      spawnP(g,p.x,p.y,"frost",3)}
+    p.hurtShieldTicks=180}
+  // 墨震甲：Boss命中减伤+爆裂反击
+  if(p.bossHurtGuard&&src&&src.isBoss){
+    dmg=Math.ceil(dmg*0.7);
+    var _bgR=RANGES.splashBoom*RANGES.splashBoom*0.5;
+    forEachLiveEnemy(g,function(oe){if(dstSq(oe,p)<_bgR)damageEnemy(g,oe,6,"bossGuard")});
+    spawnP(g,p.x,p.y,"fire",6);spawnP(g,p.x,p.y,"accent",3);shake(g,5,3)}
   // 墨池加成：敌人在墨池中攻击力+30%
   if(src&&inkPoolCheck(g,src.x,src.y)===1)dmg=Math.floor(dmg*TUNING.inkPoolDmgMult);
   // 伤害减免
@@ -1359,6 +1381,11 @@ function hitE(g,atk,e){
     if(Math.random()<0.18){p.hp=Math.min(p.hp+1,p.maxHp);
       pushLimited(g.floatTexts,{x:p.x,y:p.y-p.r-18,text:"+1",life:25,maxLife:25,reason:"heal"},LIMITS.floatTexts);
       spawnP(g,p.x,p.y,"moss",3)}}
+  // 墨烈符爆：分裂命中25%几率小范围爆裂
+  if(p.splitBoomOnHit&&atk.split){
+    if(Math.random()<0.25){var _sr=RANGES.splashBoom*RANGES.splashBoom*0.64;var _sd=Math.max(1,Math.ceil(atk.dmg*0.45));
+      forEachLiveEnemy(g,function(oe){if(oe!==e&&dstSq(e,oe)<_sr)damageEnemy(g,oe,_sd,"splitBoom")});
+      spawnP(g,e.x,e.y,"fire",5);spawnP(g,e.x,e.y,"accent",3)}}
   // 铃木鱼：ring命中减速敌人追加魂伤（每ring限6次）
   if(p.ringSoulHit&&atk.type==="ring"&&e.slowT>0){
     if(!atk._soulHits)atk._soulHits=0;
@@ -1634,6 +1661,7 @@ function update(g){
   if(p.killSpdTimer>0)p.killSpdTimer--;
   if(p.speedBurstT>0)p.speedBurstT--;
   if(p.killAtkTimer>0)p.killAtkTimer--;
+  if(p.hurtShieldTicks>0)p.hurtShieldTicks--;
   // 墨息珠：击杀后持续回血
   if(p.breathOnKill&&p.breathTicks>0){
     p.breathTicks--;
@@ -3899,7 +3927,11 @@ function rebuildPlayerStats(g){
     'hurtSplash','hurtSplashDmg',
     'killBurstHeal',
     'killSplashHeal',
-    'splitHitHeal'];
+    'splitHitHeal',
+    'hurtShieldActive','hurtShieldTicks',
+    'killSplashWideHeal',
+    'splitBoomOnHit',
+    'bossHurtGuard'];
   rk.concat(ck).forEach(function(k){f[k]=o[k]});
   g.relics.forEach(function(r){try{r.fn(f)}catch(e){}});
   if(g.evolution)g.evolution.fn(f);

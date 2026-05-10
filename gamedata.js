@@ -264,7 +264,15 @@ var RELICS=[
   {id:"moxuexing",name:"墨血星",type:"墨具",tags:["溅射","生命"],
     effect:"击杀小怪时溅射墨血伤敌，回复2点生命",fn:function(p){p.killSplashHeal=true}},
   {id:"molieshengfu",name:"墨裂生符",type:"符具",tags:["分裂","生命"],
-    effect:"分裂弹命中敌人时18%几率回复1点生命",fn:function(p){p.splitHitHeal=true}}
+    effect:"分裂弹命中敌人时18%几率回复1点生命",fn:function(p){p.splitHitHeal=true}},
+  {id:"mohunjia",name:"墨魂甲",type:"甲具",tags:["持续","防御"],
+    effect:"受伤后3秒内再受伤减伤50%，每次受伤刷新时长",fn:function(p){p.hurtShieldActive=true}},
+  {id:"mosanzhi",name:"墨散芝",type:"芝具",tags:["治疗","溅射"],
+    effect:"击杀小怪时在较大范围溅射两次轻伤并回复3点生命",fn:function(p){p.killSplashWideHeal=true}},
+  {id:"molefubao",name:"墨烈符爆",type:"符具",tags:["分裂","爆炸"],
+    effect:"分裂命中25%几率在敌人身上引爆小型墨焰，对周围敌人造成主伤45%溅射",fn:function(p){p.splitBoomOnHit=true}},
+  {id:"mozhenjia",name:"墨震甲",type:"甲具",tags:["爆炸","防御"],
+    effect:"受Boss伤害-30%，同时向周围墨震爆裂反击6点",fn:function(p){p.bossHurtGuard=true}}
 ];
 
 var EVOLUTIONS={
