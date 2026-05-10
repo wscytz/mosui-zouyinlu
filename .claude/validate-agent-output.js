@@ -97,11 +97,14 @@ blocks.forEach(function(block){
     add("css-icon","CSS icon uses content; use pure shapes without content in "+label);
   }
 
-  // CSS block: check for hex colors instead of var()
+  // CSS block: check for hex/rgb colors instead of var()
   if(isCssBlock(block)){
     var hexColor=/:\s*#[0-9a-fA-F]{3,8}\b/g;
     var hm=hexColor.exec(body);
     if(hm)add("css-hex","CSS uses hex color; use var(--ink)/var(--accent)/var(--paper) in "+label+" (line "+blockLine(hm.index)+")");
+    var rgbColor=/\brgb\s*\(/g;
+    var rm=rgbColor.exec(body);
+    if(rm)add("css-rgb","CSS uses rgb() color; use var(--ink)/var(--accent)/var(--paper) in "+label+" (line "+blockLine(rm.index)+")");
     var cssForbidden=[
       {kind:"css-position",re:/\bposition\s*:/g,msg:"CSS icon uses position; keep icon shapes simple"},
       {kind:"css-shadow",re:/\bbox-shadow\s*:/g,msg:"CSS icon uses box-shadow; keep icon shapes simple"},
@@ -116,6 +119,9 @@ blocks.forEach(function(block){
   }
 
   if(isContentTestBlock(block)){
+    var varContentTest=/\bvar\s+content_test\s*=\s*\[/g;
+    var vcm=varContentTest.exec(body);
+    if(vcm)add("content-test-style","content_test uses var content_test=[...] array style; use existing string-array try/errors.push pattern in "+label+" (line "+blockLine(vcm.index)+")");
     var testFramework=/\b(?:content_test|test|it|describe|assert|ok|eq|expect)\s*\(/g;
     var tm=testFramework.exec(body);
     if(tm)add("content-test-style","content_test.js must use existing string-array try/errors.push style, not test/assert helpers in "+label+" (line "+blockLine(tm.index)+")");
