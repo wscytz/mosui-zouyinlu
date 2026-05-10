@@ -302,7 +302,8 @@ var EVOLUTIONS={
     {id:"e_jianyi",name:"剑意",type:"进化",tags:["近战","暴击"],effect:"伤害+30%，暴击率+5%",
       fn:function(p){p.stats.dmg+=0.3;p.stats.critRate+=0.05}},
     {id:"e_jianfeng",name:"剑锋",type:"进化",tags:["近战","控场"],effect:"攻击范围+20%，攻速-10%",
-      fn:function(p){p.stats.range+=0.2;p.stats.atkSpd+=0.1}}
+      fn:function(p){p.stats.range+=0.2;p.stats.atkSpd+=0.1}},
+    {id:"e_xiejian",name:"邪剑",type:"进化",tags:["近战","诅咒"],effect:"伤害+60%，但防御-20%",fn:function(p){p.stats.dmg+=0.6;p.stats.def-=0.2}}
   ],
   ranged:[
     {id:"e_lianzhu",name:"连珠",type:"进化",tags:["远程"],effect:"弹数+1",
@@ -347,7 +348,8 @@ var EVOLUTIONS={
       fn:function(p){p.dashTrail=true}},
     {id:"e_huanying",name:"幻影",type:"进化",tags:["突进","机动"],effect:"移速+25%，闪避冷却-15%",
       fn:function(p){p.stats.spd+=0.25;p.stats.dodgeCd=(p.stats.dodgeCd||0)-0.15}},
-    {id:"e_pinghuo",name:"平霍",type:"进化",tags:["突进","暴击"],effect:"伤害+30%，暴击率+8%",fn:function(p){p.stats.dmg+=0.3;p.stats.critRate+=0.08}}
+    {id:"e_pinghuo",name:"平霍",type:"进化",tags:["突进","暴击"],effect:"伤害+30%，暴击率+8%",fn:function(p){p.stats.dmg+=0.3;p.stats.critRate+=0.08}},
+    {id:"e_duanying",name:"断影",type:"进化",tags:["突进","机动"],effect:"闪避冷却-20%，移速+15%",fn:function(p){p.stats.dodgeCd=(p.stats.dodgeCd||0)-0.2;p.stats.spd+=0.15}}
   ],
   summon:[
     {id:"e_zhaohun",name:"招魂",type:"进化",tags:["召物","法术"],effect:"幡的魂弹穿透敌人",
@@ -361,7 +363,8 @@ var EVOLUTIONS={
     {id:"e_guijiang",name:"归将",type:"进化",tags:["召物","生存"],effect:"幡附近持续回血",
       fn:function(p){p.bannerHeal=true}},
     {id:"e_youchong",name:"幽宠",type:"进化",tags:["召物","生存"],effect:"伤害+20%，防御+15%",
-      fn:function(p){p.stats.dmg+=0.2;p.stats.def+=0.15}}
+      fn:function(p){p.stats.dmg+=0.2;p.stats.def+=0.15}},
+    {id:"e_youyu",name:"幽羽",type:"进化",tags:["召物","机动"],effect:"移速+20%，弹道体积+30%",fn:function(p){p.stats.spd+=0.2;p.stats.projSize+=0.3}}
   ]
 };
 
