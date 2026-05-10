@@ -280,7 +280,9 @@ var RELICS=[
   {id:"molieshengjia",name:"墨裂盛甲",type:"甲具",tags:["分裂","防御"],
     effect:"分裂弹命中敌人后2秒内受伤减伤35%，每次分裂命中刷新时长",fn:function(p){p.splitShieldActive=true}},
   {id:"moshengfang",name:"墨生防",type:"甲具",tags:["生命","防御"],
-    effect:"血量≥90%时受到伤害减免25%",fn:function(p){p.fullHpDefense=true}}
+    effect:"血量≥90%时受到伤害减免25%",fn:function(p){p.fullHpDefense=true}},
+  {id:"moshengzhi",name:"墨生芝",type:"芝具",tags:["分裂","治疗"],
+    effect:"分裂弹命中敌人时15%几率回复1点生命",fn:function(p){p.splitHealOnHit=true}}
 ];
 
 var EVOLUTIONS={

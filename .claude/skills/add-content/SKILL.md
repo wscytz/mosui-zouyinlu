@@ -167,6 +167,62 @@ npm run wt:cleanup
 - 如果 `finish --apply` 失败（patch 冲突、文件被其他任务改过），保留 worktree，主 Claude 读 patch 手动合并，再 `wt:cleanup` 清除
 - 如果循环中断，`git worktree list` 查残留；`npm run wt:cleanup` 全清
 
+### 向方案 B 转型（实验性，逐步推进）
+
+方案 A 的瓶颈：主 Claude 仍然要在 worktree 里合并代码、手修 agent 漂移、跑 validator。
+
+方案 B：让 agent 自己在 worktree 里完成**合并 + 自测 + 自修**，主 Claude 只做"审阅 + apply"。
+
+转型不要一步到位，分 3 阶段：
+
+**阶段 B1：executor agent（当前推荐试验）**
+
+和方案 A 并行跑一个新路径：派 `general-purpose` subagent，带 Bash/Edit/Read 权限，在分配的 worktree 里：
+- 读 schema 和 icon-templates 自行查格式
+- Edit 4 个文件（gamedata/game.js/game.css/content_test.js）
+- 跑 `node .claude/validate-agent-output.js` 自检
+- 跑 `node smoke_test.js && node content_test.js` 自检
+- 全绿才算完成，报告简短总结
+
+executor prompt 要点：
+```
+你是墨祟：走阴录的内容 executor。
+你在 worktree: {path}
+任务：实现遗物 <id>，tags=[...]，机制=...，字段预分配=...
+流程（必须按顺序）：
+  1. 读 .claude/content-spec/relic.schema.md 和 icon-templates.md
+  2. Edit gamedata.js 加 RELICS 条目
+  3. Edit game.js 加 mkPlayer 字段 + ck + 机制代码
+  4. Edit game.css 加图标（::before + ::after，用 .ink-icon 选择器，只用 var(--ink/accent/paper)）
+  5. Edit content_test.js 加测试（字符串数组 + try/errors.push 格式，测试号 {next-id}）
+  6. 跑 node smoke_test.js 和 node content_test.js
+  7. 失败就修，修不好就停下报告
+硬禁令：同代码模板章节。
+完成后：git status --short 列出改动，简短报告即可，不要再改其他文件。
+```
+
+与方案 A 共存：
+- 用户指定 "用 executor"/"让 agent 自跑"/"方案 B" 才走这条路径
+- 没说就默认 A（稳）
+
+**阶段 B2：executor + spec 语义（中期）**
+
+在 B1 基础上，让 executor 基于 `add-content-spec` 的 schema 做自检——如果用户选 spec 流程，executor 生成 spec 先跑 `validate-relic-spec`，PASS 才动代码。
+
+**阶段 B3：多 executor 真并发（长期）**
+
+4 个 general-purpose agent 同时在 4 个 worktree 里跑。每个独立 validate + test，全部报告后主 Claude 统一 apply。要求：
+- worktree 字段/id 预分配不冲突
+- apply 顺序串行，避开 mkPlayer/ck 同行
+- 有任一失败，该 worktree `--abort`，其他不受影响
+
+转型条件（触发升级的信号）：
+- B1 跑通 3 次以上无重大返工 → 开 B2
+- B2 跑通 2 次以上 → 开 B3
+- 任一阶段复发同类问题 2 次 → 补模板/validator/skill，不急着升级
+
+**保守默认**：未特别说明时跑方案 A。B1/B2/B3 只在用户明确触发或本 skill 后续迭代后解锁。
+
 ### 5. 校验和合并产出
 
 收到代码块后：
