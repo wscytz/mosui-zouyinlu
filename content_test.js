@@ -1763,8 +1763,17 @@ code+='\n'+[
 '  if(!RANGES.retaliate)errors.push("172g: RANGES.retaliate missing");',
 '}catch(e){errors.push("172: "+e.message)}',
 
+'// Test 173: v4.25 盲牟 — 数据+属性',
+'try{',
+'  var r=RELICS.find(function(x){return x.id==="mangmou"});',
+'  if(!r)errors.push("173a: not found");',
+'  else{if(!r.tags||r.tags.length<2)errors.push("173b");if(!r.fn)errors.push("173c");}',
+'  var g=newGame("jian","normal");r.fn(g.player);',
+'  if(g.player.blindDmgBoost<0.6)errors.push("173d: blindDmgBoost not set");',
+'}catch(e){errors.push("173: "+e.message)}',
+
 'if(errors.length){console.log("FAIL ("+errors.length+"):");errors.forEach(function(e){console.log("  - "+e)});process.exit(1)}',
-'else{console.log("ALL 151 TESTS PASSED");',
+'else{console.log("ALL 152 TESTS PASSED");',
 '  console.log(" 37-62. (previous 26 tests)");',
 '  console.log(" 63-68. v2.10 (墨阵/墨童/阵眼/墨竭)");',
 '  console.log(" 69-78. v2.11 (墨镜/回春阵/墨涡/墨蝠/墨瘴/墨吸/墨甲)");',
@@ -1812,6 +1821,7 @@ code+='\n'+[
 '  console.log(" 170. v4.21 3遗物(墨火眼/墨符坛/墨魂丹)+墨蛛后");',
 '  console.log(" 171. v4.23 3遗物(墨爆弹/墨蚀域/续命墨) — 爆炸+爆发/持续+溅射/治疗+生命");',
 '  console.log(" 172. v4.24 2遗物(墨裂符/墨铁壁) — 分裂+法术/防御+反击");',
+'  console.log(" 173. v4.25 盲牟(诅咒/爆发) — 致盲增伤");',
 '}',
 ].join('\n');
 

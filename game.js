@@ -292,6 +292,7 @@ function mkPlayer(){
     healToShield:false,
     splitOnHit:false,splitChance:0,
     hurtRetaliate:false,hurtRetaliateDmg:0,
+    blindDmgBoost:0,
     maxHpOverride:0,extraStartRelics:0,extraRelicChoice:false,
     enemyHpMult:1,enemySpdMult:1,allElite:false,relicPower:1,_relicPowerApplied:false,
     enemyFlicker:false,inkBrandCurse:false,missChance:0,hitDmgMult:0,
@@ -1015,6 +1016,7 @@ function pAtk(g){
   if(p.blindT>0)rng=Math.floor(rng*0.6);
   var effectiveSoul=p.soulDmg+(p.soulDmgPerRelic?g.relics.length:0);
   var dmg=Math.floor(w.dmg*s.dmg)+effectiveSoul;
+  if(p.blindDmgBoost>0&&p.blindT>0)dmg=Math.floor(dmg*(1+p.blindDmgBoost));
   if(p.formDmgBonus&&g.formations.length>0)dmg=Math.floor(dmg*(1+g.formations.length*0.06));
   // 低血增伤（祟面香灰）
   if(p.lowHpDmg>0&&p.hp<=p.maxHp*TUNING.lowHpThreshold)dmg=Math.floor(dmg*(1+p.lowHpDmg));
@@ -3841,7 +3843,8 @@ function rebuildPlayerStats(g){
     'splashDot','splashDotDmg','splashDotLife',
     'healToShield',
     'splitOnHit','splitChance',
-    'hurtRetaliate','hurtRetaliateDmg'];
+    'hurtRetaliate','hurtRetaliateDmg',
+    'blindDmgBoost'];
   rk.concat(ck).forEach(function(k){f[k]=o[k]});
   g.relics.forEach(function(r){try{r.fn(f)}catch(e){}});
   if(g.evolution)g.evolution.fn(f);

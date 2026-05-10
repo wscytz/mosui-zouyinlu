@@ -246,7 +246,9 @@ var RELICS=[
   {id:"moliefu",name:"墨裂符",type:"符具",tags:["分裂","法术"],
     effect:"攻击命中时20%几率分裂出额外弹幕，追踪附近敌人",fn:function(p){p.splitOnHit=true;p.splitChance=(p.splitChance||0)+0.2}},
   {id:"motiebi",name:"墨铁壁",type:"壁具",tags:["防御","反击"],
-    effect:"受击后获得1秒无敌+向周围释放反击波",fn:function(p){p.hurtRetaliate=true;p.hurtRetaliateDmg=(p.hurtRetaliateDmg||0)+5}}
+    effect:"受击后获得1秒无敌+向周围释放反击波",fn:function(p){p.hurtRetaliate=true;p.hurtRetaliateDmg=(p.hurtRetaliateDmg||0)+5}},
+  {id:"mangmou",name:"盲牟",type:"瞳器",tags:["诅咒","爆发"],
+    effect:"致盲期间攻击伤害+60%（致盲反而变强）",fn:function(p){p.blindDmgBoost=(p.blindDmgBoost||0)+0.6}}
 ];
 
 var EVOLUTIONS={

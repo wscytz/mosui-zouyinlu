@@ -94,6 +94,14 @@
     pushLimited(g.floatTexts,...);spawnP(...);snd("bossEnrate")}
 ```
 
+**pAtk（伤害计算）**— 约 line 1015-1022
+用于：修改攻击伤害倍率。⚠️ 必须在 `var dmg=...`（约 line 1019）之后插入，因为 dmg 在那行才赋值。
+```js
+  // 示例：盲牟 — 致盲时增伤
+  var dmg=Math.floor(w.dmg*s.dmg)+effectiveSoul;
+  if(p.blindDmgBoost>0&&p.blindT>0)dmg=Math.floor(dmg*(1+p.blindDmgBoost));
+```
+
 ## 代码模板
 
 ### 块1: gamedata.js RELICS 条目
@@ -224,4 +232,4 @@ hit, critHeal, frostCreate, shieldBreak, bossEnrage, waveStart, playerHurt, deat
 
 ---
 
-**最后更新**: v4.24 (2026-05-10)。每次代码结构变化后由主 Claude 同步更新此文件。
+**最后更新**: v4.25 (2026-05-10)。每次代码结构变化后由主 Claude 同步更新此文件。
