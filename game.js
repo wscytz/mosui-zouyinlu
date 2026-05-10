@@ -328,6 +328,8 @@ function mkPlayer(){
     counterSpell:false,
     burstHeal:false,
     burstHealUsed:false,
+    splashFire:false,
+    killSurvive:false,
     idleT:0}
 }
 
@@ -780,6 +782,8 @@ function onEnemyKilled(g,e,source,opts){
       spawnP(g,e.x,e.y,"accent",3);
     }
   }
+  // 墨续命：击杀回血+无敌
+  if(p.killSurvive&&!e.isBoss){p.hp=Math.min(p.hp+2,p.maxHp);p.invTimer=Math.max(p.invTimer||0,20);spawnP(g,p.x,p.y,"moss",3)}
   if(g.killStreak>g.maxCombo)g.maxCombo=g.killStreak;
   if(e.elite){g.eliteKills++;spawnP(g,e.x,e.y,"gold",3);shake(g,6,4)}
   if(source==="fire")g.fireKills++;
@@ -1407,6 +1411,8 @@ function hitE(g,atk,e){
   if(p.rangedFire&&atk&&atk.type==="proj"&&Math.random()<0.15){
     addFire(g,{x:e.x,y:e.y,r:24,life:80,dmg:Math.max(1,Math.ceil(p.stats.dmg*0.15)),owner:"player",kind:"rangedFire"});
     spawnP(g,e.x,e.y,"accent",3)}
+  // 墨焰爆：命中生火
+  if(p.splashFire&&Math.random()<0.2){addFire(g,{x:e.x,y:e.y,r:20,life:60,dmg:Math.max(1,Math.ceil(p.stats.dmg*0.15)),owner:"player",kind:"splashFire"});spawnP(g,e.x,e.y,"accent",3)}
   // 墨蚀域：命中留大范围持续溅射区
   if(p.splashDot){
     pushLimited(g.frosts,{x:e.x,y:e.y,r:50,life:p.splashDotLife||180,maxLife:p.splashDotLife||180,dmg:p.splashDotDmg||1},LIMITS.frosts);
@@ -4042,7 +4048,9 @@ function rebuildPlayerStats(g){
     'curseHeart',
     'counterSpell',
     'burstHeal',
-    'burstHealUsed'
+    'burstHealUsed',
+    'splashFire',
+    'killSurvive'
     ];
   rk.concat(ck).forEach(function(k){f[k]=o[k]});
   g.relics.forEach(function(r){try{r.fn(f)}catch(e){}});

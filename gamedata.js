@@ -326,7 +326,9 @@ var RELICS=[
   {id:"moxuanbu",name:"墨旋步",type:"步具",tags:["机动","溅射"],effect:"闪避时在原位留下范围伤害区",fn:function(p){p.dodgeSplash=true}},
   {id:"mozhouxin",name:"墨咒心",type:"心具",tags:["生命","诅咒"],effect:"最大生命+20，高血量时伤害+10%",fn:function(p){p.curseHeart=true}},
   {id:"monicizhou",name:"墨逆咒",type:"咒具",tags:["反击","法术"],effect:"受击时向最近敌人发射追踪弹",fn:function(p){p.counterSpell=true}},
-  {id:"moshenglian",name:"墨生莲",type:"莲具",tags:["爆发","治疗"],effect:"濒死时爆发回血并伤害周围敌人",fn:function(p){p.burstHeal=true}}
+  {id:"moshenglian",name:"墨生莲",type:"莲具",tags:["爆发","治疗"],effect:"濒死时爆发回血并伤害周围敌人",fn:function(p){p.burstHeal=true}},
+  {id:"moyanbao",name:"墨焰爆",type:"焰具",tags:["溅射","火"],effect:"命中时概率生成火焰区",fn:function(p){p.splashFire=true}},
+  {id:"moxuming",name:"墨续命",type:"命具",tags:["击杀","生存"],effect:"击杀敌人时回复2血并获得短暂无敌",fn:function(p){p.killSurvive=true}}
 ];
 
 var EVOLUTIONS={
