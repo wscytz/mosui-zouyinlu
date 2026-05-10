@@ -325,6 +325,9 @@ function mkPlayer(){
     critHeal:false,
     dodgeSplash:false,
     curseHeart:false,
+    counterSpell:false,
+    burstHeal:false,
+    burstHealUsed:false,
     idleT:0}
 }
 
@@ -1300,10 +1303,23 @@ function hurtP(g,dmg,src){
     var _r=RANGES.splashBoom*RANGES.splashBoom;var _d=p.hurtSplashDmg||5;
     forEachLiveEnemy(g,function(oe){if(dstSq(oe,p)<_r)damageEnemy(g,oe,_d,"hurtSplash")});
     spawnP(g,p.x,p.y,"accent",6);shake(g,4,3)}
+  // 墨逆咒：受击发射追踪弹
+  if(p.counterSpell){
+    var _tn=null,_td=150*150;
+    forEachLiveEnemy(g,function(oe){var d=dstSq(oe,p);if(d<_td){_td=d;_tn=oe}});
+    if(_tn){var _tx=_tn.x-p.x,_ty=_tn.y-p.y,_tl=Math.sqrt(_tx*_tx+_ty*_ty)||1;
+      pushAttack(g,{x:p.x,y:p.y,vx:_tx/_tl*6,vy:_ty/_tl*6,dmg:Math.max(1,Math.ceil(p.stats.dmg*0.3)),r:5,life:45,type:"proj",hitOnce:true,owner:"player"});
+      spawnP(g,p.x,p.y,"accent",3)}}
   if(p.decoyHP>0){var oldDecoy=p.decoyHP;p.decoyHP-=dmg;
     if(p.decoyHP<0){p.hp+=p.decoyHP;p.decoyHP=0}
     if(p.decoyHP<oldDecoy)spawnInk(g,p.x,p.y,4,"ghost")}
   else{p.hp-=dmg}
+  // 墨生莲：濒死爆发回血
+  if(p.burstHeal&&!p.burstHealUsed&&p.hp>0&&p.hp<p.maxHp*0.25){
+    p.burstHealUsed=true;p.hp=Math.ceil(p.maxHp*0.5);
+    var _bd=Math.max(1,Math.ceil(p.stats.dmg*0.5));
+    forEachLiveEnemy(g,function(oe){if(dstSq(oe,p)<90*90)damageEnemy(g,oe,_bd,"burstHeal")});
+    spawnP(g,p.x,p.y,"moss",8);shake(g,8,5);snd("heal")}
   // 反伤（镇墓兽首）
   if(p.thorns>0&&src){damageEnemy(g,src,Math.floor(dmg*p.thorns),"thorns");
     spawnInk(g,src.x,src.y,4,"accent")}
@@ -4023,7 +4039,10 @@ function rebuildPlayerStats(g){
     'killAOE',
     'critHeal',
     'dodgeSplash',
-    'curseHeart'
+    'curseHeart',
+    'counterSpell',
+    'burstHeal',
+    'burstHealUsed'
     ];
   rk.concat(ck).forEach(function(k){f[k]=o[k]});
   g.relics.forEach(function(r){try{r.fn(f)}catch(e){}});
