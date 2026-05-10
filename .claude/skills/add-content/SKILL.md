@@ -9,6 +9,19 @@ description: 墨祟：走阴录内容开发调度。当用户要求新增/设计
 
 用户说“加个遗物”“新敌人”“加成就”“新誓印”“填冷标签”“审计平衡”“加点内容”等内容开发请求时触发。
 
+## 路线选择
+
+**默认走方案 A**。任何其他路线需要用户明确关键词触发。
+
+| 场景 | 路线 | 触发条件 |
+|------|------|---------|
+| 单项内容（默认） | **A**：设计 agent 输出代码块 + 主 Claude 合并 | 默认 |
+| 并发 ≥ 2 项内容 | **A + worktree 隔离** | 用户要并发多项 或 显式说 "用 worktree" |
+| 实验性：agent 自跑 | **B1**：`.claude/agents/content-executor.md` | 用户显式说 "用 executor"/"让 agent 自跑"/"方案 B" |
+| 实验性：spec 结构化 | **add-content-spec** skill | 用户显式说 "用 spec"/"结构化" |
+
+走错路线的成本比走保守路线的成本高得多。模糊需求默认 A。
+
 ## 核心原则
 
 - 主 Claude 是唯一合并者；专职 agent 只输出代码块，不搜索代码，不修改文件。
@@ -135,93 +148,29 @@ CHANGESET:
 
 并发规则：默认最多 2 个 agent 并发。超过 2 个必须用户明确要求；否则拆成多轮串行。最稳配方是单 agent + 相关完整 context pack + raw/merged 双 validator。测试编号和合并永远由主 Claude 串行处理。
 
-**worktree 隔离（可选，2 并发及以上推荐）**：
+### worktree 隔离（并发 ≥ 2 或用户明确要求）
 
-用户明确要 worktree、或者并发 ≥ 2 时启用。每个 agent 任务分配独立 git worktree，互不干扰；任一任务失败不影响其他任务。
+每个 agent 任务分配独立 git worktree，互不干扰；任一失败不影响其他。
 
-```bash
-# 主 Claude 在派 agent 前，为每个任务创建 worktree
-npm run wt:create -- <task-id>        # 创建 .claude/worktrees/<task-id>/ + 分支 tmp/add-content/<task-id>
+闭环：
+1. `npm run wt:create -- <task-id>`（创建 `.claude/worktrees/<task-id>/` + 分支 `tmp/add-content/<task-id>`）
+2. 主 Claude 把 agent 产出合并到 worktree，`cd` 进去跑 `validate:agent` + `test:all`
+3. `npm run wt:finish -- <task-id>`（只产 patch 到 `.claude/patches/<task-id>.patch`，**先审再合**）
+4. 审 patch 内容 OK → `npm run wt:finish -- <task-id> -- --apply`；出问题 → `--abort` 丢弃
+5. 主区 `npm run test:all` 兜底
+6. 所有任务完成后 `npm run wt:cleanup`
 
-# agent 仍然只输出代码块（方案 A），主 Claude 把代码块合并到 worktree 里
-# cd .claude/worktrees/<task-id> && 改文件 + validate + test:all
+硬约束：
+- patch 冲突或 apply 失败 → 保留 worktree，主 Claude 手动合并；**不得**自动 apply 失败内容
+- apply 顺序**串行**（一个接一个），不能并发 apply 同一文件
+- task-id: `[a-z0-9_-]{1,31}`；worktrees/ 和 patches/ 都被 .gitignore 挡住
 
-# 完成后产出 patch（可先只产出不应用，留人工确认）
-npm run wt:finish -- <task-id>               # 只产 patch 到 .claude/patches/<task-id>.patch
-npm run wt:finish -- <task-id> -- --apply    # 产 patch 并 git apply 到主分支 index
-npm run wt:finish -- <task-id> -- --abort    # 直接丢弃
+### 实验路线（不是默认，用户显式触发）
 
-# 批量清理（任务组全部完成后）
-npm run wt:cleanup
-```
+- **executor B1**：agent 自己在 worktree 改文件 + 自跑 validate + 自跑 test。完整 prompt 模板见 `.claude/agents/content-executor.md`。主 Claude 只做 create / finish / commit。
+- **add-content-spec**：agent 输出 JSON spec，主 Claude/生成器按 schema 产代码。见 `add-content-spec` skill。
 
-使用约束：
-- worktree 目录在 `.claude/worktrees/`，被 `.gitignore` 挡住
-- patch 文件在 `.claude/patches/`，同样 gitignore
-- task-id 必须 `[a-z0-9_-]{1,31}`
-- apply 是累加到 index（不自动 commit），主 Claude 最终统一 git commit 所有 worktree 的改动
-- 失败 worktree 用 `--abort` 丢弃；**不得**用 `--apply` 合入部分失败的改动
-- 合并冲突通常来自 mkPlayer/ck 字段行。主 Claude 预分配字段名，每个 worktree 负责不同 id/字段；apply 顺序串行（一个接一个）避免同一行多次修改导致 patch 失效
-
-失败恢复：
-- 如果 `finish --apply` 失败（patch 冲突、文件被其他任务改过），保留 worktree，主 Claude 读 patch 手动合并，再 `wt:cleanup` 清除
-- 如果循环中断，`git worktree list` 查残留；`npm run wt:cleanup` 全清
-
-### 向方案 B 转型（实验性，逐步推进）
-
-方案 A 的瓶颈：主 Claude 仍然要在 worktree 里合并代码、手修 agent 漂移、跑 validator。
-
-方案 B：让 agent 自己在 worktree 里完成**合并 + 自测 + 自修**，主 Claude 只做"审阅 + apply"。
-
-转型不要一步到位，分 3 阶段：
-
-**阶段 B1：executor agent（当前推荐试验）**
-
-和方案 A 并行跑一个新路径：派 `general-purpose` subagent，带 Bash/Edit/Read 权限，在分配的 worktree 里：
-- 读 schema 和 icon-templates 自行查格式
-- Edit 4 个文件（gamedata/game.js/game.css/content_test.js）
-- 跑 `node .claude/validate-agent-output.js` 自检
-- 跑 `node smoke_test.js && node content_test.js` 自检
-- 全绿才算完成，报告简短总结
-
-executor prompt 要点：
-```
-你是墨祟：走阴录的内容 executor。
-你在 worktree: {path}
-任务：实现遗物 <id>，tags=[...]，机制=...，字段预分配=...
-流程（必须按顺序）：
-  1. 读 .claude/content-spec/relic.schema.md 和 icon-templates.md
-  2. Edit gamedata.js 加 RELICS 条目
-  3. Edit game.js 加 mkPlayer 字段 + ck + 机制代码
-  4. Edit game.css 加图标（::before + ::after，用 .ink-icon 选择器，只用 var(--ink/accent/paper)）
-  5. Edit content_test.js 加测试（字符串数组 + try/errors.push 格式，测试号 {next-id}）
-  6. 跑 node smoke_test.js 和 node content_test.js
-  7. 失败就修，修不好就停下报告
-硬禁令：同代码模板章节。
-完成后：git status --short 列出改动，简短报告即可，不要再改其他文件。
-```
-
-与方案 A 共存：
-- 用户指定 "用 executor"/"让 agent 自跑"/"方案 B" 才走这条路径
-- 没说就默认 A（稳）
-
-**阶段 B2：executor + spec 语义（中期）**
-
-在 B1 基础上，让 executor 基于 `add-content-spec` 的 schema 做自检——如果用户选 spec 流程，executor 生成 spec 先跑 `validate-relic-spec`，PASS 才动代码。
-
-**阶段 B3：多 executor 真并发（长期）**
-
-4 个 general-purpose agent 同时在 4 个 worktree 里跑。每个独立 validate + test，全部报告后主 Claude 统一 apply。要求：
-- worktree 字段/id 预分配不冲突
-- apply 顺序串行，避开 mkPlayer/ck 同行
-- 有任一失败，该 worktree `--abort`，其他不受影响
-
-转型条件（触发升级的信号）：
-- B1 跑通 3 次以上无重大返工 → 开 B2
-- B2 跑通 2 次以上 → 开 B3
-- 任一阶段复发同类问题 2 次 → 补模板/validator/skill，不急着升级
-
-**保守默认**：未特别说明时跑方案 A。B1/B2/B3 只在用户明确触发或本 skill 后续迭代后解锁。
+两者都是减主 Claude 合并成本的试验，**稳定性未超过方案 A**，出问题先回 A。
 
 ### 5. 校验和合并产出
 
