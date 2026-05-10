@@ -291,7 +291,8 @@ var RELICS=[
   {id:"monuhun",name:"墨怒魂",type:"魂器",tags:["魂","生存"],effect:"魂伤+5，防御+10%",fn:function(p){p.soulDmg+=5;p.stats.def+=0.1}},
   {id:"mozhanhun",name:"墨斩魂",type:"刃具",tags:["近战","处决"],effect:"伤害+25%，暴击伤害+40%",fn:function(p){p.stats.dmg+=0.25;p.stats.critDmg+=0.4}},
   {id:"monuxing",name:"墨怒行",type:"行具",tags:["机动","暴击"],effect:"移速+10%，暴击率+15%",fn:function(p){p.stats.spd+=0.1;p.stats.critRate+=0.15}},
-  {id:"moshouren",name:"墨守忍",type:"甲具",tags:["生存","反击"],effect:"防御+20%，反弹伤害+30%",fn:function(p){p.stats.def+=0.2;p.thorns=(p.thorns||0)+0.3}}
+  {id:"moshouren",name:"墨守忍",type:"甲具",tags:["生存","反击"],effect:"防御+20%，反弹伤害+30%",fn:function(p){p.stats.def+=0.2;p.thorns=(p.thorns||0)+0.3}},
+  {id:"moyinfu",name:"墨阴符",type:"符物",tags:["击杀","魂"],effect:"魂伤击杀敌人时额外回复1点生命",fn:function(p){p.yinFuHeal=true}}
 ];
 
 var EVOLUTIONS={

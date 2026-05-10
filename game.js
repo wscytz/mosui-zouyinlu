@@ -314,6 +314,7 @@ function mkPlayer(){
     splitShieldActive:false,splitShieldTicks:0,
     fullHpDefense:false,
     splitHealOnHit:false,
+    yinFuHeal:false,
     idleT:0}
 }
 
@@ -732,6 +733,7 @@ function onEnemyKilled(g,e,source,opts){
       oe.x+=kdx/kl*kpush;oe.y+=kdy/kl*kpush}});
     spawnP(g,e.x,e.y,"ink",14);spawnP(g,e.x,e.y,"accent",6)}
   if(p.killSpeedBurst){p.speedBurstT=TUNING.speedBurstDuration;spawnP(g,p.x,p.y,"moss",6)}
+  if(p.yinFuHeal&&source==="soul"){p.hp=Math.min(p.hp+1,p.maxHp);spawnP(g,p.x,p.y,"spirit",3)}
   if(p.breathOnKill){p.breathTicks=360;spawnP(g,p.x,p.y,"moss",4)}
   if(p.killBurstHeal&&p.hp<p.maxHp*0.5){p.hp=Math.min(p.hp+8,p.maxHp);spawnP(g,p.x,p.y,"moss",4)}
   if(p.killSplashHeal&&!e.isBoss){
@@ -3964,7 +3966,9 @@ function rebuildPlayerStats(g){
     'dotAccumBoom',
     'splitShieldActive','splitShieldTicks',
     'fullHpDefense',
-    'splitHealOnHit'];
+    'splitHealOnHit',
+    'yinFuHeal'
+    ];
   rk.concat(ck).forEach(function(k){f[k]=o[k]});
   g.relics.forEach(function(r){try{r.fn(f)}catch(e){}});
   if(g.evolution)g.evolution.fn(f);

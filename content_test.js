@@ -2228,8 +2228,17 @@ code+='\n'+[
 '  if((g.player.thorns||0)<=baseThorns)errors.push("216e: thorns not increased");',
 '}catch(e){errors.push("216: "+e.message)}',
 
+'// Test 217: v4.28 moyinfu relic (击杀/魂)',
+'try{',
+'  var r=RELICS.find(function(x){return x.id==="moyinfu"});',
+'  if(!r)errors.push("217a: not found");',
+'  else{if(!r.tags||r.tags.length<2)errors.push("217b");if(!r.fn)errors.push("217c");}',
+'  var g=newGame("jian","normal");if(r)r.fn(g.player);',
+'  if(!g.player.yinFuHeal)errors.push("217d: yinFuHeal not set");',
+'}catch(e){errors.push("217: "+e.message)}',
+
 'if(errors.length){console.log("FAIL ("+errors.length+"):");errors.forEach(function(e){console.log("  - "+e)});process.exit(1)}',
-'else{console.log("ALL 178 TESTS PASSED");',
+'else{console.log("ALL 179 TESTS PASSED");',
 '  console.log(" 37-62. (previous 26 tests)");',
 '  console.log(" 63-68. v2.10 (墨阵/墨童/阵眼/墨竭)");',
 '  console.log(" 69-78. v2.11 (墨镜/回春阵/墨涡/墨蝠/墨瘴/墨吸/墨甲)");',
@@ -2320,6 +2329,7 @@ code+='\n'+[
 '  console.log(" 214. v4.28 墨斩魂(近战/处决) — 伤害+25%暴伤+40%");',
 '  console.log(" 215. v4.28 墨怒行(机动/暴击) — 移速+10%暴击+15%");',
 '  console.log(" 216. v4.28 墨守忍(生存/反击) — 防御+20%反弹+30%");',
+'  console.log(" 217. v4.28 墨阴符(击杀/魂) — 魂伤击杀回1HP");',
 '}',
 ].join('\n');
 
