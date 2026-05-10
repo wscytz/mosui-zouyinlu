@@ -1,14 +1,15 @@
-# 墨祟：走阴录 路线书 v4.31+
+# 墨祟：走阴录 路线书 v4.33+
 
 > 这份文档驱动开发节奏。详细 agent 流程见 `AGENT_SYSTEM.md`，自动化命令见 `.claude/AUTOMATION_GUIDE.md`。
 
-## 现状 (v4.31)
+## 现状 (v4.33)
 
-- **内容体量**: 5武器 / 180遗物 / 30进化 / 37敌人(含3Boss) / 9关卡 / 22誓印 / 38成就 / 12波
-- **测试基线**: 269 项口径（37 smoke + 5 wave + 217 content + 10 stress）
+- **内容体量**: 5武器 / 186遗物 / 30进化 / 37敌人(含3Boss) / 9关卡 / 22誓印 / 38成就 / 12波
+- **测试基线**: 279+ 项（37 smoke + 5 wave + 223 content + 10 stress + 4 robust + strict audit gate）
 - **自动化主线**: 方案 B，`sequencer -> executor JSON block -> merger -> test:all`
-- **自动化治理**: block rules、fixtures、content audit 已接入，`audit:content` 默认 report-only
-- **当前巡检缺口**: `molielian` 缺 CSS 图标；`moyong/morui` 未进 WAVE_TIERS；RELIC_RULES 覆盖偏低
+- **自动化治理**: block rules、fixtures（1好7坏）、audit 接入 strict 门禁；0 errors / 0 warnings
+- **鲁棒性**: 186 遗物 × 5 武器 = 930 组合 fn 可执行；38 进化全可执行；全量组合不抛异常
+- **内容治理**: `molielian` CSS 图标已补；`moyong/morui` 已入 WAVE_TIERS；RELIC_RULES 覆盖 75/186
 - **技术栈**: Canvas 2D (960x640), 纯手写, 零框架, IIFE 单文件运行时
 - **远程仓库**: https://github.com/wscytz/mosui-zouyinlu
 
@@ -37,27 +38,26 @@
 - 新增 `content-block-rules.js`、fixture tests 和 `audit-content-invariants.js`
 - 文档分层为：skill 管流程，AGENT_SYSTEM 管规则，AUTOMATION_GUIDE 管命令，ROADMAP 管方向
 
+### v4.32 内容治理收口
+- 清空 `audit:content` 的已知 ERROR/WARN
+- 补齐低覆盖冷标签“召唤 / 冲刺 / 范围”
+- RELIC_RULES 覆盖 40 → 75，开始从“有数量”转向“有构筑入口”
+- block rules 补上 `test_lines` 尾逗号和 `console_log` 包装门禁
+
+### v4.33 测试硬化首批
+- 新增 `robust_test.js`：186 遗物 × 5 武器 = 930 组合 fn 可执行
+- 新增全量进化 fn 可执行校验、30件/全量组合叠加不抛异常
+- `audit:content --strict` 接入 `test:all` 门禁（ERROR 非 0 直接阻塞）
+- 发现并修复 `jiuzhuanmofu` latent bug：`nineSealCount:0` 初值让不持有遗物也永远触发机制；改为 `hasNineSeal` 标志位
+- 修复 `wave_test.killAll` flake：死亡孵化敌人（moyong → morui）在状态切换时留在数组，改为只统计 alive 数量
+
 ## 下一步方向
 
-### v4.32 内容线治理
+### v4.33 剩余
 
-目标：继续薅低价模型做内容，但不让内容表膨胀成不可维护的噪声。
-
-1. 先清 `audit:content` 的 ERROR：补 `molielian` CSS 图标，确认 `moyong/morui` 是否应入 WAVE_TIERS。
-2. 给 180+ 遗物分层：核心构筑、补强件、奇物、诅咒件、实验件。
-3. 把 RELIC_RULES 从 40 提升到至少 70+，优先覆盖新近高辨识遗物。
-4. 用冷标签和构筑缺口驱动批量生产，而不是只按灵感堆数量。
-5. 每 20 件内容后做一次 balance-auditor 审计，避免重复机制和死标签。
-
-### v4.33 测试硬化
-
-目标：测试不只证明“没崩”，还要证明“核心体验没歪”。
-
-1. 增加种子化长跑：固定随机种子覆盖 5 武器、主流构筑、Boss 波。
-2. 增加内容鲁棒性测试：所有 RELICS `fn` 可执行，所有新标记能进入 `ck` 或重建链。
-3. 增加 Playwright 视觉冒烟：首页、武器选择、战斗首屏、遗物选择、结算页不空白不遮挡。
-4. 给性能压力测试设预算：对象峰值、帧循环耗时、粒子/火场/敌弹上限。
-5. 发布前再把 `audit-content-invariants.js --strict` 接进门禁。
+1. 种子化长跑：固定随机种子覆盖 5 武器、主流构筑、Boss 波（需改 game.js 支持 seed）。
+2. Playwright 视觉冒烟：首页、武器选择、战斗首屏、遗物选择、结算页不空白不遮挡。
+3. 性能预算进一步细化：帧循环耗时 budget、内存峰值 budget。
 
 ### v4.34 自动化生产质量
 
@@ -103,11 +103,15 @@
 
 ## 风险点
 
-1. 内容量已过 180 遗物，重复机制和低权重死遗物会越来越多。
-2. `audit:content` 目前仍是 report-only，发布前需要 ERROR 清零再 strict。
+1. 内容量已过 186 遗物，重复机制和低权重死遗物会越来越多。
+2. `audit:content` 已经 0/0，但仍是 report-only；发布前再决定是否 strict。
 3. 移动端横屏布局需要真机实测。
 4. RELIC_RULES / BUILD_PREFS 覆盖需要定期审查。
 5. 高并发仍依赖主 Claude 串行保存 block 和运行 merger，不能让 agent 直接写主文件。
+
+## 判断原则
+
+下一阶段的主要矛盾不是“内容不够”，而是“内容是否被系统吸收”。新增内容只有同时进入数据、机制、测试、图标、权重、文档，才算真正入库。批量生产仍然可以继续，但每一批都要被 audit、fixtures 和 RELIC_RULES 消化，否则数量会反过来稀释构筑辨识度。
 
 ## 资产材料
 

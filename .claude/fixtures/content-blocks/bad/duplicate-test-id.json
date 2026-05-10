@@ -7,7 +7,8 @@
       "type": "evolution",
       "pool": "melee",
       "entry_js": "{id:\"dupa\",name:\"重复甲\",desc:\"测试\",fn:function(p){p.stats.dmg+=0.01}}",
-      "test_lines": ["'// Test 902: dup a'","'try{'","'  if(!EVOLUTIONS)errors.push(\"902a: no evolutions\");'","'}catch(e){errors.push(\"902: \"+e.message)}'"]
+      "test_lines": ["'// Test 902: dup a',","'try{',","'  if(!EVOLUTIONS)errors.push(\"902a: no evolutions\");',","'}catch(e){errors.push(\"902: \"+e.message)}',"],
+      "console_log": "'  console.log(\" 902. dup a\");',"
     },
     {
       "task_id": "dup-b",
@@ -15,7 +16,8 @@
       "type": "evolution",
       "pool": "melee",
       "entry_js": "{id:\"dupb\",name:\"重复乙\",desc:\"测试\",fn:function(p){p.stats.dmg+=0.01}}",
-      "test_lines": ["'// Test 902: dup b'","'try{'","'  if(!EVOLUTIONS)errors.push(\"902b: no evolutions\");'","'}catch(e){errors.push(\"902: \"+e.message)}'"]
+      "test_lines": ["'// Test 902: dup b',","'try{',","'  if(!EVOLUTIONS)errors.push(\"902b: no evolutions\");',","'}catch(e){errors.push(\"902: \"+e.message)}',"],
+      "console_log": "'  console.log(\" 902. dup b\");',"
     }
   ]
 }

@@ -14,6 +14,14 @@
 | fixtures | 门卫演习 | 用好/坏样例确认 merger 规则真的生效 |
 | audit | 巡检表 | 跨文件检查内容一致性，默认只报告不阻塞 |
 
+## 工程判断
+
+自动化的价值不是让一次输出看起来漂亮，而是让第 40 次输出仍然可合并。prompt 模板负责约束生成，block rules 负责拒绝坏结构，fixtures 负责防止门禁退化，audit 负责发现长期漂移。四者缺一块，错误都会回到主 Claude 手修。
+
+方案 B 的关键选择是“agent 不直接改源文件”。它只交 JSON block，主 Claude 保存 block，merger 串行写主文件。这牺牲了一点自由度，但换来并发时不抢测试号、不抢数组末尾、不靠 patch 上下文猜插入点。
+
+遇到新失败模式时按这个顺序处理：先确认是否可复发，再加 bad fixture，最后补 rules/validator。不要只把错误写进 skill；skill 是路线说明，不是错误数据库。真正的防复发要落到脚本和样例里。
+
 ## 默认路线
 
 - 1-2 项内容：方案 A，专职 agent 输出代码块，主 Claude raw/merged validator 后手动合并。
@@ -38,7 +46,8 @@ npm run test:all
 - `entry_js` 里的 `let`、`const`、箭头函数、`for...of`、`for...in`。
 - 遗物 CSS 是否有 `.relic-pick[data-icon="ID"] .ink-icon::before` 和 `::after`。
 - CSS 是否使用禁用属性、hex/rgb/hsl 色值、非白名单 `var(--*)`。
-- `test_lines` 是否使用 `// Test N:` + `errors.push`，并禁止 `assert()`、`test()`、`expect()`。
+- `test_lines` 是否使用 `// Test N:` + `errors.push`，每行是否是带尾逗号的 content_test 字符串数组项，并禁止 `assert()`、`test()`、`expect()`。
+- `console_log` 是否写成 `"'  console.log(\"...\");',"`，避免普通文本被插进生成脚本。
 
 ## 自动化自检
 

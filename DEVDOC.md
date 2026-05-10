@@ -3446,6 +3446,28 @@ npm run cap:open:android  # 用 Android Studio 打开
 
 *v4.31 自动化治理 更新于 2026-05-10。*
 
+### v4.32 内容治理 + block 门禁补强 (2026-05-10)
+
+**内容治理结果：**
+- 遗物 180 → 186。
+- `molielian` CSS 图标补齐。
+- `moyong` / `morui` 加入 WAVE_TIERS。
+- RELIC_RULES 覆盖 40 → 75。
+- 冷标签“召唤 / 冲刺 / 范围”从 1 各补到 3。
+
+**自动化修复：**
+- `.claude/content-block-rules.js` 新增 `test_lines` 字符串数组项尾逗号检查。
+- 新增 `console_log` 包装检查，必须形如 `"'  console.log(\"...\");',"`。
+- `.claude/agents/content-executor.md` 同步修正 JSON block 模板。
+- 新增坏样例 fixture：缺 test line 逗号、坏 console_log 包装。
+
+**测试：**
+- `npm run test:block-fixtures`
+- `npm run test:automation`
+- `npm run audit:content` → 0 errors / 0 warnings
+
+*v4.32 内容治理 更新于 2026-05-10。*
+
 ### 版本号规则
 
 改完一个bug → 删掉对应条目 → 版本号末尾+1

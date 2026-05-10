@@ -1,0 +1,19 @@
+{
+  "expect_error": "console_log must be",
+  "block": {
+    "task_id": "bad-console-log",
+    "test_id": 905,
+    "type": "relic",
+    "entry_js": "{id:\"badconsolelog\",name:\"坏日志\",type:\"测具\",tags:[\"测试\"],effect:\"测试\",fn:function(p){p.badConsoleLog=true}}",
+    "test_lines": [
+      "'// Test 905: bad console log',",
+      "'try{',",
+      "'  if(!RELICS)errors.push(\"905a: no relics\");',",
+      "'}catch(e){errors.push(\"905: \"+e.message)}',"
+    ],
+    "console_log": "'  905 relic badconsolelog OK',",
+    "player_fields": ["badConsoleLog:false,"],
+    "ck_fields": ["'badConsoleLog'"],
+    "css_rules": ".relic-pick[data-icon=\"badconsolelog\"] .ink-icon::before { width:14px;height:14px;background:var(--ink);border-radius:50%;margin:5px auto 0 }\n.relic-pick[data-icon=\"badconsolelog\"] .ink-icon::after { width:6px;height:6px;background:var(--accent);border-radius:50%;transform:translate(4px,-11px) }"
+  }
+}

@@ -81,6 +81,15 @@ function validateTestLines(b,errors){
     errors.push(name+": missing test_lines array");
     return;
   }
+  b.test_lines.forEach(function(line,i){
+    if(typeof line!=="string"){
+      errors.push(name+": test_lines["+i+"] must be string");
+      return;
+    }
+    if(!/^'.*',$/.test(line)){
+      errors.push(name+": test_lines["+i+"] must be a content_test string item ending with comma");
+    }
+  });
   if(txt.indexOf("// Test "+b.test_id+":")<0){
     errors.push(name+": test_lines must include // Test "+b.test_id+":");
   }
@@ -92,6 +101,18 @@ function validateTestLines(b,errors){
   if(/\btest\s*\(/.test(txt))errors.push(name+": test_lines must not use test()");
   if(/\bcontent_test\s*\(/.test(txt))errors.push(name+": test_lines must not use content_test()");
   if(/ALL\s+\d+\s+TESTS\s+PASSED/.test(txt))errors.push(name+": test_lines must not include ALL N TESTS PASSED");
+}
+
+function validateConsoleLog(b,errors){
+  var name=blockName(b);
+  if(!b.console_log)return;
+  if(typeof b.console_log!=="string"){
+    errors.push(name+": console_log must be string");
+    return;
+  }
+  if(!/^'\s*console\.log\([^]*\);',$/.test(b.console_log)){
+    errors.push(name+": console_log must be a wrapped content_test string item like '  console.log(\"...\");',");
+  }
 }
 
 function validateBlock(b,errors,warnings){
@@ -112,6 +133,7 @@ function validateBlock(b,errors,warnings){
   }
 
   validateTestLines(b,errors);
+  validateConsoleLog(b,errors);
 
   if(b.type==="relic"){
     if(b.player_fields&&!Array.isArray(b.player_fields))errors.push(name+": player_fields must be array");

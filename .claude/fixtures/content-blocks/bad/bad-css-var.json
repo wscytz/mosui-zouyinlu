@@ -6,11 +6,12 @@
     "type": "relic",
     "entry_js": "{id:\"badcssvar\",name:\"坏颜色\",type:\"测具\",tags:[\"测试\"],effect:\"测试\",fn:function(p){p.badCssVar=true}}",
     "test_lines": [
-      "'// Test 901: bad css var'",
-      "'try{'",
-      "'  if(!RELICS)errors.push(\"901a: no relics\");'",
-      "'}catch(e){errors.push(\"901: \"+e.message)}'"
+      "'// Test 901: bad css var',",
+      "'try{',",
+      "'  if(!RELICS)errors.push(\"901a: no relics\");',",
+      "'}catch(e){errors.push(\"901: \"+e.message)}',"
     ],
+    "console_log": "'  console.log(\" 901. bad css var\");',",
     "player_fields": ["badCssVar:false,"],
     "ck_fields": ["'badCssVar'"],
     "css_rules": ".relic-pick[data-icon=\"badcssvar\"] .ink-icon::before { width:14px;height:14px;background:var(--moss);border-radius:50%;margin:5px auto 0 }\n.relic-pick[data-icon=\"badcssvar\"] .ink-icon::after { width:6px;height:6px;background:var(--accent);border-radius:50%;transform:translate(4px,-11px) }"

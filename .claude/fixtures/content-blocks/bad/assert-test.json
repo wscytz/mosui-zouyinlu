@@ -6,11 +6,12 @@
     "type": "relic",
     "entry_js": "{id:\"badassert\",name:\"坏测试\",type:\"测具\",tags:[\"测试\"],effect:\"测试\",fn:function(p){p.badAssert=true}}",
     "test_lines": [
-      "'// Test 900: bad assert'",
-      "'try{'",
-      "'  assert(true);'",
-      "'}catch(e){errors.push(\"900: \"+e.message)}'"
+      "'// Test 900: bad assert',",
+      "'try{',",
+      "'  assert(true);',",
+      "'}catch(e){errors.push(\"900: \"+e.message)}',"
     ],
+    "console_log": "'  console.log(\" 900. bad assert\");',",
     "player_fields": ["badAssert:false,"],
     "ck_fields": ["'badAssert'"],
     "css_rules": ".relic-pick[data-icon=\"badassert\"] .ink-icon::before { width:14px;height:14px;background:var(--ink);border-radius:50%;margin:5px auto 0 }\n.relic-pick[data-icon=\"badassert\"] .ink-icon::after { width:6px;height:6px;background:var(--accent);border-radius:50%;transform:translate(4px,-11px) }"

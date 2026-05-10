@@ -69,7 +69,7 @@ relic JSON 形状：
     "'  if(!g.player.{FIELD_NAME})errors.push(\"{TEST_ID}d: field not set\");',",
     "'}catch(e){errors.push(\"{TEST_ID}: \"+e.message)}',"
   ],
-  "console_log": "'  {TEST_ID} relic {CONTENT_ID} OK',"
+  "console_log": "'  console.log(\" {TEST_ID}. v__VER__ {NAME} ({CONTENT_ID})\");',"
 }
 
 evolution JSON 形状：
@@ -89,7 +89,7 @@ evolution JSON 形状：
     "'  if(g.player.stats.dmg<=before)errors.push(\"{TEST_ID}d: dmg not increased\");',",
     "'}catch(e){errors.push(\"{TEST_ID}: \"+e.message)}',"
   ],
-  "console_log": "'  {TEST_ID} evolution {CONTENT_ID} OK',"
+  "console_log": "'  console.log(\" {TEST_ID}. v__VER__ 进化{NAME} ({CONTENT_ID})\");',"
 }
 
 硬禁令：
@@ -99,6 +99,8 @@ evolution JSON 形状：
 - 不要写入文件路径，不要说“我会保存到...”；只返回 JSON。
 - 不要用 let/const/箭头/for...of/for...in。
 - content_test 行必须是项目现有 string-array + try/errors.push 风格。
+- `test_lines` 每一行都必须是带尾逗号的字符串数组项，例如 `"'try{',"`。
+- `console_log` 必须写成 `"'  console.log(\"...\");',"`，不要只写普通文本。
 - CSS 选择器必须带 `.ink-icon::before` 和 `.ink-icon::after`。
 - CSS 颜色只用 var(--ink) / var(--accent) / var(--paper) / var(--game-bg)。
 - 机制代码使用项目 helpers：damageEnemy、pushAttack、pushLimited、forEachLiveEnemy、dstSq。
