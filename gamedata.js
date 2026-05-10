@@ -210,7 +210,7 @@ var RELICS=[
   {id:"mojingsui",name:"墨镜碎影",type:"镜器",tags:["防御","法术"],
     effect:"站定0.5秒后自动反射最近一颗敌方弹道，冷却4秒",fn:function(p){p.autoReflect=true}},
   {id:"jiuzhuanmofu",name:"九转墨符",type:"符器",tags:["法术","爆发"],
-    effect:"每命中6次敌人，下次攻击变为全方向AOE爆发",fn:function(p){p.nineSealCount=0;p.nineSealReady=false}},
+    effect:"每命中6次敌人，下次攻击变为全方向AOE爆发",fn:function(p){p.hasNineSeal=true;p.nineSealCount=0;p.nineSealReady=false}},
   // v4.13 new relic
   {id:"mojicanbu",name:"墨迹残步",type:"步具",tags:["机动","爆发"],
     effect:"连续移动充能，停下时释放墨爆（充能越久范围越大，最大120帧蓄满）",fn:function(p){p.moveChargeMax=true;p.moveChargeT=0}},

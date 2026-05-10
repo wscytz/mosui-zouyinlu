@@ -269,7 +269,7 @@ function mkPlayer(){
     autoReflect:false,autoReflectReady:false,autoReflectCd:0,
     formationLeech:false,formDef:false,formationDetonate:false,inkStrings:false,attackPin:false,formClarity:false,killPulse:false,formRipple:false,recallDash:false,speedBurstT:0,scentStreak:false,formDmgBonus:false,critShrapnel:false,corrosive:false,lowHpFury:false,
     execCritT:0,
-    nineSealCount:0,nineSealReady:false,
+    nineSealCount:0,nineSealReady:false,hasNineSeal:false,
     // curse flags
     noDodge:false,noWaveHeal:false,noEvolution:false,
     fogCurse:false,soulOrbCurse:false,
@@ -1383,7 +1383,7 @@ function hitE(g,atk,e){
   // 仙螺纹：幡魂弹减速
   if(p.bannerSpiritSlow&&atk.type==="spirit")e.slowT=Math.max(e.slowT,18);
   // 九转墨符：命中计数，6次后下次攻击AOE
-  if(p.nineSealCount>=0){p.nineSealCount++;if(p.nineSealCount>=6){p.nineSealReady=true;p.nineSealCount=0}}
+  if(p.hasNineSeal){p.nineSealCount++;if(p.nineSealCount>=6){p.nineSealReady=true;p.nineSealCount=0}}
   // 墨散淬：近战溅射
   if(p.meleeSplash&&g.weapon.type==="melee"){var splashR=50;var splashDmg=Math.max(1,Math.floor(dmg*(p.meleeSplashRatio||0.3)));
     forEachLiveEnemy(g,function(oe){if(oe!==e&&!oe.killed&&dstSq(e,oe)<splashR*splashR)damageEnemy(g,oe,splashDmg,"splash")});
@@ -4110,6 +4110,8 @@ function rebuildPlayerStats(g){
     'aoeDotHit'
     ,
     'aoeGuardBond'
+    ,
+    'hasNineSeal'
     ];
   rk.concat(ck).forEach(function(k){f[k]=o[k]});
   g.relics.forEach(function(r){try{r.fn(f)}catch(e){}});

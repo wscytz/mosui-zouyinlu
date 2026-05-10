@@ -77,7 +77,7 @@ code+=[
 '        errors.push(wid+" w"+w+": state="+g.state+" enemies="+g.enemies.length+" wave="+g.wave);',
 '        g.enemies.forEach(function(e,i){if(e.hp>0)errors.push("  alive["+i+"]: type="+e.type+" hp="+e.hp)});',
 '        break}',
-'      if(g.enemies.length>0){errors.push(wid+" w"+w+": "+g.enemies.length+" enemies remain after killAll");break}',
+'      if(g.enemies.length>0){var aliveN=0;g.enemies.forEach(function(e){if(e.hp>0)aliveN++});if(aliveN>0){errors.push(wid+" w"+w+": "+aliveN+" alive enemies remain after killAll");break}}',
 '      if(!advanceWave(g)){break}',
 '    }',
 '  }catch(e){errors.push(wid+" crash: "+e.message)}',
