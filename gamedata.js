@@ -314,7 +314,9 @@ var RELICS=[
   {id:"moxue",name:"墨血",type:"禁物",tags:["诅咒","魂"],effect:"魂伤+6，但受伤+15%",fn:function(p){p.soulDmg+=6;p.extraDmgTaken=(p.extraDmgTaken||0)+0.15}},
   {id:"mojinbiao",name:"墨金镖",type:"镖具",tags:["远程","暴击"],effect:"弹道穿透，暴击率+8%",fn:function(p){p.projPierce=true;p.stats.critRate+=0.08}},
   {id:"mozhendang",name:"墨震铛",type:"铛具",tags:["控场","处决"],effect:"范围+18%，伤害+12%",fn:function(p){p.stats.range+=0.18;p.stats.dmg+=0.12}},
-  {id:"mojieguang",name:"墨劫光",type:"光具",tags:["暴击","机动"],effect:"暴击率+10%，移速+10%（helper 测试）",fn:function(p){p.stats.critRate+=0.1;p.stats.spd+=0.1}}
+  {id:"mojieguang",name:"墨劫光",type:"光具",tags:["暴击","机动"],effect:"暴击率+10%，移速+10%（helper 测试）",fn:function(p){p.stats.critRate+=0.1;p.stats.spd+=0.1}},
+  {id:"mohunyin",name:"墨魂引",type:"灵具",tags:["魂","击杀"],effect:"击杀敌人时发射追踪弹",fn:function(p){p.soulKill=true}},
+  {id:"mozhoukai",name:"墨咒铠",type:"壁具",tags:["诅咒","生存"],effect:"受击时短暂无敌并反伤周围敌人",fn:function(p){p.curseSurv=true}}
 ];
 
 var EVOLUTIONS={

@@ -315,6 +315,8 @@ function mkPlayer(){
     fullHpDefense:false,
     splitHealOnHit:false,
     yinFuHeal:false,
+    soulKill:false,
+    curseSurv:false,
     idleT:0}
 }
 
@@ -750,6 +752,16 @@ function onEnemyKilled(g,e,source,opts){
     p.hp=Math.min(p.hp+3,p.maxHp);
     spawnP(g,e.x,e.y,"moss",5);spawnP(g,p.x,p.y,"moss",3)}
   if(p.scentStreak){g.killStreakT+=15;if(g.killStreakT>150)g.killStreakT=150}
+  // 墨魂引：击杀追踪弹
+  if(p.soulKill&&!e.isBoss){
+    var _near=null,_nd=120*120;
+    forEachLiveEnemy(g,function(oe){if(oe!==e){var d=dstSq(oe,e);if(d<_nd){_nd=d;_near=oe}}});
+    if(_near){
+      var _dx=_near.x-e.x,_dy=_near.y-e.y,_dl=Math.sqrt(_dx*_dx+_dy*_dy)||1;
+      pushAttack(g,{x:e.x,y:e.y,vx:_dx/_dl*5,vy:_dy/_dl*5,dmg:Math.max(1,Math.ceil(p.stats.dmg*0.3)),r:4,life:50,type:"proj",hitOnce:true,owner:"player"});
+      spawnP(g,e.x,e.y,"accent",3);
+    }
+  }
   if(g.killStreak>g.maxCombo)g.maxCombo=g.killStreak;
   if(e.elite){g.eliteKills++;spawnP(g,e.x,e.y,"gold",3);shake(g,6,4)}
   if(source==="fire")g.fireKills++;
@@ -1262,6 +1274,12 @@ function hurtP(g,dmg,src){
     var retDmg=p.hurtRetaliateDmg||5;
     forEachLiveEnemy(g,function(oe){if(dstSq(oe,p)<RANGES.retaliate*RANGES.retaliate)damageEnemy(g,oe,retDmg,"retaliate")});
     spawnP(g,p.x,p.y,"accent",8);shake(g,5,3);snd("shieldBreak")}
+  // 墨咒铠：受击反伤
+  if(p.curseSurv){
+    p.invTimer=Math.max(p.invTimer||0,30);
+    var _r=80*80;var _d=Math.max(1,Math.ceil(p.stats.dmg*0.4));
+    forEachLiveEnemy(g,function(oe){if(dstSq(oe,p)<_r)damageEnemy(g,oe,_d,"curseSurv")});
+    spawnP(g,p.x,p.y,"ink",6);shake(g,3,2);snd("shieldBreak")}
   // 墨棘盾：受伤溅射反击
   if(p.hurtSplash){
     var _r=RANGES.splashBoom*RANGES.splashBoom;var _d=p.hurtSplashDmg||5;
@@ -3967,7 +3985,9 @@ function rebuildPlayerStats(g){
     'splitShieldActive','splitShieldTicks',
     'fullHpDefense',
     'splitHealOnHit',
-    'yinFuHeal'
+    'yinFuHeal',
+    'soulKill',
+    'curseSurv'
     ];
   rk.concat(ck).forEach(function(k){f[k]=o[k]});
   g.relics.forEach(function(r){try{r.fn(f)}catch(e){}});
