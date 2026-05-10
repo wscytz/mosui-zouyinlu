@@ -305,7 +305,10 @@ var RELICS=[
   {id:"mofanglei",name:"墨方雷",type:"雷具",tags:["法术","暴击"],effect:"暴击率+10%，弹道体积+20%",fn:function(p){p.stats.critRate+=0.1;p.stats.projSize+=0.2}},
   {id:"moshouhuo",name:"墨守火",type:"火具",tags:["火","生存"],effect:"移速+12%，火场每秒+1HP",fn:function(p){p.stats.spd+=0.12;p.fireHeal=(p.fireHeal||0)+1}},
   {id:"mojihong",name:"墨霁虹",type:"虹具",tags:["魂","远程"],effect:"魂伤+4，弹道体积+15%",fn:function(p){p.soulDmg+=4;p.stats.projSize+=0.15}},
-  {id:"motiejie",name:"墨铁界",type:"甲具",tags:["冰","反击"],effect:"减速+18%，反弹+25%",fn:function(p){p.slowOnHit=Math.max(p.slowOnHit||0,0.18);p.thorns=(p.thorns||0)+0.25}}
+  {id:"motiejie",name:"墨铁界",type:"甲具",tags:["冰","反击"],effect:"减速+18%，反弹+25%",fn:function(p){p.slowOnHit=Math.max(p.slowOnHit||0,0.18);p.thorns=(p.thorns||0)+0.25}},
+  {id:"mocanxue",name:"墨残血",type:"禁物",tags:["诅咒","暴击"],effect:"暴击伤害+50%，受伤+10%",fn:function(p){p.stats.critDmg+=0.5;p.extraDmgTaken=(p.extraDmgTaken||0)+0.1}},
+  {id:"mopeng",name:"墨篷",type:"篷具",tags:["闪避","机动"],effect:"移速+18%，暴击率+5%",fn:function(p){p.stats.spd+=0.18;p.stats.critRate+=0.05}},
+  {id:"mojianshi",name:"墨间石",type:"石具",tags:["生存","击杀"],effect:"防御+10%，击杀回2HP",fn:function(p){p.stats.def+=0.1;p.killHeal=(p.killHeal||0)+2}}
 ];
 
 var EVOLUTIONS={

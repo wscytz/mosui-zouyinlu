@@ -2284,3 +2284,9 @@ body.game-active #gameCanvas {
 .relic-pick[data-icon="mojihong"] .ink-icon::after { width:6px;height:6px;background:var(--ink);border-radius:50%;transform:translate(4px,-11px) }
 .relic-pick[data-icon="motiejie"] .ink-icon::before { width:14px;height:14px;background:var(--ink);border:2px solid var(--accent);border-radius:3px;margin:5px auto 0 }
 .relic-pick[data-icon="motiejie"] .ink-icon::after { width:6px;height:6px;background:var(--paper);border-radius:50%;transform:translate(4px,-11px) }
+.relic-pick[data-icon="mocanxue"] .ink-icon::before { width:10px;height:12px;background:var(--accent);border-radius:50% 50% 50% 0;transform:rotate(45deg);margin:6px auto 0 }
+.relic-pick[data-icon="mocanxue"] .ink-icon::after { width:4px;height:4px;background:var(--ink);border-radius:50%;transform:translate(4px,-10px) }
+.relic-pick[data-icon="mopeng"] .ink-icon::before { width:14px;height:8px;background:var(--ink);border-radius:50% 50% 0 0;margin:8px auto 0 }
+.relic-pick[data-icon="mopeng"] .ink-icon::after { width:6px;height:6px;background:var(--accent);border-radius:50%;transform:translate(4px,-8px) }
+.relic-pick[data-icon="mojianshi"] .ink-icon::before { width:14px;height:14px;background:var(--ink);border:2px solid var(--accent);border-radius:3px;margin:5px auto 0 }
+.relic-pick[data-icon="mojianshi"] .ink-icon::after { width:6px;height:6px;background:var(--paper);border-radius:50%;transform:translate(4px,-11px) }
