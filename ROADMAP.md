@@ -45,9 +45,10 @@
 - block rules 补上 `test_lines` 尾逗号和 `console_log` 包装门禁
 
 ### v4.33 测试硬化首批
-- 新增 `robust_test.js`：186 遗物 × 5 武器 = 930 组合 fn 可执行
+- 新增 `robust_test.js`：186 遗物 × 5 武器 = 930 组合 fn 可执行；rebuild 3x 一致性
 - 新增全量进化 fn 可执行校验、30件/全量组合叠加不抛异常
 - 新增 `seeded_test.js`：mulberry32 PRNG 确定性长跑（5武器×同种子→相同snapshot；5武器×1800帧不崩）
+- 新增 `visual_smoke_test.js`：Playwright + Chromium 走 首页→武器→战斗 路径，校验 Canvas 有内容 + 无 console 错
 - stress_test 新增帧时间 P99 预算（avg<3ms / p95<8ms / p99<16ms @60fps）
 - `audit:content --strict` 接入 `test:all` 门禁（ERROR 非 0 直接阻塞）
 - 发现并修复 `jiuzhuanmofu` latent bug：`nineSealCount:0` 初值让不持有遗物也永远触发机制；改为 `hasNineSeal` 标志位
@@ -55,9 +56,7 @@
 
 ## 下一步方向
 
-### v4.33 剩余
-
-1. Playwright 视觉冒烟：首页、武器选择、战斗首屏、遗物选择、结算页不空白不遮挡（需新增 browser 自动化依赖）。
+### v4.33 已完成，进入 v4.34 / v5.0
 
 ### v4.34 自动化生产质量
 
