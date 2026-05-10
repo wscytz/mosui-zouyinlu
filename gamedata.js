@@ -292,7 +292,12 @@ var RELICS=[
   {id:"mozhanhun",name:"墨斩魂",type:"刃具",tags:["近战","处决"],effect:"伤害+25%，暴击伤害+40%",fn:function(p){p.stats.dmg+=0.25;p.stats.critDmg+=0.4}},
   {id:"monuxing",name:"墨怒行",type:"行具",tags:["机动","暴击"],effect:"移速+10%，暴击率+15%",fn:function(p){p.stats.spd+=0.1;p.stats.critRate+=0.15}},
   {id:"moshouren",name:"墨守忍",type:"甲具",tags:["生存","反击"],effect:"防御+20%，反弹伤害+30%",fn:function(p){p.stats.def+=0.2;p.thorns=(p.thorns||0)+0.3}},
-  {id:"moyinfu",name:"墨阴符",type:"符物",tags:["击杀","魂"],effect:"魂伤击杀敌人时额外回复1点生命",fn:function(p){p.yinFuHeal=true}}
+  {id:"moyinfu",name:"墨阴符",type:"符物",tags:["击杀","魂"],effect:"魂伤击杀敌人时额外回复1点生命",fn:function(p){p.yinFuHeal=true}},
+  {id:"monuyan",name:"墨怒焰",type:"火具",tags:["火","暴击"],effect:"暴击率+12%，暴击伤害+30%",fn:function(p){p.stats.critRate+=0.12;p.stats.critDmg+=0.3}},
+  {id:"mobingxin",name:"墨冰心",type:"心具",tags:["冰","生存"],effect:"防御+12%，攻击减速+20%",fn:function(p){p.stats.def+=0.12;p.slowOnHit=Math.max(p.slowOnHit||0,0.2)}},
+  {id:"moruyu",name:"墨濡羽",type:"羽具",tags:["机动","远程"],effect:"弹速+20%，移速+8%",fn:function(p){p.stats.projSpd=(p.stats.projSpd||1)+0.2;p.stats.spd+=0.08}},
+  {id:"mojingchao",name:"墨静潮",type:"潮具",tags:["控场","魂"],effect:"攻击范围+20%，魂伤+3",fn:function(p){p.stats.range+=0.2;p.soulDmg+=3}},
+  {id:"mohongyu",name:"墨宏域",type:"域具",tags:["控场","攻速"],effect:"范围+15%，攻速+10%",fn:function(p){p.stats.range+=0.15;p.stats.atkSpd-=0.1}}
 ];
 
 var EVOLUTIONS={
