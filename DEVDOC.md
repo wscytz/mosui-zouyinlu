@@ -3378,6 +3378,47 @@ npm run cap:open:android  # 用 Android Studio 打开
 
 *v4.26 Agent 自动化封板 更新于 2026-05-10。*
 
+### v4.27 ~ v4.28 方案 B 流水线定型 (2026-05-10)
+
+**背景：** v4.26 跑了几轮真实内容生产，暴露并发瓶颈：agent 在同一 worktree 修文件，patch 锚点冲突率 100%（2 并发必撞一次 content_test 末尾或 gamedata 数组末尾）。
+
+**方案演进：**
+- **方案 A (worktree 隔离)**：每个 agent 独立 worktree 改文件 + 跑测试，主 Claude `git apply` 合并。落地后冲突率仍 100%，因为 apply 对上下文锚点敏感，第二个 patch 必拒。
+- **方案 B (block merger)**：agent 只输出 JSON block（任务 id + 数据条目 + 字段 + css + test_lines），主 Claude 跑 `merge-content-blocks.js` 统一按 test_id 升序插入。彻底消除并发冲突。
+
+**新基础设施：**
+- `.claude/sequencer.js`：发号器。`reserve/release/commit/list`，统一分配 task_id + test_id + lease 文件，禁止 agent 自选。状态 `.claude/state/sequencer.json`。
+- `.claude/fix-test-count.js`：扫 content_test 里所有 `// Test N:` 独特 id，自动校准 `ALL N TESTS PASSED`。解决人肉维护 count 漂移。
+- `.claude/merge-content-blocks.js`：合并器。支持 relic / evolution 两种 type；relic 可带 player_fields / ck_fields / css_rules / mechanic_insertions（含 anchor 定位）。按 test_id 升序插入。
+- `.claude/worktree-manager.js`：git worktree 辅助（create/finish/cleanup/list）。方案 A 用，方案 B 不依赖。
+- `.claude/agents/content-executor.md`：方案 B 的 executor prompt 模板。agent 只生成 JSON，不碰源文件。
+- content_test.js 新增 `testRelicStat` helper：一行调用替代 10 行 try/errors.push，老测试保留向后兼容。
+
+**数据实测（14 批 40+ 项）：**
+
+| 方案 | 批次 | 并发 | 冲突 apply | 主 Claude 手修 |
+|------|------|------|-----------|--------------|
+| A (worktree) | 批 1-3，6 项 | 2 | 3/3 (100%) | 14 Edit |
+| B (merger) | 批 4-14，34 项 | 3-5 | 0/11 (0%) | 0 |
+
+方案 B 在并发 5 下仍 0 冲突 0 手修，agent 单项 tool call 从 11-15 降到 3，tokens 从 46k 降到 38k。
+
+**内容产出：**
+- 遗物 132 → 170（+38，其中 19 在批 1-14）
+- 进化 25 → 30（+5）
+- 冷标签 12 组全部填满 ✅
+- 测试 187 → 201 全绿（smoke 37 + wave 5 + content 201 + stress 10 = 253）
+
+**已知保留：**
+- wave_test 偶发 flake（molizexi 分裂时序），和本轮改动无关，下一轮单治。
+
+**测试：**
+- `npm run test:all`
+- `node .claude/sequencer.js list`
+- `node .claude/fix-test-count.js`
+
+*v4.27~v4.28 方案 B 流水线定型 更新于 2026-05-10。*
+
 ### 版本号规则
 
 改完一个bug → 删掉对应条目 → 版本号末尾+1

@@ -10,3 +10,4 @@ gen-batch.js
 .claude/skills/**/SKILL.md.bak-*
 .claude/worktrees/
 .claude/patches/
+.claude/state/

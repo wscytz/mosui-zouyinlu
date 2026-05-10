@@ -2300,3 +2300,5 @@ body.game-active #gameCanvas {
 .relic-pick[data-icon="mojinbiao"] .ink-icon::after { width:6px;height:3px;background:var(--ink);margin:-3px auto 0 }
 .relic-pick[data-icon="mozhendang"] .ink-icon::before { width:14px;height:14px;background:var(--ink);border:2px solid var(--accent);border-radius:50%;margin:5px auto 0 }
 .relic-pick[data-icon="mozhendang"] .ink-icon::after { width:8px;height:2px;background:var(--accent);transform:translate(0,-10px);margin:0 auto }
+.relic-pick[data-icon="mojieguang"] .ink-icon::before { width:14px;height:14px;background:var(--accent);border-radius:50%;margin:5px auto 0 }
+.relic-pick[data-icon="mojieguang"] .ink-icon::after { width:6px;height:6px;background:var(--paper);border-radius:50%;transform:translate(4px,-11px) }

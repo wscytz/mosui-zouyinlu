@@ -1,14 +1,15 @@
-# 墨祟：走阴录 路线书 v4.26+
+# 墨祟：走阴录 路线书 v4.28+
 
 > 这份文档驱动开发节奏。每完成一个阶段就更新状态。详细 agent 流程见 `AGENT_SYSTEM.md`。
 
-## 现状 (v4.26)
+## 现状 (v4.28)
 
-- **内容体量**: 5武器 / 117遗物 / 25进化 / 35敌人(含3Boss) / 9关卡 / 22誓印 / 38成就 / 12波
-- **测试基线**: syntax + 37 smoke + 5 wave + 139 active content blocks + 10 stress
+- **内容体量**: 5武器 / 170遗物 / 30进化 / 37敌人(含3Boss) / 9关卡 / 22誓印 / 38成就 / 12波
+- **测试基线**: 253 全绿 (37 smoke + 5 wave + 201 content + 10 stress)
+- **冷标签**: 12 组全部填满 ✅
 - **技术栈**: Canvas 2D (960x640), 纯手写, 零框架, IIFE 单文件运行时
 - **构建产物**: www/ + Capacitor APK (android/)
-- **自动化**: 主 Claude 调度 `.claude/agents/*`，`.claude/ctx-extract.js` 提取上下文，`.claude/validate-agent-output.js` 拦截坏输出
+- **内容开发流水线 (方案 B)**: sequencer → executor 生成 JSON block → merger 统一合并 → test:all 验证。并发 3-5 零冲突零手修。
 - **远程仓库**: https://github.com/wscytz/mosui-zouyinlu
 
 ## 已完成阶段

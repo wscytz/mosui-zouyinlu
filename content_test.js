@@ -29,6 +29,27 @@ code=code.replace(/^\(function\(\)\{/,'');
 code=code.replace(/\}\)\(\);?\s*$/,'');
 
 code+='\n'+[
+'// Helper: testRelicStat(id, relicId, weaponId, checks)',
+'// checks 例: {"stats.dmg":"+","stats.def":"-"}  "+" 表示执行后应增加，"-" 表示应减少',
+'// 替代 10 行字符串数组测试，保证格式一致。',
+'function getField(obj,path){var parts=path.split(".");var v=obj;for(var i=0;i<parts.length;i++){if(v==null)return undefined;v=v[parts[i]]}return v}',
+'function testRelicStat(testId,relicId,weaponId,checks){',
+'  try{',
+'    var r=RELICS.find(function(x){return x.id===relicId});',
+'    if(!r){errors.push(testId+"a: not found");return}',
+'    if(!r.tags||r.tags.length<2)errors.push(testId+"b");',
+'    if(!r.fn)errors.push(testId+"c");',
+'    var g=newGame(weaponId,"normal");var base={};',
+'    var keys=Object.keys(checks||{});',
+'    keys.forEach(function(k){base[k]=getField(g.player,k);if(typeof base[k]!=="number")base[k]=0});',
+'    r.fn(g.player);',
+'    keys.forEach(function(k){',
+'      var exp=checks[k];var actual=getField(g.player,k);if(typeof actual!=="number")actual=0;',
+'      if(exp==="+"&&actual<=base[k])errors.push(testId+"d: "+k+" not increased");',
+'      else if(exp==="-"&&actual>=base[k])errors.push(testId+"e: "+k+" not decreased");',
+'    });',
+'  }catch(e){errors.push(testId+": "+e.message)}',
+'}',
 'var mockCtx={restore:function(){},save:function(){},translate:function(){},fillRect:function(){},',
 'fillText:function(){},strokeRect:function(){},beginPath:function(){},arc:function(){},',
 'fill:function(){},stroke:function(){},moveTo:function(){},lineTo:function(){},',
@@ -2467,8 +2488,11 @@ code+='\n'+[
 '  if(g.player.stats.dmg<=bD)errors.push("238e");',
 '}catch(e){errors.push("238: "+e.message)}',
 
+'// Test 239: v4.29 mojieguang (helper dsl demo)',
+'testRelicStat("239","mojieguang","jian",{"stats.critRate":"+","stats.spd":"+"});',
+
 'if(errors.length){console.log("FAIL ("+errors.length+"):");errors.forEach(function(e){console.log("  - "+e)});process.exit(1)}',
-'else{console.log("ALL 200 TESTS PASSED");',
+'else{console.log("ALL 201 TESTS PASSED");',
 '  console.log(" 37-62. (previous 26 tests)");',
 '  console.log(" 63-68. v2.10 (墨阵/墨童/阵眼/墨竭)");',
 '  console.log(" 69-78. v2.11 (墨镜/回春阵/墨涡/墨蝠/墨瘴/墨吸/墨甲)");',
@@ -2581,6 +2605,7 @@ code+='\n'+[
 '  console.log(" 236. v4.28 墨血(诅咒/魂) — 魂伤+6受伤+15%");',
 '  console.log(" 237. v4.28 墨金镖(远程/暴击) — 穿透+暴击+8%");',
 '  console.log(" 238. v4.28 墨震铛(控场/处决) — 范围+18%伤害+12%");',
+'  console.log(" 239. v4.29 墨劫光(暴击/机动) — helper DSL 首次使用");',
 '}',
 ].join('\n');
 

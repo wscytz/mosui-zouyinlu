@@ -313,7 +313,8 @@ var RELICS=[
   {id:"mohanfeng",name:"墨寒风",type:"风具",tags:["冰","机动"],effect:"移速+10%，减速+12%",fn:function(p){p.stats.spd+=0.1;p.slowOnHit=Math.max(p.slowOnHit||0,0.12)}},
   {id:"moxue",name:"墨血",type:"禁物",tags:["诅咒","魂"],effect:"魂伤+6，但受伤+15%",fn:function(p){p.soulDmg+=6;p.extraDmgTaken=(p.extraDmgTaken||0)+0.15}},
   {id:"mojinbiao",name:"墨金镖",type:"镖具",tags:["远程","暴击"],effect:"弹道穿透，暴击率+8%",fn:function(p){p.projPierce=true;p.stats.critRate+=0.08}},
-  {id:"mozhendang",name:"墨震铛",type:"铛具",tags:["控场","处决"],effect:"范围+18%，伤害+12%",fn:function(p){p.stats.range+=0.18;p.stats.dmg+=0.12}}
+  {id:"mozhendang",name:"墨震铛",type:"铛具",tags:["控场","处决"],effect:"范围+18%，伤害+12%",fn:function(p){p.stats.range+=0.18;p.stats.dmg+=0.12}},
+  {id:"mojieguang",name:"墨劫光",type:"光具",tags:["暴击","机动"],effect:"暴击率+10%，移速+10%（helper 测试）",fn:function(p){p.stats.critRate+=0.1;p.stats.spd+=0.1}}
 ];
 
 var EVOLUTIONS={
