@@ -212,6 +212,9 @@ console.log("\nWRITE: "+blocks.length+" blocks merged");
 
 // fix count
 try{
+  child.execSync("node .claude/fix-html-entities.js --write --source",{cwd:ROOT,stdio:"inherit"});
+}catch(e){console.error("WARN: fix-html-entities failed: "+e.message)}
+try{
   child.execSync("node .claude/fix-test-count.js --write",{cwd:ROOT,stdio:"inherit"});
 }catch(e){console.error("WARN: fix-test-count failed: "+e.message)}
 

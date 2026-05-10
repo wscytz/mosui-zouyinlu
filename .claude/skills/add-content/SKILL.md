@@ -203,7 +203,13 @@ node .claude/validate-agent-output.js --mode merged .claude/tmp-agent-output.mer
 
 ### 6. 测试
 
-合并后运行：
+合并后先兜底 HTML entity（任何通道漏进来都修）：
+
+```bash
+npm run fix:entities
+```
+
+然后跑全量：
 
 ```bash
 npm run test:all

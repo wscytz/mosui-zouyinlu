@@ -9,6 +9,7 @@
     "test:syntax": "node --check gamedata.js && node --check game.js && node --check mobile-controls.js && node --check .claude/ctx-extract.js && node --check .claude/validate-agent-output.js",
     "test:all": "npm run test:syntax && node smoke_test.js && node wave_test.js && node content_test.js && node stress_test.js",
     "validate:agent": "node .claude/validate-agent-output.js",
+    "fix:entities": "node .claude/fix-html-entities.js --write --source",
     "wt:create": "node .claude/worktree-manager.js create",
     "wt:finish": "node .claude/worktree-manager.js finish",
     "wt:cleanup": "node .claude/worktree-manager.js cleanup",
