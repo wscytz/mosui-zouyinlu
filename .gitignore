@@ -4,3 +4,7 @@ android/
 ios/
 gen-batch.js
 .claude/tmp-agent-output.md
+.claude/tmp-agent-output.merged.md
+.claude/tmp/*
+!.claude/tmp/.gitkeep
+.claude/skills/**/SKILL.md.bak-*
