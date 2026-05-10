@@ -282,7 +282,10 @@ var RELICS=[
   {id:"moshengfang",name:"墨生防",type:"甲具",tags:["生命","防御"],
     effect:"血量≥90%时受到伤害减免25%",fn:function(p){p.fullHpDefense=true}},
   {id:"moshengzhi",name:"墨生芝",type:"芝具",tags:["分裂","治疗"],
-    effect:"分裂弹命中敌人时15%几率回复1点生命",fn:function(p){p.splitHealOnHit=true}}
+    effect:"分裂弹命中敌人时15%几率回复1点生命",fn:function(p){p.splitHealOnHit=true}},
+  {id:"mohushen",name:"墨护身",type:"护具",tags:["治疗","防御"],effect:"防御+15%，击杀回复3HP",fn:function(p){p.stats.def+=0.15;p.killHeal=(p.killHeal||0)+3}},
+  {id:"mochizhu",name:"墨持珠",type:"珠玉",tags:["持续","治疗"],effect:"站在火场上每秒+2HP，防御+8%",fn:function(p){p.fireHeal=(p.fireHeal||0)+2;p.stats.def+=0.08}},
+  {id:"mowushi",name:"墨雾蚀",type:"雾具",tags:["生存","控场"],effect:"攻击减速提升至30%，防御+10%",fn:function(p){p.slowOnHit=Math.max(p.slowOnHit||0,0.3);p.stats.def+=0.1}}
 ];
 
 var EVOLUTIONS={

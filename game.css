@@ -2238,3 +2238,9 @@ body.game-active #gameCanvas {
   .pause-hint { display: none; }
   .pause-controls { display: none; }
 }
+.relic-pick[data-icon="mohushen"] .ink-icon::before { width:14px;height:14px;background:var(--paper);border:2px solid var(--ink);border-radius:50%;margin:5px auto 0 }
+.relic-pick[data-icon="mohushen"] .ink-icon::after { width:6px;height:6px;background:var(--accent);border-radius:50%;transform:translate(4px,-11px) }
+.relic-pick[data-icon="mochizhu"] .ink-icon::before { width:14px;height:14px;background:var(--accent);border:2px solid var(--ink);border-radius:50%;margin:5px auto 0 }
+.relic-pick[data-icon="mochizhu"] .ink-icon::after { width:6px;height:6px;background:var(--paper);border-radius:50%;transform:translate(4px,-11px) }
+.relic-pick[data-icon="mowushi"] .ink-icon::before { width:14px;height:14px;background:var(--ink);border:2px solid var(--accent);border-radius:50%;margin:5px auto 0 }
+.relic-pick[data-icon="mowushi"] .ink-icon::after { width:6px;height:6px;background:var(--paper);border-radius:50%;transform:translate(4px,-11px) }
