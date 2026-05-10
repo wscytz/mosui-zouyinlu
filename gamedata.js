@@ -254,7 +254,9 @@ var RELICS=[
   {id:"molielian",name:"墨裂涟",type:"漪具",tags:["分裂","溅射"],
     effect:"溅射伤害命中时蓄墨涟层数（最多3层），下次攻击消耗层数，每层+8%伤害",fn:function(p){p.splashRippleStack=true;p.splashRippleMax=3;p.splashRippleBonus=0.08}},
   {id:"mohuafeng",name:"墨化蜂",type:"墨具",tags:["分裂","持续"],
-    effect:"命中时20%几率向附近敌人发射追踪弹，并在落点留下持续伤害墨域",fn:function(p){p.splitDot=true}}
+    effect:"命中时20%几率向附近敌人发射追踪弹，并在落点留下持续伤害墨域",fn:function(p){p.splitDot=true}},
+  {id:"moxizhu",name:"墨息珠",type:"饰具",tags:["持续","生命"],
+    effect:"击杀敌人后6秒内每秒恢复2点生命",fn:function(p){p.breathOnKill=true}}
 ];
 
 var EVOLUTIONS={

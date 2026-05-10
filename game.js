@@ -300,6 +300,7 @@ function mkPlayer(){
     enemyHpMult:1,enemySpdMult:1,allElite:false,relicPower:1,_relicPowerApplied:false,
     enemyFlicker:false,inkBrandCurse:false,missChance:0,hitDmgMult:0,
     splitDot:false,
+    breathOnKill:false,breathTicks:0,
     idleT:0}
 }
 
@@ -718,6 +719,7 @@ function onEnemyKilled(g,e,source,opts){
       oe.x+=kdx/kl*kpush;oe.y+=kdy/kl*kpush}});
     spawnP(g,e.x,e.y,"ink",14);spawnP(g,e.x,e.y,"accent",6)}
   if(p.killSpeedBurst){p.speedBurstT=TUNING.speedBurstDuration;spawnP(g,p.x,p.y,"moss",6)}
+  if(p.breathOnKill){p.breathTicks=360;spawnP(g,p.x,p.y,"moss",4)}
   if(p.scentStreak){g.killStreakT+=15;if(g.killStreakT>150)g.killStreakT=150}
   if(g.killStreak>g.maxCombo)g.maxCombo=g.killStreak;
   if(e.elite){g.eliteKills++;spawnP(g,e.x,e.y,"gold",3);shake(g,6,4)}
@@ -1611,6 +1613,10 @@ function update(g){
   if(p.killSpdTimer>0)p.killSpdTimer--;
   if(p.speedBurstT>0)p.speedBurstT--;
   if(p.killAtkTimer>0)p.killAtkTimer--;
+  // 墨息珠：击杀后持续回血
+  if(p.breathOnKill&&p.breathTicks>0){
+    p.breathTicks--;
+    if(p.breathTicks%60===0){p.hp=Math.min(p.hp+2,p.maxHp);spawnP(g,p.x,p.y,"moss",2)}}
   // 墨镜碎影：站定0.5秒激活自动反射（stillT由下方统一管理）
   if(p.autoReflect){
     if(p.autoReflectCd>0)p.autoReflectCd--;
@@ -3867,7 +3873,8 @@ function rebuildPlayerStats(g){
     'blindDmgBoost',
     'splashDeathBoom','splashDeathBoomChance','splashDeathBoomRatio',
     'splashRippleStack','splashRippleMax','splashRippleBonus','_rippleStacks',
-    'splitDot'];
+    'splitDot',
+    'breathOnKill','breathTicks'];
   rk.concat(ck).forEach(function(k){f[k]=o[k]});
   g.relics.forEach(function(r){try{r.fn(f)}catch(e){}});
   if(g.evolution)g.evolution.fn(f);

@@ -1849,6 +1849,15 @@ code+='\n'+[
 '  if(!e||e.hp<=0)errors.push("179e: spawn failed");',
 '}catch(e){errors.push("179: "+e.message)}',
 
+'// Test 180: v4.27 墨息珠(持续/生命)',
+'try{',
+'  var r=RELICS.find(function(x){return x.id==="moxizhu"});',
+'  if(!r)errors.push("180a: not found");',
+'  else{if(!r.tags||r.tags.length<2)errors.push("180b");if(!r.fn)errors.push("180c");}',
+'  var g=newGame("jian","normal");r.fn(g.player);',
+'  if(!g.player.breathOnKill)errors.push("180d: not set");',
+'}catch(e){errors.push("180: "+e.message)}',
+
 'if(errors.length){console.log("FAIL ("+errors.length+"):");errors.forEach(function(e){console.log("  - "+e)});process.exit(1)}',
 'else{console.log("ALL 156 TESTS PASSED");',
 '  console.log(" 37-62. (previous 26 tests)");',
@@ -1905,6 +1914,7 @@ code+='\n'+[
 '  console.log(" 177. v4.26 墨碑 — 带盾辅助型敌人(hasShield+deathBuff)");',
 '  console.log(" 178. v4.27 墨化蜂(分裂/持续) — 命中分裂弹+留DOT区");',
 '  console.log(" 179. v4.27 墨言师 — 远程召唤+死亡爆炸");',
+'  console.log(" 180. v4.27 墨息珠(持续/生命) — 击杀持续回血");',
 '}',
 ].join('\n');
 
