@@ -316,7 +316,10 @@ var RELICS=[
   {id:"mozhendang",name:"墨震铛",type:"铛具",tags:["控场","处决"],effect:"范围+18%，伤害+12%",fn:function(p){p.stats.range+=0.18;p.stats.dmg+=0.12}},
   {id:"mojieguang",name:"墨劫光",type:"光具",tags:["暴击","机动"],effect:"暴击率+10%，移速+10%（helper 测试）",fn:function(p){p.stats.critRate+=0.1;p.stats.spd+=0.1}},
   {id:"mohunyin",name:"墨魂引",type:"灵具",tags:["魂","击杀"],effect:"击杀敌人时发射追踪弹",fn:function(p){p.soulKill=true}},
-  {id:"mozhoukai",name:"墨咒铠",type:"壁具",tags:["诅咒","生存"],effect:"受击时短暂无敌并反伤周围敌人",fn:function(p){p.curseSurv=true}}
+  {id:"mozhoukai",name:"墨咒铠",type:"壁具",tags:["诅咒","生存"],effect:"受击时短暂无敌并反伤周围敌人",fn:function(p){p.curseSurv=true}},
+  {id:"mofendan",name:"墨焚弹",type:"弹具",tags:["远程","火"],effect:"远程命中15%几率点燃敌人",fn:function(p){p.rangedFire=true}},
+  {id:"mojuling",name:"墨聚灵",type:"聚具",tags:["召唤","爆发"],effect:"墨魂≥3只时伤害+20%",fn:function(p){p.summonBurst=true}},
+  {id:"mochongying",name:"墨冲影",type:"影具",tags:["冲刺","反击"],effect:"冲刺时对身边敌人造成反伤",fn:function(p){p.dashRetaliate=true}}
 ];
 
 var EVOLUTIONS={

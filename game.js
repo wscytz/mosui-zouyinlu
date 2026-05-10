@@ -317,6 +317,9 @@ function mkPlayer(){
     yinFuHeal:false,
     soulKill:false,
     curseSurv:false,
+    rangedFire:false,
+    summonBurst:false,
+    dashRetaliate:false,
     idleT:0}
 }
 
@@ -1372,6 +1375,10 @@ function hitE(g,atk,e){
   // 墨符坛：命中留DOT区
   if(p.hitDot){
     pushLimited(g.frosts,{x:e.x,y:e.y,r:35,life:p.hitDotLife||60,maxLife:p.hitDotLife||60,dmg:p.hitDotDmg||1},LIMITS.frosts)}
+  // 墨焚弹：远程点燃
+  if(p.rangedFire&&atk&&atk.type==="proj"&&Math.random()<0.15){
+    addFire(g,{x:e.x,y:e.y,r:24,life:80,dmg:Math.max(1,Math.ceil(p.stats.dmg*0.15)),owner:"player",kind:"rangedFire"});
+    spawnP(g,e.x,e.y,"accent",3)}
   // 墨蚀域：命中留大范围持续溅射区
   if(p.splashDot){
     pushLimited(g.frosts,{x:e.x,y:e.y,r:50,life:p.splashDotLife||180,maxLife:p.splashDotLife||180,dmg:p.splashDotDmg||1},LIMITS.frosts);
@@ -1476,6 +1483,11 @@ function startDodge(g,dx,dy){
   p.dodgeDx=Math.cos(a)*9*sp;p.dodgeDy=Math.sin(a)*9*sp;
   p.invTimer=Math.max(p.invTimer,TUNING.dodgeInvFrames);
   p.justDodged=true;p.justDodgedT=TUNING.justDodgedWindow;p.dodgeQueued=false;
+  // 墨冲影：冲刺反伤
+  if(p.dashRetaliate){
+    var _dr=90*90;var _dd=Math.max(1,Math.ceil(p.stats.dmg*0.35));
+    forEachLiveEnemy(g,function(oe){if(dstSq(oe,p)<_dr)damageEnemy(g,oe,_dd,"dashRetaliate")});
+    spawnP(g,p.x,p.y,"ink",5)}
   // 甩脱墨蛭
   if(p.leeches.length>0){p.leeches.forEach(function(le){le.hp=0;le.attached=false;spawnInk(g,le.x,le.y,6,"accent")});p.leeches=[]}
   snd("playerDodge");spawnInk(g,p.x,p.y,7,"ink");
@@ -3987,7 +3999,10 @@ function rebuildPlayerStats(g){
     'splitHealOnHit',
     'yinFuHeal',
     'soulKill',
-    'curseSurv'
+    'curseSurv',
+    'rangedFire',
+    'summonBurst',
+    'dashRetaliate'
     ];
   rk.concat(ck).forEach(function(k){f[k]=o[k]});
   g.relics.forEach(function(r){try{r.fn(f)}catch(e){}});
@@ -3995,6 +4010,8 @@ function rebuildPlayerStats(g){
   if(g.evolution2)g.evolution2.fn(f);
   if(g.evolution3)g.evolution3.fn(f);
   if(f.relicPower>1){f.stats.dmg+=(f.relicPower-1)*0.12;f.stats.critDmg+=(f.relicPower-1)*0.2;if(f.soulDmg)f.soulDmg=Math.floor(f.soulDmg*f.relicPower);if(f.killHeal)f.killHeal=Math.floor(f.killHeal*f.relicPower);if(f.decoyHP)f.decoyHP=Math.floor(f.decoyHP*f.relicPower)}
+  // 墨聚灵：3只墨魂以上伤害加成
+  if(f.summonBurst&&g.inkSpirits&&g.inkSpirits.length>=3)f.stats.dmg+=0.2;
   if(f.maxHpOverride>0)f.maxHp=f.maxHpOverride;
   if(f.spiritHpPenalty>0&&f.inkSpiritCount>0)f.maxHp=Math.max(20,f.maxHp-f.spiritHpPenalty*f.inkSpiritCount);
   if(f.hp>f.maxHp)f.hp=f.maxHp;
