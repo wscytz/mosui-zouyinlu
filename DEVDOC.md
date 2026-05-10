@@ -3471,8 +3471,9 @@ npm run cap:open:android  # 用 Android Studio 打开
 ### v4.33 测试硬化首批 (2026-05-10)
 
 **新增测试文件：**
-- `robust_test.js`：186 遗物 × 5 武器 = 930 组合 fn 可执行；38 进化全可执行；30件/全量组合叠加不抛异常。
+- `robust_test.js`：186 遗物 × 5 武器 = 930 组合 fn 可执行；38 进化全可执行；30件/全量组合叠加不抛异常；rebuild 3x 一致性。
 - `seeded_test.js`：mulberry32 PRNG 替换 `Math.random` 实现确定性；5武器×同种子→相同 snapshot；5武器×1800帧长跑无崩溃。
+- `visual_smoke_test.js`：Node http server + 无头 Chromium，走流程 首页→武器→战斗，5断言：title/武器/canvas/非空/无console错。依赖 `playwright@1.58`（匹配本机 chromium-1208），自动探测 `%LOCALAPPDATA%\ms-playwright\`。
 
 **stress_test 扩展：**
 - Test 11 帧时间 P99 预算：1200帧 combined-pressure 场景，预算 avg<3ms / p95<8ms / p99<16ms（60fps 帧时 16.7ms）；实测 avg=0.03ms / p95=0.08ms / p99=0.20ms，远低于预算。
