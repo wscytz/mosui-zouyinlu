@@ -300,7 +300,12 @@ var RELICS=[
   {id:"mohongyu",name:"墨宏域",type:"域具",tags:["控场","攻速"],effect:"范围+15%，攻速+10%",fn:function(p){p.stats.range+=0.15;p.stats.atkSpd-=0.1}},
   {id:"mojianqi",name:"墨剑气",type:"剑具",tags:["近战","处决"],effect:"伤害+20%，移速+8%",fn:function(p){p.stats.dmg+=0.2;p.stats.spd+=0.08}},
   {id:"momengen",name:"墨蒙眼",type:"禁物",tags:["诅咒","处决"],effect:"伤害+35%，但防御-15%",fn:function(p){p.stats.dmg+=0.35;p.stats.def-=0.15}},
-  {id:"moyanpai",name:"墨烟牌",type:"牌具",tags:["生存","控场"],effect:"防御+15%，减速+15%",fn:function(p){p.stats.def+=0.15;p.slowOnHit=Math.max(p.slowOnHit||0,0.15)}}
+  {id:"moyanpai",name:"墨烟牌",type:"牌具",tags:["生存","控场"],effect:"防御+15%，减速+15%",fn:function(p){p.stats.def+=0.15;p.slowOnHit=Math.max(p.slowOnHit||0,0.15)}},
+  {id:"moguangmu",name:"墨光幕",type:"幕具",tags:["闪避","防御"],effect:"防御+12%，反弹+10%",fn:function(p){p.stats.def+=0.12;p.thorns=(p.thorns||0)+0.1}},
+  {id:"mofanglei",name:"墨方雷",type:"雷具",tags:["法术","暴击"],effect:"暴击率+10%，弹道体积+20%",fn:function(p){p.stats.critRate+=0.1;p.stats.projSize+=0.2}},
+  {id:"moshouhuo",name:"墨守火",type:"火具",tags:["火","生存"],effect:"移速+12%，火场每秒+1HP",fn:function(p){p.stats.spd+=0.12;p.fireHeal=(p.fireHeal||0)+1}},
+  {id:"mojihong",name:"墨霁虹",type:"虹具",tags:["魂","远程"],effect:"魂伤+4，弹道体积+15%",fn:function(p){p.soulDmg+=4;p.stats.projSize+=0.15}},
+  {id:"motiejie",name:"墨铁界",type:"甲具",tags:["冰","反击"],effect:"减速+18%，反弹+25%",fn:function(p){p.slowOnHit=Math.max(p.slowOnHit||0,0.18);p.thorns=(p.thorns||0)+0.25}}
 ];
 
 var EVOLUTIONS={
