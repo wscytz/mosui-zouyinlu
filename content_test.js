@@ -1989,8 +1989,19 @@ code+='\n'+[
 '  if(!g.player.splitHealOnHit)errors.push("194d: not set");',
 '}catch(e){errors.push("194: "+e.message)}',
 
+'// Test 195: v4.28 e_zhongjian melee evolution',
+'try{',
+'  var evo=(EVOLUTIONS.melee||[]).find(function(x){return x.id==="e_zhongjian"});',
+'  if(!evo)errors.push("195a: not found in EVOLUTIONS.melee");',
+'  else{if(!evo.tags||evo.tags.length<1)errors.push("195b");if(!evo.fn)errors.push("195c");}',
+'  var g=newGame("jian","normal");var baseDmg=g.player.stats.dmg;var baseAtk=g.player.stats.atkSpd;',
+'  if(evo)evo.fn(g.player);',
+'  if(g.player.stats.dmg<=baseDmg)errors.push("195d: dmg not increased");',
+'  if(g.player.stats.atkSpd<=baseAtk)errors.push("195e: atkSpd not slowed");',
+'}catch(e){errors.push("195: "+e.message)}',
+
 'if(errors.length){console.log("FAIL ("+errors.length+"):");errors.forEach(function(e){console.log("  - "+e)});process.exit(1)}',
-'else{console.log("ALL 156 TESTS PASSED");',
+'else{console.log("ALL 157 TESTS PASSED");',
 '  console.log(" 37-62. (previous 26 tests)");',
 '  console.log(" 63-68. v2.10 (墨阵/墨童/阵眼/墨竭)");',
 '  console.log(" 69-78. v2.11 (墨镜/回春阵/墨涡/墨蝠/墨瘴/墨吸/墨甲)");',
@@ -2059,6 +2070,7 @@ code+='\n'+[
 '  console.log(" 191. v4.28 墨焚域(持续/爆炸) — DoT累计爆炸(创新)");',
 '  console.log(" 192. v4.28 墨裂盛甲(分裂/防御) — 分裂命中刷减伤窗口(spec流程)");',
 '  console.log(" 194. v4.28 墨生芝(分裂/治疗) — 分裂命中15%回血");',
+'  console.log(" 195. v4.28 e_zhongjian (melee 进化) — 伤害+50%攻速-10%");',
 '}',
 ].join('\n');
 

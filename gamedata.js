@@ -296,7 +296,9 @@ var EVOLUTIONS={
     {id:"e_zhemo",name:"斩魔",type:"进化",tags:["近战"],effect:"每3击释放追踪墨刃",
       fn:function(p){p.seekBlade=true}},
     {id:"e_huizhan",name:"回斩",type:"进化",tags:["近战","处决"],effect:"击杀后下次攻击伤害+45%",
-      fn:function(p){p.killDmgBoost=true}}
+      fn:function(p){p.killDmgBoost=true}},
+    {id:"e_zhongjian",name:"重剑",type:"进化",tags:["近战"],effect:"伤害+50%，但攻速-10%",
+      fn:function(p){p.stats.dmg+=0.5;p.stats.atkSpd+=0.1}}
   ],
   ranged:[
     {id:"e_lianzhu",name:"连珠",type:"进化",tags:["远程"],effect:"弹数+1",
