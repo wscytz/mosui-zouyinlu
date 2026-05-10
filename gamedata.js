@@ -260,7 +260,9 @@ var RELICS=[
   {id:"mojiedun",name:"墨棘盾",type:"盾具",tags:["溅射","防御"],
     effect:"受伤时向周围溅射墨棘，造成范围伤害",fn:function(p){p.hurtSplash=true;p.hurtSplashDmg=(p.hurtSplashDmg||0)+5}},
   {id:"moobaohun",name:"墨爆魂",type:"魂器",tags:["爆炸","生命"],
-    effect:"低血量时击杀敌人回复8点生命",fn:function(p){p.killBurstHeal=true}}
+    effect:"低血量时击杀敌人回复8点生命",fn:function(p){p.killBurstHeal=true}},
+  {id:"moxuexing",name:"墨血星",type:"墨具",tags:["溅射","生命"],
+    effect:"击杀小怪时溅射墨血伤敌，回复2点生命",fn:function(p){p.killSplashHeal=true}}
 ];
 
 var EVOLUTIONS={

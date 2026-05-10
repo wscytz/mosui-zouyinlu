@@ -303,6 +303,7 @@ function mkPlayer(){
     breathOnKill:false,breathTicks:0,
     hurtSplash:false,hurtSplashDmg:0,
     killBurstHeal:false,
+    killSplashHeal:false,
     idleT:0}
 }
 
@@ -723,6 +724,12 @@ function onEnemyKilled(g,e,source,opts){
   if(p.killSpeedBurst){p.speedBurstT=TUNING.speedBurstDuration;spawnP(g,p.x,p.y,"moss",6)}
   if(p.breathOnKill){p.breathTicks=360;spawnP(g,p.x,p.y,"moss",4)}
   if(p.killBurstHeal&&p.hp<p.maxHp*0.5){p.hp=Math.min(p.hp+8,p.maxHp);spawnP(g,p.x,p.y,"moss",4)}
+  if(p.killSplashHeal&&!e.isBoss){
+    var _r=RANGES.splashBoom*RANGES.splashBoom;
+    forEachLiveEnemy(g,function(oe){if(oe!==e&&dstSq(e,oe)<_r){
+      damageEnemy(g,oe,Math.max(1,Math.ceil(p.stats.dmg*0.2)),"killSplashHeal")}});
+    var _heal=2;p.hp=Math.min(p.hp+_heal,p.maxHp);
+    spawnP(g,e.x,e.y,"moss",4);spawnP(g,e.x,e.y,"accent",3)}
   if(p.scentStreak){g.killStreakT+=15;if(g.killStreakT>150)g.killStreakT=150}
   if(g.killStreak>g.maxCombo)g.maxCombo=g.killStreak;
   if(e.elite){g.eliteKills++;spawnP(g,e.x,e.y,"gold",3);shake(g,6,4)}
@@ -3884,7 +3891,8 @@ function rebuildPlayerStats(g){
     'splitDot',
     'breathOnKill','breathTicks',
     'hurtSplash','hurtSplashDmg',
-    'killBurstHeal'];
+    'killBurstHeal',
+    'killSplashHeal'];
   rk.concat(ck).forEach(function(k){f[k]=o[k]});
   g.relics.forEach(function(r){try{r.fn(f)}catch(e){}});
   if(g.evolution)g.evolution.fn(f);
