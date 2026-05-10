@@ -1826,6 +1826,15 @@ code+='\n'+[
 '  else if(!e2.hasShield||e2.shield<=0)errors.push("177h: shield not set");',
 '}catch(e){errors.push("177: "+e.message)}',
 
+'// Test 178: v4.27 墨化蜂(分裂/持续)',
+'try{',
+'  var r=RELICS.find(function(x){return x.id==="mohuafeng"});',
+'  if(!r)errors.push("178a: not found");',
+'  else{if(!r.tags||r.tags.length<2)errors.push("178b");if(!r.fn)errors.push("178c");}',
+'  var g=newGame("jian","normal");r.fn(g.player);',
+'  if(!g.player.splitDot)errors.push("178d: not set");',
+'}catch(e){errors.push("178: "+e.message)}',
+
 'if(errors.length){console.log("FAIL ("+errors.length+"):");errors.forEach(function(e){console.log("  - "+e)});process.exit(1)}',
 'else{console.log("ALL 156 TESTS PASSED");',
 '  console.log(" 37-62. (previous 26 tests)");',
@@ -1880,6 +1889,7 @@ code+='\n'+[
 '  console.log(" 175. v4.25 墨蛉 — 远程减速敌人+webShot");',
 '  console.log(" 176. v4.26 墨涟爆(溅射/爆炸) — 溅射击杀二次爆炸");',
 '  console.log(" 177. v4.26 墨碑 — 带盾辅助型敌人(hasShield+deathBuff)");',
+'  console.log(" 178. v4.27 墨化蜂(分裂/持续) — 命中分裂弹+留DOT区");',
 '}',
 ].join('\n');
 

@@ -299,6 +299,7 @@ function mkPlayer(){
     maxHpOverride:0,extraStartRelics:0,extraRelicChoice:false,
     enemyHpMult:1,enemySpdMult:1,allElite:false,relicPower:1,_relicPowerApplied:false,
     enemyFlicker:false,inkBrandCurse:false,missChance:0,hitDmgMult:0,
+    splitDot:false,
     idleT:0}
 }
 
@@ -1303,6 +1304,15 @@ function hitE(g,atk,e){
       var sd=nearE.x-e.x,sl2=Math.sqrt(sd*sd+(nearE.y-e.y)*(nearE.y-e.y))||1;
       pushLimited(g.attacks,{x:e.x,y:e.y,vx:sd/sl2*6,vy:(nearE.y-e.y)/sl2*6,dmg:Math.max(1,Math.ceil(p.stats.dmg*0.4)),r:4,life:40,type:"proj",hitOnce:true,owner:"player"},LIMITS.attacks);
       spawnP(g,e.x,e.y,"accent",3)}}
+  // 墨化蜂：命中几率分裂弹+留DOT区
+  if(p.splitDot&&Math.random()<(0.2*(p.relicPower||1))){
+    var _near=null,_nd=RANGES.split*RANGES.split;
+    forEachLiveEnemy(g,function(oe){if(oe!==e){var d=dstSq(oe,e);if(d<_nd){_nd=d;_near=oe}}});
+    if(_near){
+      var _dx=_near.x-e.x,_dy=_near.y-e.y,_dl=Math.sqrt(_dx*_dx+_dy*_dy)||1;
+      pushAttack(g,{x:e.x,y:e.y,vx:_dx/_dl*6,vy:_dy/_dl*6,dmg:Math.max(1,Math.ceil(p.stats.dmg*0.35)),r:4,life:40,type:"proj",hitOnce:true,owner:"player"});
+      spawnP(g,e.x,e.y,"accent",3)}
+    pushLimited(g.frosts,{x:e.x,y:e.y,r:28,life:90,maxLife:90,dmg:Math.max(1,Math.ceil(p.stats.dmg*0.2))},LIMITS.frosts)}
   if(atk.crit){g.critFlash=18;for(var ci=0;ci<8;ci++){var ca=ci*Math.PI/4;
     spawnP(g,e.x+Math.cos(ca)*10,e.y+Math.sin(ca)*10,"accent",2)}}
   if(atk.crit&&p.critShrapnel){var splDmg=Math.floor(atk.dmg*0.35);forEachLiveEnemy(g,function(oe){if(oe===e)return;if(dstSq(e,oe)<RANGES.critShrapnel*RANGES.critShrapnel)damageEnemy(g,oe,splDmg,"shrapnel")});spawnP(g,e.x,e.y,"accent",5)}
@@ -3856,7 +3866,8 @@ function rebuildPlayerStats(g){
     'hurtRetaliate','hurtRetaliateDmg',
     'blindDmgBoost',
     'splashDeathBoom','splashDeathBoomChance','splashDeathBoomRatio',
-    'splashRippleStack','splashRippleMax','splashRippleBonus','_rippleStacks'];
+    'splashRippleStack','splashRippleMax','splashRippleBonus','_rippleStacks',
+    'splitDot'];
   rk.concat(ck).forEach(function(k){f[k]=o[k]});
   g.relics.forEach(function(r){try{r.fn(f)}catch(e){}});
   if(g.evolution)g.evolution.fn(f);
