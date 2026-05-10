@@ -298,7 +298,11 @@ var EVOLUTIONS={
     {id:"e_huizhan",name:"回斩",type:"进化",tags:["近战","处决"],effect:"击杀后下次攻击伤害+45%",
       fn:function(p){p.killDmgBoost=true}},
     {id:"e_zhongjian",name:"重剑",type:"进化",tags:["近战"],effect:"伤害+50%，但攻速-10%",
-      fn:function(p){p.stats.dmg+=0.5;p.stats.atkSpd+=0.1}}
+      fn:function(p){p.stats.dmg+=0.5;p.stats.atkSpd+=0.1}},
+    {id:"e_jianyi",name:"剑意",type:"进化",tags:["近战","暴击"],effect:"伤害+30%，暴击率+5%",
+      fn:function(p){p.stats.dmg+=0.3;p.stats.critRate+=0.05}},
+    {id:"e_jianfeng",name:"剑锋",type:"进化",tags:["近战","控场"],effect:"攻击范围+20%，攻速-10%",
+      fn:function(p){p.stats.range+=0.2;p.stats.atkSpd+=0.1}}
   ],
   ranged:[
     {id:"e_lianzhu",name:"连珠",type:"进化",tags:["远程"],effect:"弹数+1",
