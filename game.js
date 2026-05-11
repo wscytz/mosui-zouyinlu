@@ -137,7 +137,7 @@ var META_KEY="mosui_meta";
 function loadMeta(){
   var defaults={version:2,totalKills:0,totalRuns:0,bestWave:0,bestGrade:"",bossKills:0,
     weaponsCleared:{},relicsDiscovered:{},cursesUsed:{},mojiangjunKills:0,
-    nightmareWins:0,eliteKills:0,bestFireKills:0,achievements:{},unlocks:{}};
+    nightmareWins:0,hardWins:0,eliteKills:0,bestFireKills:0,achievements:{},unlocks:{}};
   try{
     var d=JSON.parse(localStorage.getItem(META_KEY));
     if(d&&d.version===2){
@@ -161,6 +161,7 @@ function metaRecordRun(g){
   if(g.mojiangjunKilled){meta.mojiangjunKills++}
   if(g.moguiwangKilled){meta.moguiwangKills=(meta.moguiwangKills||0)+1}
   if(won&&g.diff==="nightmare")meta.nightmareWins++;
+  if(won&&g.diff==="hard")meta.hardWins=(meta.hardWins||0)+1;
   meta.eliteKills=(meta.eliteKills||0)+g.eliteKills;
   if(g.fireKills>(meta.bestFireKills||0))meta.bestFireKills=g.fireKills;
   if((g.killExplodeKills||0)>(meta.bestKillExplodeKills||0))meta.bestKillExplodeKills=g.killExplodeKills;
