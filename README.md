@@ -44,12 +44,12 @@ npm run audit:content
 - **37 种敌人**（含 3 Boss）：画皮娘子 / 墨将军 / 墨鬼王
 - **9 个关卡**：含墨潮脉动等特殊关卡调制器
 - **22 条誓印**：含诅咒型誓印
-- **38 个成就**：覆盖各武器/遗物/特殊挑战
+- **40 个成就**：覆盖各武器/遗物/Boss/难度/特殊挑战
 - **3 种难度**：平常 / 险途 / 噩梦
 
 ## 测试基线
 
-- `npm run test:all` = 295 项（37 smoke + 8 wave + 231 content + 11 stress + 5 robust + 3 seeded）+ strict audit gate
+- `npm run test:all` = 297 项（37 smoke + 8 wave + 233 content + 11 stress + 5 robust + 3 seeded）+ strict audit gate
 - `npm run test:visual` = 13 项 Playwright 视觉冒烟（含暂停/恢复、移动端竖屏/横屏、Wiki渲染、结算页/弹窗 DOM）
 - 0 flake（6/6 连跑全绿）
 

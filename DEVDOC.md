@@ -3591,6 +3591,19 @@ npm run cap:open:android  # 用 Android Studio 打开
 
 *v5.4-boss 墨鬼王墨潮脉冲 更新于 2026-05-11。*
 
+### v5.5 发布收口 (2026-05-11)
+
+- BUILD_PREFS 补全 3 个孤立标签：召唤→summon、冲刺→dash、范围→aoe
+- Wiki Boss 卡片显示阶段转换机制提示（BOSS_PHASES 表）
+- 难度选项加简短描述（标准/敌人更强更快/极限挑战）
+- 首页数字同步：114→193遗物、32→37敌人
+- 补 2 成就：险途征服（hard_win）+ 画皮克星（kill_huapi）
+- ACHIEVEMENTS 38→40，meta.hardWins 字段
+
+**测试基线：** 297 项（37 smoke + 8 wave + 233 content + 11 stress + 5 robust + 3 seeded + strict audit）+ 13 visual smoke
+
+*v5.5 发布收口 更新于 2026-05-11。*
+
 ### 版本号规则
 
 改完一个bug → 删掉对应条目 → 版本号末尾+1

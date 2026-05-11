@@ -2,9 +2,9 @@
 
 本文是给 Codex / Claude / 人类开发者的接手入口。现在项目已经进入“主 Claude + 专职 agent”协作期：先读规则，先取上下文，先校验输出，再合并测试。
 
-> 当前内容体量：5武器 / 193遗物 / 30进化 / 37敌人(含3Boss) / 9关卡 / 22誓印 / 38成就。
+> 当前内容体量：5武器 / 193遗物 / 30进化 / 37敌人(含3Boss) / 9关卡 / 22誓印 / 40成就。
 >
-> 当前自动检查：37 smoke + 8 wave + 231 content + 11 stress + 5 robust + 3 seeded + strict audit；视觉冒烟 13 项。`content_test.js` summary 由 `.claude/fix-test-count.js` 校准；高并发测试号由 `.claude/sequencer.js` 分配。
+> 当前自动检查：37 smoke + 8 wave + 233 content + 11 stress + 5 robust + 3 seeded + strict audit；视觉冒烟 13 项。`content_test.js` summary 由 `.claude/fix-test-count.js` 校准；高并发测试号由 `.claude/sequencer.js` 分配。
 
 ## 文档分工
 
