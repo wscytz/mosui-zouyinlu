@@ -468,7 +468,9 @@ function spawnEnemy(g,type,opts){
     splitter:!!t.splitter,splitCount:t.splitCount||2,splitHpRatio:t.splitHpRatio||0.5,isSplit:!!opts.isSplit,
     hasShield:shield>0,shield:shield,maxShield:shield,shieldCd:0,shieldRegen:t.shieldRegen||300,
     cdT:0,slowT:0,fearT:0,hitFlash:0,bob:rn(0,Math.PI*2),deathT:0,desperate:!!t.desperate,
-    spawnGraceT:0})
+    isClone:!!opts.isClone,
+    spawnGraceT:0});
+  if(opts.isClone){var _ce=g.enemies[g.enemies.length-1];_ce.isBoss=false;_ce.desperate=true;_ce.enraged=true}
 }
 
 function mkMinion(x,y,type,hp,spd,r,dmg,atkR,atkCd,col,edge,overrides){
@@ -1911,7 +1913,14 @@ function update(g){
         spawnP(g,e.x+Math.cos(da)*30,e.y+Math.sin(da)*30,"fire",2)}
       g.freezeT=Math.max(g.freezeT,10);g.bossFlash=12;
       pushLimited(g.floatTexts,{x:W/2,y:H/2-40,text:e.name+" · 绝望",life:90,maxLife:90,reason:"streak"},LIMITS.floatTexts);
-      pushLimited(g.floatTexts,{x:e.x,y:e.y-30,text:"回光返照",life:60,maxLife:60,reason:"desperate"},LIMITS.floatTexts);}
+      pushLimited(g.floatTexts,{x:e.x,y:e.y-30,text:"回光返照",life:60,maxLife:60,reason:"desperate"},LIMITS.floatTexts);
+      // A1: 画皮分身 — spawn 2 low-HP clones
+      for(var ci=0;ci<2;ci++){
+        var ca=ci*Math.PI+Math.random()*0.5;
+        var cx=e.x+Math.cos(ca)*50,cy=e.y+Math.sin(ca)*50;
+        spawnEnemy(g,"boss",{x:cx,y:cy,hpMul:0.12,noScale:true,isClone:true});
+      }
+    }
     var toP=ang(e,p),dToPSq=dstSq(e,p),specialMove=false;
     // decoy attraction: affect movement AND attack targeting
     var targetX=p.x,targetY=p.y;

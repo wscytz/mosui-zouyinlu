@@ -143,14 +143,30 @@ code+=[
 'var bad=src2.match(/spawnInk\\([^g,]/g);',
 'if(bad)errors.push("spawnInk missing g param: "+bad.length+": "+JSON.stringify(bad));',
 
+// TEST 6: Boss clone (画皮分身) — desperate triggers 2 clones
+'var g6=newGame("jian","normal");',
+'g6.bossType="boss";',
+'spawnEnemy(g6,"boss",{x:480,y:320});',
+'var theBoss=g6.enemies[g6.enemies.length-1];',
+'theBoss.hp=Math.floor(theBoss.maxHp*0.2);',
+'var beforeCount=g6.enemies.length;',
+'for(var u6=0;u6<60;u6++)update(g6);',
+'var clones=g6.enemies.filter(function(e){return e.isClone});',
+'if(clones.length<2)errors.push("boss clone: expected >=2 clones, got "+clones.length);',
+'else{',
+'  if(clones[0].isBoss)errors.push("boss clone: clone should not be isBoss");',
+'  if(clones[0].hp>60)errors.push("boss clone: clone HP too high: "+clones[0].hp);',
+'}',
+
 // Report
 'if(errors.length){console.log("FAIL ("+errors.length+"):");errors.forEach(function(e){console.log("  - "+e)});process.exit(1)}',
-'else{console.log("ALL 5 TESTS PASSED");',
+'else{console.log("ALL 6 TESTS PASSED");',
 '  console.log("  1. 4 weapons x full 9-wave run");',
 '  console.log("  2. Splitter chain kill");',
 '  console.log("  3. Summoner+minion cleanup");',
 '  console.log("  4. Shield damage reduction");',
-'  console.log("  5. spawnInk parameter check")}',
+'  console.log("  5. spawnInk parameter check");',
+'  console.log("  6. Boss clone (画皮分身)")}',
 ].join('\n');
 
 eval(code);
