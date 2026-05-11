@@ -1,11 +1,11 @@
-# 墨祟：走阴录 路线书 v5.1+
+# 墨祟：走阴录 路线书 v5.2+
 
 > 这份文档驱动开发节奏。详细 agent 流程见 `AGENT_SYSTEM.md`，自动化命令见 `.claude/AUTOMATION_GUIDE.md`。
 
 ## 现状 (v5.2)
 
 - **内容体量**: 5武器 / 193遗物 / 30进化 / 37敌人(含3Boss) / 9关卡 / 22誓印 / 38成就 / 12波
-- **测试基线**: 290 项（37 smoke + 5 wave + 230 content + 11 stress + 5 robust + 3 seeded + strict audit gate）
+- **测试基线**: 291 项（37 smoke + 5 wave + 231 content + 11 stress + 5 robust + 3 seeded + strict audit gate）
 - **自动化主线**: 方案 B，`sequencer -> executor JSON block -> merger -> test:all`
 - **自动化治理**: block rules、fixtures（1好7坏）、audit 接入 strict 门禁；0 errors / 0 warnings
 - **鲁棒性**: 193 遗物 × 5 武器 = 965 组合 fn 可执行；38 进化全可执行；全量组合不抛异常
@@ -81,7 +81,7 @@
   - 结算页显示”本局构筑路线”（按 tags 频率归纳前 2 标签）
   - 补 2 个流派核心遗物：墨阵连环（范围/持续）、墨爆连锁（爆炸/溅射）
   - Boss/精英战设计文档（BOSS_DESIGN.md）
-  - 遗物 191→193，content tests 228→230
+  - 遗物 191→193，content tests 228→231
 
 ### v5.3 下一步方向
 
@@ -116,7 +116,7 @@
 
 ## 风险点
 
-1. 内容量已达 191 遗物，重复机制和低权重死遗物会越来越多。
+1. 内容量已达 193 遗物，重复机制和低权重死遗物会越来越多。
 2. `audit:content` 已经 0/0，但仍是 report-only；发布前再决定是否 strict。
 3. 移动端横屏布局需要真机实测。
 4. RELIC_RULES / BUILD_PREFS 覆盖需要定期审查。

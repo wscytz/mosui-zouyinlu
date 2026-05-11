@@ -206,6 +206,16 @@ function calcGrade(g){
   else if(score>=40)return"丙";else return"丁";
 }
 function gradePriority(g){var m={"S":5,"甲":4,"乙":3,"丙":2,"丁":1};return m[g]||0}
+function buildEndRoute(g){
+  var tagFreq={};
+  (g.relics||[]).forEach(function(r){
+    (r.tags||[]).forEach(function(t){tagFreq[t]=(tagFreq[t]||0)+1});
+  });
+  var sortedTags=Object.keys(tagFreq).sort(function(a,b){return tagFreq[b]-tagFreq[a]});
+  if(sortedTags.length>=2)return sortedTags[0]+" · "+sortedTags[1]+"流";
+  if(sortedTags.length===1)return sortedTags[0]+"流";
+  return"孤行流";
+}
 
 // ════════════════════════════════════════════════════════════════
 // § STATE FACTORY — player creation, game state init, background
@@ -4385,15 +4395,7 @@ function showEnd(g){
   var evo=(g.evolution?g.evolution.name:"无")+(g.evolution2?" + "+g.evolution2.name:"")+(g.evolution3?" + "+g.evolution3.name:"");
   var buildLine=g.weapon.name+" → "+evo;
   var relicNames=g.relics.map(function(r){return r.name}).join(" · ");
-  // Build route summary: top 2 tags from owned relics + RELIC_RULES hints
-  var tagFreq={};
-  g.relics.forEach(function(r){
-    (r.tags||[]).forEach(function(t){tagFreq[t]=(tagFreq[t]||0)+1});
-    if(RELIC_RULES[r.id]&&RELIC_RULES[r.id][0]&&RELIC_RULES[r.id][0].w){
-      var hint=RELIC_RULES[r.id][0].w;tagFreq["_hint:"+hint]=(tagFreq["_hint:"+hint]||0)+1}
-  });
-  var sortedTags=Object.keys(tagFreq).filter(function(k){return k.indexOf("_hint:")!==0}).sort(function(a,b){return tagFreq[b]-tagFreq[a]});
-  var buildRoute=sortedTags.length>=2?sortedTags[0]+" · "+sortedTags[1]+"流":(sortedTags[0]||"")+"流";
+  var buildRoute=buildEndRoute(g);
   var grade=calcGrade(g);
   var gradeColors={S:"#c4523d","甲":"var(--accent)","乙":"var(--ink-soft)","丙":"var(--ash)","丁":"var(--ash)"};
   var isNewBest=g.wave>=meta.bestWave;

@@ -2777,8 +2777,15 @@ code+='\n'+[
 '  if(!g.player.splashDeathBoom)errors.push("268e: splashDeathBoom not set");',
 '}catch(e){errors.push("268: "+e.message)}',
 
+'// Test 269: v5.2 结算构筑路线空值保护',
+'try{',
+'  if(buildEndRoute({relics:[]})!=="孤行流")errors.push("269a: empty route wrong");',
+'  var route=buildEndRoute({relics:[{tags:["范围","持续"]},{tags:["范围","控场"]}]});',
+'  if(route.indexOf("范围")<0||route.indexOf("流")<0)errors.push("269b: route missing top tag");',
+'}catch(e){errors.push("269: "+e.message)}',
+
 'if(errors.length){console.log("FAIL ("+errors.length+"):");errors.forEach(function(e){console.log("  - "+e)});process.exit(1)}',
-'else{console.log("ALL 230 TESTS PASSED");',
+'else{console.log("ALL 231 TESTS PASSED");',
 '  console.log(" 37-62. (previous 26 tests)");',
 '  console.log(" 63-68. v2.10 (墨阵/墨童/阵眼/墨竭)");',
 '  console.log(" 69-78. v2.11 (墨镜/回春阵/墨涡/墨蝠/墨瘴/墨吸/墨甲)");',
@@ -2905,6 +2912,7 @@ code+='\n'+[
 '  console.log("  266. v4.34 墨冲光(冲刺/暴击) — 暴击+8%攻速+5%");',
 '  console.log("  267. v5.2 墨阵连环(范围/持续) — 范围+15%持续墨蚀");',
 '  console.log("  268. v5.2 墨爆连锁(爆炸/溅射) — 溅射+20%爆炸连锁");',
+'  console.log("  269. v5.2 结算构筑路线空值保护");',
 '}',
 ].join('\n');
 

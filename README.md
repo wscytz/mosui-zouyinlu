@@ -1,4 +1,4 @@
-# 墨祟：走阴录 v5.1-builds
+# 墨祟：走阴录 v5.2
 
 水墨俯视角动作肉鸽。你扮演一名替亡者走阴的夜行客，手持法器深入地宫，斩妖除祟。
 
@@ -39,7 +39,7 @@ npm run audit:content
 ## 内容体量
 
 - **5 把武器**：斩妖剑 / 符骨笔 / 镇魂铃 / 伏魔伞 / 召魂幡
-- **191 件遗物**：标签驱动，按构筑自由组合；RELIC_RULES 权重覆盖 157/191
+- **193 件遗物**：标签驱动，按构筑自由组合；RELIC_RULES 权重覆盖 193/193
 - **30 种进化**：3条武器进化链
 - **37 种敌人**（含 3 Boss）：画皮娘子 / 墨将军 / 墨鬼王
 - **9 个关卡**：含墨潮脉动等特殊关卡调制器
@@ -49,12 +49,13 @@ npm run audit:content
 
 ## 测试基线
 
-- `npm run test:all` = 288 项（37 smoke + 5 wave + 228 content + 11 stress + 5 robust + 3 seeded）+ strict audit gate
+- `npm run test:all` = 291 项（37 smoke + 5 wave + 231 content + 11 stress + 5 robust + 3 seeded）+ strict audit gate
 - `npm run test:visual` = 10 项 Playwright 视觉冒烟（含暂停/恢复、移动端竖屏/横屏）
 - 0 flake（5/5 连跑全绿）
 
-## v5.0-v5.1 构筑吸收 + 发布门槛 (2026-05-11)
+## v5.0-v5.2 构筑吸收 + 发布门槛 (2026-05-11)
 
+- **v5.2**：RELIC_RULES 覆盖 193/193，结算页显示本局构筑路线，补 2 个流派核心遗物，并形成 Boss/精英战设计文档。
 - **v5.1-builds**：RELIC_RULES 覆盖 106→157/191，遗物卡片显示 build hint，让内容从“数量”进入“构筑选择”。
 - **v5.0-prep**：视觉冒烟扩到 10 项，覆盖标题、选武器、战斗 Canvas、暂停/恢复、移动端竖屏/横屏；DEVDOC/V5_PREP 入档。
 - **管线收口**：block rules 拦截 HTML entity，skill 同步检查扩展为整目录校验，避免附属配置漏同步。
@@ -145,9 +146,9 @@ wiki.html          # 游戏百科（自动读取 gamedata.js）
 styles.css         # 宣传页/百科/游戏共用样式
 
 assets/            # 美术资产
-  concept/         #   概念图/封面 (3张)
+  concept/         #   概念图/封面 (5张)
   portraits/       #   Boss肖像 (3张)
-  ui/              #   武器图标 (4张)
+  ui/              #   武器/遗物图标
   sprites/         #   场景精灵 (预留)
   vfx/             #   视觉特效 (预留)
 
@@ -163,7 +164,7 @@ smoke_test.js      # 冒烟测试（37项，含60秒长跑）
 wave_test.js       # 波次专项测试（5项）
 content_test.js    # 内容/机制测试（active blocks 以 ctx 扫描为准）
 stress_test.js     # 压力测试（11项，含帧时间 P99 预算）
-robust_test.js     # 鲁棒性测试（191×5 遗物fn + rebuild一致性）
+robust_test.js     # 鲁棒性测试（193×5 遗物fn + rebuild一致性）
 seeded_test.js     # 种子化确定性测试（mulberry32 PRNG）
 visual_smoke_test.js # Playwright 视觉冒烟（10项）
 ARCHITECTURE.md    # 架构文档（六层边界）

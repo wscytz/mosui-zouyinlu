@@ -62,7 +62,7 @@ bossPhase3Hp: 0.25       — phase 3 阈值
 
 目标：让精英不只是"数值放大版普通怪"。
 
-1. 精英随机获得 1 个 buff：`shielded`(护盾) / `splitter`(死后分裂) / `enraged`(低血加速)
+1. 精英随机获得 1 个 `eliteAbility`：沿用现有 `blink`(瞬移) / `deathburst`(死亡爆) / `enrage`(低血狂暴) / `armored`(护甲)
 2. 精英击杀奖励：必定掉落 1 个临时 buff（攻速/移速/回血）
 
 ### C. Mini-Boss 波次（高风险）
@@ -82,7 +82,7 @@ bossPhase3Hp: 0.25       — phase 3 阈值
 
 ```js
 // Boss 分身测试：画皮 desperate 后应有 2 个 type==="boss" 且 hp<50 的幻影
-// 精英 buff 测试：精英 spawn 后应有 shielded/splitter/enraged 之一
+// 精英能力测试：精英 spawn 后应有 blink/deathburst/enrage/armored 之一
 // Mini-boss 测试：第 4/7 波有概率出现 midBoss=true 的敌人
 ```
 
@@ -96,5 +96,5 @@ bossPhase3Hp: 0.25       — phase 3 阈值
 ## 依赖
 
 - 画皮分身需要 `spawnsOnDeath` 或新的 `bossClone` 字段
-- 精英 buff 可复用已有字段：`hasShield`/`splitter`/`enraged`
+- 精英能力优先复用已有字段：`eliteAbility` + `blinkT` / `pendingDeathbursts` / `enraged` / `armorMult`
 - 测试需要能 force-spawn 特定 Boss 到特定 HP
