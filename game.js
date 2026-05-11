@@ -2066,7 +2066,8 @@ function update(g){
         if(mgwPhase===3){snd("bossEnrage");shake(g,16,12);e.spd=1.5;g.bossFlash=12;e.enraged=true;
           spawnInk(g,e.x,e.y,28,"ink");spawnInk(g,e.x,e.y,20,"fire");
           pushLimited(g.floatTexts,{x:W/2,y:H/2-40,text:"墨鬼王 · 蚀天",life:90,maxLife:90,reason:"streak"},LIMITS.floatTexts);
-          g.freezeT=Math.max(g.freezeT,10)}
+          g.freezeT=Math.max(g.freezeT,10);
+          e._mgwPulseReady=true}
       }
       // Phase 1: 4-directional ink bolts every 90 frames
       if(mgwPhase===1&&g.time%90===0){
@@ -2083,12 +2084,17 @@ function update(g){
         if(g.time%110===0){for(var ri5=0;ri5<8;ri5++){var ra5=ri5*Math.PI/4;
           addEProj(g,{x:e.x,y:e.y,vx:Math.cos(ra5)*2.2,vy:Math.sin(ra5)*2.2,r:6,dmg:Math.max(1,Math.floor(e.dmg*0.35)),life:42,_src:e})}}
       }
-      // Phase 3: spiral + ink trail + charge
+      // Phase 3: spiral + ink trail + charge + slow pulse
       if(mgwPhase===3){
         if(g.time%50===0){var spA3=g.time*0.12;
           for(var spi3=0;spi3<6;spi3++){var spAng2=spA3+spi3*Math.PI/3;
             addEProj(g,{x:e.x,y:e.y,vx:Math.cos(spAng2)*3.0,vy:Math.sin(spAng2)*3.0,r:5,dmg:Math.max(1,Math.floor(e.dmg*0.3)),life:38,_src:e})}}
         if(g.time%10===0&&g.fires.length<LIMITS.fires&&g._pm>=0.5)pushLimited(g.fires,{x:e.x+rn(-8,8),y:e.y+rn(-8,8),r:18,life:120,maxLife:120,dmg:2,owner:"enemy",tickOffset:ri(0,15),healTickOffset:0},LIMITS.fires);
+        // A3: 墨潮脉冲 — 每180帧释放一圈减速墨池
+        if(e._mgwPulseReady&&g.time%180===0){
+          for(var pi=0;pi<8;pi++){var pa=pi*Math.PI/4;
+            pushLimited(g.fires,{x:e.x+Math.cos(pa)*60,y:e.y+Math.sin(pa)*60,r:24,life:90,maxLife:90,dmg:0,owner:"enemy",slow:true,tickOffset:0,healTickOffset:0},LIMITS.fires)}
+          spawnP(g,e.x,e.y,"ink",10);snd("hit")}
         if(g.time%TUNING.bossNormalAtkInterval===0&&!specialMove&&dToPSq<TUNING.bossChargeRange*TUNING.bossChargeRange){
           var mdx2=p.x-e.x,mdy2=p.y-e.y,ml2=Math.sqrt(mdx2*mdx2+mdy2*mdy2)||1;e.chargeVx=mdx2/ml2*5.0;e.chargeVy=mdy2/ml2*5.0;e.chargeT=16;
           snd("playerDodge");shake(g,5,4)}

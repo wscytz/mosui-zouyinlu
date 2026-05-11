@@ -175,16 +175,29 @@ code+=[
 'for(var u7b=0;u7b<320;u7b++)update(g7);',
 'if(mjj.hp>0&&!mjj.hasShield&&mjj.shield<=0)errors.push("mjj shield: shield did not regen after "+mjj.shieldRegen+" frames");',
 
+// TEST 8: 墨鬼王 phase 3 墨潮脉冲
+'var g8=newGame("jian","normal");',
+'spawnEnemy(g8,"moguiwang",{x:480,y:320,noScale:true});',
+'var mgw=g8.enemies[g8.enemies.length-1];',
+'mgw.hp=Math.floor(mgw.maxHp*TUNING.bossPhase3Hp)-1;',
+'var firesBefore=g8.fires.length;',
+'for(var u8=0;u8<200;u8++)update(g8);',
+'if(!mgw._mgwPhase||mgw._mgwPhase!==3)errors.push("mgw pulse: phase not 3, got "+mgw._mgwPhase);',
+'if(!mgw._mgwPulseReady)errors.push("mgw pulse: _mgwPulseReady not set");',
+'var slowFires=g8.fires.filter(function(f){return f.slow&&f.owner==="enemy"});',
+'if(slowFires.length<4)errors.push("mgw pulse: expected >=4 slow fires, got "+slowFires.length);',
+
 // Report
 'if(errors.length){console.log("FAIL ("+errors.length+"):");errors.forEach(function(e){console.log("  - "+e)});process.exit(1)}',
-'else{console.log("ALL 7 TESTS PASSED");',
+'else{console.log("ALL 8 TESTS PASSED");',
 '  console.log("  1. 4 weapons x full 9-wave run");',
 '  console.log("  2. Splitter chain kill");',
 '  console.log("  3. Summoner+minion cleanup");',
 '  console.log("  4. Shield damage reduction");',
 '  console.log("  5. spawnInk parameter check");',
 '  console.log("  6. Boss clone (画皮分身)");',
-'  console.log("  7. 墨将军 phase 3 墨阵护盾")}',
+'  console.log("  7. 墨将军 phase 3 墨阵护盾");',
+'  console.log("  8. 墨鬼王 phase 3 墨潮脉冲")}',
 ].join('\n');
 
 eval(code);
