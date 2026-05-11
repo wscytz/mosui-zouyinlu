@@ -50,7 +50,7 @@ npm run audit:content
 ## 测试基线
 
 - `npm run test:all` = 295 项（37 smoke + 8 wave + 231 content + 11 stress + 5 robust + 3 seeded）+ strict audit gate
-- `npm run test:visual` = 11 项 Playwright 视觉冒烟（含暂停/恢复、移动端竖屏/横屏、Wiki渲染）
+- `npm run test:visual` = 13 项 Playwright 视觉冒烟（含暂停/恢复、移动端竖屏/横屏、Wiki渲染、结算页/弹窗 DOM）
 - 0 flake（6/6 连跑全绿）
 
 ## v5.0-v5.2 构筑吸收 + 发布门槛 (2026-05-11)
@@ -166,7 +166,7 @@ content_test.js    # 内容/机制测试（active blocks 以 ctx 扫描为准）
 stress_test.js     # 压力测试（11项，含帧时间 P99 预算）
 robust_test.js     # 鲁棒性测试（193×5 遗物fn + rebuild一致性）
 seeded_test.js     # 种子化确定性测试（mulberry32 PRNG）
-visual_smoke_test.js # Playwright 视觉冒烟（11项）
+visual_smoke_test.js # Playwright 视觉冒烟（13项）
 ARCHITECTURE.md    # 架构文档（六层边界）
 DEVDOC.md          # 开发文档（含完整版本历史）
 DEVELOPMENT.md     # 开发规范 / 交接清单

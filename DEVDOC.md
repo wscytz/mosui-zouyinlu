@@ -3580,6 +3580,17 @@ npm run cap:open:android  # 用 Android Studio 打开
 
 *v5.4-boss 墨将军墨阵护盾 更新于 2026-05-11。*
 
+### v5.4-boss 墨鬼王墨潮脉冲 + 视觉冒烟收口 (2026-05-11)
+
+- 墨鬼王 phase 3（HP≤25%）设置 `_mgwPulseReady`，每 180 帧释放 8 个 enemy slow 墨池
+- 复用现有 `g.fires` 区域效果，`dmg:0` + `slow:true`，避免新增独立攻击系统
+- wave_test Test 8 覆盖：phase 切换、脉冲就绪标记、slow fires 生成
+- visual_smoke_test 扩展 11→13：结算页 DOM 结构、遗物/誓印弹窗 DOM 结构
+
+**测试基线：** 295 项（37 smoke + 8 wave + 231 content + 11 stress + 5 robust + 3 seeded + strict audit）+ 13 visual smoke
+
+*v5.4-boss 墨鬼王墨潮脉冲 更新于 2026-05-11。*
+
 ### 版本号规则
 
 改完一个bug → 删掉对应条目 → 版本号末尾+1
