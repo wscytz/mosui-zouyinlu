@@ -85,8 +85,11 @@ bossPhase3Hp: 0.25       — phase 3 阈值
    - phase 3 (HP≤25%) 时一次性获得 50 点护盾（复用现有 shield 系统）
    - 护盾破碎后 300帧 自动恢复
    - wave_test Test 7 覆盖（phase 切换/shield 初始化/破盾/恢复）
-4. **再做 A3**（墨鬼王脉冲）：中风险，放 v5.5。
-5. **最后考虑 C**：需要新 ETYPE + AI，风险大，放 v5.4+。
+4. **A3 墨鬼王墨潮脉冲** ✅ 已实装 (v5.4)
+   - phase 3 每 180帧(3秒) 释放 8 个减速墨池环绕 Boss
+   - 复用现有 g.fires + slow 字段
+   - wave_test Test 8 覆盖
+5. **最后考虑 C**：需要新 ETYPE + AI，风险大，放 v5.5+。
 
 ## 测试切片（实施前先写）
 

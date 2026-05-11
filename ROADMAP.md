@@ -5,7 +5,7 @@
 ## 现状 (v5.2)
 
 - **内容体量**: 5武器 / 193遗物 / 30进化 / 37敌人(含3Boss) / 9关卡 / 22誓印 / 38成就 / 12波
-- **测试基线**: 294 项（37 smoke + 7 wave + 231 content + 11 stress + 5 robust + 3 seeded + strict audit gate）
+- **测试基线**: 295 项（37 smoke + 8 wave + 231 content + 11 stress + 5 robust + 3 seeded + strict audit gate）
 - **自动化主线**: 方案 B，`sequencer -> executor JSON block -> merger -> test:all`
 - **自动化治理**: block rules、fixtures（1好7坏）、audit 接入 strict 门禁；0 errors / 0 warnings
 - **鲁棒性**: 193 遗物 × 5 武器 = 965 组合 fn 可执行；38 进化全可执行；全量组合不抛异常
