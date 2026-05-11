@@ -3897,7 +3897,33 @@ var RELIC_RULES={
   // 防御/反击/生存 (补3)
   mojing:[{c:function(s){return s.ownedTags["防御"]||s.ownedTags["法术"]},n:7,w:"防御法术"}],
   moquanyan:[{c:function(s){return s.ownedTags["治疗"]||s.ownedTags["生存"]},n:7,w:"治疗生存"}],
-  guxuquan:[{c:function(s){return s.ownedTags["生命"]||s.ownedTags["生存"]},n:7,w:"生命生存"}]
+  guxuquan:[{c:function(s){return s.ownedTags["生命"]||s.ownedTags["生存"]},n:7,w:"生命生存"}],
+  // --- v5.1-builds 第二批 RELIC_RULES: 25 条 → 目标 157/191 = 82% ---
+  yindeng:[{c:function(s){return s.ownedTags["魂"]||s.hasKill},n:7,w:"魂击杀"}],
+  tunmofu:[{c:function(s){return s.hasKill||s.ownedTags["生存"]},n:7,w:"击杀生存"}],
+  hanxingtie:[{c:function(s){return s.ownedTags["冰"]||s.ownedTags["暴击"]},n:8,w:"冰暴击"}],
+  binghe:[{c:function(s){return s.ownedTags["冰"]||s.ownedTags["暴击"]},n:7,w:"冰暴击"}],
+  houmo:[{c:function(s){return s.weaponType==="ranged"||s.ownedTags["暴击"]},n:7,w:"远程暴击"}],
+  mojiaojin:[{c:function(s){return s.weaponType==="ranged"||s.ownedTags["机动"]},n:7,w:"远程机动"}],
+  hunsuolian:[{c:function(s){return s.ownedTags["处决"]||s.hasKill},n:8,w:"处决击杀"}],
+  moxiu:[{c:function(s){return s.hasKill||s.ownedTags["处决"]},n:7,w:"击杀处决"}],
+  moze:[{c:function(s){return s.hasKill||s.ownedTags["机动"]},n:7,w:"击杀机动"}],
+  motao:[{c:function(s){return s.hasKill||s.ownedTags["控场"]},n:7,w:"击杀控场"}],
+  mowei:[{c:function(s){return s.ownedTags["法术"]||s.hasKill},n:7,w:"法术击杀"}],
+  guishouyin:[{c:function(s){return s.weaponType==="dash"||s.ownedTags["魂"]},n:8,w:"闪避魂"}],
+  moyi:[{c:function(s){return s.weaponType==="dash"||s.ownedTags["机动"]},n:7,w:"闪避机动"}],
+  mopeng:[{c:function(s){return s.weaponType==="dash"||s.ownedTags["机动"]},n:7,w:"闪避机动"}],
+  yexingyi:[{c:function(s){return s.weaponType==="dash"||s.ownedTags["闪避"]},n:7,w:"闪避特殊"}],
+  shimoChi:[{c:function(s){return s.ownedTags["持续"]||s.hasKill},n:7,w:"持续击杀"}],
+  moshiyu:[{c:function(s){return s.ownedTags["持续"]||s.ownedTags["溅射"]},n:7,w:"持续溅射"}],
+  mohuafeng:[{c:function(s){return s.ownedTags["分裂"]||s.ownedTags["持续"]},n:7,w:"分裂持续"}],
+  moliefu:[{c:function(s){return s.ownedTags["分裂"]||s.ownedTags["法术"]},n:7,w:"分裂法术"}],
+  molefubao:[{c:function(s){return s.ownedTags["分裂"]||s.ownedTags["爆炸"]},n:8,w:"分裂爆炸"}],
+  mangmou:[{c:function(s){return s.ownedTags["诅咒"]||s.ownedTags["爆发"]},n:7,w:"诅咒爆发"}],
+  mocanxue:[{c:function(s){return s.ownedTags["诅咒"]||s.ownedTags["暴击"]},n:7,w:"诅咒暴击"}],
+  momengen:[{c:function(s){return s.ownedTags["诅咒"]||s.ownedTags["处决"]},n:7,w:"诅咒处决"}],
+  mohongyu:[{c:function(s){return s.ownedTags["控场"]||s.ownedTags["攻速"]},n:7,w:"控场攻速"}],
+  mofanglei:[{c:function(s){return s.ownedTags["法术"]||s.ownedTags["暴击"]},n:7,w:"法术暴击"}]
 };
 
 function scoreRelicChoice(r,state,mode){
