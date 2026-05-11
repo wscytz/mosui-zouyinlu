@@ -170,6 +170,49 @@ async function run(){
     }
 
     await ctx.close();
+
+    // ===== Mobile viewport smoke (375x812 portrait + 812x375 landscape) =====
+    var mobileErrors=[];
+    var mCtx=await browser.newContext({
+      viewport:{width:375,height:812},
+      userAgent:'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1',
+      isMobile:true,
+      hasTouch:true
+    });
+    var mPage=await mCtx.newPage();
+    var mConsoleErrors=[];
+    mPage.on('pageerror',function(err){if(!isIgnored(err.message))mConsoleErrors.push('pageerror: '+err.message)});
+    mPage.on('console',function(msg){
+      if(msg.type()!=='error')return;
+      var combined=(msg.text()||'')+' '+((msg.location()||{}).url||'');
+      if(isIgnored(combined))return;
+      if(/Failed to load resource/.test(msg.text()||'')&&!((msg.location()||{}).url))return;
+      mConsoleErrors.push('mobile console: '+msg.text());
+    });
+    mPage.on('response',function(res){
+      if(res.status()>=400&&!isIgnored(res.url()))mConsoleErrors.push('mobile http '+res.status()+' '+res.url());
+    });
+
+    // Test 8: Title screen renders in portrait 375x812
+    await mPage.goto('http://127.0.0.1:'+PORT+'/',{waitUntil:'domcontentloaded'});
+    await mPage.waitForSelector('#titleScreen',{state:'visible',timeout:5000});
+    var mStartVisible=await mPage.isVisible('#startBtn');
+    if(!mStartVisible)mobileErrors.push('mobile portrait: startBtn not visible');
+
+    // Test 9: Landscape rotation (812x375) — viewport resizes cleanly, title still usable
+    await mPage.setViewportSize({width:812,height:375});
+    await mPage.waitForTimeout(400);
+    var mStartLandscape=await mPage.isVisible('#startBtn');
+    if(!mStartLandscape)mobileErrors.push('mobile landscape: startBtn not visible after rotate');
+
+    // Test 10: No new console errors on mobile
+    if(mConsoleErrors.length){
+      mobileErrors.push('mobile had '+mConsoleErrors.length+' console errors:');
+      mConsoleErrors.slice(0,3).forEach(function(e){mobileErrors.push('  '+e.slice(0,120))});
+    }
+
+    errors=errors.concat(mobileErrors);
+    await mCtx.close();
   }catch(e){
     errors.push('runner: '+e.message);
   }finally{
@@ -191,6 +234,9 @@ async function run(){
     console.log('  5. No console errors during gameplay');
     console.log('  6. Escape dispatches pause overlay');
     console.log('  7. Resume button hides pause overlay');
+    console.log('  8. Mobile portrait 375x812 renders title');
+    console.log('  9. Mobile landscape 812x375 keeps title usable');
+    console.log(' 10. No mobile console errors');
   }
 }
 

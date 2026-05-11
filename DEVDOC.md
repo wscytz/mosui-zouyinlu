@@ -3492,6 +3492,41 @@ npm run cap:open:android  # 用 Android Studio 打开
 
 *v4.33 测试硬化首批 更新于 2026-05-10。*
 
+### v4.34 冷标签补齐 + RELIC_RULES 扩容 (2026-05-11)
+
+**内容（5 条遗物）：**
+- `mozhaojun`（墨召魂引，召唤/击杀）— 击杀 25% 召唤墨魂，机制接 `onEnemyKilled`（方案 A 单项）。
+- 方案 B 批量 4 条：`mosufeng`（攻速/暴击）、`mofanyu`（范围/控场）、`mokuaihun`（攻速/魂）、`mochongguang`（冲刺/暴击）。纯 stats 加成，零机制代码。
+
+**RELIC_RULES：** 75/186 → 86/191，含 v4.32 6 条 + v4.34 5 条新遗物权重。
+
+**管线发现：**
+- HTML entity 复发：4/4 方案 B agent 全部把 `<` 输出成 `&lt;`，即便 prompt 特别告警也无效。确认是输出通道固有 bug，只能靠 `fix:entities` 和 block rules 兜底。用户后续加 `html-entity-test-lines.json` fixture。
+- CSS `border-left/right/bottom` 被 block-rules 拦截（正确行为），agent 没预见。主 Claude 改成 `clip-path:polygon(...)` 绕过。
+
+**测试基线：** 283 → 288 项（content 223 → 228）；遗物 186 → 191。
+
+*v4.34 冷标签补齐 + RELIC_RULES 扩容 更新于 2026-05-11。*
+
+### v5.0-prep 测试与构筑吸收 (2026-05-11)
+
+**视觉冒烟扩展 7→10 项：**
+- Test 6/7：Escape 通过 `window.dispatchEvent` 触发 pauseOverlay；resumeBtn click 关闭。
+- Test 8/9/10：移动端 viewport 375x812 竖屏 + 812x375 横屏；无 mobile console 错。
+- 修 Test 3 真实 bug：weapon-pick 后先弹 cursePopup 才进 playing，原测试没处理导致 G 一直 null（所以 pause 测试永远失败）。补 `#cursePopup .curse-skip` click 流程。
+
+**构筑审计（只读）：** 统计 191 遗物按 tag 分布——冷标签召唤/冲刺/范围各 4 件；但 BUILD_PREFS 覆盖已不缺件，真问题是 RELIC_RULES 覆盖 86/191 = 45%，105 件缺构筑权重——"有数量没构筑入口"。
+
+**RELIC_RULES 扩容 86 → 106：** 按 V5_PREP 原则"内容是否被系统吸收"，补 20 条构筑权重：
+- 召唤核心 6 条：`molingyu/molingqi/baomo/yumo/hanmo/fenmo`（召魂幡流派基石）
+- 击杀链 4 条：`lianhuanfu/mogongzhen/yanmoyan/mowo`
+- 控场墨阵 5 条：`moshouzhen/zhenyan/molian/moxian/moding`
+- 生存防御 5 条：`zhenmu/zhifan/motiebi/molonglin/moshouren`
+
+**下一步方向：** 继续 RELIC_RULES 扩容 106 → 130+ / 流派成型审计 / Boss 里程碑。
+
+*v5.0-prep 测试与构筑吸收 更新于 2026-05-11。*
+
 ### 版本号规则
 
 改完一个bug → 删掉对应条目 → 版本号末尾+1
