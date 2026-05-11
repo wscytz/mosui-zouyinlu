@@ -684,6 +684,7 @@ body.game-active #gameCanvas {
   background: rgba(163,58,45,0.06);
 }
 .difficulty-option input { display: none; }
+.diff-desc { display:block; font-size:0.65rem; color:var(--ash); font-family:var(--body-face); margin-top:1px; }
 
 /* ===== 武器选择 ===== */
 .weapon-choices {
