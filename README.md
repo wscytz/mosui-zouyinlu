@@ -50,8 +50,8 @@ npm run audit:content
 ## 测试基线
 
 - `npm run test:all` = 293 项（37 smoke + 6 wave + 231 content + 11 stress + 5 robust + 3 seeded）+ strict audit gate
-- `npm run test:visual` = 10 项 Playwright 视觉冒烟（含暂停/恢复、移动端竖屏/横屏）
-- 0 flake（5/5 连跑全绿）
+- `npm run test:visual` = 11 项 Playwright 视觉冒烟（含暂停/恢复、移动端竖屏/横屏、Wiki渲染）
+- 0 flake（6/6 连跑全绿）
 
 ## v5.0-v5.2 构筑吸收 + 发布门槛 (2026-05-11)
 
