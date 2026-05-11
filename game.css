@@ -2377,3 +2377,7 @@ body.game-active #gameCanvas {
 .relic-pick[data-icon="mokuaihun"] .ink-icon::after{width:8px;height:8px;border-radius:50%;background:var(--accent);}
 .relic-pick[data-icon="mochongguang"] .ink-icon::before{width:14px;height:14px;border-radius:50%;background:var(--ink);clip-path:polygon(50% 0,100% 100%,0 100%);}
 .relic-pick[data-icon="mochongguang"] .ink-icon::after{width:6px;height:6px;border-radius:50%;background:var(--accent);}
+.relic-pick[data-icon="mozhenlianhuan"] .ink-icon::before{width:16px;height:16px;border:2px solid var(--ink);border-radius:50%}
+.relic-pick[data-icon="mozhenlianhuan"] .ink-icon::after{width:8px;height:8px;border:2px solid var(--accent);border-radius:50%}
+.relic-pick[data-icon="mobaoliansu"] .ink-icon::before{width:14px;height:14px;border-radius:50%;background:var(--accent)}
+.relic-pick[data-icon="mobaoliansu"] .ink-icon::after{width:10px;height:10px;border-radius:50%;background:var(--ink);clip-path:polygon(50% 0,100% 70%,0 70%)}

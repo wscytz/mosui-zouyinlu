@@ -334,6 +334,8 @@ function mkPlayer(){
     fireBurst:false,
     rangedKillSpirit:false,
     killSummonSpirit:false,
+    mozhenlianhuan:false,
+    mobaoliansu:false,
     soulHitBoost:false,
     dashFireTrail:false,
     dashCritBoost:false,
@@ -3923,7 +3925,9 @@ var RELIC_RULES={
   mocanxue:[{c:function(s){return s.ownedTags["诅咒"]||s.ownedTags["暴击"]},n:7,w:"诅咒暴击"}],
   momengen:[{c:function(s){return s.ownedTags["诅咒"]||s.ownedTags["处决"]},n:7,w:"诅咒处决"}],
   mohongyu:[{c:function(s){return s.ownedTags["控场"]||s.ownedTags["攻速"]},n:7,w:"控场攻速"}],
-  mofanglei:[{c:function(s){return s.ownedTags["法术"]||s.ownedTags["暴击"]},n:7,w:"法术暴击"}]
+  mofanglei:[{c:function(s){return s.ownedTags["法术"]||s.ownedTags["暴击"]},n:7,w:"法术暴击"}],
+  mozhenlianhuan:[{c:function(s){return s.ownedTags["范围"]||s.ownedTags["持续"]},n:9,w:"范围持续核心"}],
+  mobaoliansu:[{c:function(s){return s.ownedTags["爆炸"]||s.ownedTags["溅射"]},n:9,w:"爆炸溅射核心"}]
 };
 
 function scoreRelicChoice(r,state,mode){
@@ -4225,6 +4229,10 @@ function rebuildPlayerStats(g){
     'mokuaihunBond'
     ,
     'mochongguangBond'
+    ,
+    'mozhenlianhuan'
+    ,
+    'mobaoliansu'
     ];
   rk.concat(ck).forEach(function(k){f[k]=o[k]});
   g.relics.forEach(function(r){try{r.fn(f)}catch(e){}});
