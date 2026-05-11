@@ -2,14 +2,14 @@
 
 > 这份文档驱动开发节奏。详细 agent 流程见 `AGENT_SYSTEM.md`，自动化命令见 `.claude/AUTOMATION_GUIDE.md`。
 
-## 现状 (v5.1-builds)
+## 现状 (v5.2)
 
-- **内容体量**: 5武器 / 191遗物 / 30进化 / 37敌人(含3Boss) / 9关卡 / 22誓印 / 38成就 / 12波
-- **测试基线**: 288 项（37 smoke + 5 wave + 228 content + 11 stress + 5 robust + 3 seeded + strict audit gate）
+- **内容体量**: 5武器 / 193遗物 / 30进化 / 37敌人(含3Boss) / 9关卡 / 22誓印 / 38成就 / 12波
+- **测试基线**: 290 项（37 smoke + 5 wave + 230 content + 11 stress + 5 robust + 3 seeded + strict audit gate）
 - **自动化主线**: 方案 B，`sequencer -> executor JSON block -> merger -> test:all`
 - **自动化治理**: block rules、fixtures（1好7坏）、audit 接入 strict 门禁；0 errors / 0 warnings
-- **鲁棒性**: 191 遗物 × 5 武器 = 955 组合 fn 可执行；38 进化全可执行；全量组合不抛异常
-- **内容治理**: RELIC_RULES 覆盖 157/191；遗物卡片显示 build hint，v5.1 从“内容数量”转向“构筑吸收”
+- **鲁棒性**: 193 遗物 × 5 武器 = 965 组合 fn 可执行；38 进化全可执行；全量组合不抛异常
+- **内容治理**: RELIC_RULES 100% 覆盖（193/193）；遗物卡片 build hint + 结算页构筑路线
 - **技术栈**: Canvas 2D (960x640), 纯手写, 零框架, IIFE 单文件运行时
 - **远程仓库**: https://github.com/wscytz/mosui-zouyinlu
 
@@ -68,23 +68,29 @@
 4. 只把复发问题写入 `agent-lessons.md`，不要把单次偶发塞进长期规则。
 5. 批量并发默认 3-5；质量下降时先降并发，不急着加规则。
 
-### v5.0-prep / v5.1-builds（已完成）
+### v5.0-prep / v5.1-builds / v5.2（已完成）
 
-开工准备详见 `V5_PREP.md`。v5 的重点从“高并发产内容”转向“流派成型、Boss 里程碑、发布质量门槛”。
+开工准备详见 `V5_PREP.md`。v5 的重点从”高并发产内容”转向”流派成型、Boss 里程碑、发布质量门槛”。
 
-目标：让游戏从“持续扩展原型”升级到“有完成感的作品”。
+目标：让游戏从”持续扩展原型”升级到”有完成感的作品”。
 
-- v5.0-prep 已补视觉冒烟、移动端 viewport、自动化门槛和开发准备文档。
+- v5.0-prep 已补视觉冒烟（10项）、移动端 viewport、自动化门槛和开发准备文档。
 - v5.1-builds 已把 RELIC_RULES 覆盖提升到 157/191，并在遗物选择卡片显示构筑提示。
-- 剩余无权重遗物多为生命/治疗/防御类 stats 件，不强塞，等 v5.2 新核心件和 Boss 方向一起处理。
+- v5.2 完成：
+  - RELIC_RULES 100% 覆盖（193/193），所有遗物都有 build hint
+  - 结算页显示”本局构筑路线”（按 tags 频率归纳前 2 标签）
+  - 补 2 个流派核心遗物：墨阵连环（范围/持续）、墨爆连锁（爆炸/溅射）
+  - Boss/精英战设计文档（BOSS_DESIGN.md）
+  - 遗物 191→193，content tests 228→230
 
-### v5.2-boss / 构筑结算（下一步）
+### v5.3 下一步方向
 
-目标：把 v5.1 的构筑吸收变成玩家能记住的局内/局后体验。
+目标：把构筑体验从”选择时可见”推进到”战斗中可感知、结算后可回顾”。
 
-- 结算页显示“本局构筑路线”，按已选遗物 tags / RELIC_RULES hint 归纳前 2 条路线。
-- 范围/控场/持续 与 爆炸/溅射 只补 2-3 个高辨识度双标签核心遗物，不再批量铺普通 stats。
-- 先写 Boss/精英战设计文档和测试切片，再动核心战斗逻辑。
+- 实现 BOSS_DESIGN.md 中 A1（画皮分身）— 需要先写测试切片
+- 精英 buff 扩展（已有 blink/deathburst/enrage/armored 四种，评估是否需要更多）
+- Wiki 同步：显示构筑路线信息
+- 发布收口准备：封面/截图/README/APK 同步
 
 ## 开发规范流程
 
