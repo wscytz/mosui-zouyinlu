@@ -261,6 +261,24 @@ async function run(){
       if(!goCheck.hasStats)errors.push('gameOver: #endStats missing');
       if(!goCheck.hasRestart)errors.push('gameOver: #restartBtn missing');
     }
+    // ===== Relic/Curse popup DOM structure check (Test 13) =====
+    var rpCheck=await goPage.evaluate(function(){
+      var rp=document.getElementById('relicPopup');
+      var rc=document.getElementById('relicChoices');
+      var cp=document.getElementById('cursePopup');
+      return {
+        relicPopup:!!rp,
+        relicHidden:rp?rp.style.display==='none':false,
+        relicChoices:!!rc,
+        cursePopup:!!cp,
+        curseHidden:cp?cp.style.display==='none':false
+      };
+    });
+    if(!rpCheck.relicPopup)errors.push('relicPopup: element missing');
+    else if(!rpCheck.relicHidden)errors.push('relicPopup: should be display:none initially');
+    if(!rpCheck.relicChoices)errors.push('relicChoices: element missing');
+    if(!rpCheck.cursePopup)errors.push('cursePopup: element missing');
+    else if(!rpCheck.curseHidden)errors.push('cursePopup: should be display:none initially');
     await goCtx.close();
   }catch(e){
     errors.push('runner: '+e.message);
@@ -288,6 +306,7 @@ async function run(){
     console.log(' 10. No mobile console errors');
     console.log(' 11. Wiki page renders relics/enemies/achievements');
     console.log(' 12. Game over DOM structure intact');
+    console.log(' 13. Relic/curse popup DOM structure intact');
   }
 }
 
