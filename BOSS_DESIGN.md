@@ -74,9 +74,15 @@ bossPhase3Hp: 0.25       — phase 3 阈值
 
 ## 推荐实施顺序
 
-1. **先做 A1**（画皮分身）：改动最小，只在 desperate 触发时 spawn 2 个弱化副本。
-2. **再做 B1**（精英 buff）：在 spawnEnemy 时随机赋予 1 个已有字段。
-3. **最后考虑 C**：需要新 ETYPE + AI，风险大，放 v5.3。
+1. **A1 画皮分身** ✅ 已实装 (v5.3)
+   - desperate 触发时 spawn 2 个 clone（hpMul=0.12, isClone=true）
+   - clone: isBoss=false, name+="·影", col 半透明, desperate+enraged
+   - 不触发 Boss 击杀/结算/演出
+   - wave_test Test 6 覆盖（clone 数量/isBoss/HP/名字后缀）
+2. **B2 精英击杀奖励** ✅ 已实装 (v5.3)
+   - 精英击杀后随机 180帧 buff：疾(移速)/锐(攻速)/愈(+8HP)
+3. **再做 A2/A3**（墨将军护盾/墨鬼王脉冲）：中风险，放 v5.4。
+4. **最后考虑 C**：需要新 ETYPE + AI，风险大，放 v5.4+。
 
 ## 测试切片（实施前先写）
 

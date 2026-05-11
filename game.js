@@ -470,7 +470,7 @@ function spawnEnemy(g,type,opts){
     cdT:0,slowT:0,fearT:0,hitFlash:0,bob:rn(0,Math.PI*2),deathT:0,desperate:!!t.desperate,
     isClone:!!opts.isClone,
     spawnGraceT:0});
-  if(opts.isClone){var _ce=g.enemies[g.enemies.length-1];_ce.isBoss=false;_ce.desperate=true;_ce.enraged=true}
+  if(opts.isClone){var _ce=g.enemies[g.enemies.length-1];_ce.isBoss=false;_ce.desperate=true;_ce.enraged=true;_ce.name=_ce.name+"·影";_ce.col="rgba(107,58,92,0.2)"}
 }
 
 function mkMinion(x,y,type,hp,spd,r,dmg,atkR,atkCd,col,edge,overrides){

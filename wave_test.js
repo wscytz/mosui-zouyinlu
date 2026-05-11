@@ -156,6 +156,7 @@ code+=[
 'else{',
 '  if(clones[0].isBoss)errors.push("boss clone: clone should not be isBoss");',
 '  if(clones[0].hp>60)errors.push("boss clone: clone HP too high: "+clones[0].hp);',
+'  if(clones[0].name.indexOf("影")<0)errors.push("boss clone: name missing 影 suffix: "+clones[0].name);',
 '}',
 
 // Report
