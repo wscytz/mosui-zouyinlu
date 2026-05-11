@@ -85,9 +85,14 @@ async function run(){
     // Test 3: Pick a weapon → canvas renders
     await page.locator('#weaponChoices .weapon-pick').first().click();
     await page.waitForTimeout(400);
-    // Click confirm / start button inside weaponSelect if present
-    var confirmBtn=await page.$('#weaponSelect button.button:visible, #startGameBtn, button[data-action="start"]');
-    if(confirmBtn){await confirmBtn.click()}
+    // Dismiss curse popup if it appears (weapon pick opens curse select before gameplay starts)
+    var curseVisible=await page.isVisible('#cursePopup');
+    if(curseVisible){
+      var skipBtn=await page.$('#cursePopup .curse-skip');
+      if(skipBtn){await skipBtn.click()}
+      else{await page.locator('#curseChoices .relic-pick').first().click()}
+      await page.waitForTimeout(500);
+    }
 
     // Canvas should be visible and drawing
     await page.waitForSelector('#gameCanvas',{state:'visible',timeout:5000});
@@ -127,6 +132,43 @@ async function run(){
       consoleErrors.slice(0,5).forEach(function(e){errors.push('  '+e.slice(0,120))});
     }
 
+    // Test 6: Pause overlay toggles via Escape
+    // Proxy-check game state by: gameContainer visible + titleScreen hidden + no relic popup
+    var gameReady=await page.evaluate(function(){
+      var gc=document.getElementById('gameContainer');
+      var ts=document.getElementById('titleScreen');
+      var rp=document.getElementById('relicPopup');
+      var ws=document.getElementById('weaponSelect');
+      return {
+        container:gc&&gc.offsetWidth>0,
+        titleHidden:!ts||ts.style.display==='none'||ts.offsetWidth===0,
+        noRelic:!rp||rp.style.display==='none',
+        noWeapon:!ws||ws.style.display==='none'
+      };
+    });
+    if(!gameReady.container||!gameReady.titleHidden||!gameReady.noRelic||!gameReady.noWeapon){
+      errors.push('pause: game not in playing state: '+JSON.stringify(gameReady)+'; skipping pause tests');
+    }else{
+      // Escape key via window event dispatch — matches the game.js window.addEventListener("keydown")
+      await page.evaluate(function(){
+        var ev=new KeyboardEvent('keydown',{key:'Escape',code:'Escape',keyCode:27,which:27,bubbles:true,cancelable:true});
+        window.dispatchEvent(ev);
+      });
+      await page.waitForTimeout(500);
+      var pauseVisible=await page.isVisible('#pauseOverlay');
+      if(!pauseVisible)errors.push('pause: #pauseOverlay not visible after Escape keydown');
+      var resumeBtnVisible=await page.isVisible('#resumeBtn');
+      if(!resumeBtnVisible)errors.push('pause: #resumeBtn not visible');
+
+      // Test 7: Resume restores gameplay (pauseOverlay hides)
+      if(pauseVisible){
+        await page.click('#resumeBtn');
+        await page.waitForTimeout(400);
+        var stillPaused=await page.isVisible('#pauseOverlay');
+        if(stillPaused)errors.push('pause: #pauseOverlay still visible after resume click');
+      }
+    }
+
     await ctx.close();
   }catch(e){
     errors.push('runner: '+e.message);
@@ -135,7 +177,7 @@ async function run(){
     server.close();
   }
 
-  console.log('=== v4.33 visual smoke ===');
+  console.log('=== v5.0-prep visual smoke ===');
   if(errors.length){
     console.log('FAIL ('+errors.length+'):');
     errors.forEach(function(e){console.log('  - '+e)});
@@ -147,6 +189,8 @@ async function run(){
     console.log('  3. Canvas visible after weapon pick');
     console.log('  4. Canvas has varied non-blank content');
     console.log('  5. No console errors during gameplay');
+    console.log('  6. Escape dispatches pause overlay');
+    console.log('  7. Resume button hides pause overlay');
   }
 }
 
