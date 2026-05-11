@@ -4342,6 +4342,15 @@ function showEnd(g){
   var evo=(g.evolution?g.evolution.name:"无")+(g.evolution2?" + "+g.evolution2.name:"")+(g.evolution3?" + "+g.evolution3.name:"");
   var buildLine=g.weapon.name+" → "+evo;
   var relicNames=g.relics.map(function(r){return r.name}).join(" · ");
+  // Build route summary: top 2 tags from owned relics + RELIC_RULES hints
+  var tagFreq={};
+  g.relics.forEach(function(r){
+    (r.tags||[]).forEach(function(t){tagFreq[t]=(tagFreq[t]||0)+1});
+    if(RELIC_RULES[r.id]&&RELIC_RULES[r.id][0]&&RELIC_RULES[r.id][0].w){
+      var hint=RELIC_RULES[r.id][0].w;tagFreq["_hint:"+hint]=(tagFreq["_hint:"+hint]||0)+1}
+  });
+  var sortedTags=Object.keys(tagFreq).filter(function(k){return k.indexOf("_hint:")!==0}).sort(function(a,b){return tagFreq[b]-tagFreq[a]});
+  var buildRoute=sortedTags.length>=2?sortedTags[0]+" · "+sortedTags[1]+"流":(sortedTags[0]||"")+"流";
   var grade=calcGrade(g);
   var gradeColors={S:"#c4523d","甲":"var(--accent)","乙":"var(--ink-soft)","丙":"var(--ash)","丁":"var(--ash)"};
   var isNewBest=g.wave>=meta.bestWave;
@@ -4361,6 +4370,7 @@ function showEnd(g){
     "<span style='color:"+diffColor+";font-weight:600'>"+diffLabel+"</span> · 历时 "+timeStr+
     " · 斩祟 "+g.kills+" · 波次 "+g.wave+"/"+WAVE_BUDGETS.length+" · 遗物 "+g.relics.length+"件"+
     "<br><span class='end-build'>"+buildLine+"</span>"+
+    "<br><span class='end-route'>构筑："+buildRoute+"</span>"+
     (relicNames?"<br><span class='end-relics'>"+relicNames+"</span>":"")+
     "<br><span style='font-size:0.82rem;color:var(--ink-soft);margin-top:4px;display:inline-block'>"+
     "总伤害 "+g.totalDmg+" · 最高连斩 "+g.maxCombo+" · 精英击杀 "+g.eliteKills+

@@ -1797,6 +1797,14 @@ body.game-active #gameCanvas {
   color: var(--ink);
   letter-spacing: 0.08em;
 }
+.end-route {
+  display: block;
+  margin-top: 3px;
+  font-size: 0.82rem;
+  color: var(--accent);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
 .end-relics {
   display: block;
   margin-top: 4px;
