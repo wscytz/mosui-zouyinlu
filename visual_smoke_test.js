@@ -236,6 +236,32 @@ async function run(){
     if(wikiCheck.achievements<20)wikiErrors.push('wiki: achGrid only '+wikiCheck.achievements+' cards (expected 20+)');
     errors=errors.concat(wikiErrors);
     await wikiCtx.close();
+
+    // ===== Game Over DOM structure check (Test 12) =====
+    var goCtx=await browser.newContext({viewport:{width:1024,height:720}});
+    var goPage=await goCtx.newPage();
+    await goPage.goto('http://127.0.0.1:'+PORT+'/',{waitUntil:'domcontentloaded'});
+    var goCheck=await goPage.evaluate(function(){
+      var go=document.getElementById('gameOver');
+      var title=document.getElementById('endTitle');
+      var stats=document.getElementById('endStats');
+      var restart=document.getElementById('restartBtn');
+      return {
+        exists:!!go,
+        hidden:go?go.style.display==='none':false,
+        hasTitle:!!title,
+        hasStats:!!stats,
+        hasRestart:!!restart
+      };
+    });
+    if(!goCheck.exists)errors.push('gameOver: #gameOver missing');
+    else{
+      if(!goCheck.hidden)errors.push('gameOver: should be display:none initially');
+      if(!goCheck.hasTitle)errors.push('gameOver: #endTitle missing');
+      if(!goCheck.hasStats)errors.push('gameOver: #endStats missing');
+      if(!goCheck.hasRestart)errors.push('gameOver: #restartBtn missing');
+    }
+    await goCtx.close();
   }catch(e){
     errors.push('runner: '+e.message);
   }finally{
@@ -261,6 +287,7 @@ async function run(){
     console.log('  9. Mobile landscape 812x375 keeps title usable');
     console.log(' 10. No mobile console errors');
     console.log(' 11. Wiki page renders relics/enemies/achievements');
+    console.log(' 12. Game over DOM structure intact');
   }
 }
 
