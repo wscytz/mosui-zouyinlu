@@ -3567,6 +3567,19 @@ npm run cap:open:android  # 用 Android Studio 打开
 
 *v5.3-boss 画皮分身 + 精英奖励 + Wiki 更新于 2026-05-11。*
 
+### v5.4-boss 墨将军墨阵护盾 (2026-05-11)
+
+- 墨将军 phase 3（HP≤25%）时一次性获得 50 点护盾
+- 复用现有 shield 系统（hasShield/shield/maxShield/shieldRegen/shieldCd）
+- 不污染 gamedata.js 的 mojiangjun 初始定义（phase 1/2 和 midBoss 不受影响）
+- 护盾破碎后 300帧自动恢复
+- 浮字"墨阵护体" + shake + bossFlash 视觉提示
+- wave_test Test 7 覆盖：phase 切换/shield 初始化/破盾/恢复
+
+**测试基线：** 294 项（37 smoke + 7 wave + 231 content + 11 stress + 5 robust + 3 seeded + strict audit）+ 11 visual smoke
+
+*v5.4-boss 墨将军墨阵护盾 更新于 2026-05-11。*
+
 ### 版本号规则
 
 改完一个bug → 删掉对应条目 → 版本号末尾+1

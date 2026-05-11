@@ -159,15 +159,32 @@ code+=[
 '  if(clones[0].name.indexOf("影")<0)errors.push("boss clone: name missing 影 suffix: "+clones[0].name);',
 '}',
 
+// TEST 7: 墨将军 phase 3 墨阵护盾
+'var g7=newGame("jian","normal");',
+'spawnEnemy(g7,"mojiangjun",{x:480,y:320,noScale:true});',
+'var mjj=g7.enemies[g7.enemies.length-1];',
+'mjj.hp=Math.floor(mjj.maxHp*TUNING.bossPhase3Hp)-1;',
+'for(var u7=0;u7<60;u7++)update(g7);',
+'if(!mjj._mjjPhase||mjj._mjjPhase!==3)errors.push("mjj shield: phase not 3, got "+mjj._mjjPhase);',
+'if(!mjj._mjjShieldReady)errors.push("mjj shield: _mjjShieldReady not set");',
+'if(!mjj.hasShield)errors.push("mjj shield: hasShield not true");',
+'if((mjj.maxShield||0)<50)errors.push("mjj shield: maxShield too low: "+mjj.maxShield);',
+'if((mjj.shield||0)<=0)errors.push("mjj shield: shield is 0");',
+'damageEnemy(g7,mjj,mjj.shield*3,"test");',
+'if(mjj.shield>0&&mjj.hasShield)errors.push("mjj shield: shield not broken after heavy hit");',
+'for(var u7b=0;u7b<320;u7b++)update(g7);',
+'if(mjj.hp>0&&!mjj.hasShield&&mjj.shield<=0)errors.push("mjj shield: shield did not regen after "+mjj.shieldRegen+" frames");',
+
 // Report
 'if(errors.length){console.log("FAIL ("+errors.length+"):");errors.forEach(function(e){console.log("  - "+e)});process.exit(1)}',
-'else{console.log("ALL 6 TESTS PASSED");',
+'else{console.log("ALL 7 TESTS PASSED");',
 '  console.log("  1. 4 weapons x full 9-wave run");',
 '  console.log("  2. Splitter chain kill");',
 '  console.log("  3. Summoner+minion cleanup");',
 '  console.log("  4. Shield damage reduction");',
 '  console.log("  5. spawnInk parameter check");',
-'  console.log("  6. Boss clone (画皮分身)")}',
+'  console.log("  6. Boss clone (画皮分身)");',
+'  console.log("  7. 墨将军 phase 3 墨阵护盾")}',
 ].join('\n');
 
 eval(code);

@@ -4,7 +4,7 @@
 
 > 当前内容体量：5武器 / 193遗物 / 30进化 / 37敌人(含3Boss) / 9关卡 / 22誓印 / 38成就。
 >
-> 当前自动检查：37 smoke + 6 wave + 231 content + 11 stress + 5 robust + 3 seeded + strict audit；视觉冒烟 11 项。`content_test.js` summary 由 `.claude/fix-test-count.js` 校准；高并发测试号由 `.claude/sequencer.js` 分配。
+> 当前自动检查：37 smoke + 7 wave + 231 content + 11 stress + 5 robust + 3 seeded + strict audit；视觉冒烟 11 项。`content_test.js` summary 由 `.claude/fix-test-count.js` 校准；高并发测试号由 `.claude/sequencer.js` 分配。
 
 ## 文档分工
 

@@ -2026,7 +2026,9 @@ function update(g){
         if(mjjPhase===3){snd("bossEnrage");shake(g,14,10);e.spd=1.6;g.bossFlash=10;e.enraged=true;
           spawnInk(g,e.x,e.y,24,"fire");spawnInk(g,e.x,e.y,16,"accent");
           pushLimited(g.floatTexts,{x:W/2,y:H/2-40,text:"墨将军 · 狂书",life:90,maxLife:90,reason:"streak"},LIMITS.floatTexts);
-          g.freezeT=Math.max(g.freezeT,8)}
+          g.freezeT=Math.max(g.freezeT,8);
+          e._mjjShieldReady=true;e.maxShield=50;e.shield=50;e.hasShield=true;e.shieldRegen=300;e.shieldCd=0;
+          pushLimited(g.floatTexts,{x:e.x,y:e.y-30,text:"墨阵护体",life:60,maxLife:60,reason:"bossShield"},LIMITS.floatTexts)}
       }
       // Phase 1: ring slam every 120 frames
       if(mjjPhase===1&&g.time%120===0){
