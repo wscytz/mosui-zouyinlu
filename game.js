@@ -859,6 +859,15 @@ function onEnemyKilled(g,e,source,opts){
       pushLimited(g.floatTexts,{x:e.x,y:e.y-20,text:"爆",life:25,maxLife:25,reason:"deathburst"},LIMITS.floatTexts);
       g.pendingDeathbursts=g.pendingDeathbursts||[];
       g.pendingDeathbursts.push({x:e.x,y:e.y,dmg:Math.ceil(e.dmg*1.5),timer:30,maxTimer:30,r:50})}
+    // 精英击杀奖励：随机临时buff
+    var eliteBuff=pick(["spd","atk","heal"]);
+    if(eliteBuff==="spd"){p.killSpdTimer=Math.max(p.killSpdTimer,180);
+      pushLimited(g.floatTexts,{x:p.x,y:p.y-20,text:"疾",life:40,maxLife:40,reason:"eliteBuff"},LIMITS.floatTexts)}
+    else if(eliteBuff==="atk"){p.killAtkTimer=Math.max(p.killAtkTimer,180);
+      pushLimited(g.floatTexts,{x:p.x,y:p.y-20,text:"锐",life:40,maxLife:40,reason:"eliteBuff"},LIMITS.floatTexts)}
+    else{p.hp=Math.min(p.maxHp,p.hp+8);
+      pushLimited(g.floatTexts,{x:p.x,y:p.y-20,text:"愈",life:40,maxLife:40,reason:"eliteBuff"},LIMITS.floatTexts)}
+    spawnP(g,p.x,p.y,"gold",4);snd("relicPickup");
   }
   // 鬼火诅咒：死亡产生追踪魂球
   if(p.soulOrbCurse&&!e.isBoss){g.soulOrbs.push({x:e.x,y:e.y,r:6,spd:1.5,dmg:Math.max(3,Math.ceil(e.dmg*0.4)),life:180})}
