@@ -339,6 +339,10 @@ function mkPlayer(){
     dashCritBoost:false,
     aoeDotHit:false,
     aoeGuardBond:false,
+    mosufengBond:false,
+    mofanyuBond:false,
+    mokuaihunBond:false,
+    mochongguangBond:false,
     idleT:0}
 }
 
@@ -3829,7 +3833,18 @@ var RELIC_RULES={
   moguangmu:[{c:function(s){return s.weaponType==="dash"||s.ownedTags["闪避"]},n:7,w:"闪避防御"}],
   mojianshi:[{c:function(s){return s.noSurvival||s.hasKill},n:7,w:"击杀生存"}],
   mowushi:[{c:function(s){return s.slowOnHit>0||s.ownedTags["控场"]},n:8,w:"控场减速"}],
-  mojieguang:[{c:function(s){return s.ownedTags["暴击"]||s.stats.spd>1.1},n:7,w:"暴击机动"}]
+  mojieguang:[{c:function(s){return s.ownedTags["暴击"]||s.stats.spd>1.1},n:7,w:"暴击机动"}],
+  moyaohun:[{c:function(s){return s.weaponType==="summon"||s.ownedTags["召唤"]},n:8,w:"召唤远程"}],
+  mohunsi:[{c:function(s){return s.weaponType==="summon"||s.ownedTags["魂"]},n:8,w:"召唤魂"}],
+  mofenying:[{c:function(s){return s.weaponType==="dash"||s.ownedTags["冲刺"]},n:8,w:"冲刺火"}],
+  moxunren:[{c:function(s){return s.weaponType==="dash"||s.ownedTags["暴击"]},n:7,w:"冲刺暴击"}],
+  moguangshi:[{c:function(s){return s.ownedTags["范围"]||s.ownedTags["持续"]},n:7,w:"范围持续"}],
+  mobiyin:[{c:function(s){return s.ownedTags["范围"]||s.noSurvival},n:7,w:"范围防御"}],
+  mozhaojun:[{c:function(s){return s.weaponType==="summon"||s.hasKill},n:8,w:"召唤击杀"}],
+  mosufeng:[{c:function(s){return s.ownedTags["攻速"]||s.ownedTags["暴击"]},n:7,w:"攻速暴击"}],
+  mofanyu:[{c:function(s){return s.ownedTags["范围"]||s.ownedTags["控场"]},n:7,w:"范围控场"}],
+  mokuaihun:[{c:function(s){return s.ownedTags["攻速"]||s.ownedTags["魂"]},n:7,w:"攻速魂"}],
+  mochongguang:[{c:function(s){return s.weaponType==="dash"||s.ownedTags["冲刺"]},n:7,w:"冲刺暴击"}]
 };
 
 function scoreRelicChoice(r,state,mode){
@@ -4120,6 +4135,14 @@ function rebuildPlayerStats(g){
     'hasNineSeal'
     ,
     'killSummonSpirit'
+    ,
+    'mosufengBond'
+    ,
+    'mofanyuBond'
+    ,
+    'mokuaihunBond'
+    ,
+    'mochongguangBond'
     ];
   rk.concat(ck).forEach(function(k){f[k]=o[k]});
   g.relics.forEach(function(r){try{r.fn(f)}catch(e){}});

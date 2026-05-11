@@ -1,15 +1,15 @@
-# 墨祟：走阴录 路线书 v4.33+
+# 墨祟：走阴录 路线书 v4.34+
 
 > 这份文档驱动开发节奏。详细 agent 流程见 `AGENT_SYSTEM.md`，自动化命令见 `.claude/AUTOMATION_GUIDE.md`。
 
-## 现状 (v4.33)
+## 现状 (v4.34)
 
-- **内容体量**: 5武器 / 186遗物 / 30进化 / 37敌人(含3Boss) / 9关卡 / 22誓印 / 38成就 / 12波
-- **测试基线**: 283 项（37 smoke + 5 wave + 223 content + 11 stress + 4 robust + 3 seeded + strict audit gate）
+- **内容体量**: 5武器 / 191遗物 / 30进化 / 37敌人(含3Boss) / 9关卡 / 22誓印 / 38成就 / 12波
+- **测试基线**: 288 项（37 smoke + 5 wave + 228 content + 11 stress + 5 robust + 3 seeded + strict audit gate）
 - **自动化主线**: 方案 B，`sequencer -> executor JSON block -> merger -> test:all`
 - **自动化治理**: block rules、fixtures（1好7坏）、audit 接入 strict 门禁；0 errors / 0 warnings
-- **鲁棒性**: 186 遗物 × 5 武器 = 930 组合 fn 可执行；38 进化全可执行；全量组合不抛异常
-- **内容治理**: `molielian` CSS 图标已补；`moyong/morui` 已入 WAVE_TIERS；RELIC_RULES 覆盖 75/186
+- **鲁棒性**: 191 遗物 × 5 武器 = 955 组合 fn 可执行；38 进化全可执行；全量组合不抛异常
+- **内容治理**: RELIC_RULES 覆盖 86/191；v4.34 新增 5 遗物（含 1 方案 A + 4 方案 B）
 - **技术栈**: Canvas 2D (960x640), 纯手写, 零框架, IIFE 单文件运行时
 - **远程仓库**: https://github.com/wscytz/mosui-zouyinlu
 

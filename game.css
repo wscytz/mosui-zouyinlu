@@ -2350,3 +2350,11 @@ body.game-active #gameCanvas {
 .relic-pick[data-icon="mobiyin"] .ink-icon::after { width:4px;height:4px;background:var(--accent);border-radius:50%;transform:translate(4px,-11px) }
 .relic-pick[data-icon="mozhaojun"] .ink-icon::before { width:55%;height:55%;border-radius:50%;background:var(--ink);border:2px solid var(--accent) }
 .relic-pick[data-icon="mozhaojun"] .ink-icon::after { width:30%;height:30%;border-radius:50%;background:var(--accent) }
+.relic-pick[data-icon="mosufeng"] .ink-icon::before{width:14px;height:14px;border-radius:50%;background:var(--ink);border:2px solid var(--accent);}
+.relic-pick[data-icon="mosufeng"] .ink-icon::after{width:6px;height:6px;border-radius:50%;background:var(--paper);}
+.relic-pick[data-icon="mofanyu"] .ink-icon::before{width:16px;height:16px;border-radius:50%;background:var(--ink);}
+.relic-pick[data-icon="mofanyu"] .ink-icon::after{width:8px;height:8px;border-radius:20%;background:var(--accent);transform:rotate(45deg);}
+.relic-pick[data-icon="mokuaihun"] .ink-icon::before{width:4px;height:18px;background:var(--ink);border-radius:2px;}
+.relic-pick[data-icon="mokuaihun"] .ink-icon::after{width:8px;height:8px;border-radius:50%;background:var(--accent);}
+.relic-pick[data-icon="mochongguang"] .ink-icon::before{width:14px;height:14px;border-radius:50%;background:var(--ink);clip-path:polygon(50% 0,100% 100%,0 100%);}
+.relic-pick[data-icon="mochongguang"] .ink-icon::after{width:6px;height:6px;border-radius:50%;background:var(--accent);}

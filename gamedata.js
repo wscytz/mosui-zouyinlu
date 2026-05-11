@@ -337,7 +337,11 @@ var RELICS=[
   {id:"moxunren",name:"墨迅刃",type:"刃具",tags:["冲刺","暴击"],effect:"冲刺后暴击率+15%",fn:function(p){p.dashCritBoost=true;p.stats.critRate=(p.stats.critRate||0)+0.15}},
   {id:"moguangshi",name:"墨广蚀",type:"域具",tags:["范围","持续"],effect:"范围+15%，攻击附带持续伤害",fn:function(p){p.aoeDotHit=true;p.stats.area=(p.stats.area||1)+0.15}},
   {id:"mobiyin",name:"墨庇印",type:"护具",tags:["范围","防御"],effect:"范围+10%，防御+12%",fn:function(p){p.aoeGuardBond=true;p.stats.area=(p.stats.area||1)+0.1;p.stats.def=(p.stats.def||0)+0.12}},
-  {id:"mozhaojun",name:"墨召魂引",type:"法具",tags:["召唤","击杀"],effect:"击杀时25%概率召唤墨魂",fn:function(p){p.killSummonSpirit=true;p.killSummonChance=0.25}}
+  {id:"mozhaojun",name:"墨召魂引",type:"法具",tags:["召唤","击杀"],effect:"击杀时25%概率召唤墨魂",fn:function(p){p.killSummonSpirit=true;p.killSummonChance=0.25}},
+  {id:"mosufeng",name:"墨速锋",type:"锋具",tags:["攻速","暴击"],effect:"攻速+10%，暴击率+8%",fn:function(p){p.mosufengBond=true;p.stats.spd=(p.stats.spd||1)+0.1;p.stats.critRate=(p.stats.critRate||0)+0.08}},
+  {id:"mofanyu",name:"墨泛域",type:"域具",tags:["范围","控场"],effect:"范围+12%，命中减速+0.15",fn:function(p){p.mofanyuBond=true;p.stats.area=(p.stats.area||1)+0.12;p.slowOnHit=(p.slowOnHit||0)+0.15}},
+  {id:"mokuaihun",name:"墨快魂",type:"魂具",tags:["攻速","魂"],effect:"攻速+10%，魂伤+2",fn:function(p){p.mokuaihunBond=true;p.stats.spd=(p.stats.spd||1)+0.1;p.stats.soulDmg=(p.stats.soulDmg||0)+2}},
+  {id:"mochongguang",name:"墨冲光",type:"光具",tags:["冲刺","暴击"],effect:"暴击率+8%，攻速+5%",fn:function(p){p.mochongguangBond=true;p.stats.critRate=(p.stats.critRate||0)+0.08;p.stats.spd=(p.stats.spd||1)+0.05}}
 ];
 
 var EVOLUTIONS={
