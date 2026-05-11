@@ -333,6 +333,7 @@ function mkPlayer(){
     spiritSpeed:false,
     fireBurst:false,
     rangedKillSpirit:false,
+    killSummonSpirit:false,
     soulHitBoost:false,
     dashFireTrail:false,
     dashCritBoost:false,
@@ -814,6 +815,11 @@ function onEnemyKilled(g,e,source,opts){
   if(g.kills===10||g.kills===25||g.kills===50||g.kills===100)snd("killMilestone");
   // 回斩进化：击杀后下次攻击增伤
   if(p.killDmgBoost)p._killBoost=true;
+  // 墨召魂引：击杀召唤墨魂
+  if(p.killSummonSpirit&&Math.random()<(p.killSummonChance||0.25)){
+    p.inkSpiritCount=(p.inkSpiritCount||0)+1;
+    p.inkSpiritMax=(p.inkSpiritMax||0)+1;
+    spawnP(g,e.x,e.y,"accent",6);snd("summon")}
   // kill streak milestones
   var ks=g.killStreak;
   for(var kmi=0;kmi<KILL_MILESTONES.length;kmi++){var k=KILL_MILESTONES[kmi];if(ks===k.at){
@@ -4112,6 +4118,8 @@ function rebuildPlayerStats(g){
     'aoeGuardBond'
     ,
     'hasNineSeal'
+    ,
+    'killSummonSpirit'
     ];
   rk.concat(ck).forEach(function(k){f[k]=o[k]});
   g.relics.forEach(function(r){try{r.fn(f)}catch(e){}});

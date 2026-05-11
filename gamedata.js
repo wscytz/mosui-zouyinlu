@@ -336,7 +336,8 @@ var RELICS=[
   {id:"mofenying",name:"墨焚影",type:"步具",tags:["冲刺","火"],effect:"冲刺时路径留下墨焰",fn:function(p){p.dashFireTrail=true}},
   {id:"moxunren",name:"墨迅刃",type:"刃具",tags:["冲刺","暴击"],effect:"冲刺后暴击率+15%",fn:function(p){p.dashCritBoost=true;p.stats.critRate=(p.stats.critRate||0)+0.15}},
   {id:"moguangshi",name:"墨广蚀",type:"域具",tags:["范围","持续"],effect:"范围+15%，攻击附带持续伤害",fn:function(p){p.aoeDotHit=true;p.stats.area=(p.stats.area||1)+0.15}},
-  {id:"mobiyin",name:"墨庇印",type:"护具",tags:["范围","防御"],effect:"范围+10%，防御+12%",fn:function(p){p.aoeGuardBond=true;p.stats.area=(p.stats.area||1)+0.1;p.stats.def=(p.stats.def||0)+0.12}}
+  {id:"mobiyin",name:"墨庇印",type:"护具",tags:["范围","防御"],effect:"范围+10%，防御+12%",fn:function(p){p.aoeGuardBond=true;p.stats.area=(p.stats.area||1)+0.1;p.stats.def=(p.stats.def||0)+0.12}},
+  {id:"mozhaojun",name:"墨召魂引",type:"法具",tags:["召唤","击杀"],effect:"击杀时25%概率召唤墨魂",fn:function(p){p.killSummonSpirit=true;p.killSummonChance=0.25}}
 ];
 
 var EVOLUTIONS={

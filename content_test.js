@@ -2702,8 +2702,18 @@ code+='\n'+[
 '  if((g.player.stats.def||0)<=d)errors.push("261f: def not increased");',
 '}catch(e){errors.push("261: "+e.message)}',
 
+'// Test 262: v4.34 墨召魂引',
+'try{',
+'  var r=RELICS.find(function(x){return x.id==="mozhaojun"});',
+'  if(!r)errors.push("262a: not found");',
+'  else{if(!r.tags||r.tags.length<2)errors.push("262b");if(!r.fn)errors.push("262c");}',
+'  var g=newGame("jian","normal");r.fn(g.player);',
+'  if(!g.player.killSummonSpirit)errors.push("262d: not set");',
+'  if(g.player.killSummonChance!==0.25)errors.push("262e: chance wrong");',
+'}catch(e){errors.push("262: "+e.message)}',
+
 'if(errors.length){console.log("FAIL ("+errors.length+"):");errors.forEach(function(e){console.log("  - "+e)});process.exit(1)}',
-'else{console.log("ALL 223 TESTS PASSED");',
+'else{console.log("ALL 224 TESTS PASSED");',
 '  console.log(" 37-62. (previous 26 tests)");',
 '  console.log(" 63-68. v2.10 (墨阵/墨童/阵眼/墨竭)");',
 '  console.log(" 69-78. v2.11 (墨镜/回春阵/墨涡/墨蝠/墨瘴/墨吸/墨甲)");',
@@ -2823,6 +2833,7 @@ code+='\n'+[
 '  console.log(" 259. v4.32 墨迅刃(冲刺/暴击) — 暴击率+15%");',
 '  console.log(" 260. v4.32 墨广蚀(范围/持续) — 范围+15%");',
 '  console.log(" 261. v4.32 墨庇印(范围/防御) — 范围+10%防御+12%");',
+'  console.log(" 262. v4.34 墨召魂引(召唤/击杀) — 击杀25%召唤墨魂");',
 '}',
 ].join('\n');
 
