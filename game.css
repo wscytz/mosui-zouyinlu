@@ -1591,6 +1591,17 @@ body.game-active #gameCanvas {
   color: var(--gold);
   font-weight: 600;
 }
+.relic-build-hint {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 0.58rem;
+  margin-left: 6px;
+  background: rgba(23,19,16,0.08);
+  color: var(--ash);
+  font-weight: 500;
+  letter-spacing: 0.03em;
+}
 
 .relic-pick p {
   font-size: 0.82rem;

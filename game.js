@@ -3865,7 +3865,39 @@ var RELIC_RULES={
   zhifan:[{c:function(s){return s.ownedTags["生存"]||s.ownedTags["反击"]},n:7,w:"生存反击"}],
   motiebi:[{c:function(s){return s.ownedTags["防御"]||s.ownedTags["反击"]},n:8,w:"防御反击"}],
   molonglin:[{c:function(s){return s.ownedTags["生存"]||s.stats.def>0.2},n:7,w:"生存机动"}],
-  moshouren:[{c:function(s){return s.ownedTags["生存"]||s.ownedTags["反击"]},n:7,w:"生存反击"}]
+  moshouren:[{c:function(s){return s.ownedTags["生存"]||s.ownedTags["反击"]},n:7,w:"生存反击"}],
+  // --- v5.1-builds RELIC_RULES 扩容: 26 条，覆盖6条候选流派缺口 ---
+  // 爆炸/溅射/连锁 (缺口最大: 3/20 → 补8)
+  mosui:[{c:function(s){return s.ownedTags["暴击"]||s.ownedTags["溅射"]},n:7,w:"暴击溅射"}],
+  mosancui:[{c:function(s){return s.weaponType==="melee"||s.ownedTags["溅射"]},n:7,w:"近战溅射"}],
+  moboaoyin:[{c:function(s){return s.weaponType==="melee"||s.ownedTags["爆炸"]},n:8,w:"近战爆炸"}],
+  molianbao:[{c:function(s){return s.ownedTags["溅射"]||s.ownedTags["爆炸"]},n:8,w:"溅射爆炸链"}],
+  molielian:[{c:function(s){return s.ownedTags["分裂"]||s.ownedTags["溅射"]},n:7,w:"分裂溅射"}],
+  mobaodan:[{c:function(s){return s.ownedTags["爆炸"]||s.ownedTags["爆发"]},n:8,w:"爆炸爆发"}],
+  moxuexing:[{c:function(s){return s.ownedTags["溅射"]||s.hasKill},n:7,w:"溅射击杀"}],
+  mohuoyan:[{c:function(s){return s.ownedTags["暴击"]||s.ownedTags["火"]},n:7,w:"暴击火场"}],
+  // 范围/控场/持续 (缺口: 17/38 → 补7)
+  mogangyin:[{c:function(s){return s.ownedTags["控场"]||s.ownedTags["远程"]},n:7,w:"控场远程"}],
+  mochen:[{c:function(s){return s.ownedTags["法术"]||s.weaponType==="aoe"},n:7,w:"法术墨阵"}],
+  moshi:[{c:function(s){return s.ownedTags["持续"]||s.hasKill},n:7,w:"持续击杀"}],
+  mofutan:[{c:function(s){return s.ownedTags["持续"]||s.ownedTags["法术"]},n:7,w:"持续法术"}],
+  mochizhu:[{c:function(s){return s.ownedTags["持续"]||s.ownedTags["治疗"]},n:7,w:"持续治疗"}],
+  mohunjia:[{c:function(s){return s.ownedTags["防御"]||s.ownedTags["持续"]},n:7,w:"防御持续"}],
+  mofenyu:[{c:function(s){return s.ownedTags["持续"]||s.ownedTags["爆炸"]},n:7,w:"持续爆炸"}],
+  // 召唤/击杀/魂 (补4)
+  moxi:[{c:function(s){return s.hasKill||s.ownedTags["控场"]},n:7,w:"击杀墨阵"}],
+  mobao:[{c:function(s){return s.hasKill||s.ownedTags["法术"]},n:7,w:"击杀法术"}],
+  monuhun:[{c:function(s){return s.ownedTags["魂"]||s.ownedTags["生存"]},n:7,w:"魂生存"}],
+  moyinfu:[{c:function(s){return s.ownedTags["魂"]||s.hasKill},n:7,w:"魂击杀"}],
+  // 近战/暴击/攻速 (补4)
+  pojunfu:[{c:function(s){return s.weaponType==="melee"||s.ownedTags["暴击"]},n:8,w:"近战暴击"}],
+  powangtong:[{c:function(s){return s.ownedTags["处决"]||s.ownedTags["暴击"]},n:8,w:"处决暴击"}],
+  pilimu:[{c:function(s){return s.ownedTags["攻速"]||s.ownedTags["法术"]},n:7,w:"攻速法术"}],
+  mojinbiao:[{c:function(s){return s.ownedTags["远程"]||s.ownedTags["暴击"]},n:7,w:"远程暴击"}],
+  // 防御/反击/生存 (补3)
+  mojing:[{c:function(s){return s.ownedTags["防御"]||s.ownedTags["法术"]},n:7,w:"防御法术"}],
+  moquanyan:[{c:function(s){return s.ownedTags["治疗"]||s.ownedTags["生存"]},n:7,w:"治疗生存"}],
+  guxuquan:[{c:function(s){return s.ownedTags["生命"]||s.ownedTags["生存"]},n:7,w:"生命生存"}]
 };
 
 function scoreRelicChoice(r,state,mode){
@@ -3988,8 +4020,11 @@ function relicCardHtml(r,cls,ownedRelics){
         if(ownedRelics[oi].tags&&ownedRelics[oi].tags.indexOf(r.tags[si])>=0){
           synTag='<span class="relic-synergy">协·'+r.tags[si]+'</span>';break}}
       if(synTag)break}}
+  // build hint from RELIC_RULES
+  var buildHint="";
+  if(RELIC_RULES[r.id]){var rr=RELIC_RULES[r.id];if(rr[0]&&rr[0].w)buildHint='<span class="relic-build-hint">'+rr[0].w+'</span>'}
   return'<div class="relic-pick '+(cls||"")+'" data-relic="'+r.id+'" data-icon="'+iconKey+'"><h4><span class="ink-icon"></span>'+r.name+'</h4>'+
-    '<div class="relic-pick__type"><span class="relic-type-badge">'+r.type+'</span> '+tags+synTag+'</div>'+
+    '<div class="relic-pick__type"><span class="relic-type-badge">'+r.type+'</span> '+tags+synTag+buildHint+'</div>'+
     '<p>'+r.effect+'</p>'+debug+'</div>'
 }
 
