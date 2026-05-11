@@ -3527,6 +3527,46 @@ npm run cap:open:android  # 用 Android Studio 打开
 
 *v5.0-prep 测试与构筑吸收 更新于 2026-05-11。*
 
+### v5.1-builds 构筑线成型 (2026-05-11)
+
+- RELIC_RULES 106→157（+51条），覆盖 6 条候选流派缺口
+- 遗物选择卡片显示 build hint（从 RELIC_RULES.w 字段读取）
+- `.relic-build-hint` CSS 样式
+
+### v5.2 构筑全覆盖 + 结算路线 (2026-05-11)
+
+- RELIC_RULES 157→193（100%），所有遗物都有构筑权重和 build hint
+- `buildEndRoute(g)` 函数：按遗物 tags 频率归纳前 2 标签，结算页显示"构筑：XX·YY流"
+- 空值保护："孤行流" fallback（Test 269 覆盖）
+- 补 2 个流派核心遗物：墨阵连环（范围/持续，hitDot）、墨爆连锁（爆炸/溅射，splashDeathBoom）
+- `.end-route` CSS 样式（朱砂色加粗）
+- BOSS_DESIGN.md 设计文档
+
+### v5.3-boss 画皮分身 + 精英奖励 + Wiki (2026-05-11)
+
+**画皮分身 (A1)：**
+- 画皮娘子 HP < 25% 触发 desperate 时，生成 2 个低 HP 幻影（hpMul=0.12 ≈ 38HP）
+- 幻影标记：`isClone=true, isBoss=false, name+="·影", col=半透明`
+- 幻影不触发 Boss 击杀/结算/演出/成就
+- wave_test Test 6 覆盖（clone 数量/isBoss/HP/名字后缀）
+
+**精英击杀奖励 (B2)：**
+- 精英击杀后随机获得 180帧(3秒) 临时 buff：疾(移速) / 锐(攻速) / 愈(+8HP)
+- 浮字 + 金粒子 + 音效反馈
+- 复用已有 killSpdTimer/killAtkTimer 字段
+
+**Wiki 构筑线显示：**
+- 遗物卡片底部显示所属构筑线名称（从 BUILDS 反查 core/amp/safe）
+- `.wiki-card__builds` CSS 样式
+- 修复 BUILDS 变量声明顺序问题（typeof 守卫 + 二次 renderRelics）
+
+**视觉冒烟 10→11 项：**
+- Test 11：Wiki 页面加载检查（relicGrid/enemyGrid/achGrid 渲染数量）
+
+**测试基线：** 293 项（37 smoke + 6 wave + 231 content + 11 stress + 5 robust + 3 seeded + strict audit）+ 11 visual smoke
+
+*v5.3-boss 画皮分身 + 精英奖励 + Wiki 更新于 2026-05-11。*
+
 ### 版本号规则
 
 改完一个bug → 删掉对应条目 → 版本号末尾+1

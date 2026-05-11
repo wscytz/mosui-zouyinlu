@@ -426,13 +426,15 @@
           +'<div class="wiki-card__meta">'+r.type+'</div>'
           +'<p>'+r.effect+'</p>';
         c.appendChild(tags(r.tags));
-        var relicBuilds=BUILDS.filter(function(b){
-          return b.core.indexOf(r.name)>=0||b.amp.indexOf(r.name)>=0||b.safe.indexOf(r.name)>=0});
-        if(relicBuilds.length){
-          var bd=document.createElement('div');
-          bd.className='wiki-card__builds';
-          bd.textContent=relicBuilds.map(function(b){return b.name}).join(' · ');
-          c.appendChild(bd);
+        if(typeof BUILDS!=="undefined"){
+          var relicBuilds=BUILDS.filter(function(b){
+            return b.core.indexOf(r.name)>=0||b.amp.indexOf(r.name)>=0||b.safe.indexOf(r.name)>=0});
+          if(relicBuilds.length){
+            var bd=document.createElement('div');
+            bd.className='wiki-card__builds';
+            bd.textContent=relicBuilds.map(function(b){return b.name}).join(' · ');
+            c.appendChild(bd);
+          }
         }
         if(PREREQS[r.id]){
           var pq=document.createElement('div');
@@ -656,6 +658,7 @@
       addRow('保底',b.safe);
       bl.appendChild(c);
     });
+    renderRelics();
 
     // --- Caps ---
     var ct=document.getElementById('capsTable');

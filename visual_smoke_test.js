@@ -213,6 +213,29 @@ async function run(){
 
     errors=errors.concat(mobileErrors);
     await mCtx.close();
+
+    // ===== Wiki page smoke (Test 11) =====
+    var wikiCtx=await browser.newContext({viewport:{width:1024,height:720}});
+    var wikiPage=await wikiCtx.newPage();
+    var wikiErrors=[];
+    wikiPage.on('pageerror',function(err){wikiErrors.push('wiki pageerror: '+err.message)});
+    await wikiPage.goto('http://127.0.0.1:'+PORT+'/wiki.html',{waitUntil:'domcontentloaded'});
+    await wikiPage.waitForTimeout(500);
+    var wikiCheck=await wikiPage.evaluate(function(){
+      var relicGrid=document.getElementById('relicGrid');
+      var enemyGrid=document.getElementById('enemyGrid');
+      var achGrid=document.getElementById('achGrid');
+      return {
+        relics:relicGrid?relicGrid.children.length:0,
+        enemies:enemyGrid?enemyGrid.children.length:0,
+        achievements:achGrid?achGrid.children.length:0
+      };
+    });
+    if(wikiCheck.relics<100)wikiErrors.push('wiki: relicGrid only '+wikiCheck.relics+' cards (expected 100+)');
+    if(wikiCheck.enemies<20)wikiErrors.push('wiki: enemyGrid only '+wikiCheck.enemies+' cards (expected 20+)');
+    if(wikiCheck.achievements<20)wikiErrors.push('wiki: achGrid only '+wikiCheck.achievements+' cards (expected 20+)');
+    errors=errors.concat(wikiErrors);
+    await wikiCtx.close();
   }catch(e){
     errors.push('runner: '+e.message);
   }finally{
@@ -237,6 +260,7 @@ async function run(){
     console.log('  8. Mobile portrait 375x812 renders title');
     console.log('  9. Mobile landscape 812x375 keeps title usable');
     console.log(' 10. No mobile console errors');
+    console.log(' 11. Wiki page renders relics/enemies/achievements');
   }
 }
 
