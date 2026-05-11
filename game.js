@@ -3844,7 +3844,28 @@ var RELIC_RULES={
   mosufeng:[{c:function(s){return s.ownedTags["攻速"]||s.ownedTags["暴击"]},n:7,w:"攻速暴击"}],
   mofanyu:[{c:function(s){return s.ownedTags["范围"]||s.ownedTags["控场"]},n:7,w:"范围控场"}],
   mokuaihun:[{c:function(s){return s.ownedTags["攻速"]||s.ownedTags["魂"]},n:7,w:"攻速魂"}],
-  mochongguang:[{c:function(s){return s.weaponType==="dash"||s.ownedTags["冲刺"]},n:7,w:"冲刺暴击"}]
+  mochongguang:[{c:function(s){return s.weaponType==="dash"||s.ownedTags["冲刺"]},n:7,w:"冲刺暴击"}],
+  // --- v5.0-prep RELIC_RULES 扩容: 20 条 ---
+  molingyu:[{c:function(s){return s.weaponType==="summon"||s.ownedTags["召物"]},n:9,w:"召唤核心"}],
+  molingqi:[{c:function(s){return s.ownedTags["召物"]||s.ownedTags["魂"]},n:9,w:"召唤强化"}],
+  baomo:[{c:function(s){return s.ownedTags["召物"]||s.ownedTags["火"]},n:8,w:"召唤火场"}],
+  yumo:[{c:function(s){return s.weaponType==="summon"||s.ownedTags["治疗"]},n:7,w:"召唤治疗"}],
+  hanmo:[{c:function(s){return s.ownedTags["召物"]||s.ownedTags["冰"]},n:7,w:"召唤冰场"}],
+  fenmo:[{c:function(s){return s.weaponType==="summon"||s.ownedTags["分裂"]},n:8,w:"召唤分裂"}],
+  lianhuanfu:[{c:function(s){return s.ownedTags["魂"]||s.hasKill},n:8,w:"魂击杀链"}],
+  mogongzhen:[{c:function(s){return s.hasKill||s.ownedTags["法术"]},n:8,w:"击杀法术"}],
+  yanmoyan:[{c:function(s){return s.ownedTags["火"]||s.hasKill},n:8,w:"火击杀链"}],
+  mowo:[{c:function(s){return s.hasKill||s.ownedTags["控场"]},n:7,w:"击杀控场"}],
+  moshouzhen:[{c:function(s){return s.ownedTags["生存"]||s.ownedTags["控场"]},n:7,w:"生存控场"}],
+  zhenyan:[{c:function(s){return s.ownedTags["控场"]||s.weaponType==="aoe"},n:8,w:"控场强化"}],
+  molian:[{c:function(s){return s.ownedTags["法术"]||s.ownedTags["控场"]},n:7,w:"法术控场"}],
+  moxian:[{c:function(s){return s.ownedTags["法术"]||s.ownedTags["控场"]},n:7,w:"法术墨弦"}],
+  moding:[{c:function(s){return s.weaponType==="melee"||s.ownedTags["控场"]},n:7,w:"近战控场"}],
+  zhenmu:[{c:function(s){return s.ownedTags["反击"]||s.ownedTags["生存"]},n:8,w:"反击生存"}],
+  zhifan:[{c:function(s){return s.ownedTags["生存"]||s.ownedTags["反击"]},n:7,w:"生存反击"}],
+  motiebi:[{c:function(s){return s.ownedTags["防御"]||s.ownedTags["反击"]},n:8,w:"防御反击"}],
+  molonglin:[{c:function(s){return s.ownedTags["生存"]||s.stats.def>0.2},n:7,w:"生存机动"}],
+  moshouren:[{c:function(s){return s.ownedTags["生存"]||s.ownedTags["反击"]},n:7,w:"生存反击"}]
 };
 
 function scoreRelicChoice(r,state,mode){
