@@ -54,6 +54,8 @@
         linear-gradient(135deg, rgba(107,58,92,0.06), transparent 60%);
     }
     .wiki-card--boss h4 { color: #6b3a5c; }
+    .wiki-card__phases { margin-top:4px; display:flex; flex-wrap:wrap; gap:4px; }
+    .wiki-card__phases span { font-size:0.7rem; background:rgba(107,58,92,0.1); padding:2px 6px; border-radius:3px; color:#6b3a5c; }
     .wiki-card--evo {
       border-color: rgba(163,58,45,0.2);
     }
@@ -488,6 +490,11 @@
       if(ea.isBoss!==eb.isBoss)return ea.isBoss?1:-1;
       return (ea.hp||0)-(eb.hp||0);
     });
+    var BOSS_PHASES={
+      boss:["50%血 狂暴加速","25%血 冲锋+分身(2个幻影)"],
+      mojiangjun:["60%血 第二阶段","25%血 第三阶段：墨阵护盾(50点，碎后5秒恢复)"],
+      moguiwang:["60%血 第二阶段","25%血 第三阶段：墨潮脉冲(每3秒减速波)"]
+    };
     eOrder.forEach(function(tid){
       var e=ETYPE[tid];
       if(!e)return;
@@ -512,8 +519,13 @@
             if(e.spawnsOnDeath)extra=' · 死后孵化';
       if(e.webShot)extra=' · 吐丝';
       if(e.reviveOnce)extra=' · 再生';
+      var bossHtml='';
+      if(BOSS_PHASES[tid]){
+        bossHtml='<div class="wiki-card__phases">'+BOSS_PHASES[tid].map(function(p){return'<span>'+p+'</span>'}).join('')+'</div>';
+      }
       c.innerHTML='<h4>'+e.name+(e.isBoss?' (Boss)':'')+'</h4>'
-        +'<div class="wiki-card__meta">HP:'+hpStr+' · 速度:'+e.spd+' · 伤害:'+e.dmg+extra+'</div>';
+        +'<div class="wiki-card__meta">HP:'+hpStr+' · 速度:'+e.spd+' · 伤害:'+e.dmg+extra+'</div>'
+        +bossHtml;
       eng.appendChild(c);
     });
 

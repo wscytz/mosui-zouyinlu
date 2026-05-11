@@ -225,15 +225,18 @@ async function run(){
       var relicGrid=document.getElementById('relicGrid');
       var enemyGrid=document.getElementById('enemyGrid');
       var achGrid=document.getElementById('achGrid');
+      var bossPhases=document.querySelectorAll('.wiki-card__phases');
       return {
         relics:relicGrid?relicGrid.children.length:0,
         enemies:enemyGrid?enemyGrid.children.length:0,
-        achievements:achGrid?achGrid.children.length:0
+        achievements:achGrid?achGrid.children.length:0,
+        bossPhases:bossPhases.length
       };
     });
     if(wikiCheck.relics<100)wikiErrors.push('wiki: relicGrid only '+wikiCheck.relics+' cards (expected 100+)');
     if(wikiCheck.enemies<20)wikiErrors.push('wiki: enemyGrid only '+wikiCheck.enemies+' cards (expected 20+)');
     if(wikiCheck.achievements<20)wikiErrors.push('wiki: achGrid only '+wikiCheck.achievements+' cards (expected 20+)');
+    if(wikiCheck.bossPhases<3)wikiErrors.push('wiki: boss phase tips only '+wikiCheck.bossPhases+' (expected 3)');
     errors=errors.concat(wikiErrors);
     await wikiCtx.close();
 
