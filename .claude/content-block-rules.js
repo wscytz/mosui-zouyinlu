@@ -2,6 +2,7 @@
 // Keep this file side-effect free so merger, fixtures, and audits can reuse it.
 
 var CSS_VAR_ALLOW={ink:1,accent:1,paper:1,"game-bg":1};
+var HTML_ENTITY_RE=/&(lt|gt|amp|quot|apos|#\d+|#x[0-9a-fA-F]+);/;
 
 function escRe(s){return String(s).replace(/[.*+?^${}()|[\]\\]/g,"\\$&")}
 
@@ -29,6 +30,12 @@ function hasBadRuntimeSyntax(txt){
   return bad;
 }
 
+function checkNoHtmlEntities(name,field,txt,errors){
+  if(typeof txt==="string"&&HTML_ENTITY_RE.test(txt)){
+    errors.push(name+": "+field+" contains HTML entity; run fix:entities before merge");
+  }
+}
+
 function validateCssRules(b,errors,warnings){
   var name=blockName(b);
   var css=b.css_rules||"";
@@ -41,6 +48,7 @@ function validateCssRules(b,errors,warnings){
     errors.push(name+": relic requires css_rules string");
     return;
   }
+  checkNoHtmlEntities(name,"css_rules",css,errors);
 
   var beforeRe=new RegExp("\\.relic-pick\\[data-icon=\""+escRe(id)+"\"\\]\\s+\\.ink-icon::before");
   var afterRe=new RegExp("\\.relic-pick\\[data-icon=\""+escRe(id)+"\"\\]\\s+\\.ink-icon::after");
@@ -89,6 +97,7 @@ function validateTestLines(b,errors){
     if(!/^'.*',$/.test(line)){
       errors.push(name+": test_lines["+i+"] must be a content_test string item ending with comma");
     }
+    checkNoHtmlEntities(name,"test_lines["+i+"]",line,errors);
   });
   if(txt.indexOf("// Test "+b.test_id+":")<0){
     errors.push(name+": test_lines must include // Test "+b.test_id+":");
@@ -113,6 +122,7 @@ function validateConsoleLog(b,errors){
   if(!/^'\s*console\.log\([^]*\);',$/.test(b.console_log)){
     errors.push(name+": console_log must be a wrapped content_test string item like '  console.log(\"...\");',");
   }
+  checkNoHtmlEntities(name,"console_log",b.console_log,errors);
 }
 
 function validateBlock(b,errors,warnings){
@@ -129,7 +139,14 @@ function validateBlock(b,errors,warnings){
   if(!b.entry_js||typeof b.entry_js!=="string")errors.push(name+": missing entry_js string");
 
   if(typeof b.entry_js==="string"){
+    checkNoHtmlEntities(name,"entry_js",b.entry_js,errors);
     hasBadRuntimeSyntax(b.entry_js).forEach(function(kind){errors.push(name+": entry_js forbidden "+kind)});
+  }
+
+  if(Array.isArray(b.mechanic_insertions)){
+    b.mechanic_insertions.forEach(function(ins,i){
+      if(ins&&typeof ins.code==="string")checkNoHtmlEntities(name,"mechanic_insertions["+i+"].code",ins.code,errors);
+    });
   }
 
   validateTestLines(b,errors);

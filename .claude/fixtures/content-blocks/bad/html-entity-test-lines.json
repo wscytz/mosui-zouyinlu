@@ -1,0 +1,20 @@
+{
+  "expect_error": "HTML entity",
+  "block": {
+    "task_id": "bad-html-entity",
+    "test_id": 907,
+    "type": "relic",
+    "entry_js": "{id:\"badentity\",name:\"坏实体\",type:\"测具\",tags:[\"测试\"],effect:\"测试\",fn:function(p){p.badEntity=true}}",
+    "test_lines": [
+      "'// Test 907: bad entity',",
+      "'try{',",
+      "'  var g=newGame(\"jian\");',",
+      "'  if(g.player.hp &lt; 1)errors.push(\"907a: html entity leaked\");',",
+      "'}catch(e){errors.push(\"907: \"+e.message)}',"
+    ],
+    "console_log": "'  console.log(\" 907. bad entity\");',",
+    "player_fields": ["badEntity:false,"],
+    "ck_fields": ["'badEntity'"],
+    "css_rules": ".relic-pick[data-icon=\"badentity\"] .ink-icon::before { width:14px;height:14px;background:var(--ink);border-radius:50%;margin:5px auto 0 }\n.relic-pick[data-icon=\"badentity\"] .ink-icon::after { width:6px;height:6px;background:var(--accent);border-radius:50%;transform:translate(4px,-11px) }"
+  }
+}

@@ -101,8 +101,11 @@ evolution JSON 形状：
 - content_test 行必须是项目现有 string-array + try/errors.push 风格。
 - `test_lines` 每一行都必须是带尾逗号的字符串数组项，例如 `"'try{',"`。
 - `console_log` 必须写成 `"'  console.log(\"...\");',"`，不要只写普通文本。
+- 不要输出 HTML entity：`<` 就写 `<`，`>` 就写 `>`，`&` 就写 `&`，不要写 `&lt;` / `&gt;` / `&amp;`。
 - CSS 选择器必须带 `.ink-icon::before` 和 `.ink-icon::after`。
 - CSS 颜色只用 var(--ink) / var(--accent) / var(--paper) / var(--game-bg)。
+- CSS 图标优先用稳定形状：width/height/background/border/border-radius/transform/margin/clip-path。
+- CSS 图标不要用方向边框造三角形：border-left/border-right/border-bottom 会被 rules 当作位置漂移拦截；需要三角形时用 clip-path。
 - 机制代码使用项目 helpers：damageEnemy、pushAttack、pushLimited、forEachLiveEnemy、dstSq。
 ```
 

@@ -22,6 +22,16 @@ function Get-Sha256Hex([string]$Path) {
   }
 }
 
+function Get-RelativePath([string]$Root, [string]$Path) {
+  $rootFull = (Resolve-Path -LiteralPath $Root).Path.TrimEnd("\", "/")
+  $pathFull = (Resolve-Path -LiteralPath $Path).Path
+  $prefix = $rootFull + [System.IO.Path]::DirectorySeparatorChar
+  if ($pathFull.StartsWith($prefix, [System.StringComparison]::OrdinalIgnoreCase)) {
+    return $pathFull.Substring($prefix.Length)
+  }
+  throw "Path is not inside root: $Path"
+}
+
 $skills = Get-ChildItem -LiteralPath $projectRoot -Directory | Where-Object {
   Test-Path -LiteralPath (Join-Path $_.FullName "SKILL.md")
 }
@@ -29,20 +39,39 @@ $skills = Get-ChildItem -LiteralPath $projectRoot -Directory | Where-Object {
 foreach ($target in $Targets) {
   Write-Output "=== Checking: $target ==="
   foreach ($skill in $skills) {
-    $source = Join-Path $skill.FullName "SKILL.md"
-    $targetFile = Join-Path (Join-Path $target $skill.Name) "SKILL.md"
-    if (!(Test-Path -LiteralPath $targetFile)) {
+    $targetSkillDir = Join-Path $target $skill.Name
+    if (!(Test-Path -LiteralPath $targetSkillDir)) {
       Write-Output "  MISSING: $($skill.Name)"
       $failed = $true
       continue
     }
-    $sourceHash = Get-Sha256Hex $source
-    $targetHash = Get-Sha256Hex $targetFile
-    if ($sourceHash -eq $targetHash) {
-      Write-Output "  MATCH: $($skill.Name)"
-    } else {
-      Write-Output "  DIFF: $($skill.Name)"
-      $failed = $true
+
+    $sourceFiles = Get-ChildItem -LiteralPath $skill.FullName -File -Recurse | Where-Object {
+      $_.Name -notlike "SKILL.md.bak-*"
+    }
+    $skillFailed = $false
+
+    foreach ($sourceFile in $sourceFiles) {
+      $relativePath = Get-RelativePath $skill.FullName $sourceFile.FullName
+      $targetFile = Join-Path $targetSkillDir $relativePath
+      if (!(Test-Path -LiteralPath $targetFile)) {
+        Write-Output "  MISSING: $($skill.Name)/$relativePath"
+        $failed = $true
+        $skillFailed = $true
+        continue
+      }
+
+      $sourceHash = Get-Sha256Hex $sourceFile.FullName
+      $targetHash = Get-Sha256Hex $targetFile
+      if ($sourceHash -ne $targetHash) {
+        Write-Output "  DIFF: $($skill.Name)/$relativePath"
+        $failed = $true
+        $skillFailed = $true
+      }
+    }
+
+    if (!$skillFailed) {
+      Write-Output "  MATCH: $($skill.Name) ($($sourceFiles.Count) files)"
     }
   }
 }

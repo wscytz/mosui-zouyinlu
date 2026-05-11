@@ -1,4 +1,4 @@
-# 墨祟：走阴录 v4.33
+# 墨祟：走阴录 v5.1-builds
 
 水墨俯视角动作肉鸽。你扮演一名替亡者走阴的夜行客，手持法器深入地宫，斩妖除祟。
 
@@ -39,7 +39,7 @@ npm run audit:content
 ## 内容体量
 
 - **5 把武器**：斩妖剑 / 符骨笔 / 镇魂铃 / 伏魔伞 / 召魂幡
-- **186 件遗物**：标签驱动，按构筑自由组合；RELIC_RULES 权重覆盖 75/186
+- **191 件遗物**：标签驱动，按构筑自由组合；RELIC_RULES 权重覆盖 157/191
 - **30 种进化**：3条武器进化链
 - **37 种敌人**（含 3 Boss）：画皮娘子 / 墨将军 / 墨鬼王
 - **9 个关卡**：含墨潮脉动等特殊关卡调制器
@@ -49,11 +49,17 @@ npm run audit:content
 
 ## 测试基线
 
-- `npm run test:all` = 284 项（37 smoke + 5 wave + 223 content + 11 stress + 5 robust + 3 seeded）+ strict audit gate
-- `npm run test:visual` = 5 项 Playwright 视觉冒烟
+- `npm run test:all` = 288 项（37 smoke + 5 wave + 228 content + 11 stress + 5 robust + 3 seeded）+ strict audit gate
+- `npm run test:visual` = 10 项 Playwright 视觉冒烟（含暂停/恢复、移动端竖屏/横屏）
 - 0 flake（5/5 连跑全绿）
 
-## v4.31-v4.33 自动化治理 + 测试硬化 (2026-05-10)
+## v5.0-v5.1 构筑吸收 + 发布门槛 (2026-05-11)
+
+- **v5.1-builds**：RELIC_RULES 覆盖 106→157/191，遗物卡片显示 build hint，让内容从“数量”进入“构筑选择”。
+- **v5.0-prep**：视觉冒烟扩到 10 项，覆盖标题、选武器、战斗 Canvas、暂停/恢复、移动端竖屏/横屏；DEVDOC/V5_PREP 入档。
+- **管线收口**：block rules 拦截 HTML entity，skill 同步检查扩展为整目录校验，避免附属配置漏同步。
+
+## v4.31-v4.34 自动化治理 + 测试硬化 (2026-05-10 ~ 05-11)
 
 - **v4.33** 测试硬化首批：`robust_test.js`（186×5=930 组合 fn 可执行 + rebuild 一致性）、`seeded_test.js`（mulberry32 PRNG 确定性长跑）、`visual_smoke_test.js`（Playwright + Chromium 视觉冒烟）、帧时间 P99 预算、strict audit 接入门禁、修复 `jiuzhuanmofu` latent bug + `wave_test.killAll` flake
 - **v4.32** 内容治理：补 `molielian` CSS 图标，`moyong/morui` 入 WAVE_TIERS，RELIC_RULES 40→75，冷标签 召唤/冲刺/范围 1→3（6新遗物）
@@ -157,9 +163,9 @@ smoke_test.js      # 冒烟测试（37项，含60秒长跑）
 wave_test.js       # 波次专项测试（5项）
 content_test.js    # 内容/机制测试（active blocks 以 ctx 扫描为准）
 stress_test.js     # 压力测试（11项，含帧时间 P99 预算）
-robust_test.js     # 鲁棒性测试（186×5 遗物fn + rebuild一致性）
+robust_test.js     # 鲁棒性测试（191×5 遗物fn + rebuild一致性）
 seeded_test.js     # 种子化确定性测试（mulberry32 PRNG）
-visual_smoke_test.js # Playwright 视觉冒烟（5项）
+visual_smoke_test.js # Playwright 视觉冒烟（10项）
 ARCHITECTURE.md    # 架构文档（六层边界）
 DEVDOC.md          # 开发文档（含完整版本历史）
 DEVELOPMENT.md     # 开发规范 / 交接清单

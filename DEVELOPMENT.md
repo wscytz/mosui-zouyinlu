@@ -1,10 +1,10 @@
-# 墨祟：走阴录 开发规范 v4.31
+# 墨祟：走阴录 开发规范 v5.1
 
 本文是给 Codex / Claude / 人类开发者的接手入口。现在项目已经进入“主 Claude + 专职 agent”协作期：先读规则，先取上下文，先校验输出，再合并测试。
 
-> 当前内容体量：5武器 / 180遗物 / 30进化 / 37敌人(含3Boss) / 9关卡 / 22誓印 / 38成就。
+> 当前内容体量：5武器 / 191遗物 / 30进化 / 37敌人(含3Boss) / 9关卡 / 22誓印 / 38成就。
 >
-> 当前自动检查：37 smoke + 5 wave + 217 content + 10 stress。`content_test.js` summary 由 `.claude/fix-test-count.js` 校准；高并发测试号由 `.claude/sequencer.js` 分配。
+> 当前自动检查：37 smoke + 5 wave + 228 content + 11 stress + 5 robust + 3 seeded + strict audit；视觉冒烟 10 项。`content_test.js` summary 由 `.claude/fix-test-count.js` 校准；高并发测试号由 `.claude/sequencer.js` 分配。
 
 ## 文档分工
 
@@ -16,8 +16,8 @@
 | `.claude/skills/add-content/SKILL.md` | add-content skill 源文件 | 先改这里并提交，再同步到全局 Claude skill |
 | `.claude/skills/idea-lab/SKILL.md` | 点子审核/创新侦察 skill | 按需触发，不进入默认实现流程 |
 | `.claude/skills/agent-retro/SKILL.md` | agent 复盘/经验提取 skill | 只记录可复发失败模式 |
-| `.claude/sync-skills.ps1` | skill 安装脚本 | 同步前备份全局 skill |
-| `.claude/check-skills.ps1` | skill 同步检查 | 对比项目源和全局副本 hash |
+| `.claude/sync-skills.ps1` | skill 安装脚本 | 同步整个 skill 目录，同步前备份全局 `SKILL.md` |
+| `.claude/check-skills.ps1` | skill 同步检查 | 对比项目源和全局副本的整个 skill 目录 hash |
 | `.claude/AUTOMATION_GUIDE.md` | 自动化命令和失败处理 | 方案 B 或脚本变化后更新 |
 | `.claude/content-block-rules.js` | 方案 B block 共享门禁 | merger 和 fixture test 共用，避免规则漂移 |
 | `.claude/test-content-block-fixtures.js` | block 好/坏样例测试 | 每次改 merger/rules 后运行 |
