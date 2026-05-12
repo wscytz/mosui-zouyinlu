@@ -3600,9 +3600,21 @@ npm run cap:open:android  # 用 Android Studio 打开
 - 补 2 成就：险途征服（hard_win）+ 画皮克星（kill_huapi）
 - ACHIEVEMENTS 38→40，meta.hardWins 字段
 
-**测试基线：** 297 项（37 smoke + 8 wave + 233 content + 11 stress + 5 robust + 3 seeded + strict audit）+ 13 visual smoke
+**测试基线：** 298 项（37 smoke + 8 wave + 234 content + 11 stress + 5 robust + 3 seeded + strict audit）+ 13 visual smoke
 
 *v5.5 发布收口 更新于 2026-05-11。*
+
+### v5.5.1 移动端控件修复 (2026-05-12)
+
+- 修复 mobile-controls.js PROF 变量初始化顺序 bug
+- 根因：PROF 在 line 89 被使用（`PROF.attackThresh`）但在 line 147 才定义，var hoisting 导致 TypeError 崩掉整个 initMobileControls()
+- 修复：将 PROF 初始化块移到 fitCanvas() 调用之前
+- 新增 Test 272：PROF 定义行号必须在所有使用之前（回归保护）
+- APK 重打验证
+
+**测试基线：** 298 项（37 smoke + 8 wave + 234 content + 11 stress + 5 robust + 3 seeded + strict audit）+ 13 visual smoke
+
+*v5.5.1 移动端控件修复 更新于 2026-05-12。*
 
 ### 版本号规则
 

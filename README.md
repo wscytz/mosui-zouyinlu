@@ -49,7 +49,7 @@ npm run audit:content
 
 ## 测试基线
 
-- `npm run test:all` = 297 项（37 smoke + 8 wave + 233 content + 11 stress + 5 robust + 3 seeded）+ strict audit gate
+- `npm run test:all` = 298 项（37 smoke + 8 wave + 234 content + 11 stress + 5 robust + 3 seeded）+ strict audit gate
 - `npm run test:visual` = 13 项 Playwright 视觉冒烟（含暂停/恢复、移动端竖屏/横屏、Wiki渲染、结算页/弹窗 DOM）
 - 0 flake（6/6 连跑全绿）
 
