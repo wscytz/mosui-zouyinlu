@@ -56,6 +56,7 @@
     .wiki-card--boss h4 { color: #6b3a5c; }
     .wiki-card__phases { margin-top:4px; display:flex; flex-wrap:wrap; gap:4px; }
     .wiki-card__phases span { font-size:0.7rem; background:rgba(107,58,92,0.1); padding:2px 6px; border-radius:3px; color:#6b3a5c; }
+    .wiki-card--done { border-color:rgba(107,58,92,0.25); background:rgba(107,58,92,0.04); }
     .wiki-card--evo {
       border-color: rgba(163,58,45,0.2);
     }
@@ -724,14 +725,23 @@
     var achGrid=document.getElementById('achGrid');
     if(ACHIEVEMENTS){
       var rewardLabels={startRelic:"起始遗物",goldInk:"金墨色"};
+      var unlockedAch={};
+      try{var savedMeta=JSON.parse(localStorage.getItem('mosui_meta')||'{}');
+        if(savedMeta.achievements)unlockedAch=savedMeta.achievements;
+      }catch(e){}
+      var unlockedCount=0;
       ACHIEVEMENTS.forEach(function(a2){
+        var done=!!unlockedAch[a2.id];
+        if(done)unlockedCount++;
         var card=document.createElement('div');
-        card.className='wiki-card';
-        card.innerHTML='<h4>'+a2.name+'</h4>'
+        card.className='wiki-card'+(done?' wiki-card--done':'');
+        card.innerHTML='<h4>'+a2.name+(done?' <span style="color:var(--accent)">✓</span>':'')+'</h4>'
           +'<p>'+a2.desc+'</p>'
           +(a2.reward?'<div class="wiki-card__meta" style="color:var(--accent)">奖励: '+(rewardLabels[a2.reward]||a2.reward)+'</div>':'');
         achGrid.appendChild(card);
       });
+      var achHeader=achGrid.previousElementSibling;
+      if(achHeader)achHeader.textContent=achHeader.textContent.replace('成就','成就 ('+unlockedCount+'/'+ACHIEVEMENTS.length+')');
     }
 
     // WAVE_SCALE
