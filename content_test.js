@@ -2802,8 +2802,21 @@ code+='\n'+[
 '    if(!a.check({bossKills:1}))errors.push("271e: should pass");}',
 '}catch(e){errors.push("271: "+e.message)}',
 
+'// Test 272: mobile-controls PROF initialization order',
+'try{',
+'  var mc272=fs.readFileSync("mobile-controls.js","utf8");',
+'  var profLine=mc272.indexOf("var PROF = window.MOSUI.profiles.control;");',
+'  var usageLines=["PROF.stickR","PROF.thumbR","PROF.deadZone","PROF.hitPad","PROF.attackThresh","PROF.defaultSens"];',
+'  for(var ui=0;ui<usageLines.length;ui++){',
+'    var firstUse=mc272.indexOf(usageLines[ui]);',
+'    if(firstUse<profLine&&firstUse!==-1)errors.push("272a: "+usageLines[ui]+" used before PROF defined (line "+firstUse+" vs "+profLine+")");',
+'  }',
+'  if(mc272.indexOf("updateControlSizes()")!==-1&&profLine>mc272.indexOf("updateControlSizes()")){',
+'    errors.push("272b: updateControlSizes called before PROF initialized");}',
+'}catch(e){errors.push("272: "+e.message)}',
+
 'if(errors.length){console.log("FAIL ("+errors.length+"):");errors.forEach(function(e){console.log("  - "+e)});process.exit(1)}',
-'else{console.log("ALL 233 TESTS PASSED");',
+'else{console.log("ALL 234 TESTS PASSED");',
 '  console.log(" 37-62. (previous 26 tests)");',
 '  console.log(" 63-68. v2.10 (墨阵/墨童/阵眼/墨竭)");',
 '  console.log(" 69-78. v2.11 (墨镜/回春阵/墨涡/墨蝠/墨瘴/墨吸/墨甲)");',
@@ -2933,6 +2946,7 @@ code+='\n'+[
 '  console.log("  269. v5.2 结算构筑路线空值保护");',
 '  console.log("  270. v5.5 险途征服成就 (hard_win)");',
 '  console.log("  271. v5.5 画皮克星成就 (kill_huapi)");',
+'  console.log("  272. v5.5 mobile-controls PROF初始化顺序");',
 '}',
 ].join('\n');
 
