@@ -1,4 +1,4 @@
-# 墨祟：走阴录 路线书 v5.2+
+# 墨祟：走阴录 路线书 v5.5
 
 > 这份文档驱动开发节奏。详细 agent 流程见 `AGENT_SYSTEM.md`，自动化命令见 `.claude/AUTOMATION_GUIDE.md`。
 
