@@ -587,7 +587,7 @@ var TUNING={
 };
 
 var DEATH_COLOR={zhikui:"ash",youhun:"moss",fenling:"fire",shigui:"soft",gudeng:"gold",jiangshi:"ink",boss:"accent",
-  zhikuang:"ghost",fenshen:"soul",modun:"soft",mojiangjun:"ink",moguiwang:"accent",moya:"ink",shiyong:"soft",yanyong:"fire",sukui:"ash",duzhu:"moss",gushi:"boss",huapi:"accent",mozhi:"ink",motong:"ink",mofu:"ink",modie:"moss",moyong:"ink",morui:"accent",mozhu:"moss",mogu:"ash",momian:"ink",mojar:"ink",moying:"moss",mooushi:"ghost",mozhuhou:"ink",moling:"moss",mobei:"ash",mozhang:"moss",moyanshi:"soul",molizexi:"fire"};
+  zhikuang:"ghost",fenshen:"soul",modun:"soft",mojiangjun:"ink",moguiwang:"accent",moya:"ink",shiyong:"soft",yanyong:"fire",sukui:"ash",duzhu:"moss",gushi:"accent",huapi:"accent",mozhi:"ink",motong:"ink",mofu:"ink",modie:"moss",moyong:"ink",morui:"accent",mozhu:"moss",mogu:"ash",momian:"ink",mojar:"ink",moying:"moss",mooushi:"ghost",mozhuhou:"ink",moling:"moss",mobei:"ash",mozhang:"moss",moyanshi:"soul",molizexi:"fire"};
 
 var JUDGMENTS=["斩业已断","纸命归灰","照见真形","朱批落定","一念归尘","墨尽灯枯","形消魄散","笔落惊魂"];
 

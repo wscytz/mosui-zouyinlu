@@ -1028,7 +1028,9 @@ function cleanupWave(g){
   g.decoys.length=0;
   g.pendingDeathbursts.length=0;
   if(g.soulOrbs)g.soulOrbs.length=0;
+  if(g.formations)g.formations.length=0;
   g.fires=g.fires.filter(function(f){return f.owner==="player"});
+  g.merchant=null;
 }
 
 function startWave(g){

@@ -215,7 +215,7 @@ code+='\n'+[
 '  else{if(!ETYPE.gushi.buffAura)errors.push("51b: buffAura flag missing");',
 '    if(ETYPE.gushi.dmg!==0)errors.push("51c: gushi should have dmg=0 (support unit)");}',
 '  if(!ENEMY_COST.gushi)errors.push("51d: gushi not in ENEMY_COST");',
-'  if(DEATH_COLOR.gushi!=="boss")errors.push("51e: gushi death color="+DEATH_COLOR.gushi);',
+'  if(DEATH_COLOR.gushi!=="accent")errors.push("51e: gushi death color="+DEATH_COLOR.gushi);',
 '  var hasGushi=false;WAVE_TIERS.forEach(function(tier){if(tier.indexOf("gushi")>=0)hasGushi=true});',
 '  if(!hasGushi)errors.push("51f: gushi not in any WAVE_TIERS");',
 '  var g=newGame("jian");startWave(g);spawnEnemy(g,"gushi",{noScale:true});',
