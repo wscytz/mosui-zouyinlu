@@ -3233,6 +3233,15 @@ function render(g){
       c.fillStyle=C.ash;c.fillText(g.waveFlavor,W/2,H/2+22); }
     c.globalAlpha=1}
 
+  // First-wave hint
+  if(g.hintT>0&&g.announceT<=0){
+    var hA=g.hintT>200?(240-g.hintT)/40:g.hintT>30?1:g.hintT/30;
+    c.globalAlpha=cl(hA,0,1)*0.7;c.fillStyle=C.ash;
+    c.font='400 13px "STKaiti","KaiTi",serif';c.textAlign="center";
+    c.fillText("WASD 移动 · 鼠标瞄准 · 按住左键攻击",W/2,H-60);
+    c.fillText("空格/Shift 闪避 · R 重开 · F 全屏",W/2,H-42);
+    c.globalAlpha=1}
+
   // Boss intro card
   if(g.bossIntroT>0){
         var biA=g.bossIntroT>70?(110-g.bossIntroT)/40:g.bossIntroT/70;
