@@ -1034,6 +1034,7 @@ function cleanupWave(g){
 function startWave(g){
   snd("waveStart");
   cleanupWave(g);
+  g.bossKilled=false;
   var w;
   if(g.wave<WAVE_BUDGETS.length&&WAVE_BUDGETS[g.wave]>0){
     // Procedural wave
