@@ -1,7 +1,8 @@
 {
   "name": "墨祟：走阴录",
   "short_name": "墨祟",
-  "description": "水墨风俯视角动作肉鸽战斗试玩",
+  "version": "5.5.0",
+  "description": "水墨风俯视角动作肉鸽 — 5武器/193遗物/37敌人/3Boss",
   "start_url": "./game.html",
   "display": "standalone",
   "orientation": "landscape",
