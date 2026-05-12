@@ -4159,6 +4159,13 @@ function showRelic(g){
     sealEl.textContent="得物";
     el.innerHTML=choices.map(function(r){return relicCardHtml(r,"",g.relics)}).join("");
   }
+  var sumEl=document.getElementById("relicSummary");
+  if(sumEl){
+    if(g.relics.length>0){
+      sumEl.style.display="";
+      sumEl.textContent="已持："+g.relics.map(function(r){return r.name}).join(" · ");
+    }else{sumEl.style.display="none"}
+  }
   popupEl.style.display="";
   g.state="waveClear";
   el._choiceLocked=false;
