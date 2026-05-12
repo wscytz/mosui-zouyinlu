@@ -64,6 +64,30 @@
 
     // Adaptive sizing — must be before fitCanvas (fixes CTRL undefined crash)
     var CTRL = {};
+
+    // PROF initialization — must be before fitCanvas/updateControlSizes/ATTACK_THRESHOLD
+    window.MOSUI=window.MOSUI||{};
+    window.MOSUI.input=window.MOSUI.input||{};
+    window.MOSUI.platform=window.MOSUI.platform||{};
+    window.MOSUI.profiles=window.MOSUI.profiles||{control:{},render:{},ui:{}};
+    window.MOSUI.profiles.control=window.MOSUI.profiles.control||{};
+    var PROF = window.MOSUI.profiles.control;
+    if (!PROF.stickR) PROF.stickR = 62;
+    if (!PROF.thumbR) PROF.thumbR = 30;
+    if (!PROF.deadZone) PROF.deadZone = 22;
+    if (!PROF.hitPad) PROF.hitPad = 55;
+    if (!PROF.attackThresh) PROF.attackThresh = 0.08;
+    if (!PROF.curvePower) PROF.curvePower = 3;
+    if (!PROF.defaultSens) PROF.defaultSens = 1.0;
+    if (!PROF.leftBaseX) PROF.leftBaseX = 0.15;
+    if (!PROF.leftBaseY) PROF.leftBaseY = 0.72;
+    if (!PROF.rightBaseX) PROF.rightBaseX = 0.78;
+    if (!PROF.rightBaseY) PROF.rightBaseY = 0.72;
+    if (!PROF.panelY) PROF.panelY = 0.80;
+    if (!PROF.aimSmoothTick) PROF.aimSmoothTick = 0.2;
+    if (!PROF.aimSmoothTouch) PROF.aimSmoothTouch = 0.25;
+    if (!PROF.aimReturnDelay) PROF.aimReturnDelay = 5;
+    if (!PROF.targetSwitchRatio) PROF.targetSwitchRatio = 0.65;
     // Dynamic canvas scaling to fit viewport without cropping
     var cvs = document.getElementById("gameCanvas");
     var CRATIO = 960 / 640; // 1.5
@@ -138,29 +162,6 @@
     // Mobile input state consumed by game.js
     var input = { active: false, dx: 0, dy: 0, aimAngle: 0, attacking: false, dodging: false, dodgeRequest: 0, leftActive: false, rightActive: false, lastAimMode: "idle", autoAtk: false };
     window._mobileInput = input;
-    window.MOSUI=window.MOSUI||{};
-    window.MOSUI.input=window.MOSUI.input||{};
-    window.MOSUI.platform=window.MOSUI.platform||{};
-    window.MOSUI.profiles=window.MOSUI.profiles||{control:{},render:{},ui:{}};
-    window.MOSUI.profiles.control=window.MOSUI.profiles.control||{};
-    // Centralized control profile — all tunable params in one place
-    var PROF = window.MOSUI.profiles.control;
-    if (!PROF.stickR) PROF.stickR = 62;         // joystick base radius (logical px)
-    if (!PROF.thumbR) PROF.thumbR = 30;         // thumb radius
-    if (!PROF.deadZone) PROF.deadZone = 22;      // dead zone radius
-    if (!PROF.hitPad) PROF.hitPad = 55;          // extra hit area padding
-    if (!PROF.attackThresh) PROF.attackThresh = 0.08;  // right stick magnitude to trigger manual aim
-    if (!PROF.curvePower) PROF.curvePower = 3;   // response curve exponent (3 = cubic)
-    if (!PROF.defaultSens) PROF.defaultSens = 1.0;     // default sensitivity
-    if (!PROF.leftBaseX) PROF.leftBaseX = 0.15;  // left joystick X as fraction of W
-    if (!PROF.leftBaseY) PROF.leftBaseY = 0.72;  // left joystick Y as fraction of H
-    if (!PROF.rightBaseX) PROF.rightBaseX = 0.78; // right joystick X as fraction of W
-    if (!PROF.rightBaseY) PROF.rightBaseY = 0.72; // right joystick Y as fraction of H
-    if (!PROF.panelY) PROF.panelY = 0.80;        // bottom panel start as fraction of H
-    if (!PROF.aimSmoothTick) PROF.aimSmoothTick = 0.2;  // lerp factor per-frame auto-aim
-    if (!PROF.aimSmoothTouch) PROF.aimSmoothTouch = 0.25; // lerp factor on touch event
-    if (!PROF.aimReturnDelay) PROF.aimReturnDelay = 5;   // frames before returning to auto
-    if (!PROF.targetSwitchRatio) PROF.targetSwitchRatio = 0.65; // switch if new is 35%+ closer
     window.MOSUI.input.mobile=input;
     Object.defineProperty(window._mobileInput, 'sensitivity', {set:function(v){SENSITIVITY=v},get:function(){return SENSITIVITY}});
 
