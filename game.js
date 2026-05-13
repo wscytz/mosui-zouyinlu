@@ -2596,6 +2596,15 @@ function render(g){
       c.shadowBlur=0;if(g._pm>=0.5){c.globalAlpha=0.2*(1-prog);c.strokeStyle=C.ivory;c.lineWidth=1.5;
       c.beginPath();c.arc(atk.x,atk.y,r*0.88,0,Math.PI*2);c.stroke()}
       c.globalAlpha=1;
+    }else if(atk.type==="spirit"){
+      var spR=atk.r||6;
+      c.globalAlpha=0.2;c.fillStyle=C.accent;
+      c.beginPath();c.arc(atk.x-atk.vx,atk.y-atk.vy,spR*0.5,0,Math.PI*2);c.fill();
+      c.globalAlpha=0.85;if(g._pm>=0.45){c.shadowColor=C.accent;c.shadowBlur=8}
+      c.fillStyle=C.ghost;c.beginPath();c.arc(atk.x,atk.y,spR,0,Math.PI*2);c.fill();
+      c.shadowBlur=0;c.globalAlpha=0.5;c.fillStyle=C.ivory;
+      c.beginPath();c.arc(atk.x,atk.y,spR*0.4,0,Math.PI*2);c.fill();
+      c.globalAlpha=1;
     }
   });
 
