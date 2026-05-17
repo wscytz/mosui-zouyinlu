@@ -2200,7 +2200,7 @@ function update(g){
       if(g.time%3===0&&perfMul(g)>0.4){
         pushLimited(g.particles,{x:atk.x+rn(-2,2),y:atk.y+rn(-2,2),
           vx:rn(-0.3,0.3),vy:rn(-0.3,0.3),life:8,maxLife:8,size:rn(1.5,3),type:"accent"},LIMITS.particles)}
-      if(atk.bounce&&!atk.bounced&&atk.life<atk.maxLife*0.4){atk.vx*=-1;atk.vy*=-1;atk.bounced=true}
+      if(atk.bounce&&!atk.bounced&&atk.life<atk.maxLife*0.4){atk.vx*=-1;atk.vy*=-1;atk.bounced=true;snd("bounce")}
       if(atk.vx*atk.vx+atk.vy*atk.vy<0.25){g.attacks.splice(i,1);continue}
       if(atk.x<A.l||atk.x>A.r||atk.y<A.t||atk.y>A.b){g.attacks.splice(i,1);continue}
       var hitR=(atk.r||8);
@@ -2679,6 +2679,10 @@ function render(g){
       c.arc(0,0,e.r+4,0,Math.PI*2);c.fill();
       c.globalAlpha=0.15*e.hitFlash;c.strokeStyle=C.accent;c.lineWidth=2;c.beginPath();
       c.arc(0,0,e.r+6,0,Math.PI*2);c.stroke();c.globalAlpha=1}
+    if(e.fearT>0){var fearA=0.2+0.1*Math.sin(g.time*0.2);
+      c.globalAlpha=fearA;c.strokeStyle="#8b6ea0";c.lineWidth=1.5;
+      c.setLineDash([3,4]);c.beginPath();c.arc(rn(-1,1),rn(-1,1),e.r+6,0,Math.PI*2);c.stroke();
+      c.setLineDash([]);c.globalAlpha=1}
     if(e.elite){var ePulse=0.35+0.15*Math.sin(g.time*0.12);
       c.globalAlpha=ePulse;c.strokeStyle=C.gold;c.lineWidth=2;
       if(g._pm>=0.45){c.shadowColor=C.gold;c.shadowBlur=8}
