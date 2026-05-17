@@ -1,11 +1,11 @@
-# 墨祟：走阴录 路线书 v5.5
+# 墨祟：走阴录 路线书 v6.0
 
 > 这份文档驱动开发节奏。详细 agent 流程见 `AGENT_SYSTEM.md`，自动化命令见 `.claude/AUTOMATION_GUIDE.md`。
 
 ## 现状 (v5.5)
 
-- **内容体量**: 5武器 / 193遗物 / 30进化 / 37敌人(含3Boss) / 9关卡 / 22誓印 / 40成就 / 12波
-- **测试基线**: 298 项（37 smoke + 8 wave + 234 content + 11 stress + 5 robust + 3 seeded + strict audit gate）
+- **内容体量**: 5武器 / 193遗物 / 30进化 / 39敌人(含3Boss) / 9关卡 / 22誓印 / 40成就 / 12波
+- **测试基线**: 300 项（37 smoke + 8 wave + 236 content + 11 stress + 5 robust + 3 seeded + strict audit gate）
 - **自动化主线**: 方案 B，`sequencer -> executor JSON block -> merger -> test:all`
 - **自动化治理**: block rules、fixtures（1好7坏）、audit 接入 strict 门禁；0 errors / 0 warnings
 - **鲁棒性**: 193 遗物 × 5 武器 = 965 组合 fn 可执行；38 进化全可执行；全量组合不抛异常

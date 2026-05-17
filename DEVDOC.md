@@ -3616,6 +3616,29 @@ npm run cap:open:android  # 用 Android Studio 打开
 
 *v5.5.1 移动端控件修复 更新于 2026-05-12。*
 
+### v6.0 体验打磨 + 内容深化 (2026-05-17)
+
+- 补 3 种音效：`heal`（正弦 392→523Hz）、`bannerPlace`（三角 330→165Hz）、`soulChain`（正弦 1200→300Hz）
+- 召魂幡放置加 ring 爆发视觉反馈，使用独立音效 `bannerPlace`（不再复用 bellRing）
+- HP 条颜色随比例变化：>60% 绿色、30-60% 黄色、<30% 红色
+- Wiki 敌人行为标签修复：从覆盖模式改为数组累积，修复 swoop 被 deathBuff 覆盖的 bug
+- 新敌人：墨影鬼 `moyinggui`（传送型，周期瞬移到玩家身后）
+- 新敌人：墨医师 `moyishi`（治疗型，周期治疗周围敌人，有范围指示圈）
+- 阶段效果轮换优化：wave 6 改为 guishi、wave 8 改为 inktide（原来两阶段效果在主 9 波中几乎遇不到）
+- 遗物跳过按钮：不想选时可以放弃当前遗物选择
+- 结算页复制战绩按钮
+- soulChain 触发音效
+- Boss 肖像持续显示 bug 修复：`g.bossKilled` 在 `startWave()` 中重置
+- 魂弹渲染修复：新增 `spirit` 类型攻击渲染分支（幽灵拖尾 + 内核）
+- build.gradle 版本号同步：versionCode 2→3，versionName "2.0"→"3.0"
+- content_test.js 修复：Test 272/273/274 引号格式 + spawnEnemy 返回值处理
+- ETYPE 37→39，ENEMY_COST / DEATH_COLOR / WAVE_TIERS 同步更新
+- 新增 Test 273/274：moyinggui/moyishi 数据验证 + spawn 字段传播
+
+**测试基线：** 300 项（37 smoke + 8 wave + 236 content + 11 stress + 5 robust + 3 seeded + strict audit）+ 13 visual smoke
+
+*v6.0 体验打磨 + 内容深化 更新于 2026-05-17。*
+
 ### 版本号规则
 
 改完一个bug → 删掉对应条目 → 版本号末尾+1

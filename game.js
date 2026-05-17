@@ -2144,7 +2144,7 @@ function update(g){
     if(e.teleport&&e.hp>0){
       if(e.teleportT>0)e.teleportT--;
       if(e.teleportT<=0){e.teleportT=e.teleportCd;
-        spawnInk(g,e.x,e.y,6,"ghost");
+        snd("ghostProj");spawnInk(g,e.x,e.y,6,"ghost");
         var tAng=p.facing+Math.PI+rn(-0.5,0.5),tDist=rn(50,90);
         e.x=cl(p.x+Math.cos(tAng)*tDist,A.l+e.r,A.r-e.r);
         e.y=cl(p.y+Math.sin(tAng)*tDist,A.t+e.r,A.b-e.r);
@@ -2159,7 +2159,7 @@ function update(g){
           if(dstSq(e,oe)<e.healAuraR*e.healAuraR){
             oe.hp=Math.min(oe.maxHp,oe.hp+e.healAuraAmt);
             spawnP(g,oe.x,oe.y,"moss",2);healed=true}});
-        if(healed){spawnInk(g,e.x,e.y,4,"moss");spawnP(g,e.x,e.y,"moss",3)}
+        if(healed){spawnInk(g,e.x,e.y,4,"moss");spawnP(g,e.x,e.y,"moss",3);snd("heal")}
       }
     }
   }
@@ -2878,6 +2878,9 @@ function render(g){
     if(e.buffAura){var bA=0.15+0.08*Math.sin(g.time*0.05);c.strokeStyle=C.boss;c.lineWidth=1.5;
       c.globalAlpha=bA;c.beginPath();c.arc(0,0,90,0,Math.PI*2);c.stroke();
       c.globalAlpha=bA*0.3;c.fillStyle=C.boss;c.beginPath();c.arc(0,0,90,0,Math.PI*2);c.fill();c.globalAlpha=1}
+    if(e.healAura){var hA=e.healAuraT<30?0.25:0.1;hA+=0.05*Math.sin(g.time*0.06);c.strokeStyle=C.moss;c.lineWidth=1;
+      c.globalAlpha=hA;c.beginPath();c.arc(0,0,e.healAuraR,0,Math.PI*2);c.stroke();
+      c.globalAlpha=hA*0.3;c.fillStyle=C.moss;c.beginPath();c.arc(0,0,e.healAuraR,0,Math.PI*2);c.fill();c.globalAlpha=1}
     // elite crown
     if(e.elite&&e.hp>0){
       var _ecSin=Math.sin(g.time*0.1);c.globalAlpha=0.45+_ecSin*0.2;

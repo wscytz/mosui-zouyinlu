@@ -1,4 +1,4 @@
-# 墨祟：走阴录 v5.5
+# 墨祟：走阴录 v6.0
 
 水墨俯视角动作肉鸽。你扮演一名替亡者走阴的夜行客，手持法器深入地宫，斩妖除祟。
 
@@ -41,7 +41,7 @@ npm run audit:content
 - **5 把武器**：斩妖剑 / 符骨笔 / 镇魂铃 / 伏魔伞 / 召魂幡
 - **193 件遗物**：标签驱动，按构筑自由组合；RELIC_RULES 权重覆盖 193/193
 - **30 种进化**：3条武器进化链
-- **37 种敌人**（含 3 Boss）：画皮娘子 / 墨将军 / 墨鬼王
+- **39 种敌人**（含 3 Boss）：画皮娘子 / 墨将军 / 墨鬼王
 - **9 个关卡**：含墨潮脉动等特殊关卡调制器
 - **22 条誓印**：含诅咒型誓印
 - **40 个成就**：覆盖各武器/遗物/Boss/难度/特殊挑战
@@ -49,7 +49,7 @@ npm run audit:content
 
 ## 测试基线
 
-- `npm run test:all` = 298 项（37 smoke + 8 wave + 234 content + 11 stress + 5 robust + 3 seeded）+ strict audit gate
+- `npm run test:all` = 300 项（37 smoke + 8 wave + 236 content + 11 stress + 5 robust + 3 seeded）+ strict audit gate
 - `npm run test:visual` = 13 项 Playwright 视觉冒烟（含暂停/恢复、移动端竖屏/横屏、Wiki渲染、结算页/弹窗 DOM）
 - 0 flake（6/6 连跑全绿）
 
