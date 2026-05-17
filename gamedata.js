@@ -435,9 +435,9 @@ var WAVES=[
   {label:"第叁波 · 悬井口",mod:"well",flavor:"井口之下引力难辨，焚灵与游魂交织。",list:[{t:"zhikui",n:3},{t:"youhun",n:3},{t:"fenling",n:2}],special:"survival"},
   {label:"第肆波 · 鬼灯廊",mod:"lantern",flavor:"鬼灯吐焰，分身鬼在暗处窥伺。",list:[{t:"youhun",n:2},{t:"gudeng",n:2},{t:"fenshen",n:2}],special:"horde"},
   {label:"第伍波 · 无面台",mod:"mask",flavor:"无面台上群邪毕至，食灰、僵客、墨盾齐出。",list:[{t:"zhikui",n:2},{t:"shigui",n:2},{t:"jiangshi",n:1},{t:"modun",n:1},{t:"fenshen",n:1}],special:"horde"},
-  {label:"第陆波 · 灰潮",mod:"ash",flavor:"灰潮涌来，焚灵成群，食灰鬼挡道。",list:[{t:"shigui",n:3},{t:"fenling",n:3},{t:"gudeng",n:2},{t:"zhikuang",n:1}],special:"elite"},
+  {label:"第陆波 · 鬼市",mod:"guishi",flavor:"鬼市幽灯，焚灵成群，食灰鬼挡道。",list:[{t:"shigui",n:3},{t:"fenling",n:3},{t:"gudeng",n:2},{t:"zhikuang",n:1}],special:"elite"},
   {label:"第柒波 · 墨池",mod:"inkpool",flavor:"墨池深处敌人暴虐。净化池水方为上策。",list:[{t:"jiangshi",n:2},{t:"youhun",n:3},{t:"gudeng",n:2},{t:"modun",n:2}],special:"survival"},
-  {label:"第捌波 · 百鬼面",mod:"mask",flavor:"百鬼夜行，全面围攻。这是最终考验。",list:[{t:"zhikui",n:3},{t:"shigui",n:2},{t:"jiangshi",n:2},{t:"fenshen",n:2},{t:"zhikuang",n:1},{t:"modun",n:1}]},
+  {label:"第捌波 · 墨潮",mod:"inktide",flavor:"墨潮翻涌，全面围攻。这是最终考验。",list:[{t:"zhikui",n:3},{t:"shigui",n:2},{t:"jiangshi",n:2},{t:"fenshen",n:2},{t:"zhikuang",n:1},{t:"modun",n:1}]},
   {label:"镇守 · 画皮堂",mod:"lantern",flavor:"画皮娘子镇守此地。她有千面，你的刀只有一面。",list:[{t:"boss",n:1},{t:"gudeng",n:1},{t:"jiangshi",n:1},{t:"zhikuang",n:1},{t:"fenshen",n:2}]}
 ];
 
@@ -511,7 +511,12 @@ var ETYPE={
   molizexi:{name:"墨裂蜥",tip:"冲锋后分裂为碎片，AOE速清",hp:28,spd:1.8,r:10,dmg:8,atkR:18,atkCd:80,
     col:"rgba(200,75,45,0.85)",edge:C.fire,
     charge:true,chargeCd:180,chargeSpeed:5,
-    splitter:true,splitCount:3,splitHpRatio:0.25}
+    splitter:true,splitCount:3,splitHpRatio:0.25},
+  // v6.0 new enemies
+  moyinggui:{name:"墨影鬼",tip:"周期瞬移到玩家身后突袭，保持移动",hp:50,spd:1.6,r:12,dmg:10,atkR:30,atkCd:45,
+    col:"rgba(60,50,70,0.35)",edge:C.ghost,teleport:true,teleportCd:180},
+  moyishi:{name:"墨医师",tip:"周期治疗周围敌人，优先击杀阻止回血",hp:60,spd:0.9,r:14,dmg:0,atkR:0,atkCd:0,
+    col:"rgba(90,138,74,0.4)",edge:C.moss,healAura:true,healAuraR:100,healAuraCd:150,healAuraAmt:8}
 };
 
 var LIMITS={particles:260,fires:72,attacks:90,eProj:90,floatTexts:18,decoys:12,kites:4,frosts:12,enemies:80,inkSpirits:6};
@@ -587,7 +592,7 @@ var TUNING={
 };
 
 var DEATH_COLOR={zhikui:"ash",youhun:"moss",fenling:"fire",shigui:"soft",gudeng:"gold",jiangshi:"ink",boss:"accent",
-  zhikuang:"ghost",fenshen:"soul",modun:"soft",mojiangjun:"ink",moguiwang:"accent",moya:"ink",shiyong:"soft",yanyong:"fire",sukui:"ash",duzhu:"moss",gushi:"accent",huapi:"accent",mozhi:"ink",motong:"ink",mofu:"ink",modie:"moss",moyong:"ink",morui:"accent",mozhu:"moss",mogu:"ash",momian:"ink",mojar:"ink",moying:"moss",mooushi:"ghost",mozhuhou:"ink",moling:"moss",mobei:"ash",mozhang:"moss",moyanshi:"soul",molizexi:"fire"};
+  zhikuang:"ghost",fenshen:"soul",modun:"soft",mojiangjun:"ink",moguiwang:"accent",moya:"ink",shiyong:"soft",yanyong:"fire",sukui:"ash",duzhu:"moss",gushi:"accent",huapi:"accent",mozhi:"ink",motong:"ink",mofu:"ink",modie:"moss",moyong:"ink",morui:"accent",mozhu:"moss",mogu:"ash",momian:"ink",mojar:"ink",moying:"moss",mooushi:"ghost",mozhuhou:"ink",moling:"moss",mobei:"ash",mozhang:"moss",moyanshi:"soul",molizexi:"fire",moyinggui:"ghost",moyishi:"moss"};
 
 var JUDGMENTS=["斩业已断","纸命归灰","照见真形","朱批落定","一念归尘","墨尽灯枯","形消魄散","笔落惊魂"];
 
@@ -605,14 +610,14 @@ var BUILD_PREFS={
 function _ri(a,b){return Math.floor(a+Math.random()*(b-a+1))}
 function _pick(a){return a[Math.floor(Math.random()*a.length)]}
 // --- Procedural wave generation ---
-var ENEMY_COST={zhikui:1,youhun:1.5,zhikuang:1.5,fenling:2,gudeng:2,shigui:2.5,fenshen:2.5,modun:2.5,jiangshi:3,moya:1.8,shiyong:3,yanyong:2.2,sukui:1.3,duzhu:1.7,gushi:2.8,huapi:1.9,mozhi:1.4,motong:1.2,mofu:1.1,modie:1.5,moyong:2.0,morui:0.7,mozhu:1.8,mogu:2.8,momian:1.6,mojar:2.0,moying:1.5,mooushi:2.5,mozhuhou:3.0,moling:1.8,mobei:2.5,mozhang:2.0,moyanshi:2.3,molizexi:1.9,boss:99,mojiangjun:99,moguiwang:99};
+var ENEMY_COST={zhikui:1,youhun:1.5,zhikuang:1.5,fenling:2,gudeng:2,shigui:2.5,fenshen:2.5,modun:2.5,jiangshi:3,moya:1.8,shiyong:3,yanyong:2.2,sukui:1.3,duzhu:1.7,gushi:2.8,huapi:1.9,mozhi:1.4,motong:1.2,mofu:1.1,modie:1.5,moyong:2.0,morui:0.7,mozhu:1.8,mogu:2.8,momian:1.6,mojar:2.0,moying:1.5,mooushi:2.5,mozhuhou:3.0,moling:1.8,mobei:2.5,mozhang:2.0,moyanshi:2.3,molizexi:1.9,moyinggui:2.2,moyishi:2.5,boss:99,mojiangjun:99,moguiwang:99};
 var WAVE_BUDGETS=[5,7,9.5,12,14.5,17.5,21,25,28,32,36,0];
 var WAVE_TIERS=[
   ["zhikui","youhun"],
   ["zhikui","youhun","fenling","zhikuang","moya","sukui","huapi","mozhi","motong","mofu","modie","morui","moying","molizexi"],
   ["zhikui","youhun","fenling","gudeng","shigui","fenshen","moya","shiyong","sukui","yanyong","duzhu","morui","moyong","mozhu","moying","mooushi","moling","mozhang","moyanshi"],
-  ["zhikuang","fenling","gudeng","shigui","fenshen","modun","jiangshi","moya","shiyong","yanyong","gushi","moyong","mozhu","mogu","mojar","mooushi","mobei","moyanshi"],
-  ["fenling","gudeng","shigui","fenshen","modun","jiangshi","moya","shiyong","yanyong","duzhu","gushi","mozhu","mogu","momian","mojar","mooushi","mozhuhou"]
+  ["zhikuang","fenling","gudeng","shigui","fenshen","modun","jiangshi","moya","shiyong","yanyong","gushi","moyong","mozhu","mogu","mojar","mooushi","mobei","moyanshi","moyinggui"],
+  ["fenling","gudeng","shigui","fenshen","modun","jiangshi","moya","shiyong","yanyong","duzhu","gushi","mozhu","mogu","momian","mojar","mooushi","mozhuhou","moyinggui","moyishi"]
 ];
 var WAVE_PLACES=["纸门","纸灰巷","悬井口","鬼灯廊","无面台","墨池","灰潮","百鬼面","黄泉路","枯骨桥","阴风道","鬼市","鸦栖楼","幽冥渡"];
 var WAVE_FLAVORS=["此处邪祟暗藏，小心试探。","前方鬼影绰绰，不可大意。","阴气渐重，步步为营。","群邪毕至，殊死一搏。","地宫深处，杀机四伏。"];

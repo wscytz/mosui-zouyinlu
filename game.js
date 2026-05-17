@@ -460,6 +460,8 @@ function spawnEnemy(g,type,opts){
     deathBuff:!!t.deathBuff,deathBuffR:t.deathBuffR||130,deathBuffT:t.deathBuffT||180,
     deathSlow:!!t.deathSlow,deathSlowR:t.deathSlowR||80,deathSlowT:t.deathSlowT||120,
     spawnsOnDeath:!!t.spawnsOnDeath,spawnType:t.spawnType||"",spawnCount:t.spawnCount||2,
+    teleport:!!t.teleport,teleportCd:t.teleportCd||180,teleportT:ri(60,t.teleportCd||180),
+    healAura:!!t.healAura,healAuraR:t.healAuraR||100,healAuraCd:t.healAuraCd||150,healAuraT:ri(60,t.healAuraCd||150),healAuraAmt:t.healAuraAmt||8,
     bossChargeT:t.isBoss?0:undefined,bossChargeCdT:t.isBoss?120:undefined,
     bossPrepT:t.isBoss?0:undefined,bossPrepAng:0,
     chargeCdT:ri(45,105),chargeT:0,chargeVx:0,chargeVy:0,prepT:0,stageRevived:false,
@@ -1252,6 +1254,7 @@ function pAtk(g){
       tickOffset:ri(0,15),healTickOffset:0,isBanner:true,bannerPierce:!!p.bannerPierce,
       bannerBurst:!!p.bannerBurst},LIMITS.fires);
     spawnInk(g,bx,by,6,"accent");spawnP(g,bx,by,"accent",4);
+    addAttack(g,{x:bx,y:by,r:banR,life:12,maxLife:12,type:"ring",dmg:0});
     if(p.bannerDouble){
       var bx2=p.x+Math.cos(p.facing+Math.PI)*50,by2=p.y+Math.sin(p.facing+Math.PI)*50;
       pushLimited(g.fires,{x:bx2,y:by2,r:banR,life:200,maxLife:200,dmg:banDmg,owner:"player",
@@ -1290,7 +1293,7 @@ function pAtk(g){
   else if(w.type==="ranged")snd("brushShot");
   else if(w.type==="aoe")snd("bellRing");
   else if(w.type==="dash")snd("umbrellaDash");
-  else if(w.type==="summon")snd("bellRing");
+  else if(w.type==="summon")snd("bannerPlace");
   p.justDodged=false;p.justDodgedT=0;
 }
 
@@ -1444,7 +1447,7 @@ function hitE(g,atk,e){
       if(o===e||o.hp<=0)return;
       var dSq=dstSq(o,e);
       if(doFear&&dSq<fearR)o.fearT=60;
-      if(doSoul&&dSq<soulR&&sc<CAPS.soulChain){damageEnemy(g,o,Math.floor(atk.dmg*0.3),"soul");spawnP(g,o.x,o.y,"soul",3);sc++}
+      if(doSoul&&dSq<soulR&&sc<CAPS.soulChain){damageEnemy(g,o,Math.floor(atk.dmg*0.3),"soul");spawnP(g,o.x,o.y,"soul",3);if(sc===0)snd("soulChain");sc++}
       if(atk.burst&&dSq<RANGES.burst*RANGES.burst){damageEnemy(g,o,Math.floor(atk.dmg*0.4),"burst")}
     });
   }
@@ -2137,6 +2140,28 @@ function update(g){
     // shield regen
     if(e.hp>0&&!e.hasShield&&e.shieldCd>0){e.shieldCd--;if(e.shieldCd<=0){e.shield=e.maxShield;e.hasShield=true;
       spawnInk(g,e.x,e.y,5,"ink");snd("chargeReady")}}
+    // teleport: blink behind player
+    if(e.teleport&&e.hp>0){
+      if(e.teleportT>0)e.teleportT--;
+      if(e.teleportT<=0){e.teleportT=e.teleportCd;
+        spawnInk(g,e.x,e.y,6,"ghost");
+        var tAng=p.facing+Math.PI+rn(-0.5,0.5),tDist=rn(50,90);
+        e.x=cl(p.x+Math.cos(tAng)*tDist,A.l+e.r,A.r-e.r);
+        e.y=cl(p.y+Math.sin(tAng)*tDist,A.t+e.r,A.b-e.r);
+        spawnInk(g,e.x,e.y,6,"ghost");shake(g,2,2)}
+    }
+    // healAura: periodically heal nearby enemies
+    if(e.healAura&&e.hp>0){
+      if(e.healAuraT>0)e.healAuraT--;
+      if(e.healAuraT<=0){e.healAuraT=e.healAuraCd;
+        var healed=false;
+        forEachLiveEnemy(g,function(oe){if(oe===e||oe.isBoss)return;
+          if(dstSq(e,oe)<e.healAuraR*e.healAuraR){
+            oe.hp=Math.min(oe.maxHp,oe.hp+e.healAuraAmt);
+            spawnP(g,oe.x,oe.y,"moss",2);healed=true}});
+        if(healed){spawnInk(g,e.x,e.y,4,"moss");spawnP(g,e.x,e.y,"moss",3)}
+      }
+    }
   }
 
   // enemy projectiles + off-screen warnings
@@ -3681,7 +3706,9 @@ function updateHUD(g){
   var st=g.stage?getStageDef(g.stage.id):null;
   var el=_hudEl("hpFill");
   if(el){
-    if(p.hp!==_lastHp){el.style.width=(p.hp/p.maxHp*100)+"%";
+    if(p.hp!==_lastHp){var hpR=p.hp/p.maxHp;el.style.width=(hpR*100)+"%";
+    var hc=hpR>0.6?"#5a8a4a":hpR>0.3?"#b8860b":"#c4523d";
+    el.style.background="linear-gradient(90deg,"+hc+","+hc+")";
     if(_lastHp>=0&&p.hp>_lastHp){el.classList.remove("is-healed");void el.offsetWidth;el.classList.add("is-healed")}
     if(p.hp<=p.maxHp*0.3)el.classList.add("is-critical");else el.classList.remove("is-critical");
     _lastHp=p.hp;}
@@ -4190,6 +4217,12 @@ function showRelic(g){
   popupEl.style.display="";
   g.state="waveClear";
   el._choiceLocked=false;
+  var _skipRelic=function(){
+    if(el._choiceLocked)return;el._choiceLocked=true;el.onclick=null;
+    popupEl.style.display="none";g.state="playing";startWave(g);
+  };
+  var _skipBtn=document.getElementById("relicSkipBtn");
+  if(_skipBtn){_skipBtn.onclick=function(){_skipRelic()}}
   el.onmouseover=function(ev){if(ev.target.closest&&ev.target.closest("[data-relic]"))snd("uiBlip")};
   el.onclick=function(ev){
     if(el._choiceLocked)return;
@@ -4781,6 +4814,12 @@ function init(){
     var _ph=document.getElementById("pauseHint");if(_ph)_ph.style.display="none";
     var _ws=document.getElementById("weaponSelect");if(_ws)_ws.style.display="";
     keys={};G=null;document.body.classList.remove("game-active")});
+  var _copyBtn=document.getElementById("copyResultBtn");if(_copyBtn)_copyBtn.addEventListener("click",function(){
+    var _st=document.getElementById("endStats");var _txt=_st?_st.innerText:"";
+    var _ti=document.getElementById("endTitle");var _sub=document.getElementById("endSubtitle");
+    var lines=[_ti?_ti.innerText:"",_sub?_sub.innerText:"",_txt].filter(function(l){return l});
+    navigator.clipboard.writeText(lines.join("\n")).then(function(){_copyBtn.textContent="已复制";setTimeout(function(){_copyBtn.textContent="复制战绩"},1500)})
+  });
   var _resumeBtn=document.getElementById("resumeBtn");if(_resumeBtn)_resumeBtn.addEventListener("click",togglePause);
   // Mobile HTML pause button
   var _mobilePauseBtn=document.getElementById("mobilePauseBtn");

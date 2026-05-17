@@ -546,7 +546,10 @@
     reflect: playReflect,
     shopEnter: playShopEnter,
     hazardWarn: playHazardWarn,
-    curseSelect: playCurseSelect
+    curseSelect: playCurseSelect,
+    heal: playHeal,
+    bannerPlace: playBannerPlace,
+    soulChain: playSoulChain
   };
 
   function playGhostProj() {
@@ -566,6 +569,33 @@
     gain.gain.setValueAtTime(0.03, t);
     gain.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
     osc.connect(gain); osc.start(t); osc.stop(t + 0.18); autoDisconnect(0.2, [osc, gain]);
+  }
+  function playHeal() {
+    if (!ctx) init(); var t = now();
+    var osc = ctx.createOscillator(); var gain = makeGain(0);
+    osc.type = 'sine'; osc.frequency.setValueAtTime(392, t);
+    osc.frequency.setValueAtTime(523, t + 0.08);
+    gain.gain.setValueAtTime(0.04, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+    osc.connect(gain); osc.start(t); osc.stop(t + 0.22); autoDisconnect(0.22, [osc, gain]);
+  }
+  function playBannerPlace() {
+    if (!ctx) init(); var t = now();
+    var osc = ctx.createOscillator(); var gain = makeGain(0);
+    osc.type = 'triangle'; osc.frequency.setValueAtTime(330, t);
+    osc.frequency.exponentialRampToValueAtTime(165, t + 0.15);
+    gain.gain.setValueAtTime(0.06, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+    osc.connect(gain); osc.start(t); osc.stop(t + 0.22); autoDisconnect(0.22, [osc, gain]);
+  }
+  function playSoulChain() {
+    if (!ctx) init(); var t = now();
+    var osc = ctx.createOscillator(); var gain = makeGain(0);
+    osc.type = 'sine'; osc.frequency.setValueAtTime(1200, t);
+    osc.frequency.exponentialRampToValueAtTime(300, t + 0.1);
+    gain.gain.setValueAtTime(0.03, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+    osc.connect(gain); osc.start(t); osc.stop(t + 0.14); autoDisconnect(0.14, [osc, gain]);
   }
   function playQuickRestart() {
     if (!ctx) init(); var t = now();
