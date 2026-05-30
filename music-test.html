@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>墨祟：走阴录 - 音乐测试</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "STKaiti","KaiTi",serif;
+    background: #1a1612;
+    color: #f1e6d4;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+  }
+  h1 {
+    font-size: 2rem;
+    color: #a33a2d;
+    margin-bottom: 30px;
+    text-shadow: 0 0 20px rgba(163,58,45,0.5);
+  }
+  .music-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    max-width: 900px;
+    width: 100%;
+  }
+  .music-card {
+    background: linear-gradient(135deg, #2c2520 0%, #1a1612 100%);
+    border: 1px solid #4d4035;
+    border-radius: 8px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+  }
+  .music-card:hover {
+    border-color: #a33a2d;
+    box-shadow: 0 0 20px rgba(163,58,45,0.3);
+    transform: translateY(-2px);
+  }
+  .music-card.active {
+    border-color: #a33a2d;
+    background: linear-gradient(135deg, #3d3028 0%, #2a2018 100%);
+    box-shadow: 0 0 30px rgba(163,58,45,0.4);
+  }
+  .music-card h3 {
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+    color: #d4c4a8;
+  }
+  .music-card p {
+    font-size: 0.85rem;
+    color: #8d7d69;
+  }
+  .music-card .freqs {
+    font-size: 0.75rem;
+    color: #6d5d49;
+    margin-top: 8px;
+    font-family: monospace;
+  }
+  .controls {
+    margin-top: 40px;
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    padding: 12px 24px;
+    border: 1px solid #4d4035;
+    border-radius: 6px;
+    background: #2c2520;
+    color: #f1e6d4;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  button:hover {
+    border-color: #a33a2d;
+    background: #3d3028;
+  }
+  .volume-control {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 20px;
+  }
+  input[type="range"] {
+    width: 200px;
+    accent-color: #a33a2d;
+  }
+  .info {
+    max-width: 600px;
+    margin-top: 40px;
+    padding: 20px;
+    background: rgba(44,37,32,0.5);
+    border-radius: 8px;
+    border: 1px solid #4d4035;
+  }
+  .info h3 {
+    color: #a33a2d;
+    margin-bottom: 12px;
+  }
+  .info p {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: #8d7d69;
+  }
+</style>
+</head>
+<body>
+<h1>🎵 墨祟：走阴录 - 音乐测试</h1>
+
+<div class="music-grid" id="musicGrid"></div>
+
+<div class="controls">
+  <button onclick="stopAll()">⏹ 停止全部</button>
+  <button onclick="playRandom()">🎲 随机播放</button>
+</div>
+
+<div class="volume-control">
+  <span>音量:</span>
+  <input type="range" id="volume" min="0" max="100" value="60" onchange="setVolume(this.value)">
+  <span id="volValue">60%</span>
+</div>
+
+<div class="info">
+  <h3>🎼 环境音乐系统说明</h3>
+  <p>
+    每个关卡有独特的氛围音乐，使用 Web Audio API 合成。
+    音乐由多个正弦/三角波振荡器叠加低频振荡器(LFO)产生。
+    点击上方按钮可以预览不同关卡的氛围音效。
+  </p>
+</div>
+
+<script src="sound.js"></script>
+<script>
+var stages = [
+  { id: 'calm', name: '净坛', desc: '平静的地宫入口', freqs: '55/82/110 Hz' },
+  { id: 'ash', name: '纸灰风', desc: '灰烬飘扬的走廊', freqs: '65/98/130 Hz' },
+  { id: 'well', name: '悬井', desc: '深不见底的古井', freqs: '44/66/88 Hz' },
+  { id: 'mask', name: '无面戏台', desc: '诡异的面具剧场', freqs: '55/73/130 Hz' },
+  { id: 'lantern', name: '鬼灯阵', desc: '飘忽的鬼火', freqs: '73/110/147 Hz' },
+  { id: 'inkpool', name: '墨池', desc: '漆黑的墨池', freqs: '37/55/73 Hz' },
+  { id: 'guishi', name: '鬼市', desc: '喧闹的地下市场', freqs: '82/123/165 Hz' },
+  { id: 'mirror', name: '镜殿', desc: '虚实交错的镜子屋', freqs: '98/131/196 Hz' }
+];
+
+var activeCard = null;
+
+function init() {
+  var grid = document.getElementById('musicGrid');
+  stages.forEach(function(stage) {
+    var card = document.createElement('div');
+    card.className = 'music-card';
+    card.innerHTML = '<h3>' + stage.name + '</h3><p>' + stage.desc + '</p><div class="freqs">' + stage.freqs + '</div>';
+    card.onclick = function() { playStage(stage.id, card); };
+    grid.appendChild(card);
+  });
+}
+
+function playStage(id, card) {
+  if (activeCard) activeCard.classList.remove('active');
+  GameSound.init();
+  GameSound.startAmbient(id);
+  card.classList.add('active');
+  activeCard = card;
+}
+
+function stopAll() {
+  if (activeCard) {
+    activeCard.classList.remove('active');
+    activeCard = null;
+  }
+  GameSound.stopAmbient();
+}
+
+function playRandom() {
+  var stage = stages[Math.floor(Math.random() * stages.length)];
+  var cards = document.querySelectorAll('.music-card');
+  playStage(stage.id, cards[stages.indexOf(stage)]);
+}
+
+function setVolume(val) {
+  document.getElementById('volValue').textContent = val + '%';
+  if (GameSound.setVolume) {
+    GameSound.setVolume(val / 100);
+  }
+}
+
+init();
+</script>
+</body>
+</html>
