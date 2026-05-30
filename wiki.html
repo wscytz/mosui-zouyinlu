@@ -47,6 +47,16 @@
       margin: 0 0 10px;
       line-height: 1.5;
     }
+    .wiki-card__enemy-icon {
+      width: 48px; height: 48px; object-fit: cover; border-radius: 8px;
+      float: right; margin: -4px -4px 8px 8px;
+      filter: grayscale(0.4) sepia(0.25) contrast(1.05) brightness(0.95);
+      opacity: 0.88; mix-blend-mode: multiply;
+    }
+    .wiki-card--boss .wiki-card__enemy-icon {
+      width: 64px; height: 64px;
+      border: 1px solid rgba(107,58,92,0.2);
+    }
     .wiki-card--boss {
       border-color: rgba(107,58,92,0.3);
       background:
@@ -528,7 +538,8 @@
       if(BOSS_PHASES[tid]){
         bossHtml='<div class="wiki-card__phases">'+BOSS_PHASES[tid].map(function(p){return'<span>'+p+'</span>'}).join('')+'</div>';
       }
-      c.innerHTML='<h4>'+e.name+(e.isBoss?' (Boss)':'')+'</h4>'
+      var iconHtml='<img class="wiki-card__enemy-icon" src="assets/sprites/enemies/'+tid+'_001.jpg" alt="" onerror="this.style.display=\'none\'">';
+      c.innerHTML=iconHtml+'<h4>'+e.name+(e.isBoss?' (Boss)':'')+'</h4>'
         +'<div class="wiki-card__meta">HP:'+hpStr+' · 速度:'+e.spd+' · 伤害:'+e.dmg+extra+'</div>'
         +bossHtml;
       eng.appendChild(c);
