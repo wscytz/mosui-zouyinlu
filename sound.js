@@ -786,6 +786,8 @@
 
   // Ambient drone: low pad with slow LFO for atmosphere
   var ambientNodes = null;
+  var ambientAudio = null;
+  var ambientVolume = 0.6;
 
   var STAGE_AMBIENT = {
     calm:    { freqs: [55, 82.41, 110], types: ['sine','sine','sine'], vol: 0.018, lfo: 0.08, lfoD: 2.5 },
@@ -801,6 +803,27 @@
   function startAmbient(stage) {
     if (!ctx) init();
     if (ambientNodes) stopAmbient();
+
+    // Try to play MP3 file if exists
+    var mp3Path = 'assets/music/' + stage + '.mp3';
+    try {
+      var audio = new Audio(mp3Path);
+      audio.loop = true;
+      audio.volume = ambientVolume * 0.6;
+      audio.play().then(function() {
+        ambientAudio = audio;
+      }).catch(function() {
+        // Fallback to synthesized ambient
+        startSynthAmbient(stage);
+      });
+      return;
+    } catch (e) {
+      // Fallback to synthesized ambient
+    }
+    startSynthAmbient(stage);
+  }
+
+  function startSynthAmbient(stage) {
     var cfg = STAGE_AMBIENT[stage] || STAGE_AMBIENT.calm;
     var g = ctx.createGain();
     g.gain.value = cfg.vol;
@@ -830,6 +853,12 @@
   }
 
   function stopAmbient() {
+    // Stop MP3 audio
+    if (ambientAudio) {
+      ambientAudio.pause();
+      ambientAudio.currentTime = 0;
+      ambientAudio = null;
+    }
     if (!ambientNodes) return;
     var t = ctx.currentTime;
     ambientNodes.gain.gain.linearRampToValueAtTime(0, t + 0.5);

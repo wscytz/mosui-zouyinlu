@@ -132,42 +132,50 @@
 <div class="info">
   <h3>🎼 环境音乐系统说明</h3>
   <p>
-    每个关卡有独特的氛围音乐，使用 Web Audio API 合成。
-    音乐由多个正弦/三角波振荡器叠加低频振荡器(LFO)产生。
-    点击上方按钮可以预览不同关卡的氛围音效。
+    使用 MiniMax AI 生成的原创音乐，为每个关卡打造独特的氛围体验。
+    点击上方按钮可以预览不同关卡的氛围音乐。
+    游戏启动时会根据关卡自动切换对应音乐。
   </p>
 </div>
 
 <script src="sound.js"></script>
 <script>
+// 使用真实MP3文件而非Web Audio合成
 var stages = [
-  { id: 'calm', name: '净坛', desc: '平静的地宫入口', freqs: '55/82/110 Hz' },
-  { id: 'ash', name: '纸灰风', desc: '灰烬飘扬的走廊', freqs: '65/98/130 Hz' },
-  { id: 'well', name: '悬井', desc: '深不见底的古井', freqs: '44/66/88 Hz' },
-  { id: 'mask', name: '无面戏台', desc: '诡异的面具剧场', freqs: '55/73/130 Hz' },
-  { id: 'lantern', name: '鬼灯阵', desc: '飘忽的鬼火', freqs: '73/110/147 Hz' },
-  { id: 'inkpool', name: '墨池', desc: '漆黑的墨池', freqs: '37/55/73 Hz' },
-  { id: 'guishi', name: '鬼市', desc: '喧闹的地下市场', freqs: '82/123/165 Hz' },
-  { id: 'mirror', name: '镜殿', desc: '虚实交错的镜子屋', freqs: '98/131/196 Hz' }
+  { id: 'calm', name: '净坛', desc: '平静的地宫入口', file: 'assets/music/calm.mp3' },
+  { id: 'ash', name: '纸灰风', desc: '灰烬飘扬的走廊', file: 'assets/music/ash.mp3' },
+  { id: 'well', name: '悬井', desc: '深不见底的古井', file: 'assets/music/well.mp3' },
+  { id: 'mask', name: '无面戏台', desc: '诡异的面具剧场', file: 'assets/music/mask.mp3' },
+  { id: 'lantern', name: '鬼灯阵', desc: '飘忽的鬼火', file: 'assets/music/lantern.mp3' },
+  { id: 'inkpool', name: '墨池', desc: '漆黑的墨池', file: 'assets/music/inkpool.mp3' },
+  { id: 'guishi', name: '鬼市', desc: '喧闹的地下市场', file: 'assets/music/guishi.mp3' },
+  { id: 'mirror', name: '镜殿', desc: '虚实交错的镜子屋', file: 'assets/music/mirror.mp3' }
 ];
 
 var activeCard = null;
+var currentAudio = null;
 
 function init() {
   var grid = document.getElementById('musicGrid');
   stages.forEach(function(stage) {
     var card = document.createElement('div');
     card.className = 'music-card';
-    card.innerHTML = '<h3>' + stage.name + '</h3><p>' + stage.desc + '</p><div class="freqs">' + stage.freqs + '</div>';
-    card.onclick = function() { playStage(stage.id, card); };
+    card.innerHTML = '<h3>' + stage.name + '</h3><p>' + stage.desc + '</p><div class="freqs">MP3</div>';
+    card.onclick = function() { playStage(stage.file, card); };
     grid.appendChild(card);
   });
 }
 
-function playStage(id, card) {
+function playStage(file, card) {
   if (activeCard) activeCard.classList.remove('active');
-  GameSound.init();
-  GameSound.startAmbient(id);
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio.currentTime = 0;
+  }
+  currentAudio = new Audio(file);
+  currentAudio.loop = true;
+  currentAudio.volume = document.getElementById('volume').value / 100;
+  currentAudio.play();
   card.classList.add('active');
   activeCard = card;
 }
@@ -177,19 +185,23 @@ function stopAll() {
     activeCard.classList.remove('active');
     activeCard = null;
   }
-  GameSound.stopAmbient();
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio.currentTime = 0;
+    currentAudio = null;
+  }
 }
 
 function playRandom() {
   var stage = stages[Math.floor(Math.random() * stages.length)];
   var cards = document.querySelectorAll('.music-card');
-  playStage(stage.id, cards[stages.indexOf(stage)]);
+  playStage(stage.file, cards[stages.indexOf(stage)]);
 }
 
 function setVolume(val) {
   document.getElementById('volValue').textContent = val + '%';
-  if (GameSound.setVolume) {
-    GameSound.setVolume(val / 100);
+  if (currentAudio) {
+    currentAudio.volume = val / 100;
   }
 }
 
