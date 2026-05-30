@@ -4609,6 +4609,11 @@ function startGame(wid){
   G=newGame(wid,diff);
   document.body.classList.add("game-active");
   document.body.classList.toggle("is-mobile-ui",IS_TOUCH);
+  // Reset boss portraits to prevent old portrait persisting
+  var bp=document.getElementById("bossPortrait");
+  var ep=document.getElementById("endPortrait");
+  if(bp)bp.removeAttribute("src");
+  if(ep)ep.removeAttribute("src");
   if(!_loopActive){_loopActive=true;requestAnimationFrame(loop);}
   // Force canvas reflow after game container becomes visible
   if(window._fitCanvas)window._fitCanvas();
