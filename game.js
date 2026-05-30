@@ -826,7 +826,9 @@ function onEnemyKilled(g,e,source,opts){
   if(p.splashDeathBoom&&!e.isBoss&&(source==="splash"||source==="fire"||source==="killExplode"||source==="critShrapnel"||source==="executeExplode")){
     if(Math.random()<(p.splashDeathBoomChance||0.4)){
       var sbR=RANGES.splashBoom*RANGES.splashBoom;var sbDmg=Math.max(1,Math.ceil(p.stats.dmg*(p.splashDeathBoomRatio||0.35)));
-      forEachLiveEnemy(g,function(oe){if(dstSq(e,oe)<sbR)damageEnemy(g,oe,sbDmg,"splashBoom")});
+      var boomHit=0;
+      forEachLiveEnemy(g,function(oe){if(dstSq(e,oe)<sbR){damageEnemy(g,oe,sbDmg,"splashBoom");boomHit++}});
+      if(boomHit>0)pushLimited(g.floatTexts,{x:e.x,y:e.y-20,text:"爆",life:25,maxLife:25,reason:"hint"},LIMITS.floatTexts);
       spawnP(g,e.x,e.y,"ink",8);spawnP(g,e.x,e.y,"accent",4);shake(g,4,3);snd("hit")}}
   if(source==="killExplode")g.killExplodeKills++;
   if(source==="executeExplode")g.executeKills=(g.executeKills||0)+1;
@@ -951,7 +953,8 @@ function onEnemyKilled(g,e,source,opts){
   }
   if(p.fireExpand&&source==="fire"){
     g.fires.forEach(function(f){if(f.owner==="player"&&f.kind==="phosphor"&&!f.expanded&&dstSq(f,e)<RANGES.fireExpand*RANGES.fireExpand){
-      f.r=Math.max(f.r,42);f.expanded=true;spawnInk(g,f.x,f.y,4,"fire")}})}
+      f.r=Math.max(f.r,42);f.expanded=true;spawnInk(g,f.x,f.y,4,"fire");
+      pushLimited(g.floatTexts,{x:f.x,y:f.y-15,text:"扩",life:20,maxLife:20,reason:"hint"},LIMITS.floatTexts)}})}
   // 分身鬼分裂
   if(e.splitter&&!e.isSplit){
     for(var si=0;si<e.splitCount;si++){
@@ -1432,12 +1435,13 @@ function hitE(g,atk,e){
   if(atk.crit&&p.critHeal){var _ch=Math.min(3,p.maxHp-p.hp);if(_ch>0){p.hp+=_ch;snd("critHeal");pushLimited(g.floatTexts,{x:p.x,y:p.y-p.r-12,text:"+"+_ch,life:30,maxLife:30,reason:"heal"},LIMITS.floatTexts)}}
   // 裂冰诀：暴击留冰冻区
   if(atk.crit&&p.frostOnCrit){
-    pushLimited(g.frosts,{x:e.x,y:e.y,r:45,life:60,maxLife:60},LIMITS.frosts);snd("frostCreate")}
+    pushLimited(g.frosts,{x:e.x,y:e.y,r:45,life:60,maxLife:60},LIMITS.frosts);snd("frostCreate");pushLimited(g.floatTexts,{x:e.x,y:e.y-18,text:"冻",life:20,maxLife:20,reason:"hint"},LIMITS.floatTexts)}
   // 墨火眼：暴击爆炸
   if(atk.crit&&p.critExplosion){
     var ceR=45;var ceDmg=Math.max(1,Math.ceil(p.stats.dmg*(p.critExplosionRatio||0.25)));
-    forEachLiveEnemy(g,function(oe){if(oe!==e&&dstSq(e,oe)<ceR*ceR)damageEnemy(g,oe,ceDmg,"critExplosion")});
-    spawnP(g,e.x,e.y,"accent",5)}
+    var ceHit=0;
+    forEachLiveEnemy(g,function(oe){if(oe!==e&&dstSq(e,oe)<ceR*ceR){damageEnemy(g,oe,ceDmg,"critExplosion");ceHit++}});
+    spawnP(g,e.x,e.y,"accent",5);if(ceHit>0)pushLimited(g.floatTexts,{x:e.x,y:e.y-20,text:"爆",life:25,maxLife:25,reason:"critDmg"},LIMITS.floatTexts)}
   // 单次遍历：恐惧 + 魂链 + 爆裂
   if((atk.crit&&p.fearOnCrit)||p.soulChain||atk.burst){
     var doFear=atk.crit&&p.fearOnCrit;
@@ -1454,7 +1458,7 @@ function hitE(g,atk,e){
   spawnInk(g,e.x,e.y,atk.crit?8:4,"ink");
   // 墨符坛：命中留DOT区
   if(p.hitDot){
-    pushLimited(g.frosts,{x:e.x,y:e.y,r:35,life:p.hitDotLife||60,maxLife:p.hitDotLife||60,dmg:p.hitDotDmg||1},LIMITS.frosts)}
+    pushLimited(g.frosts,{x:e.x,y:e.y,r:35,life:p.hitDotLife||60,maxLife:p.hitDotLife||60,dmg:p.hitDotDmg||1},LIMITS.frosts);pushLimited(g.floatTexts,{x:e.x,y:e.y-15,text:"蚀",life:18,maxLife:18,reason:"hint"},LIMITS.floatTexts)}
   // 墨焚弹：远程点燃
   if(p.rangedFire&&atk&&atk.type==="proj"&&Math.random()<0.15){
     addFire(g,{x:e.x,y:e.y,r:24,life:80,dmg:Math.max(1,Math.ceil(p.stats.dmg*0.15)),owner:"player",kind:"rangedFire"});
@@ -1474,7 +1478,8 @@ function hitE(g,atk,e){
     if(nearE){
       var sd=nearE.x-e.x,sl2=Math.sqrt(sd*sd+(nearE.y-e.y)*(nearE.y-e.y))||1;
       pushLimited(g.attacks,{x:e.x,y:e.y,vx:sd/sl2*6,vy:(nearE.y-e.y)/sl2*6,dmg:Math.max(1,Math.ceil(p.stats.dmg*0.4)),r:4,life:40,type:"proj",hitOnce:true,owner:"player"},LIMITS.attacks);
-      spawnP(g,e.x,e.y,"accent",3)}}
+      spawnP(g,e.x,e.y,"accent",4);
+      pushLimited(g.floatTexts,{x:e.x,y:e.y-18,text:"裂",life:20,maxLife:20,reason:"hint"},LIMITS.floatTexts)}}
   // 墨化蜂：命中几率分裂弹+留DOT区
   if(p.splitDot&&Math.random()<(0.2*(p.relicPower||1))){
     var _near=null,_nd=RANGES.split*RANGES.split;
@@ -1488,7 +1493,7 @@ function hitE(g,atk,e){
     spawnP(g,e.x+Math.cos(ca)*10,e.y+Math.sin(ca)*10,"accent",2)}}
   // 墨血刃：暴击回血
   if(p.critHeal&&atk.crit){p.hp=Math.min(p.hp+2,p.maxHp);spawnP(g,p.x,p.y,"moss",3)}
-  if(atk.crit&&p.critShrapnel){var splDmg=Math.floor(atk.dmg*0.35);forEachLiveEnemy(g,function(oe){if(oe===e)return;if(dstSq(e,oe)<RANGES.critShrapnel*RANGES.critShrapnel)damageEnemy(g,oe,splDmg,"shrapnel")});spawnP(g,e.x,e.y,"accent",5)}
+  if(atk.crit&&p.critShrapnel){var splDmg=Math.floor(atk.dmg*0.35);var shrapHit=0;forEachLiveEnemy(g,function(oe){if(oe===e)return;if(dstSq(e,oe)<RANGES.critShrapnel*RANGES.critShrapnel){damageEnemy(g,oe,splDmg,"shrapnel");shrapHit++}});spawnP(g,e.x,e.y,"accent",5);if(shrapHit>0)pushLimited(g.floatTexts,{x:e.x,y:e.y-18,text:"碎",life:22,maxLife:22,reason:"hint"},LIMITS.floatTexts)}
   shake(g,atk.crit?6:3,atk.crit?5:3);
   // floating damage number
   var dn=dmg,dr=atk.crit?"critDmg":(isWeak?"weakDmg":"dmg");
@@ -1840,7 +1845,7 @@ function update(g){
   if(p.atkFormation&&p.atkFormCount>=(p.formBoost?2:3)){
     p.atkFormCount=0;
     var ar=p.formDouble?112:80;var mul2=(p.formBoost?1.4:1)*(p.formDouble?2:1);
-    g.formations.push({x:p.x,y:p.y,r:Math.floor(ar*mul2),life:8,maxLife:8,type:"atk",dmg:Math.floor(g.weapon.dmg*p.stats.dmg*2)})
+    g.formations.push({x:p.x,y:p.y,r:Math.floor(ar*mul2),life:8,maxLife:8,type:"atk",dmg:Math.floor(g.weapon.dmg*p.stats.dmg*2)});pushLimited(g.floatTexts,{x:p.x,y:p.y-25,text:"攻",life:22,maxLife:22,reason:"hint"},LIMITS.floatTexts);spawnP(g,p.x,p.y,"ink",5)
   }
   // 回春阵：静止触发
   var healThresh=p.formBoost?36:72;
@@ -1848,12 +1853,12 @@ function update(g){
     p.stillT=0;
     var hr=p.formDouble?56:40;var hl=p.formDouble?120:80;
     var hmul=(p.formBoost?1.4:1)*(p.formDouble?2:1);
-    g.formations.push({x:p.x,y:p.y,r:Math.floor(hr*hmul),life:hl,maxLife:hl,type:"heal"})
+    g.formations.push({x:p.x,y:p.y,r:Math.floor(hr*hmul),life:hl,maxLife:hl,type:"heal"});pushLimited(g.floatTexts,{x:p.x,y:p.y-25,text:"愈",life:22,maxLife:22,reason:"heal"},LIMITS.floatTexts);spawnP(g,p.x,p.y,"moss",5)
   }
   // 墨涡：击杀触发
   if(p.vortexOnKill&&(p.vortexKills||0)>=5){
     p.vortexKills=0;
-    g.formations.push({x:p.x,y:p.y,r:90,life:40,maxLife:40,type:"vortex",dmg:Math.floor(g.weapon.dmg*p.stats.dmg*1.5)})
+    g.formations.push({x:p.x,y:p.y,r:90,life:40,maxLife:40,type:"vortex",dmg:Math.floor(g.weapon.dmg*p.stats.dmg*1.5)});pushLimited(g.floatTexts,{x:p.x,y:p.y-30,text:"涡",life:25,maxLife:25,reason:"hint"},LIMITS.floatTexts);spawnP(g,p.x,p.y,"ink",6)
   }
   // 墨阵生命周期
   for(var fi=g.formations.length-1;fi>=0;fi--){var fm=g.formations[fi];fm.life--;
@@ -1873,17 +1878,21 @@ function update(g){
     if(fm.life<=0){
       if(p.formationDetonate){
         var detDmg=Math.floor((g.weapon.dmg||12)*p.stats.dmg*1.2);
+        var detHit=0;
         forEachLiveEnemy(g,function(oe){
-          if(dstSq(fm,oe)<fm.r*fm.r)damageEnemy(g,oe,detDmg,"formation")});
+          if(dstSq(fm,oe)<fm.r*fm.r){damageEnemy(g,oe,detDmg,"formation");detHit++}});
+        if(detHit>0)pushLimited(g.floatTexts,{x:fm.x,y:fm.y-20,text:"阵",life:25,maxLife:25,reason:"dmg"},LIMITS.floatTexts);
         spawnP(g,fm.x,fm.y,"accent",12);spawnP(g,fm.x,fm.y,"ink",8);shake(g,5,2)}
       g.formations.splice(fi,1)}}
   // 墨弦：墨阵间生成伤害弦线
   if(p.inkStrings&&g.formations.length>=2&&g.time%12===0){
     for(var si=0;si<g.formations.length;si++){var fa=g.formations[si];
       for(var sj=si+1;sj<g.formations.length;sj++){var fb=g.formations[sj];
+        var strHit=0;
         forEachLiveEnemy(g,function(oe){
           var dSq=distPointToSegSq(oe.x,oe.y,fa.x,fa.y,fb.x,fb.y);
-          if(dSq<(oe.r+7)*(oe.r+7))damageEnemy(g,oe,Math.ceil((g.weapon.dmg||12)*p.stats.dmg*0.25),"formation")})}}}
+          if(dSq<(oe.r+7)*(oe.r+7)){damageEnemy(g,oe,Math.ceil((g.weapon.dmg||12)*p.stats.dmg*0.25),"formation");strHit++}});
+        if(strHit>0)pushLimited(g.floatTexts,{x:p.x,y:p.y-35,text:"弦",life:20,maxLife:20,reason:"hint"},LIMITS.floatTexts)}}}
   // 墨涟：阵内周期性波纹伤害
   if(p.formRipple&&g.time%30===0){for(var rippleI=0;rippleI<g.formations.length;rippleI++){var rf=g.formations[rippleI];
     if(dstSq(rf,p)<rf.r*rf.r){var ripDmg=Math.ceil((g.weapon.dmg||12)*p.stats.dmg*0.18);
