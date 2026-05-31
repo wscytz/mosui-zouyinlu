@@ -785,7 +785,10 @@ var STAGE_HAZARDS=[
   {id:"guihuoyan",name:"鬼火焰",desc:"随机出现追踪火球",interval:120},
   {id:"mozhang",name:"墨瘴",desc:"毒瘴缓缓飘移，穿越造成持续伤害",interval:200},
   {id:"yinbing",name:"阴兵借道",desc:"一排幽灵骑兵横穿战场",interval:210},
-  {id:"zhijian",name:"纸剑雨",desc:"纸剑从上方坠落",interval:80}
+  {id:"zhijian",name:"纸剑雨",desc:"纸剑从上方坠落",interval:80},
+  // v9.0 新关卡调制器 x2
+  {id:"moluo",name:"墨落",desc:"墨滴从天空缓慢滴落，接触造成减速",interval:60},
+  {id:"guiying",name:"鬼影",desc:"随机阴影在地面游走，接触造成恐惧",interval:150}
 ];
 
 // --- Achievements / Meta-progression ---

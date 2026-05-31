@@ -252,7 +252,7 @@ code+='\n'+[
 
 // Test 54: Stage hazards exist and are valid
 'try{',
-'  if(!STAGE_HAZARDS||STAGE_HAZARDS.length!==6)errors.push("54a: STAGE_HAZARDS should have 6 entries");',
+'  if(!STAGE_HAZARDS||STAGE_HAZARDS.length!==8)errors.push("54a: STAGE_HAZARDS should have 8 entries");',
 '  else{STAGE_HAZARDS.forEach(function(h){',
 '    if(!h.id||!h.name||!h.desc||!h.interval)errors.push("54b: hazard "+h.id+" incomplete");',
 '    if(h.interval<30)errors.push("54c: hazard "+h.id+" interval too short");});}',

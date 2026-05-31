@@ -1738,9 +1738,17 @@ function update(g){
         }}
       else if(g.hazard.id==="zhijian"){
         var zjx=rn(A.l+20,A.r-20);g.hazardObjs.push({x:zjx,y:A.t-10,r:6,life:50,dmg:6,
-          vy:4+rn(0,2),type:"zhijian"})
-      }}}
-  for(var hoi=g.hazardObjs.length-1;hoi>=0;hoi--){var ho=g.hazardObjs[hoi];ho.life--;
+          vy:4+rn(0,2),type:"zhijian"});
+      }
+      else if(g.hazard.id==="moluo"){
+        var mrx=rn(A.l+30,A.r-30);g.hazardObjs.push({x:mrx,y:A.t-10,r:10,life:120,dmg:4,
+          vy:1.5+rn(0,1),type:"moluo"})
+      }
+      else if(g.hazard.id==="guiying"){
+        var gyx=rn(A.l+50,A.r-50),gyy=rn(A.t+50,A.b-50);
+        var ggAng=rn(0,Math.PI*2);g.hazardObjs.push({x:gyx,y:gyy,r:18,life:90,dmg:3,
+          vx:Math.cos(ggAng)*2.5,vy:Math.sin(ggAng)*2.5,type:"guiying"})
+      }}}  for(var hoi=g.hazardObjs.length-1;hoi>=0;hoi--){var ho=g.hazardObjs[hoi];ho.life--;
     if(ho.life<=0){g.hazardObjs.splice(hoi,1);continue}
     if(ho.type==="guihuoyan"){var hdx=p.x-ho.x,hdy=p.y-ho.y,hl=Math.sqrt(hdx*hdx+hdy*hdy)||1;ho.x+=hdx/hl*ho.spd;ho.y+=hdy/hl*ho.spd;
       if(dstSq(ho,p)<(ho.r+p.r)*(ho.r+p.r)&&p.invTimer<=0){hurtP(g,ho.dmg,{name:"鬼火焰"});g.hazardObjs.splice(hoi,1);continue}}
@@ -1753,7 +1761,15 @@ function update(g){
       if(dstSq(ho,p)<(ho.r+p.r)*(ho.r+p.r)&&p.invTimer<=0){hurtP(g,ho.dmg,{name:"阴兵过境"});g.hazardObjs.splice(hoi,1);continue}}
     else if(ho.type==="zhijian"){ho.y+=ho.vy;
       if(ho.y>A.b+10){g.hazardObjs.splice(hoi,1);continue}
-      if(dstSq(ho,p)<(ho.r+p.r)*(ho.r+p.r)&&p.invTimer<=0){hurtP(g,ho.dmg,{name:"纸剑"});g.hazardObjs.splice(hoi,1);continue}}}
+      if(dstSq(ho,p)<(ho.r+p.r)*(ho.r+p.r)&&p.invTimer<=0){hurtP(g,ho.dmg,{name:"纸剑"});g.hazardObjs.splice(hoi,1);continue}}
+    else if(ho.type==="moluo"){ho.y+=ho.vy;
+      if(ho.y>A.b+10){g.hazardObjs.splice(hoi,1);continue}
+      if(dstSq(ho,p)<(ho.r+p.r)*(ho.r+p.r)&&p.invTimer<=0){hurtP(g,ho.dmg,{name:"墨落"});g.hazardObjs.splice(hoi,1);continue}
+      if(g.time%12===0&&p.invTimer<=0){p.spdMult=Math.min(p.spdMult,0.5)}}
+    else if(ho.type==="guiying"){ho.x+=ho.vx;ho.y+=ho.vy;
+      if(ho.x<A.l+ho.r||ho.x>A.r-ho.r)ho.vx*=-1;if(ho.y<A.t+ho.r||ho.y>A.b-ho.r)ho.vy*=-1;
+      if(dstSq(ho,p)<(ho.r+p.r)*(ho.r+p.r)&&p.invTimer<=0){hurtP(g,ho.dmg,{name:"鬼影"});g.hazardObjs.splice(hoi,1);continue}
+      if(g.time%8===0&&p.invTimer<=0&&!p.fearT){p.fearT=60;p.fearVx=ho.vx;p.fearVy=ho.vy}}}
   // === INPUT ===
   var inp=buildInputFrame(g);
   var dx=inp.dx,dy=inp.dy;
@@ -3744,7 +3760,7 @@ function render(g){
     c.globalAlpha=soA*0.4;c.fillStyle=C.ghost;c.beginPath();c.arc(so.x,so.y,so.r*0.4,0,Math.PI*2);c.fill();
     c.shadowBlur=0;c.globalAlpha=1});
   // 环境事件渲染
-  g.hazardObjs.forEach(function(ho){var hA=ho.life/(ho.type==="guihuoyan"?120:ho.type==="mozhang"?220:ho.type==="yinbing"?60:ho.type==="zhijian"?50:40);
+  g.hazardObjs.forEach(function(ho){var hA=ho.life/(ho.type==="guihuoyan"?120:ho.type==="mozhang"?220:ho.type==="yinbing"?60:ho.type==="zhijian"?50:ho.type==="moluo"?120:ho.type==="guiying"?90:40);
     if(ho.type==="moyu"){c.globalAlpha=hA*0.6;c.fillStyle=C.ink;c.beginPath();c.arc(ho.x,ho.y,ho.r,0,Math.PI*2);c.fill();
       c.globalAlpha=hA*0.3;c.fillStyle=C.ash;c.beginPath();c.arc(ho.x,ho.y,ho.r*0.4,0,Math.PI*2);c.fill()}
     else if(ho.type==="guihuoyan"){c.globalAlpha=hA*0.8;c.fillStyle=C.fire;if(g._pm>=0.45){c.shadowColor=C.fire;c.shadowBlur=8}
@@ -3764,6 +3780,15 @@ function render(g){
       c.fillRect(-ho.r*0.5,-ho.r*1.2,ho.r,ho.r*2.4);
       c.strokeStyle=C.ash;c.lineWidth=1;c.globalAlpha=hA*0.4;c.strokeRect(-ho.r*0.5,-ho.r*1.2,ho.r,ho.r*2.4);
       c.restore()}
+    else if(ho.type==="moluo"){c.globalAlpha=hA*0.7;c.fillStyle=C.ink;
+      c.beginPath();c.arc(ho.x,ho.y,ho.r+Math.sin(g.time*0.05)*2,0,Math.PI*2);c.fill();
+      c.globalAlpha=hA*0.4;c.fillStyle=C.moss;
+      c.beginPath();c.arc(ho.x,ho.y,ho.r*0.5,0,Math.PI*2);c.fill()}
+    else if(ho.type==="guiying"){c.globalAlpha=hA*0.75;c.fillStyle=C.ghost;
+      if(g._pm>=0.45){c.shadowColor=C.ghost;c.shadowBlur=8}
+      c.beginPath();c.arc(ho.x,ho.y,ho.r,0,Math.PI*2);c.fill();
+      c.globalAlpha=hA*0.4;c.fillStyle=C.boss;
+      c.beginPath();c.arc(ho.x,ho.y,ho.r*0.3,0,Math.PI*2);c.fill();c.shadowBlur=0}
     c.globalAlpha=1});
   // Mobile controls render hook
   if(IS_TOUCH&&window._renderMobileControls)window._renderMobileControls(c,W,H);
