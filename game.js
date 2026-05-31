@@ -121,7 +121,7 @@ function spawnJudgment(g,e,reason){
 var keys={},mouse={x:W/2,y:H/2,down:false},nextEnemyId=1;
 var canvas,ctx,G=null,bgCanvas=null,_cachedCanvasRect=null;
 window.MOSUI=window.MOSUI||{};
-window.MOSUI.version=window.MOSUI.version||"3.1";
+window.MOSUI.version=window.MOSUI.version||"7.16";
 window.MOSUI.hooks=window.MOSUI.hooks||{beforeUpdate:[],afterUpdate:[],beforeRender:[],afterRender:[]};
 window.MOSUI.input=window.MOSUI.input||{};
 window.MOSUI.platform=window.MOSUI.platform||{};
@@ -5119,6 +5119,9 @@ function init(){
       bpi.src=window._bossPortraitBase+"portrait-"+bt+".png";
     });
     window._weaponIconBase=_artBase+"ui/";
+    // Version display on title screen
+    var verEl=document.getElementById("gameVersion");
+    if(verEl&&MOSUI.version)verEl.textContent="v "+MOSUI.version;
   })()}catch(e){}
   setupWeaponSelect();if(window._loadLog)window._loadLog("init() 完成 ✓ loop启动");loop();
   // Dismiss Capacitor splash screen — try multiple methods

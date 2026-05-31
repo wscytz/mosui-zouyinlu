@@ -1,4 +1,4 @@
-# 墨祟：走阴录 — 战斗试玩 技术文档 v6.9
+# 墨祟：走阴录 — 战斗试玩 技术文档 v7.16
 
 > 开发接手请先读 `DEVELOPMENT.md`。本文保留完整技术细节、版本历史和 Bug 追踪。
 
@@ -19,7 +19,7 @@
 | `game.css` | 游戏专用样式。HUD、武器/遗物卡片、遮罩层、波次动画 |
 | `styles.css` | 全站公用样式。配色变量、字体、纸张质感背景 |
 | `gamedata.js` | 共享数据文件。武器/遗物/进化/波次/敌人/前置条件/封顶值等全部常量，game.html 和 wiki.html 共同引用 |
-| `game.js` | 主游戏逻辑。IIFE 包裹，严格模式，约 4220 行 |
+| `game.js` | 主游戏逻辑。IIFE 包裹，严格模式，约 5150 行，包含 Boss HP 血条(Canvas) 和游戏版本号显示 |
 | `sound.js` | Web Audio API 合成音效。无音频文件，全部程序生成 |
 | `mobile-controls.js` | 移动端虚拟摇杆。触摸检测+双摇杆+自动瞄准+闪避/暂停按钮+横屏锁定，canvas 绘制 |
 | `app.js` | 首页 `index.html` 的构筑预览逻辑（与游戏无关） |
@@ -3054,7 +3054,7 @@ npm run cap:open:android  # 用 Android Studio 打开
 
 *v6.4-v6.9 更新于 2026-05-31。*
 
-### v7.0-v7.15 战斗反馈体系 + 性能优化 + 测试补充 (2026-05-31)
+### v7.0-v7.16 战斗反馈体系 + 性能优化 + 测试补充 (2026-05-31)
 
 - **v7.0**: 连杀里程碑重构，统一KILL_MILESTONES配置(3/5/10/20/30/50)
 - **v7.1**: 最高连斩记录持久化(bestCombo→localStorage)
@@ -3066,10 +3066,11 @@ npm run cap:open:android  # 用 Android Studio 打开
 - **v7.8-v7.13**: 性能优化，forEachLiveEnemy统一热路径(53处)，仅剩4处渲染必需
 - **v7.14**: 评分公式优化，连斩(maxCombo×0.2)+暴击(critKills×0.15)计入calcGrade
 - **v7.15**: 测试补充，smoke_test 37→42项覆盖v7.x新功能
+- **v7.16**: 版本号显示，MOSUI.version初始化为7.16，标题页显示游戏版本
 
 *测试基线: 42 smoke + 8 wave + 236 content + 11 stress + 5 robust + 3 seeded*
 
-*v7.0-v7.15 更新于 2026-05-31。*
+*v7.0-v7.16 更新于 2026-05-31。*
 
 ### v2.22 性能修复 + Bug修复 + 代码清理 (2026-05-07)
 
