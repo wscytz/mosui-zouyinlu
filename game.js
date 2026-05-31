@@ -1464,8 +1464,8 @@ function hitE(g,atk,e){
     var doFear=atk.crit&&p.fearOnCrit;
     var fearR=RANGES.fear*RANGES.fear;
     var doSoul=!!p.soulChain,sc=0,soulR=RANGES.soulChain*RANGES.soulChain;
-    g.enemies.forEach(function(o){
-      if(o===e||o.hp<=0)return;
+    forEachLiveEnemy(g,function(o){
+      if(o===e)return;
       var dSq=dstSq(o,e);
       if(doFear&&dSq<fearR)o.fearT=60;
       if(doSoul&&dSq<soulR&&sc<CAPS.soulChain){damageEnemy(g,o,Math.floor(atk.dmg*0.3),"soul");spawnP(g,o.x,o.y,"soul",3);if(sc===0)snd("soulChain");sc++}
