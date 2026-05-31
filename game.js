@@ -1509,7 +1509,7 @@ function hitE(g,atk,e){
   if(atk.crit){g.critFlash=18;g.critKills=(g.critKills||0)+1;for(var ci=0;ci<8;ci++){var ca=ci*Math.PI/4;
     spawnP(g,e.x+Math.cos(ca)*10,e.y+Math.sin(ca)*10,"accent",2)}
     // 暴击额外浮字提示
-    pushLimited(g.floatTexts,{x:e.x+15,y:e.y-e.r-12,text:"暴",life:20,maxLife:20,reason:"critHint"},LIMITS.floatTexts)}
+    pushLimited(g.floatTexts,{x:e.x,y:e.y-e.r-22,text:"暴",life:25,maxLife:25,reason:"critHint"},LIMITS.floatTexts)}
   // 墨血刃：暴击回血
   if(p.critHeal&&atk.crit){p.hp=Math.min(p.hp+2,p.maxHp);spawnP(g,p.x,p.y,"moss",3)}
   if(atk.crit&&p.critShrapnel){var splDmg=Math.floor(atk.dmg*0.35);var shrapHit=0;forEachLiveEnemy(g,function(oe){if(oe===e)return;if(dstSq(e,oe)<RANGES.critShrapnel*RANGES.critShrapnel){damageEnemy(g,oe,splDmg,"shrapnel");shrapHit++}});spawnP(g,e.x,e.y,"accent",5);if(shrapHit>0)pushLimited(g.floatTexts,{x:e.x,y:e.y-18,text:"碎",life:22,maxLife:22,reason:"hint"},LIMITS.floatTexts)}
@@ -3243,6 +3243,10 @@ function render(g){
     }else if(ft.reason==="heal"){
       c.globalAlpha=cl(a,0,1)*0.85;c.fillStyle=C.moss;
       c.font='600 '+(14+(1-a)*3)+'px "STKaiti","KaiTi","Kaiti SC",serif';c.textAlign="center";
+    }else if(ft.reason==="critHint"){
+      c.globalAlpha=cl(a*2,0,1)*0.9;c.fillStyle="#c4523d";
+      c.font='900 '+(18+(1-a)*8)+'px "STKaiti","Kaiti SC",serif';c.textAlign="center";
+      if(g._pm>=0.45){c.shadowColor="#c4523d";c.shadowBlur=8}
     }else if(ft.reason==="synergy"){
       c.globalAlpha=cl(a,0,1);c.fillStyle=C.gold;
       c.font='700 '+(16+(1-a)*4)+'px "STKaiti","KaiTi","Kaiti SC",serif';c.textAlign="center";
