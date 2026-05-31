@@ -82,7 +82,7 @@ function addFire(g,f){
   pushLimited(g.fires,f,LIMITS.fires)
 }
 function addEProj(g,ep){pushLimited(g.eProj,ep,LIMITS.eProj)}
-function shake(g,dur,amp){g.shakeT=Math.max(g.shakeT,dur);g.shakeAmp=Math.max(g.shakeAmp||0,amp)}
+function shake(g,dur,amp){var si=(g._shakeIntensity||0.8);g.shakeT=Math.max(g.shakeT,dur);g.shakeAmp=Math.max(g.shakeAmp||0,amp*si)}
 function setShadow(c,col,blur,g){
     if(!g||!g._pm||g._pm>=0.7){c.shadowColor=col;c.shadowBlur=blur}else{c.shadowBlur=0}}
 function clearShadow(c){c.shadowBlur=0}
@@ -377,6 +377,7 @@ function newGame(wid,diff){
   nextEnemyId=1;
   return{state:"playing",weapon:w,wave:0,kills:0,time:0,diff:diff||"normal",
     shakeT:0,shakeAmp:0,shakeX:0,shakeY:0,freezeT:0,hintT:180,ended:false,dmgDir:null,slowMo:0,
+    _shakeIntensity:(function(){try{return parseFloat(localStorage.getItem("mosui_shake")||"0.8")}catch(e){return 0.8}})(),
     killStreak:0,killStreakT:0,relicFlash:0,critFlash:0,bossFlash:0,
     bossWaveEntrance:0,deathCircle:null,
     totalDmg:0,maxCombo:0,eliteKills:0,fireKills:0,deathCause:null,totalHealed:0,totalDmgTaken:0,
@@ -4665,6 +4666,21 @@ function setupWeaponSelect(){
     var ts=document.getElementById("titleScreen");if(ts)ts.style.display="none";
     var ws=document.getElementById("weaponSelect");if(ws)ws.style.display="";
   };
+  // Mute button
+  var muteBtn=document.getElementById("muteBtn");
+  if(muteBtn){
+    var _muted=localStorage.getItem("mosui_muted")==="1";
+    muteBtn.textContent=_muted?"🔇 静音":"🔊 音效";
+    muteBtn.onclick=function(){
+      _muted=!_muted;
+      localStorage.setItem("mosui_muted",_muted?"1":"0");
+      muteBtn.textContent=_muted?"🔇 静音":"🔊 音效";
+      if(window.GameSound){
+        if(_muted)GameSound.setVolume(0);else{
+          var v=parseFloat(localStorage.getItem("mosui_vol")||"0.6");GameSound.setVolume(v)}}
+    };
+    if(_muted&&window.GameSound)GameSound.setVolume(0);
+  }
   // Show meta stats on title screen
   var desc=document.querySelector?document.querySelector(".title-screen__desc"):null;
   if(desc&&meta.totalRuns>0){
@@ -4991,6 +5007,19 @@ function init(){
       try{localStorage.setItem("mosui_vol",String(v))}catch(e){}
       if(window.GameSound)GameSound.setVolume(v);
     });
+  }
+  // Screen shake intensity slider
+  var shSlider=document.getElementById("shakeIntensity");
+  if(shSlider){
+    var savedSh=0.8;
+    try{savedSh=parseFloat(localStorage.getItem("mosui_shake")||"0.8")}catch(e){}
+    shSlider.value=Math.round(savedSh*100);
+    shSlider.addEventListener("input",function(){
+      var s=parseInt(shSlider.value)/100;
+      try{localStorage.setItem("mosui_shake",String(s))}catch(e){}
+      if(G)G._shakeIntensity=s;
+    });
+    if(G)G._shakeIntensity=savedSh;
   }
   // Joystick sensitivity slider (mobile only)
   var sensRow=document.getElementById("sensRow");
