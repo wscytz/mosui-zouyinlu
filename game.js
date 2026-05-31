@@ -1095,7 +1095,7 @@ function startWave(g){
   g.survivalCleared=false;g.survivalSpawnTimer=0;
   g.waveFlavor=w.flavor||"";
   if(g.wave>0)g.inkWipe=30;
-  if(g.wave===0&&g.time===0)g.hintT=240;
+  if(g.wave===0&&g.time===0)g.hintT=360;
   // Special wave handling
   var specialWave=w.special||null;
   g.waveSpecial=specialWave;
@@ -3224,6 +3224,12 @@ function render(g){
     }else if(ft.reason==="soul"){
       c.globalAlpha=cl(a,0,1)*0.75;c.fillStyle="rgba(100,140,120,0.9)";
       c.font='500 '+(12+(1-a)*2)+'px "STKaiti","KaiTi","Kaiti SC",serif';c.textAlign="center";
+    }else if(ft.reason==="fire"||ft.reason==="corrosive"||ft.reason==="poison"){
+      c.globalAlpha=cl(a,0,1)*0.8;c.fillStyle="rgba(180,90,60,0.85)";
+      c.font='500 '+(12+(1-a)*2)+'px "STKaiti","KaiTi","Kaiti SC",serif';c.textAlign="center";
+    }else if(ft.reason==="formation"){
+      c.globalAlpha=cl(a,0,1)*0.75;c.fillStyle="rgba(163,58,45,0.8)";
+      c.font='500 '+(11+(1-a)*2)+'px "STKaiti","KaiTi","Kaiti SC",serif';c.textAlign="center";
     }else if(ft.reason==="heal"){
       c.globalAlpha=cl(a,0,1)*0.85;c.fillStyle=C.moss;
       c.font='600 '+(14+(1-a)*3)+'px "STKaiti","KaiTi","Kaiti SC",serif';c.textAlign="center";
@@ -3347,13 +3353,13 @@ function render(g){
       c.fillStyle=C.ash;c.fillText(g.waveFlavor,W/2,H/2+22); }
     c.globalAlpha=1}
 
-  // First-wave hint
-  if(g.hintT>0&&g.announceT<=0){
-    var hA=g.hintT>200?(240-g.hintT)/40:g.hintT>30?1:g.hintT/30;
+  // First-wave hint (extended duration for mobile clarity)
+  if(g.hintT>0&&g.announceT<=0&&g.wave===0){
+    var hA=g.hintT>300?(360-g.hintT)/60:g.hintT>30?1:g.hintT/30;
     c.globalAlpha=cl(hA,0,1)*0.7;c.fillStyle=C.ash;
     c.font='400 13px "STKaiti","KaiTi",serif';c.textAlign="center";
-    c.fillText("WASD 移动 · 鼠标瞄准 · 按住左键攻击",W/2,H-60);
-    c.fillText("空格/Shift 闪避 · R 重开 · F 全屏",W/2,H-42);
+    c.fillText("WASD 移动 · 鼠标瞄准 · 左键攻击",W/2,H-62);
+    c.fillText("空格/Shift 闪避 · R 双击重开 · F 全屏",W/2,H-44);
     c.globalAlpha=1}
 
   // Boss intro card
@@ -4799,7 +4805,7 @@ function beginRun(g){
     pushLimited(g.floatTexts,{x:W/2,y:H/2-50+sni*22,text:startNotices[sni],life:120,maxLife:120,reason:"hint"},LIMITS.floatTexts)
   }
   updateHUD(g);canvas.focus();
-  setTimeout(function(){var h=document.getElementById("controlsHint");if(h)h.classList.add("is-hidden")},4000);
+  setTimeout(function(){var h=document.getElementById("controlsHint");if(h)h.classList.add("is-hidden")},6000);
 }
 
 function togglePause(){
