@@ -1080,7 +1080,8 @@ function startWave(g){
   }
   if(!w){g.state="victory";return}
   startStage(g,w);
-  g.announce=w.label+" · "+getStageDef(w.mod).name;g.announceT=110;
+  var enemyCount=w.list.reduce(function(s,e){return s+e.n},0);
+  g.announce=w.label+" · "+getStageDef(w.mod).name+" · "+enemyCount+"敌";g.announceT=110;
   g.waveCleared=false;g.waveClearT=0;
   g._isBossWave=!!(w.list&&w.list.some(function(e){return e.t==="boss"||e.t==="mojiangjun"||e.t==="moguiwang"}));
   if(g._isBossWave){g.bossHurtThisWave=false;
