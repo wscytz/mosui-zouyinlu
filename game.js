@@ -4279,6 +4279,16 @@ function showRelic(g){
       sumEl.textContent="已持："+g.relics.map(function(r){return r.name}).join(" · ");
     }else{sumEl.style.display="none"}
   }
+  // Wave preview
+  var wpEl=document.getElementById("wavePreview");
+  if(wpEl&&g.wave<WAVE_BUDGETS.length-1){
+    var nw=WAVE_BUDGETS[g.wave+1]||0;
+    var isNextBoss=(g.wave+1)>=WAVE_BUDGETS.length-1;
+    var diffLabel2={normal:"平常",hard:"险途",nightmare:"噩梦"}[g.diff]||"";
+    wpEl.style.display="";
+    wpEl.textContent=isNextBoss?"下一波：Boss决战 · 精锐集结":
+      "下一波：第"+CN_NUM[g.wave+1]+"波 · "+diffLabel2+" · 威胁"+nw;
+  }else if(wpEl){wpEl.style.display="none"}
   popupEl.style.display="";
   g.state="waveClear";
   el._choiceLocked=false;
@@ -4843,7 +4853,11 @@ function init(){
       if(ch)ch.classList.toggle("is-hidden")}
     if(e.key.toLowerCase()==="r"&&G){
       if(G.state==="over"||G.state==="victory"){var rb=document.getElementById("restartBtn");if(rb)rb.click()}
-      else if(G.state==="playing"||G.state==="paused"){quickRestart(G)}}});
+      else if(G.state==="playing"||G.state==="paused"){
+        var now=Date.now();
+        if(G._lastRTry&&now-G._lastRTry<600){quickRestart(G);G._lastRTry=0}
+        else{G._lastRTry=now;pushLimited(G.floatTexts,{x:W/2,y:H/2,text:"再按R重开",life:50,maxLife:50,reason:"hint"},LIMITS.floatTexts)}
+      }}});
   window.addEventListener("keyup",function(e){keys[e.key.toLowerCase()]=false});
   window.addEventListener("blur",function(){keys={};mouse.down=false});
   window.addEventListener("resize",function(){invalidateCanvasRect()});

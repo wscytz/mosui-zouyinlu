@@ -473,9 +473,19 @@
       CURSES.forEach(function(c2){
         var card=document.createElement('div');
         card.className='wiki-card';
+        // Split desc into gain/cost parts (typically "XXX，但YYY" or "XXX，YYY")
+        var desc=c2.desc;
+        var gainHtml=desc;
+        var butIdx=desc.indexOf('，但');
+        if(butIdx<0)butIdx=desc.indexOf('。但');
+        if(butIdx>=0){
+          var gain=desc.substring(0,butIdx);
+          var cost=desc.substring(butIdx).replace(/^，但|^。但/,'');
+          gainHtml='<span style="color:var(--accent)">'+gain+'</span><span style="color:var(--ash)"> — 但 — </span><span style="color:#c4523d">'+cost+'</span>';
+        }
         card.innerHTML='<h4>'+c2.name+'</h4>'
           +'<div class="wiki-card__meta">'+c2.type+'</div>'
-          +'<p>'+c2.desc+'</p>';
+          +'<p>'+gainHtml+'</p>';
         card.appendChild(tags(c2.tags));
         cg.appendChild(card);
       });
