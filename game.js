@@ -207,7 +207,10 @@ function calcGrade(g){
   var won=g.state==="victory";var score=0;
   if(won)score+=40;score+=Math.min(g.kills,100)*0.3;score+=g.relics.length*2;
   if(g.diff==="hard")score+=10;else if(g.diff==="nightmare")score+=20;
-  if(won&&g.player.maxHp>0)score+=Math.floor(g.player.hp/g.player.maxHp*10);score=Math.floor(score);
+  if(won&&g.player.maxHp>0)score+=Math.floor(g.player.hp/g.player.maxHp*10);
+  score+=Math.min(g.maxCombo,30)*0.2;
+  score+=Math.min(g.critKills,20)*0.15;
+  score=Math.floor(score);
   if(score>=90)return"S";else if(score>=75)return"甲";else if(score>=60)return"乙";
   else if(score>=40)return"丙";else return"丁";
 }
