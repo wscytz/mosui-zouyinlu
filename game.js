@@ -379,9 +379,9 @@ function newGame(wid,diff){
     shakeT:0,shakeAmp:0,shakeX:0,shakeY:0,freezeT:0,hintT:180,ended:false,dmgDir:null,slowMo:0,
     killStreak:0,killStreakT:0,relicFlash:0,critFlash:0,bossFlash:0,
     bossWaveEntrance:0,deathCircle:null,
-    totalDmg:0,maxCombo:0,eliteKills:0,fireKills:0,deathCause:null,
+    totalDmg:0,maxCombo:0,eliteKills:0,fireKills:0,deathCause:null,totalHealed:0,totalDmgTaken:0,
     hurtCount:0,usedMoveKey:false,bossHurtThisWave:false,fastWaveClear:false,
-    waveFirstKillT:0,
+    waveFirstKillT:0,waveKills:0,waveStartT:0,
     hints:{relic:false,evo:false,boss:false},encountered:{},
     inkWipe:0,bossCelebrationT:0,
     player:mkPlayer(),enemies:[],attacks:[],particles:[],fires:[],eProj:[],
@@ -768,6 +768,7 @@ function onEnemyKilled(g,e,source,opts){
   if(baseFreeze===9&&p.killAtkTimer>0)baseFreeze=4;
   g.freezeT=Math.max(g.freezeT,baseFreeze);shake(g,e.isBoss?16:8,e.isBoss?7:4);
   g.kills++;g.killStreak++;g.killStreakT=TUNING.killStreakWindow;
+  g.waveKills++;
   if(g.waveFirstKillT===0)g.waveFirstKillT=g.time;
   if(p.atkFormation)p.atkFormCount++;
   if(p.vortexOnKill)p.vortexKills=(p.vortexKills||0)+1;
@@ -927,9 +928,9 @@ function onEnemyKilled(g,e,source,opts){
   if(e.deathBomb){g.pendingDeathbursts=g.pendingDeathbursts||[];
     g.pendingDeathbursts.push({x:e.x,y:e.y,dmg:e.deathBombDmg,timer:e.deathBombDelay,maxTimer:e.deathBombDelay,r:e.deathBombR,type:"motong"})}
   if(p.killHeal>0){var oldHp=p.hp;p.hp=Math.min(p.maxHp,p.hp+p.killHeal);
-    var healed=p.hp-oldHp;if(healed>0)pushLimited(g.floatTexts,{x:p.x,y:p.y-p.r-12,text:"+"+healed,life:30,maxLife:30,reason:"heal"},LIMITS.floatTexts)}
+    var healed=p.hp-oldHp;if(healed>0){g.totalHealed+=healed;pushLimited(g.floatTexts,{x:p.x,y:p.y-p.r-12,text:"+"+healed,life:30,maxLife:30,reason:"heal"},LIMITS.floatTexts)}}
   if(p.killHealChance>0&&Math.random()<p.killHealChance){var oldHp2=p.hp;var healAmt2=p.killHealAmt||2;
-    p.hp=Math.min(p.maxHp,p.hp+healAmt2);
+    p.hp=Math.min(p.maxHp,p.hp+healAmt2);g.totalHealed+=(p.hp-oldHp2);
     var healed2=p.hp-oldHp2;if(healed2>0)pushLimited(g.floatTexts,{x:p.x,y:p.y-p.r-18,text:"+"+healed2,life:30,maxLife:30,reason:"heal"},LIMITS.floatTexts);
     // 续命墨：溢出治疗转护盾
     if(p.healToShield){var overflow=healAmt2-healed2;if(overflow>0){p.shieldStack=(p.shieldStack||0)+overflow;pushLimited(g.floatTexts,{x:p.x,y:p.y-p.r-24,text:"盾+"+overflow,life:30,maxLife:30,reason:"shield"},LIMITS.floatTexts);spawnP(g,p.x,p.y,"accent",3)}}
@@ -1087,7 +1088,7 @@ function startWave(g){
     }
     // Shorten announce for boss waves — boss card takes priority
     g.announceT=70;}
-  g.waveFirstKillT=0;
+  g.waveFirstKillT=0;g.waveKills=0;g.waveStartT=g.time;
   g.player.nineSealCount=0;g.player.nineSealReady=false;
   g.survivalCleared=false;g.survivalSpawnTimer=0;
   g.waveFlavor=w.flavor||"";
@@ -1374,7 +1375,7 @@ function hurtP(g,dmg,src){
   // Elite vampire: attacker heals 30% of damage dealt
   if(src&&src.elite&&src.eliteAbility==="vampire"&&src.hp>0){
     var vh=Math.max(1,Math.floor(dmg*0.3));
-    src.hp=Math.min(src.maxHp,src.hp+vh);spawnInk(g,src.x,src.y,3,"fire")}
+    src.hp=Math.min(src.maxHp,src.hp+vh);spawnInk(g,src.x,src.y,3,"fire");snd("heal")}
   // 墨生莲：濒死爆发回血
   if(p.burstHeal&&!p.burstHealUsed&&p.hp>0&&p.hp<p.maxHp*0.25){
     p.burstHealUsed=true;p.hp=Math.ceil(p.maxHp*0.5);
@@ -1385,7 +1386,7 @@ function hurtP(g,dmg,src){
   if(p.thorns>0&&src){damageEnemy(g,src,Math.floor(dmg*p.thorns),"thorns");
     spawnInk(g,src.x,src.y,4,"accent")}
   p.invTimer=TUNING.hurtInvFrames;shake(g,4,4);p.hurtFlash=12;
-  g.hurtCount++;if(g._isBossWave)g.bossHurtThisWave=true;
+  g.hurtCount++;g.totalDmgTaken+=dmg;if(g._isBossWave)g.bossHurtThisWave=true;
   if(src)g.dmgDir={ang:ang(p,src),t:20};
   spawnInk(g,p.x,p.y,5,"accent");
   // 复活（招魂残幡）
@@ -2395,6 +2396,14 @@ function update(g){
     // wave continues — enemies keep spawning until quota met
   }else if(g.enemies.length===0&&g.announceT<=0&&!g.waveCleared){
     g.waveCleared=true;g.waveClearT=80;
+    // Wave clear stats float
+    var wkt=g.waveStartT>0?Math.round((g.time-g.waveStartT)/60):0;
+    var wkm=Math.floor(wkt/60);var wks=wkt%60;
+    var wkStr=(wkm<10?"0":"")+wkm+":"+(wks<10?"0":"")+wks;
+    var wkText="斩"+g.waveKills+" · "+wkStr;
+    if(g.waveKills>=15)wkText+=" · 势如破竹";
+    else if(g.waveKills>=8)wkText+=" · 雷厉风行";
+    pushLimited(g.floatTexts,{x:W/2,y:H*0.35,text:wkText,life:70,maxLife:70,reason:"hint"},LIMITS.floatTexts);
     if(p.lowHpBurst)p.lowHpBurstUsed=false;
     g.waveInkRipple={x:p.x,y:p.y,t:40};
     // 骨续泉：波次清场回血
@@ -4233,7 +4242,8 @@ function relicCardHtml(r,cls,ownedRelics){
 
 function showRelic(g){
   var p=g.player;var oldHp=p.hp;
-  if(!p.noWaveHeal){p.hp=Math.min(p.maxHp,p.hp+Math.floor(p.maxHp*0.2));
+  if(!p.noWaveHeal){var _wht=Math.floor(p.maxHp*0.2);var _oldHp=p.hp;
+    p.hp=Math.min(p.maxHp,p.hp+_wht);g.totalHealed+=(p.hp-_oldHp);
     if(p.hp>oldHp)spawnInk(g,p.x,p.y,8,"moss")}
   if(p.waveEndHeal){var _weh=Math.floor(p.maxHp*p.waveEndHealRatio);
     p.hp=Math.min(p.maxHp,p.hp+_weh);spawnInk(g,p.x,p.y,6,"moss");snd("heal")}
@@ -4562,7 +4572,7 @@ function showEnd(g){
     "<br><span class='end-route'>构筑："+buildRoute+"</span>"+
     (relicNames?"<br><span class='end-relics'>"+relicNames+"</span>":"")+
     "<br><span style='font-size:0.82rem;color:var(--ink-soft);margin-top:4px;display:inline-block'>"+
-    "总伤害 "+g.totalDmg+" · 最高连斩 "+g.maxCombo+" · 精英击杀 "+g.eliteKills+
+    "总伤害 "+g.totalDmg+" · 受伤 "+g.totalDmgTaken+" · 治疗 "+g.totalHealed+" · 最高连斩 "+g.maxCombo+" · 精英击杀 "+g.eliteKills+
     "</span>"+
     deathLine+
     (isNewBest?"<br><span style='color:var(--accent);font-weight:600'>新纪录！</span>":"")+
@@ -5012,6 +5022,9 @@ function safeInit(){
   }
 }
 
-document.addEventListener("visibilitychange",function(){if(!document.hidden&&window.GameSound){try{GameSound.init()}catch(e){}}});
+document.addEventListener("visibilitychange",function(){
+  if(document.hidden&&G&&G.state==="playing"){togglePause()}
+  if(!document.hidden&&window.GameSound){try{GameSound.init()}catch(e){}}
+});
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",safeInit);else safeInit();
 })();

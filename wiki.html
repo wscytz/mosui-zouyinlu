@@ -402,6 +402,13 @@
       stats.style.marginTop='8px';
       stats.textContent='伤害:'+w.dmg+' 射程:'+w.range+' 冷却:'+w.cd+'帧';
       c.appendChild(stats);
+      // Build preferences
+      if(typeof BUILD_PREFS!=='undefined'&&BUILD_PREFS[w.id]){
+        var bp=tag('div','','wiki-card__meta');
+        bp.style.marginTop='6px';bp.style.color='var(--accent)';
+        bp.textContent='偏好: '+BUILD_PREFS[w.id].join(' · ');
+        c.appendChild(bp);
+      }
       wg.appendChild(c);
     });
 
@@ -669,10 +676,33 @@
     ];
     var bsm=document.getElementById('buildSummary');
     if(bsm)bsm.textContent=BUILDS.length+'条成熟构筑方向。核心遗物定调，放大遗物拉满，保底遗物兜住容错。';
-    BUILDS.forEach(function(b){
-      var c=document.createElement('div');
-      c.className='wiki-build';
-      c.innerHTML='<h4>'+b.name+'</h4><div class="wiki-build__weapon">主武器: '+b.weapon+'</div>';
+    // Build weapon filter
+    var bf=document.createElement('div');bf.className='wiki-filter';bf.style.marginBottom='12px';
+    var bfw='__all__';
+    function bmkBtn(label,val){
+      var b=tag('button',label,'wiki-filter__btn');
+      if(val==='__all__')b.classList.add('is-active');
+      b.onclick=function(){
+        bfw=val;
+        bf.querySelectorAll('.wiki-filter__btn').forEach(function(x){x.classList.remove('is-active')});
+        b.classList.add('is-active');renderBuilds();
+      };return b;
+    }
+    bf.appendChild(bmkBtn('全部','__all__'));
+    bf.appendChild(bmkBtn('斩妖剑','斩妖剑'));
+    bf.appendChild(bmkBtn('符骨笔','符骨笔'));
+    bf.appendChild(bmkBtn('镇魂铃','镇魂铃'));
+    bf.appendChild(bmkBtn('伏魔伞','伏魔伞'));
+    bf.appendChild(bmkBtn('召魂幡','召魂幡'));
+    bf.appendChild(bmkBtn('任意','任意'));
+    bl.parentNode.insertBefore(bf,bl);
+    function renderBuilds(){
+      bl.innerHTML='';
+      BUILDS.forEach(function(b){
+        if(bfw!=='__all__'&&b.weapon!==bfw&&!(bfw==='任意'&&b.weapon==='任意'))return;
+        var c=document.createElement('div');
+        c.className='wiki-build';
+        c.innerHTML='<h4>'+b.name+'</h4><div class="wiki-build__weapon">主武器: '+b.weapon+'</div>';
       function addRow(label,arr){
         if(!arr.length)return;
         var row=document.createElement('div');
@@ -685,7 +715,8 @@
       addRow('放大',b.amp);
       addRow('保底',b.safe);
       bl.appendChild(c);
-    });
+    });}
+    renderBuilds();
     renderRelics();
 
     // --- Caps ---
