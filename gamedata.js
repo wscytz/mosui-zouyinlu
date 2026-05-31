@@ -823,6 +823,8 @@ var ACHIEVEMENTS=[
   {id:"spider_slayer",name:"蛛后克星",desc:"单局击杀3只墨蛛后",check:function(m){return (m.mozhuhouKills||0)>=3},reward:null},
   {id:"chain_execute",name:"墨爆连环",desc:"单局通过墨爆弹引爆击杀15个敌人",
     check:function(m){return (m.bestExecuteKills||0)>=15},reward:null},
+  {id:"combo_20",name:"连斩达人",desc:"单局最高连斩达到20",check:function(m){return (m.bestCombo||0)>=20},reward:null},
+  {id:"dodge_master",name:"闪避大师",desc:"单局闪避次数达到30",check:function(m){return (m.bestDodgeKills||0)>=30},reward:null},
 ];
 
 // Starting relic pool for unlocked rewards
