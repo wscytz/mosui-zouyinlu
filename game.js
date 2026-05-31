@@ -3836,6 +3836,10 @@ function updateHUD(g){
   var aliveCount=0;for(var _ai=0;_ai<g.enemies.length;_ai++){if(g.enemies[_ai].hp>0)aliveCount++;}
   if(aliveCount>0)wt+=" · 余"+aliveCount;
   if(wt!==_lastWaveText){_lastWaveText=wt;el=_hudEl("waveInfo");if(el)el.textContent=wt;}
+  // 连斩HUD显示
+  if(g.killStreak>=3&&g.killStreakT>0){
+    el=_hudEl("comboDisplay");if(el){el.style.display="";el.textContent="×"+g.killStreak}
+  }else{el=_hudEl("comboDisplay");if(el)el.style.display="none"}
   var rs=Math.floor(g.time/60),rm=Math.floor(rs/60);rs=rs%60;
   var kt="斩祟 "+g.kills+" · "+(rm<10?"0":"")+rm+":"+(rs<10?"0":"")+rs;
   if(kt!==_lastKillText){_lastKillText=kt;el=_hudEl("killCount");if(el)el.textContent=kt;}
