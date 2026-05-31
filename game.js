@@ -185,6 +185,9 @@ function metaRecordRun(g){
   if((g.moveChargeFires||0)>(meta.bestMoveChargeFires||0))meta.bestMoveChargeFires=g.moveChargeFires;
   if(g.relics.length>(meta.maxRelicsInRun||0))meta.maxRelicsInRun=g.relics.length;
   if(won&&g._isBossWave&&!g.bossHurtThisWave)meta.perfectBossKills=(meta.perfectBossKills||0)+1;
+  if(g.survivalMaster)meta.survivalMaster=(meta.survivalMaster||0)+1;
+  var relicsSeenCount=Object.keys(g.relicsSeen||{}).length;
+  if(relicsSeenCount>(meta.relicsSeen||0))meta.relicsSeen=relicsSeenCount;
   if(won&&g.player.noEvolution)meta.noEvolveWins=(meta.noEvolveWins||0)+1;
   if(won){var _fa=0;g.fires.forEach(function(f){if(f.owner==="player")_fa+=Math.PI*f.r*f.r});var _fc=_fa/(W*H);if(_fc>(meta.bestFireCoverage||0))meta.bestFireCoverage=_fc}
   var newlyUnlocked=checkAchievements(meta);
@@ -403,7 +406,7 @@ function newGame(wid,diff){
     hazard:null,hazardTimer:0,hazardObjs:[],
     inkSpirits:[],
     formations:[],
-    killExplodeKills:0,blindKills:0,waveHpHealed:0,lowHpBurstKills:0,mozhuhouKills:0,executeKills:0,dodgeKills:0,critKills:0,killFeed:[],
+    killExplodeKills:0,blindKills:0,waveHpHealed:0,lowHpBurstKills:0,mozhuhouKills:0,executeKills:0,dodgeKills:0,critKills:0,relicsSeen:{},killFeed:[],
     perf:{lastT:0,fps:60,pressure:0,peaks:{enemies:0,attacks:0,particles:0,fires:0,eProj:0,floatTexts:0,decoys:0,kites:0,frosts:0}}}
 }
 
@@ -2383,6 +2386,8 @@ function update(g){
     // Clear if quota met and few enemies remain
     if(g.survivalKillsNeeded<=0&&g.enemies.length<10){
       g.survivalCleared=true;
+      // v9.0: 绝境逢生成就 — 生存波击杀超过需求1.5倍
+      if(g.waveKills>12)g.survivalMaster=1;
     }
     // Also clear if all enemies dead and spawn timer still has time (player cleared too fast)
     if(g.enemies.length===0&&g.survivalSpawnTimer>20){
@@ -4276,6 +4281,8 @@ function pickRelicChoices(g){
   }
   var state=buildPickState(g),chosen=[],chosenIds={};
   pool=pool.filter(function(r){return !PREREQS[r.id]||PREREQS[r.id](state)});
+  // v9.0: 遗物猎人成就追踪 — 记录本轮见过的所有遗物
+  pool.forEach(function(r){g.relicsSeen[r.id]=true});
   function choose(mode){
     var scored=pool.filter(function(r){return!chosenIds[r.id]}).map(function(r){return scoreRelicChoice(r,state,mode)});
     if(!scored.length)return;

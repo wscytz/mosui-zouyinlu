@@ -539,9 +539,18 @@ code+='\n'+[
 '  if(phase43[1].text!=="绝 望")errors.push("phase: second text="+phase43[1].text);',
 '}catch(e){errors.push("bossPhase: "+e.message)}',
 
+// Test 44: v9.0 new achievements (5) and new curses (3)
+'try{var newAch=["combo_30","crit_50","elite_20","survival_master","relic_50"];',
+'newAch.forEach(function(id){var a=ACHIEVEMENTS.filter(function(x){return x.id===id})[0];if(!a)errors.push("ach: "+id+" missing")});',
+'var newCurses=["huwei","canglang","qianniao"];',
+'newCurses.forEach(function(id){var c=CURSES.filter(function(x){return x.id===id})[0];if(!c)errors.push("curse: "+id+" missing")});',
+'if(ACHIEVEMENTS.length!==47)errors.push("ach: expected 47, got "+ACHIEVEMENTS.length);',
+'if(CURSES.length!==28)errors.push("curse: expected 28, got "+CURSES.length);',
+'}catch(e){errors.push("v9content: "+e.message)}',
+
 // Report
 'if(errors.length){console.log("FAIL ("+errors.length+"):");errors.forEach(function(e){console.log("  - "+e)});process.exit(1)}',
-'else{console.log("ALL 43 PASSED");',
+'else{console.log("ALL 44 PASSED");',
 '  console.log("  1. 4 weapons x 20 frames + render");',
 '  console.log("  2. Relic selection = 3");',
 '  console.log("  3. Limits enforced");',

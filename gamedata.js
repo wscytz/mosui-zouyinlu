@@ -766,7 +766,17 @@ var CURSES=[
     fn:function(p){p.stats.dmg+=0.4;p.dmgTakenMult=(p.dmgTakenMult||1)+0.3}},
   {id:"guzhu",name:"孤注一掷",type:"誓印",tags:["遗物","诅咒"],
     desc:"遗物上限降至3件，但每件遗物效果+50%",
-    fn:function(p){p.maxRelicsOverride=3;p.relicPower=1.5}}
+    fn:function(p){p.maxRelicsOverride=3;p.relicPower=1.5}},
+  // v9.0 新誓印 x3
+  {id:"huwei",name:"虎卫",type:"誓印",tags:["生存","近战"],
+    desc:"受伤时有30%概率闪避，但伤害-15%",
+    fn:function(p){p.dodgeOnHurt=true;p.stats.dmg-=0.15}},
+  {id:"canglang",name:"沧浪",type:"誓印",tags:["法术","生存"],
+    desc:"生命值越低，伤害越高(最低+60%)，但移速-20%",
+    fn:function(p){p.lowDmgBoost=true;p.stats.spd-=0.2}},
+  {id:"qianniao",name:"潜鸟",type:"誓印",tags:["机动","诅咒"],
+    desc:"击杀后移速+10%持续5秒(可叠加)，但攻击范围-25%",
+    fn:function(p){p.killSpeed=true;p.stats.range-=0.25}}
 ];
 // --- Stage Hazards (random per wave) ---
 var STAGE_HAZARDS=[
@@ -825,6 +835,12 @@ var ACHIEVEMENTS=[
     check:function(m){return (m.bestExecuteKills||0)>=15},reward:null},
   {id:"combo_20",name:"连斩达人",desc:"单局最高连斩达到20",check:function(m){return (m.bestCombo||0)>=20},reward:null},
   {id:"dodge_master",name:"闪避大师",desc:"单局闪避次数达到30",check:function(m){return (m.bestDodgeKills||0)>=30},reward:null},
+  // v9.0 新成就 x5
+  {id:"combo_30",name:"连斩宗师",desc:"单局最高连斩达到30",check:function(m){return (m.bestCombo||0)>=30},reward:null},
+  {id:"crit_50",name:"暴击如雨",desc:"单局暴击击杀50个敌人",check:function(m){return (m.critKills||0)>=50},reward:null},
+  {id:"elite_20",name:"精英杀手",desc:"单局击杀20个精英敌人",check:function(m){return (m.eliteKills||0)>=20},reward:null},
+  {id:"survival_master",name:"绝境逢生",desc:"生存波击杀数量超过敌人总数150%",check:function(m){return (m.survivalMaster||0)>=1},reward:null},
+  {id:"relic_50",name:"遗物猎人",desc:"单局见过50件不同遗物",check:function(m){return (m.relicsSeen||0)>=50},reward:null},
 ];
 
 // Starting relic pool for unlocked rewards
