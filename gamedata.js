@@ -516,8 +516,20 @@ var ETYPE={
   moyinggui:{name:"墨影鬼",tip:"周期瞬移到玩家身后突袭，保持移动",hp:50,spd:1.6,r:12,dmg:10,atkR:30,atkCd:45,
     col:"rgba(60,50,70,0.35)",edge:C.ghost,teleport:true,teleportCd:180},
   moyishi:{name:"墨医师",tip:"周期治疗周围敌人，优先击杀阻止回血",hp:60,spd:0.9,r:14,dmg:0,atkR:0,atkCd:0,
-    col:"rgba(90,138,74,0.4)",edge:C.moss,healAura:true,healAuraR:100,healAuraCd:150,healAuraAmt:8}
+    col:"rgba(90,138,74,0.4)",edge:C.moss,healAura:true,healAuraR:100,healAuraCd:150,healAuraAmt:8},
+  // v6.2 new enemies
+  moyingjiang:{name:"墨影将",tip:"重甲冲锋型，冲锋后短暂眩晕是输出窗口",hp:110,spd:0.7,r:20,dmg:14,atkR:34,atkCd:60,
+    col:"rgba(50,40,55,0.5)",edge:C.ink,hasShield:true,shield:25,maxShield:25,shieldRegen:300,
+    charge:true,chargeCd:140,chargeSpeed:5.5},
+  moguchong:{name:"墨蛊虫",tip:"近身吸血并留毒径，闪避甩脱后远程击杀",hp:40,spd:2.3,r:9,dmg:0,atkR:0,atkCd:0,
+    col:"rgba(70,90,60,0.4)",edge:C.moss,leech:true,poisonTrail:true},
+  molingdeng:{name:"墨灵灯",tip:"远程灵弹，死后孵化小灯，群攻速清",hp:48,spd:0.8,r:12,dmg:6,atkR:220,atkCd:75,
+    col:"rgba(140,120,80,0.5)",edge:C.gold,ranged:true,pSpd:3.5,
+    spawnsOnDeath:true,spawnType:"modeng",spawnCount:2}
 };
+// spawnType target
+ETYPE.modeng={name:"墨灯",tip:"灵灯孵化物，快速近战",hp:15,spd:2.8,r:6,dmg:5,atkR:22,atkCd:30,
+  col:"rgba(180,160,100,0.4)",edge:C.gold};
 
 var LIMITS={particles:260,fires:72,attacks:90,eProj:90,floatTexts:18,decoys:12,kites:4,frosts:12,enemies:80,inkSpirits:6};
 
@@ -592,7 +604,7 @@ var TUNING={
 };
 
 var DEATH_COLOR={zhikui:"ash",youhun:"moss",fenling:"fire",shigui:"soft",gudeng:"gold",jiangshi:"ink",boss:"accent",
-  zhikuang:"ghost",fenshen:"soul",modun:"soft",mojiangjun:"ink",moguiwang:"accent",moya:"ink",shiyong:"soft",yanyong:"fire",sukui:"ash",duzhu:"moss",gushi:"accent",huapi:"accent",mozhi:"ink",motong:"ink",mofu:"ink",modie:"moss",moyong:"ink",morui:"accent",mozhu:"moss",mogu:"ash",momian:"ink",mojar:"ink",moying:"moss",mooushi:"ghost",mozhuhou:"ink",moling:"moss",mobei:"ash",mozhang:"moss",moyanshi:"soul",molizexi:"fire",moyinggui:"ghost",moyishi:"moss"};
+  zhikuang:"ghost",fenshen:"soul",modun:"soft",mojiangjun:"ink",moguiwang:"accent",moya:"ink",shiyong:"soft",yanyong:"fire",sukui:"ash",duzhu:"moss",gushi:"accent",huapi:"accent",mozhi:"ink",motong:"ink",mofu:"ink",modie:"moss",moyong:"ink",morui:"accent",mozhu:"moss",mogu:"ash",momian:"ink",mojar:"ink",moying:"moss",mooushi:"ghost",mozhuhou:"ink",moling:"moss",mobei:"ash",mozhang:"moss",moyanshi:"soul",molizexi:"fire",moyinggui:"ghost",moyishi:"moss",moyingjiang:"ink",moguchong:"moss",molingdeng:"gold",modeng:"gold"};
 
 var JUDGMENTS=["斩业已断","纸命归灰","照见真形","朱批落定","一念归尘","墨尽灯枯","形消魄散","笔落惊魂"];
 
@@ -610,14 +622,14 @@ var BUILD_PREFS={
 function _ri(a,b){return Math.floor(a+Math.random()*(b-a+1))}
 function _pick(a){return a[Math.floor(Math.random()*a.length)]}
 // --- Procedural wave generation ---
-var ENEMY_COST={zhikui:1,youhun:1.5,zhikuang:1.5,fenling:2,gudeng:2,shigui:2.5,fenshen:2.5,modun:2.5,jiangshi:3,moya:1.8,shiyong:3,yanyong:2.2,sukui:1.3,duzhu:1.7,gushi:2.8,huapi:1.9,mozhi:1.4,motong:1.2,mofu:1.1,modie:1.5,moyong:2.0,morui:0.7,mozhu:1.8,mogu:2.8,momian:1.6,mojar:2.0,moying:1.5,mooushi:2.5,mozhuhou:3.0,moling:1.8,mobei:2.5,mozhang:2.0,moyanshi:2.3,molizexi:1.9,moyinggui:2.2,moyishi:2.5,boss:99,mojiangjun:99,moguiwang:99};
+var ENEMY_COST={zhikui:1,youhun:1.5,zhikuang:1.5,fenling:2,gudeng:2,shigui:2.5,fenshen:2.5,modun:2.5,jiangshi:3,moya:1.8,shiyong:3,yanyong:2.2,sukui:1.3,duzhu:1.7,gushi:2.8,huapi:1.9,mozhi:1.4,motong:1.2,mofu:1.1,modie:1.5,moyong:2.0,morui:0.7,mozhu:1.8,mogu:2.8,momian:1.6,mojar:2.0,moying:1.5,mooushi:2.5,mozhuhou:3.0,moling:1.8,mobei:2.5,mozhang:2.0,moyanshi:2.3,molizexi:1.9,moyinggui:2.2,moyishi:2.5,moyingjiang:3.5,moguchong:1.6,molingdeng:2.0,modeng:0.6,boss:99,mojiangjun:99,moguiwang:99};
 var WAVE_BUDGETS=[5,7,9.5,12,14.5,17.5,21,25,28,32,36,0];
 var WAVE_TIERS=[
   ["zhikui","youhun"],
   ["zhikui","youhun","fenling","zhikuang","moya","sukui","huapi","mozhi","motong","mofu","modie","morui","moying","molizexi"],
   ["zhikui","youhun","fenling","gudeng","shigui","fenshen","moya","shiyong","sukui","yanyong","duzhu","morui","moyong","mozhu","moying","mooushi","moling","mozhang","moyanshi"],
-  ["zhikuang","fenling","gudeng","shigui","fenshen","modun","jiangshi","moya","shiyong","yanyong","gushi","moyong","mozhu","mogu","mojar","mooushi","mobei","moyanshi","moyinggui"],
-  ["fenling","gudeng","shigui","fenshen","modun","jiangshi","moya","shiyong","yanyong","duzhu","gushi","mozhu","mogu","momian","mojar","mooushi","mozhuhou","moyinggui","moyishi"]
+  ["zhikuang","fenling","gudeng","shigui","fenshen","modun","jiangshi","moya","shiyong","yanyong","gushi","moyong","mozhu","mogu","mojar","mooushi","mobei","moyanshi","moyinggui","molingdeng"],
+  ["fenling","gudeng","shigui","fenshen","modun","jiangshi","moya","shiyong","yanyong","duzhu","gushi","mozhu","mogu","momian","mojar","mooushi","mozhuhou","moyinggui","moyishi","moyingjiang","moguchong"]
 ];
 var WAVE_PLACES=["纸门","纸灰巷","悬井口","鬼灯廊","无面台","墨池","灰潮","百鬼面","黄泉路","枯骨桥","阴风道","鬼市","鸦栖楼","幽冥渡"];
 var WAVE_FLAVORS=["此处邪祟暗藏，小心试探。","前方鬼影绰绰，不可大意。","阴气渐重，步步为营。","群邪毕至，殊死一搏。","地宫深处，杀机四伏。"];
@@ -744,7 +756,17 @@ var CURSES=[
     fn:function(p){p.comboDmgScale=true;p.comboVuln=true}},
   {id:"mosuo",name:"墨锁",type:"誓印",tags:["召物","诅咒"],
     desc:"墨灵上限+2但每只墨灵使最大生命-10",
-    fn:function(p){p.inkSpiritCount=(p.inkSpiritCount||0)+2;p.hasInkSpirit=true;p.spiritHpPenalty=(p.spiritHpPenalty||0)+10}}
+    fn:function(p){p.inkSpiritCount=(p.inkSpiritCount||0)+2;p.hasInkSpirit=true;p.spiritHpPenalty=(p.spiritHpPenalty||0)+10}},
+  // v6.2 new curses
+  {id:"saiweng",name:"塞翁失马",type:"誓印",tags:["生存","治疗"],
+    desc:"最大生命-30%，但每波结束回复30%最大生命",
+    fn:function(p){p.maxHpMult=0.7;p.waveEndHeal=true;p.waveEndHealRatio=0.3}},
+  {id:"yixue",name:"以血换血",type:"誓印",tags:["暴击","诅咒"],
+    desc:"攻击力+40%，受伤+30%",
+    fn:function(p){p.stats.dmg+=0.4;p.dmgTakenMult=(p.dmgTakenMult||1)+0.3}},
+  {id:"guzhu",name:"孤注一掷",type:"誓印",tags:["遗物","诅咒"],
+    desc:"遗物上限降至3件，但每件遗物效果+50%",
+    fn:function(p){p.maxRelicsOverride=3;p.relicPower=1.5}}
 ];
 // --- Stage Hazards (random per wave) ---
 var STAGE_HAZARDS=[

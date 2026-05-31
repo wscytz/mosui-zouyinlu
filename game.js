@@ -444,7 +444,7 @@ function spawnEnemy(g,type,opts){
   var eliteChance=Math.min(TUNING.eliteMaxChance,TUNING.eliteBaseChance+g.wave*TUNING.eliteWaveScale+diffEliteBonus);
   var elite=(g.wave>=3||p.allElite)&&!t.isBoss&&(p.allElite||Math.random()<eliteChance);
   var eliteAbility=null;
-  if(elite){hp=Math.floor(hp*TUNING.eliteHpMult);spd*=TUNING.eliteSpdMult;eliteAbility=pick(["blink","deathburst","enrage","armored"]);
+  if(elite){hp=Math.floor(hp*TUNING.eliteHpMult);spd*=TUNING.eliteSpdMult;eliteAbility=pick(["blink","deathburst","enrage","armored","regen","vampire"]);
     if(eliteAbility==="armored")spd*=TUNING.eliteArmoredSpdMult}
   if(g.enemies.length>=LIMITS.enemies)return;
   if(!g.encountered[type]&&t.tip){g.encountered[type]=true;
@@ -1330,6 +1330,8 @@ function hurtP(g,dmg,src){
   dmg=Math.floor(dmg*(1-p.stats.def));
   // 墨旋誓印：静止受伤+30%
   if(p.stillDmgMult>0&&p.idleT>3)dmg=Math.floor(dmg*p.stillDmgMult);
+  // 以血换血誓印：额外受伤倍率
+  if(p.dmgTakenMult&&p.dmgTakenMult>1)dmg=Math.floor(dmg*p.dmgTakenMult);
   // 额外受伤（血墨混染）
   if(p.extraDmgTaken>0)dmg=Math.floor(dmg*(1+p.extraDmgTaken));
   // 墨血誓印：连击越高受伤越重（每层+5%，上限10层）
@@ -1369,6 +1371,10 @@ function hurtP(g,dmg,src){
     if(p.decoyHP<0){p.hp+=p.decoyHP;p.decoyHP=0}
     if(p.decoyHP<oldDecoy)spawnInk(g,p.x,p.y,4,"ghost")}
   else{p.hp-=dmg}
+  // Elite vampire: attacker heals 30% of damage dealt
+  if(src&&src.elite&&src.eliteAbility==="vampire"&&src.hp>0){
+    var vh=Math.max(1,Math.floor(dmg*0.3));
+    src.hp=Math.min(src.maxHp,src.hp+vh);spawnInk(g,src.x,src.y,3,"fire")}
   // 墨生莲：濒死爆发回血
   if(p.burstHeal&&!p.burstHealUsed&&p.hp>0&&p.hp<p.maxHp*0.25){
     p.burstHealUsed=true;p.hp=Math.ceil(p.maxHp*0.5);
@@ -2131,6 +2137,16 @@ function update(g){
       if(e.eliteAbility==="enrage"&&!e.enraged&&e.hp<e.maxHp*0.3){
         e.enraged=true;e.spd*=2;e.dmg=Math.ceil(e.dmg*1.3);
         snd("bossEnrage");spawnInk(g,e.x,e.y,8,"fire")}
+      // Regen: heal 5% maxHp every 120 frames, double rate below 30%
+      if(e.eliteAbility==="regen"){
+        if(!e.regenT)e.regenT=120;
+        e.regenT--;
+        if(e.regenT<=0){e.regenT=e.hp<e.maxHp*0.3?60:120;
+          var healAmt=Math.max(1,Math.floor(e.maxHp*0.05));
+          e.hp=Math.min(e.maxHp,e.hp+healAmt);
+          spawnInk(g,e.x,e.y,4,"moss");snd("heal")}}
+      // Vampire: tracked via damagePlayer hook
+      if(e.eliteAbility==="vampire"&&!e._vampTag){e._vampTag=true}
     }
     // summoner AI
     if(e.summoner){
@@ -2846,13 +2862,34 @@ function render(g){
         var hpx=Math.cos(hxa)*e.r,hpy=Math.sin(hxa)*e.r;
         hxi===0?c.moveTo(hpx,hpy):c.lineTo(hpx,hpy)}
       c.closePath();c.fill();c.stroke();
+    }else if(e.type==="moyingjiang"){
+      // shadow general: broad armored rectangle with shoulder spikes
+      var sg=e.r*0.85;c.fillRect(-sg,-sg*0.9,sg*2,sg*1.8);c.strokeRect(-sg,-sg*0.9,sg*2,sg*1.8);
+      c.globalAlpha=0.3;c.fillStyle=C.ink;
+      c.fillRect(-sg*1.2,-sg*0.4,sg*0.4,sg*0.8);c.fillRect(sg*0.8,-sg*0.4,sg*0.4,sg*0.8);
+      c.globalAlpha=1;
+    }else if(e.type==="moguchong"){
+      // parasite: small teardrop with pincers
+      c.beginPath();c.moveTo(0,-e.r*1.2);c.quadraticCurveTo(e.r*0.8,-e.r*0.2,e.r*0.5,e.r*0.6);
+      c.quadraticCurveTo(0,e.r*1.3,-e.r*0.5,e.r*0.6);
+      c.quadraticCurveTo(-e.r*0.8,-e.r*0.2,0,-e.r*1.2);c.fill();c.stroke();
+      c.globalAlpha=0.5;c.strokeStyle=C.moss;c.lineWidth=1;
+      c.beginPath();c.moveTo(-e.r*0.3,-e.r*1.1);c.lineTo(-e.r*0.6,-e.r*1.5);c.stroke();
+      c.beginPath();c.moveTo(e.r*0.3,-e.r*1.1);c.lineTo(e.r*0.6,-e.r*1.5);c.stroke();
+      c.globalAlpha=1;
+    }else if(e.type==="molingdeng"||e.type==="modeng"){
+      // spirit lamp: oval body with flame top
+      c.beginPath();c.ellipse(0,2,e.r*0.8,e.r*0.6,0,0,Math.PI*2);c.fill();c.stroke();
+      c.globalAlpha=0.5;c.fillStyle=C.gold;
+      c.beginPath();c.moveTo(0,-e.r);c.lineTo(-e.r*0.3,-e.r*0.4);
+      c.lineTo(e.r*0.3,-e.r*0.4);c.closePath();c.fill();c.globalAlpha=1;
     }else{
       c.beginPath();c.arc(0,0,e.r,0,Math.PI*2);c.fill();c.stroke()}
     c.shadowBlur=0;
     // Elite ability tag
     if(e.elite&&e.eliteAbility){c.fillStyle=C.gold;c.globalAlpha=0.7;
       c.font='600 11px '+C.fontBody;c.textAlign="center";
-      var abNames={blink:"瞬",deathburst:"爆",enrage:"狂",armored:"甲"};
+      var abNames={blink:"瞬",deathburst:"爆",enrage:"狂",armored:"甲",regen:"愈",vampire:"吸"};
       c.fillText(abNames[e.eliteAbility]||"",0,-e.r-20);c.globalAlpha=1}
     c.fillStyle=e.isBoss?(e.enraged?C.accent:C.ink):C.ink;var eo=e.r*0.3;
     var eyeR=e.isBoss?2.5:2;
@@ -4198,6 +4235,8 @@ function showRelic(g){
   var p=g.player;var oldHp=p.hp;
   if(!p.noWaveHeal){p.hp=Math.min(p.maxHp,p.hp+Math.floor(p.maxHp*0.2));
     if(p.hp>oldHp)spawnInk(g,p.x,p.y,8,"moss")}
+  if(p.waveEndHeal){var _weh=Math.floor(p.maxHp*p.waveEndHealRatio);
+    p.hp=Math.min(p.maxHp,p.hp+_weh);spawnInk(g,p.x,p.y,6,"moss");snd("heal")}
   snd("relicPickup");
   var isEvo=!p.noEvolution&&(g.wave===3||g.wave===6||g.wave===8);
   if(isEvo)showHint(g,"evo","选择一项武器进化 — 强化你的攻击方式");
@@ -4335,6 +4374,7 @@ function rebuildPlayerStats(g){
     'dotAccumBoom',
     'splitShieldActive','splitShieldTicks',
     'fullHpDefense',
+    'waveEndHeal','waveEndHealRatio','maxHpMult','dmgTakenMult',
     'splitHealOnHit',
     'yinFuHeal',
     'soulKill',
@@ -4669,6 +4709,7 @@ function beginRun(g){
   var p=g.player;
   var startNotices=[];
   if(p.maxHpOverride>0){p.maxHp=p.maxHpOverride;p.hp=Math.min(p.hp,p.maxHp)}
+  if(p.maxHpMult&&p.maxHpMult<1){p.maxHp=Math.floor(p.maxHp*p.maxHpMult);p.hp=Math.min(p.hp,p.maxHp)}
   // Starter relic from meta-unlock
   if(meta.unlocks.startRelic&&STARTER_RELICS){
     var srPool=STARTER_RELICS.filter(function(id){return !g.relics.some(function(r){return r.id===id})});

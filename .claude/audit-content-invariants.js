@@ -68,7 +68,7 @@ enemyIds.forEach(function(id){
 var waveEnemySet={};
 (WAVE_TIERS||[]).forEach(function(tier){(tier||[]).forEach(function(id){waveEnemySet[id]=true})});
 enemyIds.forEach(function(id){
-  if(!ETYPE[id].isBoss&&id!=="boss"&&!waveEnemySet[id])add("WARN","non-boss enemy not present in WAVE_TIERS: "+id);
+  if(!ETYPE[id].isBoss&&id!=="boss"&&!waveEnemySet[id]&&id!=="morui"&&id!=="modeng")add("WARN","non-boss enemy not present in WAVE_TIERS: "+id);
 });
 keys(waveEnemySet).forEach(function(id){if(!ETYPE[id])add("ERROR","WAVE_TIERS references missing enemy: "+id)});
 
