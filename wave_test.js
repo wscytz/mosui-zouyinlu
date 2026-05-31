@@ -5,6 +5,7 @@ var code=fs.readFileSync('game.js','utf8');
 var mkCtx=function(){return{restore:function(){},save:function(){},translate:function(){},fillRect:function(){},fillText:function(){},strokeRect:function(){},beginPath:function(){},arc:function(){},fill:function(){},stroke:function(){},moveTo:function(){},lineTo:function(){},setLineDash:function(){},closePath:function(){},createRadialGradient:function(){return{addColorStop:function(){}}},scale:function(){},rotate:function(){},drawImage:function(){},globalAlpha:1,fillStyle:'',strokeStyle:'',lineWidth:1,font:'',textAlign:'left',shadowBlur:0,shadowColor:'',lineCap:'butt'}};
 global.window={_showDebug:false,GameSound:{play:function(){},init:function(){}},addEventListener:function(){}};
 global.GameSound=global.window.GameSound;
+global.localStorage={getItem:function(){return null},setItem:function(){},removeItem:function(){}};
 global.document={getElementById:function(id){
   if(id==='gameCanvas')return{width:960,height:640,getContext:function(){return mkCtx()},addEventListener:function(){},focus:function(){},getBoundingClientRect:function(){return{left:0,top:0,width:960,height:640}}};
   return{style:{display:'none'},classList:{add:function(){},remove:function(){}},addEventListener:function(){},onclick:null,focus:function(){},offsetWidth:0,innerHTML:'',textContent:'',querySelectorAll:function(){return[]},closest:function(){return null}};

@@ -8,6 +8,7 @@ var code=fs.readFileSync('game.js','utf8');
 // Mock globals first, then strip IIFE and eval body
 global.window={_showDebug:false,GameSound:{play:function(){},init:function(){}},addEventListener:function(){}};
 global.GameSound=global.window.GameSound;
+global.localStorage={getItem:function(){return null},setItem:function(){},removeItem:function(){}};
 global.document={getElementById:function(id){
   if(id==='gameCanvas')return{width:960,height:640,
     getContext:function(){return{restore:function(){},save:function(){},translate:function(){},fillRect:function(){},

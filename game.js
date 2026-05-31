@@ -5111,7 +5111,7 @@ function safeInit(){
   try{init()}
   catch(e){
     console.error("init() failed:",e.message,e.stack);
-    // Show error message on screen so user isn't stuck on splash
+    var l=document.getElementById("loadingScreen");if(l)l.style.display="none";
     var d=document.createElement("div");
     d.style.cssText="position:fixed;inset:0;background:#f1e6d4;color:#171310;display:flex;align-items:center;justify-content:center;font:16px sans-serif;padding:20px;text-align:center;z-index:99999";
     d.textContent="加载失败: "+e.message;

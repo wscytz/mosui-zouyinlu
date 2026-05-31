@@ -157,6 +157,17 @@
     </div>
   </div>
 
+  <!-- Loading screen -->
+  <div id="loadingScreen" class="overlay" style="display:flex;background:#171310;">
+    <div class="overlay__inner" style="text-align:center;">
+      <span class="seal" style="display:block;margin-bottom:24px;">夜行客</span>
+      <p style="color:#d4c5a0;font-size:1rem;letter-spacing:0.15em;">正在进入地宫...</p>
+      <div class="loading-dots" style="margin-top:16px;color:#d4c5a0;">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  </div>
+
   <!-- Loading diagnostics overlay (visible on mobile if scripts fail) -->
   <div id="loadDiag" style="position:fixed;bottom:10px;left:10px;background:rgba(0,0,0,0.7);color:#fff;font:12px monospace;padding:6px 10px;border-radius:4px;z-index:99999;pointer-events:none;max-width:90vw;word-break:break-all"></div>
   <script>(function(){var d=document.getElementById("loadDiag");function m(s){if(d)d.textContent=s}
@@ -166,7 +177,8 @@
   <script src="sound.js" onload="_loadLog&&_loadLog('音效✓')" onerror="_loadLog&&_loadLog('音效加载失败!')"></script>
   <script src="gamedata.js" onload="_loadLog&&_loadLog('数据✓')" onerror="_loadLog&&_loadLog('数据加载失败!')"></script>
   <script src="game.js" onload="_loadLog&&_loadLog('核心✓ — 初始化中...')" onerror="_loadLog&&_loadLog('核心加载失败!')"></script>
-  <script src="mobile-controls.js" onload="setTimeout(function(){var d=document.getElementById('loadDiag');if(d)d.style.display='none'},600)" onerror="_loadLog&&_loadLog('移动端控件失败')"></script>
+  <script src="mobile-controls.js" onload="var d=document.getElementById('loadingScreen');if(d)d.style.display='none';setTimeout(function(){var d2=document.getElementById('loadDiag');if(d2)d2.style.display='none'},600)" onerror="_loadLog&&_loadLog('移动端控件失败')"></script>
+  <script>setTimeout(function(){var d=document.getElementById('loadingScreen');if(d)d.style.display='none'},4000)</script>
   <noscript><div style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.9);color:#d4c5a0;font:16px sans-serif;padding:32px;border-radius:8px;text-align:center;z-index:99999;"><p>本游戏需要 JavaScript 才能运行。</p><p>请启用 JavaScript 后刷新页面。</p></div></noscript>
 </body>
 </html>
