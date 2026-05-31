@@ -730,7 +730,10 @@ function renderStage(g,c){
     var tideR=120+60*Math.sin(g.time*0.02);
     c.globalAlpha=0.12+0.06*Math.sin(g.time*0.02);c.fillStyle="rgba(23,19,16,0.8)";
     c.beginPath();c.arc(W/2,H/2,tideR,0,Math.PI*2);c.fill();
-    c.globalAlpha=0.3;c.strokeStyle=C.accent;c.lineWidth=2;
+    c.glo  // soulHarvester: nearby mohuanji gains kill credit
+  forEachLiveEnemy(g,function(se){if(se.soulHarvester&&se._soulHarvest>=0){
+    if(dstSq(se,e)<40000){se._soulHarvest=(se._soulHarvest||0)+1;spawnP(g,se.x,se.y,"boss",2)}}});
+balAlpha=0.3;c.strokeStyle=C.accent;c.lineWidth=2;
     c.beginPath();c.arc(W/2,H/2,tideR,0,Math.PI*2);c.stroke();
     // inner ripple
     c.globalAlpha=0.15;c.strokeStyle=C.ink;c.lineWidth=1;c.setLineDash([3,6]);
@@ -1036,6 +1039,9 @@ function damageEnemy(g,e,dmg,source,opts){
   if(p.corrosive&&e.hp>0){e.corrode=Math.min(3,(e.corrode||0)+1);e.corrodeT=100}
   if(e.hp<=0){
     if(tryStageRevive(g,e))return false;
+    // vampiric: if killed by vampiric source, heal it
+    if(source&&source.vampiric&&source.hp>0){source.hp=Math.min(source.maxHp,source.hp+source.vampiricHeal);
+      spawnP(g,source.x,source.y,"moss",4)}
     onEnemyKilled(g,e,source,opts);return true
   }
   return false;
@@ -2055,6 +2061,19 @@ function update(g){
             r:5,dmg:Math.max(1,Math.floor(e.dmg*(e.fanShot>1?0.82:1)*(e.buffed>0?1.35:1))),life:58,_src:e});
         }
         e.cdT=e.atkCd}
+      // chainLightning: arc to nearest enemies
+      if(e.chainLightning&&e.cdT<=0&&dToPSq<e.atkR*e.atkR){
+        var chainHit=[e];var chainX=e.x,chainY=e.y,chainD=e.chainDmg;
+        for(var ci=0;ci<e.chainCount;ci++){
+          var nearE=null,nearDist=e.chainRange*e.chainRange;
+          forEachLiveEnemy(g,function(ne){if(chainHit.indexOf(ne)>=0)return;
+            var d=dstSq({x:chainX,y:chainY},ne);if(d<nearDist){nearDist=d;nearE=ne}});
+          if(nearE){
+            chainHit.push(nearE);var dd=Math.sqrt(nearDist)||1;
+            addEProj(g,{x:chainX,y:chainY,vx:(nearE.x-chainX)/dd*e.pSpd*1.5,vy:(nearE.y-chainY)/dd*e.pSpd*1.5,
+              r:5,dmg:Math.ceil(chainD),life:25,_src:e,_chain:true,_chainNext:nearE});
+            chainX=nearE.x;chainY=nearE.y;chainD*=1.5}}
+        e.cdT=e.atkCd}
       else if(!e.ranged&&!(e.swoop&&e.swoopState==="swoop")&&dToPSq<(e.atkR+p.r)*(e.atkR+p.r)){if(p.invTimer<=0)hurtP(g,Math.ceil(e.dmg*(e.buffed>0?1.35:1)),e);e.cdT=e.atkCd}}
     if(e.isBoss&&e.type!=="mojiangjun"&&e.type!=="moguiwang"&&g.time%90===0){for(var ba=0;ba<8;ba++){var baA=ba*Math.PI/4;
       addEProj(g,{x:e.x,y:e.y,vx:Math.cos(baA)*3,vy:Math.sin(baA)*3,
@@ -2224,6 +2243,22 @@ function update(g){
             oe.hp=Math.min(oe.maxHp,oe.hp+e.healAuraAmt);
             spawnP(g,oe.x,oe.y,"moss",2);healed=true}});
         if(healed){spawnInk(g,e.x,e.y,4,"moss");spawnP(g,e.x,e.y,"moss",3);snd("heal")}
+      }
+    }
+    // soulHarvester: track kills, gain power over time
+    if(e.soulHarvester){e._soulHarvest=(e._soulHarvest||0);
+      if(e._soulHarvest>0&&g.time%300===0){e.maxHp+=8;e.hp=Math.min(e.maxHp,e.hp+8)}}
+    // cloneOnHalf: at 50% HP, spawn a clone
+    if(e.cloneOnHalf&&!e._cloned&&e.hp<=e.maxHp*0.5&&e.hp>0){
+      e._cloned=true;
+      var clHp=Math.floor(e.maxHp*e.cloneHpRatio);
+      if(g.enemies.length<LIMITS.enemies){
+        g.enemies.push({x:e.x+rn(-20,20),y:e.y+rn(-20,20),type:e.type,
+          hp:clHp,maxHp:clHp,spd:e.spd*0.8,r:e.r,dmg:Math.floor(e.dmg*0.5),
+          atkR:e.atkR,atkCd:e.atkCd,cdT:30,col:e.col,edge:e.edge,
+          r:Math.max(e.r-3,8),bob:rn(0,Math.PI*2),spawnGraceT:20,
+          isElite:e.isElite,_parentId:e.id,_cloned:true});
+        spawnP(g,e.x,e.y,"accent",5);shake(g,3,2)
       }
     }
   }

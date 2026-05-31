@@ -525,7 +525,20 @@ var ETYPE={
     col:"rgba(70,90,60,0.4)",edge:C.moss,leech:true,poisonTrail:true},
   molingdeng:{name:"墨灵灯",tip:"远程灵弹，死后孵化小灯，群攻速清",hp:48,spd:0.8,r:12,dmg:6,atkR:220,atkCd:75,
     col:"rgba(140,120,80,0.5)",edge:C.gold,ranged:true,pSpd:3.5,
-    spawnsOnDeath:true,spawnType:"modeng",spawnCount:2}
+    spawnsOnDeath:true,spawnType:"modeng",spawnCount:2},
+  // v9.0 new enemies x4
+  molian:{name:"墨链电",tip:"链式电弧在敌人间跳跃，每次弹跳伤害+50%",hp:42,spd:1.3,r:12,dmg:5,atkR:180,atkCd:85,
+    col:"rgba(80,140,200,0.5)",edge:C.frost,
+    chainLightning:true,chainDmg:5,chainCount:3,chainRange:140},
+  mohuanji:{name:"墨魂祭",tip:"击杀吸收祭品越战越强，保持火力压制",hp:60,spd:0.85,r:14,dmg:8,atkR:32,atkCd:55,
+    col:"rgba(107,58,92,0.5)",edge:C.boss,
+    soulHarvester:true},
+  mofenshen:{name:"墨分身",tip:"HP低于50%时分裂为两个低血分身，优先集火",hp:88,spd:1.1,r:14,dmg:9,atkR:30,atkCd:50,
+    col:"rgba(140,180,160,0.45)",edge:C.accent,
+    cloneOnHalf:true,cloneHpRatio:0.35},
+  moshizhe:{name:"墨噬者",tip:"击杀回血，被围更危险，保持距离用AOE清理",hp:75,spd:1.0,r:15,dmg:10,atkR:32,atkCd:52,
+    col:"rgba(44,37,32,0.5)",edge:C.ink,
+    vampiric:true,vampiricHeal:15}
 };
 // spawnType target
 ETYPE.modeng={name:"墨灯",tip:"灵灯孵化物，快速近战",hp:15,spd:2.8,r:6,dmg:5,atkR:22,atkCd:30,
