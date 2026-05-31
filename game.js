@@ -954,7 +954,7 @@ function onEnemyKilled(g,e,source,opts){
   if(p.execCritBonus&&opts&&opts.crit)p.execCritT=60;
   if(p.weakSpread&&opts&&opts.weakpoint){
     var spreadN=0;
-    g.enemies.forEach(function(o){if(o!==e&&o.hp>0&&dstSq(o,e)<RANGES.weakSpread*RANGES.weakSpread){p.weakTargets[o.id]=90;spreadN++}});
+    forEachLiveEnemy(g,function(o){if(o===e)return;if(dstSq(o,e)<RANGES.weakSpread*RANGES.weakSpread){p.weakTargets[o.id]=90;spreadN++}});
     if(spreadN>0)pushLimited(g.floatTexts,{x:e.x,y:e.y-20,text:"散",life:35,maxLife:35,reason:"spread"},LIMITS.floatTexts)}
   if(p.meleeCdRefund&&g.weapon.type==="melee"&&source==="hit")p.atkCd=Math.max(0,p.atkCd-8);
   if(p.soulKillChain&&source==="soul"){
@@ -2003,7 +2003,7 @@ function update(g){
       if(g.time%30===0&&p.invTimer<=0)hurtP(g,2,e)}
     if(e.fireTrail&&g.time%20===0)addFire(g,{x:e.x,y:e.y,r:16,life:80,dmg:2});
     if(e.poisonTrail&&g.time%25===0)addFire(g,{x:e.x,y:e.y,r:14,life:70,dmg:1,poison:true});
-    if(e.buffAura&&g.time%60===0){g.enemies.forEach(function(ally){if(ally===e||ally.hp<=0||ally.isBoss)return;
+    if(e.buffAura&&g.time%60===0){forEachLiveEnemy(g,function(ally){if(ally===e||ally.isBoss)return;
       if(dstSq(e,ally)<RANGES.buffAura*RANGES.buffAura){ally.buffed=60;ally.buffSrc=e}})}
     // 墨蝠：俯冲攻击
     if(e.swoop){
