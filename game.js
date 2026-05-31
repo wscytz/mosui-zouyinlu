@@ -1507,7 +1507,9 @@ function hitE(g,atk,e){
       spawnP(g,e.x,e.y,"accent",3)}
     pushLimited(g.frosts,{x:e.x,y:e.y,r:28,life:90,maxLife:90,dmg:Math.max(1,Math.ceil(p.stats.dmg*0.2))},LIMITS.frosts)}
   if(atk.crit){g.critFlash=18;for(var ci=0;ci<8;ci++){var ca=ci*Math.PI/4;
-    spawnP(g,e.x+Math.cos(ca)*10,e.y+Math.sin(ca)*10,"accent",2)}}
+    spawnP(g,e.x+Math.cos(ca)*10,e.y+Math.sin(ca)*10,"accent",2)}
+    // 暴击额外浮字提示
+    pushLimited(g.floatTexts,{x:e.x+15,y:e.y-e.r-12,text:"暴",life:20,maxLife:20,reason:"critHint"},LIMITS.floatTexts)}
   // 墨血刃：暴击回血
   if(p.critHeal&&atk.crit){p.hp=Math.min(p.hp+2,p.maxHp);spawnP(g,p.x,p.y,"moss",3)}
   if(atk.crit&&p.critShrapnel){var splDmg=Math.floor(atk.dmg*0.35);var shrapHit=0;forEachLiveEnemy(g,function(oe){if(oe===e)return;if(dstSq(e,oe)<RANGES.critShrapnel*RANGES.critShrapnel){damageEnemy(g,oe,splDmg,"shrapnel");shrapHit++}});spawnP(g,e.x,e.y,"accent",5);if(shrapHit>0)pushLimited(g.floatTexts,{x:e.x,y:e.y-18,text:"碎",life:22,maxLife:22,reason:"hint"},LIMITS.floatTexts)}
