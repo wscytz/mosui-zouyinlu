@@ -4308,7 +4308,9 @@ function showRelic(g){
   var sealEl=document.getElementById("relicSeal");
   var popupEl=document.getElementById("relicPopup");
   if(!el||!sealEl||!popupEl){g.state="playing";startWave(g);return;}
-  if(!choices||!choices.length){g.state="playing";startWave(g);return}
+  if(!choices||!choices.length){
+    if(g.relics.length>=(g.player.maxRelicsOverride||6))pushLimited(g.floatTexts,{x:W/2,y:H/2-30,text:"遗物已满",life:60,maxLife:60,reason:"hint"},LIMITS.floatTexts);
+    g.state="playing";startWave(g);return}
   if(isEvo){
     sealEl.textContent=g.wave===8?"终进化":g.wave===6?"再进化":"进化";
     el.innerHTML=choices.map(function(r){return relicCardHtml(r,"relic-pick--evo",g.relics)}).join("");
