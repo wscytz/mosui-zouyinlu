@@ -3067,6 +3067,7 @@ npm run cap:open:android  # 用 Android Studio 打开
 - **v7.14**: 评分公式优化，连斩(maxCombo×0.2)+暴击(critKills×0.15)计入calcGrade
 - **v7.15**: 测试补充，smoke_test 37→42项覆盖v7.x新功能
 - **v7.16**: 版本号显示，MOSUI.version初始化为7.16，标题页显示游戏版本
+- **v7.17**: Boss阶段提示，狂暴/绝望触发"狂 暴"/"绝 望"全屏火焰大字(reason:phase)
 
 *测试基线: 42 smoke + 8 wave + 236 content + 11 stress + 5 robust + 3 seeded*
 
