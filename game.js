@@ -138,7 +138,7 @@ function invalidateCanvasRect(){_cachedCanvasRect=null}
 // --- Meta-progression (localStorage) [GLOBALS section] ---
 var META_KEY="mosui_meta";
 function loadMeta(){
-  var defaults={version:2,totalKills:0,totalRuns:0,bestWave:0,bestGrade:"",bossKills:0,
+  var defaults={version:2,totalKills:0,totalRuns:0,bestWave:0,bestGrade:"",bossKills:0,bestCombo:0,
     weaponsCleared:{},weaponBestWave:{},weaponTotalKills:{},relicsDiscovered:{},cursesUsed:{},mojiangjunKills:0,
     nightmareWins:0,hardWins:0,eliteKills:0,bestFireKills:0,achievements:{},unlocks:{}};
   try{
@@ -180,6 +180,7 @@ function metaRecordRun(g){
   if(won&&g.player.maxHpOverride&&g.player.maxHpOverride<=60)meta.paperWins=(meta.paperWins||0)+1;
   if(won&&g.relics.length===0)meta.noRelicWins=(meta.noRelicWins||0)+1;
   if(g.kills>(meta.bestSingleRunKills||0))meta.bestSingleRunKills=g.kills;
+  if(g.maxCombo>(meta.bestCombo||0))meta.bestCombo=g.maxCombo;
   if((g.moveChargeFires||0)>(meta.bestMoveChargeFires||0))meta.bestMoveChargeFires=g.moveChargeFires;
   if(g.relics.length>(meta.maxRelicsInRun||0))meta.maxRelicsInRun=g.relics.length;
   if(won&&g._isBossWave&&!g.bossHurtThisWave)meta.perfectBossKills=(meta.perfectBossKills||0)+1;
@@ -4637,7 +4638,7 @@ function showEnd(g){
       newAch.map(function(a){return"<span style='display:inline-block;margin:2px 4px;padding:1px 6px;border:1px solid var(--accent);border-radius:3px;font-size:0.78rem;color:var(--accent)'>"+a.name+"</span>"}).join("")+
       "</div>":"")+
     "<br><span style='font-size:0.78rem;color:var(--ash);margin-top:6px;display:inline-block'>"+
-    "累计 "+meta.totalRuns+" 次走阴 · 斩祟 "+meta.totalKills+" · 图鉴 "+relicCount+"/"+RELICS.length+
+    "累计 "+meta.totalRuns+" 次走阴 · 斩祟 "+meta.totalKills+" · 最高连斩 "+meta.bestCombo+" · 图鉴 "+relicCount+"/"+RELICS.length+
     " · 成就 "+Object.keys(meta.achievements||{}).length+"/"+ACHIEVEMENTS.length+"</span>";
   el=document.getElementById("gameOver");if(el)el.style.display="";
 }
