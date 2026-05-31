@@ -1379,7 +1379,7 @@ function hurtP(g,dmg,src){
   if(p.decoyHP>0){var oldDecoy=p.decoyHP;p.decoyHP-=dmg;
     if(p.decoyHP<0){p.hp+=p.decoyHP;p.decoyHP=0}
     if(p.decoyHP<oldDecoy)spawnInk(g,p.x,p.y,4,"ghost")}
-  else{p.hp-=dmg}
+  else{p.hp-=dmg;pushLimited(g.floatTexts,{x:p.x,y:p.y-p.r-10,text:"-"+dmg,life:35,maxLife:35,reason:"dmg"},LIMITS.floatTexts)}
   // Elite vampire: attacker heals 30% of damage dealt
   if(src&&src.elite&&src.eliteAbility==="vampire"&&src.hp>0){
     var vh=Math.max(1,Math.floor(dmg*0.3));
