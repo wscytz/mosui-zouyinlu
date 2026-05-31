@@ -1,134 +1,143 @@
-# 墨祟：走阴录 路线书 v6.0
+# 墨祟：走阴录 路线书 v7.0
 
-> 这份文档驱动开发节奏。详细 agent 流程见 `AGENT_SYSTEM.md`，自动化命令见 `.claude/AUTOMATION_GUIDE.md`。
+> 这份文档驱动开发节奏。
 
-## 现状 (v6.0)
+## 现状 (v7.15)
 
-- **内容体量**: 5武器 / 193遗物 / 38进化 / 39敌人(含3Boss) / 9关卡 / 22誓印 / 40成就 / 12波
-- **测试基线**: 325 项（37 smoke + 8 wave + 236 content + 11 stress + 5 robust + 3 seeded + strict audit gate）
-- **自动化主线**: 方案 B，`sequencer -> executor JSON block -> merger -> test:all`
-- **自动化治理**: block rules、fixtures（1好7坏）、audit 接入 strict 门禁；0 errors / 0 warnings
-- **鲁棒性**: 193 遗物 × 5 武器 = 965 组合 fn 可执行；38 进化全可执行；全量组合不抛异常
-- **内容治理**: RELIC_RULES 100% 覆盖（193/193）；遗物卡片 build hint + 结算页构筑路线
+- **内容体量**: 5武器 / 193遗物 / 38进化 / 43敌人(含3Boss) / 9关卡 / 25誓印 / 42成就 / 12波
+- **代码规模**: 11587行 (game.js 5150行 / gamedata.js 834行 / game.css 2439行)
+- **测试基线**: 42 smoke + 8 wave + 236 content + 11 stress + 5 robust + 3 seeded + strict audit
 - **技术栈**: Canvas 2D (960x640), 纯手写, 零框架, IIFE 单文件运行时
+- **构筑系统**: RELIC_RULES 100%覆盖(193/193), 34条构筑方向, Wiki构筑筛选
+- **战斗反馈**: 6级连杀里程碑, 暴击/闪避统计, 暴击浮字, HUD连斩显示, 方向受伤指示
+- **评分系统**: 连斩/暴击因子纳入calcGrade
+- **性能**: forEachLiveEnemy统一(53处), 仅4处渲染必需的g.enemies.forEach
 - **远程仓库**: https://github.com/wscytz/mosui-zouyinlu
+
+---
 
 ## 已完成阶段
 
-### v3.2-v3.5 美术与演出期
-- 封面、Boss 肖像、武器图标接入位
-- 全页面 CSS 统一
-- 墨鬼王与 Boss 过场
-- 波次清场、击杀顿帧、结算演出
+### v3.x 美术与演出期
+- 封面、Boss 肖像、全页面 CSS 统一、波次清场/击杀顿帧/结算演出
 
-### v4.0-v4.24 内容扩充和冷标签填补
-- 召唤、治疗、溅射、爆炸、持续、生命、防御、诅咒等冷标签补强
-- 新敌人、誓印、成就和结算页反馈扩展
-- APK 打包链、移动端交互、Wiki 同步和多轮审计
+### v4.x 内容扩充 + 自动化
+- 冷标签填补 → Agent自动化定型 → 自动化治理 → 测试硬化首批
 
-### v4.25-v4.28 Agent 自动化定型
-- 建立 `add-content` 调度 skill 和四类专职 agent
-- `.claude/ctx-extract.js` 成为内容事实源
-- `.claude/validate-agent-output.js` 拦截 ES6、错误测试、直接 push、直接扣血等高危模式
-- 方案 B 定型：JSON block + sequencer + merger，解决并发抢测试号和末尾插入冲突
+### v5.0-v5.4 构筑深化 + Boss增强
+- RELIC_RULES 100%覆盖, 结算页构筑路线, 画皮分身(A1), 墨将军墨盾(A2), 墨鬼王脉冲(A3)
+- 精英6种能力(blink/deathburst/enrage/armored/regen/vampire), 精英击杀临时buff
 
-### v4.29-v4.31 自动化治理
-- add-content skill 明确方案 A/B/worktree/spec 的触发边界
-- merger 支持 relic block 的 `player_fields` / `ck_fields` / `css_rules` / `mechanic_insertions`
-- 新增 `content-block-rules.js`、fixture tests 和 `audit-content-invariants.js`
-- 文档分层为：skill 管流程，AGENT_SYSTEM 管规则，AUTOMATION_GUIDE 管命令，ROADMAP 管方向
+### v6.0-v6.3 内容深化 + UI增强
+- 墨影鬼(传送)/墨医师(治疗), 音效补洞, 恐惧视觉, 自动暂停, 波次统计, 百科构筑筛选
 
-### v4.32 内容治理收口
-- 清空 `audit:content` 的已知 ERROR/WARN
-- 补齐低覆盖冷标签“召唤 / 冲刺 / 范围”
-- RELIC_RULES 覆盖 40 → 75，开始从“有数量”转向“有构筑入口”
-- block rules 补上 `test_lines` 尾逗号和 `console_log` 包装门禁
+### v7.0-v7.15 战斗反馈 + 性能优化 + 测试补充
+- 连杀里程碑重构(6级体系), 暴击/闪避/连斩统计, 评分公式优化
+- 性能优化: forEachLiveEnemy统一热路径
+- 测试: 37→42项, 覆盖里程碑/统计/评分/遍历/成就
 
-### v4.33 测试硬化首批
-- 新增 `robust_test.js`：186 遗物 × 5 武器 = 930 组合 fn 可执行；rebuild 3x 一致性
-- 新增全量进化 fn 可执行校验、30件/全量组合叠加不抛异常
-- 新增 `seeded_test.js`：mulberry32 PRNG 确定性长跑（5武器×同种子→相同snapshot；5武器×1800帧不崩）
-- 新增 `visual_smoke_test.js`：Playwright + Chromium 走 首页→武器→战斗 路径，校验 Canvas 有内容 + 无 console 错
-- stress_test 新增帧时间 P99 预算（avg<3ms / p95<8ms / p99<16ms @60fps）
-- `audit:content --strict` 接入 `test:all` 门禁（ERROR 非 0 直接阻塞）
-- 发现并修复 `jiuzhuanmofu` latent bug：`nineSealCount:0` 初值让不持有遗物也永远触发机制；改为 `hasNineSeal` 标志位
-- 修复 `wave_test.killAll` flake：两阶段清场（phase1 kill until waveClear，phase2 drain 60帧处理 moyong→morui 死亡孵化）
+---
 
-## 下一步方向
+## 长远路线图
 
-### v4.33-v4.34 已完成，进入 v5.x
+### v8.0 战斗节奏打磨 + 发布收口
 
-### v4.34 自动化生产质量（已完成）
+**目标**: 让每局战斗有明确的节奏感，打磨到可以发布APK
 
-目标：agent 不只是“能合并”，还要“少手修、有复盘、能越跑越稳”。
+| 优先级 | 改动 | 说明 |
+|--------|------|------|
+| P0 | Boss血条(Canvas) | Boss战体验核心缺失，无血条=无进度感 |
+| P0 | 版本号显示 | game.html标题页+game.html游戏内 |
+| P0 | README/DEVDOC同步 | 发布前必须文档一致 |
+| P1 | Boss阶段提示文字 | "狂暴!"/"护盾!"/"绝望!" 全屏浮字 |
+| P1 | 低血量警告增强 | 屏幕边缘红色脉冲 |
+| P1 | 结算评级动画 | 字母弹入效果 |
+| P1 | 波次预告增强 | 显示下波敌人类型 |
+| P2 | 全量test:all确认 | 发布门槛 |
+| P2 | 移动端触控检查 | 真机验证 |
+| P2 | APK打包 | Capacitor build |
 
-1. content-executor 输出继续保持完整模板，禁止压缩 prompt。
-2. 新失败模式先加 fixture，再加 rules/validator。
-3. merger 保持 dry-run 强校验、write 串行写入、commit 串行释放 lease。
-4. 只把复发问题写入 `agent-lessons.md`，不要把单次偶发塞进长期规则。
-5. 批量并发默认 3-5；质量下降时先降并发，不急着加规则。
+**完成标准**: APK可安装运行，无崩溃，Boss有血条，文档同步
 
-### v5.0-prep / v5.1-builds / v5.2（已完成）
+### v9.0 内容深度扩充
 
-开工准备详见 `V5_PREP.md`。v5 的重点从”高并发产内容”转向”流派成型、Boss 里程碑、发布质量门槛”。
+**目标**: 提升重玩性，每局体验更多样
 
-目标：让游戏从”持续扩展原型”升级到”有完成感的作品”。
+| 优先级 | 改动 | 说明 |
+|--------|------|------|
+| P0 | 新誓印×3 | 条件型增益（"不拾遗物+5%/波"等） |
+| P0 | 新成就×5 | 武器专属/连斩/闪避扩展 |
+| P1 | 新关卡调制器×2 | 现有9→11，增加战场多样性 |
+| P1 | 新敌人×4 | 补治疗/吸血扩展，增加战术深度 |
+| P2 | 武器专属遗物×10 | 每武器2个，强化武器辨识度 |
+| P2 | Boss行为微调 | 基于玩家反馈调整Boss难度曲线 |
+| P2 | 难度评估 | 是否需要"炼狱"第四难度 |
 
-- v5.0-prep 已补视觉冒烟、移动端 viewport、自动化门槛和开发准备文档。
-- v5.1-builds 已把 RELIC_RULES 覆盖提升到 157/191，并在遗物选择卡片显示构筑提示。
-- v5.2 完成：
-  - RELIC_RULES 100% 覆盖（193/193），所有遗物都有 build hint
-  - 结算页显示”本局构筑路线”（按 tags 频率归纳前 2 标签）
-  - 补 2 个流派核心遗物：墨阵连环（范围/持续）、墨爆连锁（爆炸/溅射）
-  - Boss/精英战设计文档（BOSS_DESIGN.md）
-  - 遗物 191→193，content tests 228→231
+**完成标准**: 内容体量突破50敌人/45成就, 每局构筑路线更多样
 
-### v5.3 下一步方向
+### v10.0 视觉升级 + 社交功能
 
-目标：把构筑体验从”选择时可见”推进到”战斗中可感知、结算后可回顾”。
+**目标**: 从"可玩游戏"升级到"好看+好分享"
 
-- 实现 BOSS_DESIGN.md 中 A1（画皮分身）— 需要先写测试切片
-- 精英 buff 扩展（已有 blink/deathburst/enrage/armored 四种，评估是否需要更多）
-- Wiki 同步：显示构筑路线信息
-- 发布收口准备：封面/截图/README/APK 同步
+| 优先级 | 改动 | 说明 |
+|--------|------|------|
+| P0 | 结算截图生成 | Canvas截图→下载/分享 |
+| P0 | 更多Boss/敌人画像 | 当前43敌人仅38个图标 |
+| P1 | 粒子效果升级 | 击杀/暴击/Boss击杀粒子优化 |
+| P1 | 武器攻击动画差异化 | 5武器视觉辨识度提升 |
+| P2 | 战斗回放数据 | localStorage存储最近5局简要数据 |
+| P2 | 排行榜(本地) | 按评级/击杀数/波次排序 |
+
+### v11.0+ 长期愿景
+
+| 方向 | 说明 |
+|------|------|
+| 新武器 | 第6把武器（音/符/书）扩展构筑维度 |
+| 新Boss | 第4/5个Boss，扩展后期内容 |
+| 无尽模式 | 无限波次+每日种子挑战 |
+| 多人概念 | 本地合作/对战探索（技术评估） |
+| Mod支持 | 数据驱动的遗物/敌人/波次编辑器 |
+
+---
 
 ## 开发规范流程
 
 每个版本必须：
 
-1. **取上下文** → `npm run ctx`
-2. **改代码** → 优先数据表，必要时改机制入口
-3. **校验 agent 输出** → 方案 A raw/merged validator；方案 B merger dry run
-4. **跑测试** → `npm run test:all`
-5. **跑自动化巡检** → 自动化改动跑 `npm run test:automation`；内容批量后跑 `npm run audit:content`
-6. **同步构建资源** → `npm run www` 或 `npm run cap:sync`
-7. **更新文档** → DEVDOC.md 版本记录 + ROADMAP.md 状态 + 相关规则
-8. **提交** → `git add` + `git commit` (无 AI 署名)
-9. **推送** → `git push origin main` (失败就攒着下次推)
+1. **改代码** → 优先数据表(gamedata.js)，必要时改机制入口(game.js)
+2. **跑测试** → `node smoke_test.js` (当前42项)
+3. **同步构建** → `npm run www && npm run cap:sync`
+4. **提交** → `git add` + `git commit` (无AI署名)
+5. **推送** → `git push origin main` (失败就攒着)
+
+## 审核清单（每5个版本过一次）
+
+- [ ] smoke_test全绿
+- [ ] game.js无console.log(仅保留error/warn)
+- [ ] g.enemies.forEach ≤ 4处(渲染必需)
+- [ ] Wiki全数据同步(11个数据集)
+- [ ] game.html DOM元素完整
+- [ ] www/和android/已同步
+- [ ] DEVDOC.md版本记录已更新
+- [ ] README.md内容体量数字准确
 
 ## 先别碰的东西
 
-- 不要先改战斗判定核心。
-- 不要先改波次生成核心逻辑。
-- 不要一次性做太多风格分支。
-- 不要在没有测试覆盖的情况下改核心系统。
-- 不要让专职 agent 直接提交或直接改文件。
+- 不要改战斗判定核心（hitE/hurtP结构）
+- 不要改波次生成核心逻辑（spawnWave结构）
+- 不要在没有测试覆盖的情况下改核心系统
+- 不要让game.js超过5500行（接近时考虑提取模块）
 
 ## 风险点
 
-1. 内容量已达 193 遗物，重复机制和低权重死遗物会越来越多。
-2. `audit:content` 已经 0/0，但仍是 report-only；发布前再决定是否 strict。
-3. 移动端横屏布局需要真机实测。
-4. RELIC_RULES / BUILD_PREFS 覆盖需要定期审查。
-5. 高并发仍依赖主 Claude 串行保存 block 和运行 merger，不能让 agent 直接写主文件。
-
-## 判断原则
-
-下一阶段的主要矛盾不是“内容不够”，而是“内容是否被系统吸收”。新增内容只有同时进入数据、机制、测试、图标、权重、文档，才算真正入库。批量生产仍然可以继续，但每一批都要被 audit、fixtures 和 RELIC_RULES 消化，否则数量会反过来稀释构筑辨识度。
+1. 内容量已达193遗物，重复机制会稀释构筑辨识度
+2. game.js 5150行，接近单文件可维护上限
+3. 移动端横屏布局需要真机实测
+4. 网络不稳定导致git push频繁失败（攒波推送）
 
 ## 资产材料
 
 - `ART_DIRECTION.md` — 美术方向
 - `ASSET_MANIFEST.md` — 资产清单
-- `ART_PROMPTS.md` — 提示词
-- `assets/` — concept/ui/portraits/sprites/vfx
+- `BOSS_DESIGN.md` — Boss/精英战设计文档
+- `assets/` — concept/ui/portraits/sprites/vfx/music

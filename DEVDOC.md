@@ -3054,6 +3054,23 @@ npm run cap:open:android  # 用 Android Studio 打开
 
 *v6.4-v6.9 更新于 2026-05-31。*
 
+### v7.0-v7.15 战斗反馈体系 + 性能优化 + 测试补充 (2026-05-31)
+
+- **v7.0**: 连杀里程碑重构，统一KILL_MILESTONES配置(3/5/10/20/30/50)
+- **v7.1**: 最高连斩记录持久化(bestCombo→localStorage)
+- **v7.2**: 闪避计数统计(dodgeKills)
+- **v7.3-v7.5**: 暴击视觉反馈("暴"字浮字+红色加粗发光)
+- **v7.4**: 暴击计数统计(critKills)
+- **v7.6**: 新增2成就(连斩达人/闪避大师)，42成就
+- **v7.7**: HUD波次旁连斩显示(comboDisplay)
+- **v7.8-v7.13**: 性能优化，forEachLiveEnemy统一热路径(53处)，仅剩4处渲染必需
+- **v7.14**: 评分公式优化，连斩(maxCombo×0.2)+暴击(critKills×0.15)计入calcGrade
+- **v7.15**: 测试补充，smoke_test 37→42项覆盖v7.x新功能
+
+*测试基线: 42 smoke + 8 wave + 236 content + 11 stress + 5 robust + 3 seeded*
+
+*v7.0-v7.15 更新于 2026-05-31。*
+
 ### v2.22 性能修复 + Bug修复 + 代码清理 (2026-05-07)
 
 **目标：** 消除热路径中的对象分配、修复潜在渲染Bug、提取平衡关键常量。
