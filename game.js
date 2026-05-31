@@ -612,7 +612,7 @@ function updateStage(g){
     st.pulse=(Math.sin(g.time/34)+1)/2;
     var power=0.32+st.pulse*0.56;
     pullToStageWell(g,p,p.dodgeT>0?power*0.25:power);
-    g.enemies.forEach(function(e){if(e.hp>0)pullToStageWell(g,e,power*0.42)});
+    forEachLiveEnemy(g,function(e){pullToStageWell(g,e,power*0.42)});
     if(g.time%18===0)spawnInk(g,st.cx+rn(-20,20),st.cy+rn(-16,16),1,"moss");
   }else if(st.id==="lantern"&&st.quietT<=0){
     st.lanterns.forEach(function(l){
@@ -2347,7 +2347,7 @@ function update(g){
   // frosts (裂冰诀)
   for(var i=g.frosts.length-1;i>=0;i--){var fr=g.frosts[i];fr.life--;
     if(fr.life<=0){g.frosts.splice(i,1);continue}
-    var frR=fr.r*(fr.life/fr.maxLife);g.enemies.forEach(function(e){if(e.hp>0){var mr=frR+e.r;if(dstSq(fr,e)<mr*mr){e.slowT=Math.max(e.slowT,20);if(fr.dmg&&g.time%30===0)damageEnemy(g,e,fr.dmg,"frost")}}})}
+    var frR=fr.r*(fr.life/fr.maxLife);forEachLiveEnemy(g,function(e){var mr=frR+e.r;if(dstSq(fr,e)<mr*mr){e.slowT=Math.max(e.slowT,20);if(fr.dmg&&g.time%30===0)damageEnemy(g,e,fr.dmg,"frost")}})}
 
   g._pm=perfMul(g);
   markPerf(g);
