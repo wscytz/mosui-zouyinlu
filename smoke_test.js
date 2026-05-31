@@ -527,9 +527,21 @@ code+='\n'+[
 '  else{var m42b={bestDodgeKills:35};if(!d42.check(m42b))errors.push("ach: dodge_master should pass with bestDodgeKills=35")}',
 '}catch(e){errors.push("newAch: "+e.message)}',
 
+// Test 43: Boss phase announcement floatText (P1 feature — reason:phase)
+'try{var g43=newGame("jian");startWave(g43);',
+'  // Simulate boss enrage phase trigger',
+'  var boss43={isBoss:true,type:"boss",hp:30,maxHp:100,enraged:false,desperate:false};',
+'  pushLimited(g43.floatTexts,{x:480,y:220,text:"狂 暴",life:80,maxLife:80,reason:"phase"},LIMITS.floatTexts);',
+'  pushLimited(g43.floatTexts,{x:480,y:220,text:"绝 望",life:90,maxLife:90,reason:"phase"},LIMITS.floatTexts);',
+'  var phase43=g43.floatTexts.filter(function(f){return f.reason==="phase"});',
+'  if(phase43.length!==2)errors.push("phase: expected 2 phase texts, got "+phase43.length);',
+'  if(phase43[0].text!=="狂 暴")errors.push("phase: first text="+phase43[0].text);',
+'  if(phase43[1].text!=="绝 望")errors.push("phase: second text="+phase43[1].text);',
+'}catch(e){errors.push("bossPhase: "+e.message)}',
+
 // Report
 'if(errors.length){console.log("FAIL ("+errors.length+"):");errors.forEach(function(e){console.log("  - "+e)});process.exit(1)}',
-'else{console.log("ALL 42 PASSED");',
+'else{console.log("ALL 43 PASSED");',
 '  console.log("  1. 4 weapons x 20 frames + render");',
 '  console.log("  2. Relic selection = 3");',
 '  console.log("  3. Limits enforced");',
@@ -571,7 +583,8 @@ code+='\n'+[
 '  console.log(" 39. Crit/dodge stat tracking");',
 '  console.log(" 40. Grade calculation includes combo/crit");',
 '  console.log(" 41. forEachLiveEnemy skips dead/grace");',
-'  console.log(" 42. New achievement checks (combo_20/dodge_master)")}',
+'  console.log(" 42. New achievement checks (combo_20/dodge_master)");',
+'  console.log(" 43. Boss phase announcement (reason:phase)")}',
 ].join('\n');
 
 eval(code);

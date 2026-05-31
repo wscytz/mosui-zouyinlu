@@ -1950,7 +1950,9 @@ function update(g){
     if(e.isBoss&&e.type!=="mojiangjun"&&e.type!=="moguiwang"&&!e.midBoss&&e.hp<e.maxHp*TUNING.bossEnrageHp&&!e.enraged){e.enraged=true;spd*=TUNING.bossEnrageSpdMult;
       snd("bossEnrage");shake(g,10,8);g.bossFlash=8;
       spawnInk(g,e.x,e.y,20,"fire");g.freezeT=Math.max(g.freezeT,6);
-      pushLimited(g.floatTexts,{x:W/2,y:H/2-40,text:e.name+" · 怒",life:80,maxLife:80,reason:"streak"},LIMITS.floatTexts)}
+      pushLimited(g.floatTexts,{x:W/2,y:H/2-40,text:e.name+" · 怒",life:80,maxLife:80,reason:"streak"},LIMITS.floatTexts);
+      // P1 Boss阶段提示：狂暴全屏浮字
+      pushLimited(g.floatTexts,{x:W/2,y:H/2-100,text:"狂 暴",life:80,maxLife:80,reason:"phase"},LIMITS.floatTexts)}
     else if(e.isBoss&&e.type!=="mojiangjun"&&e.type!=="moguiwang"&&!e.midBoss&&e.enraged)spd*=TUNING.bossEnrageSpdMult;
     if(e.isBoss&&e.type!=="mojiangjun"&&e.type!=="moguiwang"&&!e.midBoss&&e.hp<e.maxHp*TUNING.bossDesperateHp&&!e.desperate){e.desperate=true;
       e.atkCd=Math.max(18,Math.floor(e.atkCd*0.6));e.fanShot=Math.min(7,e.fanShot+2);
@@ -1960,6 +1962,8 @@ function update(g){
         spawnP(g,e.x+Math.cos(da)*30,e.y+Math.sin(da)*30,"fire",2)}
       g.freezeT=Math.max(g.freezeT,10);g.bossFlash=12;
       pushLimited(g.floatTexts,{x:W/2,y:H/2-40,text:e.name+" · 绝望",life:90,maxLife:90,reason:"streak"},LIMITS.floatTexts);
+      // P1 Boss阶段提示：绝望全屏浮字
+      pushLimited(g.floatTexts,{x:W/2,y:H/2-100,text:"绝 望",life:90,maxLife:90,reason:"phase"},LIMITS.floatTexts);
       pushLimited(g.floatTexts,{x:e.x,y:e.y-30,text:"回光返照",life:60,maxLife:60,reason:"desperate"},LIMITS.floatTexts);
       // A1: 画皮分身 — spawn 2 low-HP clones
       for(var ci=0;ci<2;ci++){
@@ -3233,6 +3237,13 @@ function render(g){
       c.globalAlpha=cl(a,0,1);c.fillStyle=C.accent;
       c.font='900 '+(28+(1-a)*12)+'px "STKaiti","KaiTi","Kaiti SC",serif';c.textAlign="center";
       if(g._pm>=0.45){c.shadowColor=C.accent;c.shadowBlur=12}
+      c.fillText(ft.text,ft.x,ft.y);c.shadowBlur=0;return;
+    }else if(ft.reason==="phase"){
+      // P1 Boss阶段提示：狂暴/绝望大字，火焰红+发光
+      c.globalAlpha=cl(a*1.5,0,1);c.fillStyle="#c4523d";
+      var pFont=36+(1-a)*20;
+      c.font='900 '+pFont+'px "STKaiti","KaiTi","Kaiti SC",serif';c.textAlign="center";
+      if(g._pm>=0.4){c.shadowColor="#c4523d";c.shadowBlur=20}
       c.fillText(ft.text,ft.x,ft.y);c.shadowBlur=0;return;
     }else if(ft.reason==="soul"){
       c.globalAlpha=cl(a,0,1)*0.75;c.fillStyle="rgba(100,140,120,0.9)";
