@@ -985,7 +985,7 @@ function onEnemyKilled(g,e,source,opts){
     return}
   // 纸鸢匠死亡清场
   if(e.summoner){
-    g.enemies.forEach(function(o){if(o.hp>0&&o._summonerId===e.id){o.hp=0;o.killed=true;o.deathT=12}});
+    forEachLiveEnemy(g,function(o){if(o._summonerId===e.id){o.hp=0;o.killed=true;o.deathT=12}});
   }
   if(p.killShield){p.shieldStack=Math.min(p.shieldStack+1,CAPS.shieldStack)}
   // 纸鸢引：击杀计数
@@ -1716,7 +1716,7 @@ function update(g){
     if(g.hazardTimer<=0){g.hazardTimer=g.hazard.interval;snd("hazardWarn");
       if(g.hazard.id==="yinfeng"){var wAngle=rn(0,Math.PI*2),wForce=rn(1.5,3);
         p.x+=Math.cos(wAngle)*wForce;p.y+=Math.sin(wAngle)*wForce;
-        g.enemies.forEach(function(en){if(en.hp>0){en.x+=Math.cos(wAngle)*wForce*0.7;en.y+=Math.sin(wAngle)*wForce*0.7}});
+        forEachLiveEnemy(g,function(en){en.x+=Math.cos(wAngle)*wForce*0.7;en.y+=Math.sin(wAngle)*wForce*0.7});
         pushLimited(g.particles,{x:W/2,y:H/2,vx:Math.cos(wAngle)*3,vy:Math.sin(wAngle)*3,life:30,maxLife:30,size:8,type:"ink"},LIMITS.particles)}
       else if(g.hazard.id==="moyu"){var rx=rn(A.l+20,A.r-20),ry=rn(A.t+20,A.b-20);
         g.hazardObjs.push({x:rx,y:ry,r:8,life:40,dmg:5,type:"moyu"});pushLimited(g.particles,{x:rx,y:ry,vx:0,vy:2,life:15,maxLife:15,size:4,type:"ink"},LIMITS.particles)}
@@ -1988,7 +1988,7 @@ function update(g){
       else if(!e.ranged||dToPSq>RANGES.rangedMin*RANGES.rangedMin){e.x+=Math.cos(toP)*spd;e.y+=Math.sin(toP)*spd}
     }
     e.x=cl(e.x,A.l+e.r,A.r-e.r);e.y=cl(e.y,A.t+e.r,A.b-e.r);
-    if(g.time%2===0&&g.enemies.length>3)g.enemies.forEach(function(o){if(o===e||o.hp<=0)return;
+    if(g.time%2===0&&g.enemies.length>3)forEachLiveEnemy(g,function(o){if(o===e)return;
       var dSq=dstSq(e,o),minD=e.r+o.r;
       if(dSq<minD*minD&&dSq>0.01){
         var d=Math.sqrt(dSq),pd=(e.x-o.x)/d,pp=(e.y-o.y)/d,push=(minD-d)*0.25;
