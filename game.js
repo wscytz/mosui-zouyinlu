@@ -866,8 +866,8 @@ function onEnemyKilled(g,e,source,opts){
   if(e.elite){spawnInk(g,e.x,e.y,12,"gold");for(var ei=0;ei<8;ei++){var ea=ei*Math.PI/4;
     spawnP(g,e.x+Math.cos(ea)*16,e.y+Math.sin(ea)*16,"gold",2)}
     // 墨将令：精英击杀爆发墨汁
-    if(p.eliteKillBurst){g.enemies.forEach(function(nb){if(nb.hp<=0||nb===e||nb.isBoss)return;
-      if(dstSq(e,nb)<80*80)damageEnemy(g,nb,Math.ceil(p.stats.dmg*8),"eliteBurst")});
+    if(p.eliteKillBurst){var _ekr=80*80,_ekd=Math.ceil(p.stats.dmg*8);
+      forEachLiveEnemy(g,function(nb){if(nb===e||nb.isBoss)return;if(dstSq(e,nb)<_ekr)damageEnemy(g,nb,_ekd,"eliteBurst")});
       spawnP(g,e.x,e.y,"ink",10);spawnP(g,e.x,e.y,"accent",6)}
     // Elite deathburst: damage zone after frame-based delay
     if(e.eliteAbility==="deathburst"){
