@@ -40,18 +40,27 @@ npm run audit:content
 
 - **5 把武器**：斩妖剑 / 符骨笔 / 镇魂铃 / 伏魔伞 / 召魂幡
 - **193 件遗物**：标签驱动，按构筑自由组合；RELIC_RULES 权重覆盖 193/193
-- **30 种进化**：3条武器进化链
-- **39 种敌人**（含 3 Boss）：画皮娘子 / 墨将军 / 墨鬼王
+- **38 种进化**：5把武器各有多条进化链
+- **43 种敌人**（含 3 Boss）：画皮娘子 / 墨将军 / 墨鬼王
 - **9 个关卡**：含墨潮脉动等特殊关卡调制器
-- **22 条誓印**：含诅咒型誓印
-- **40 个成就**：覆盖各武器/遗物/Boss/难度/特殊挑战
+- **25 条誓印**：含诅咒型誓印
+- **42 个成就**：覆盖各武器/遗物/Boss/难度/特殊挑战
 - **3 种难度**：平常 / 险途 / 噩梦
 
 ## 测试基线
 
-- `npm run test:all` = 300 项（37 smoke + 8 wave + 236 content + 11 stress + 5 robust + 3 seeded）+ strict audit gate
+- `npm run test:all` = 307 项（43 smoke + 8 wave + 236 content + 11 stress + 5 robust + 3 seeded）+ strict audit gate
 - `npm run test:visual` = 13 项 Playwright 视觉冒烟（含暂停/恢复、移动端竖屏/横屏、Wiki渲染、结算页/弹窗 DOM）
 - 0 flake（6/6 连跑全绿）
+
+## v7.0-v7.18 战斗反馈体系 + 性能优化 + 测试补充 (2026-05-31)
+
+- **v7.18**：全量复查修复content_test(KILL_MILESTONES 6项/42成就)
+- **v7.17**：Boss阶段提示，狂暴/绝望触发"狂 暴"/"绝 望"全屏火焰大字
+- **v7.16**：版本号显示，MOSUI.version，标题页版本信息
+- **v7.14**：评分公式优化，连斩(maxCombo×0.2)+暴击(critKills×0.15)纳入calcGrade
+- **v7.8-v7.13**：性能优化，forEachLiveEnemy统一热路径(53处)
+- **v7.0**：连杀里程碑重构，6级体系(3/5/10/20/30/50)
 
 ## v6.4-v6.9 战斗反馈增强 (2026-05-31)
 
