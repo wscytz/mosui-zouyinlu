@@ -4625,7 +4625,7 @@ function showEnd(g){
     "<br><span class='end-route'>构筑："+buildRoute+"</span>"+
     (relicNames?"<br><span class='end-relics'>"+relicNames+"</span>":"")+
     "<br><span style='font-size:0.82rem;color:var(--ink-soft);margin-top:4px;display:inline-block'>"+
-    "总伤害 "+g.totalDmg+" · 受伤 "+g.totalDmgTaken+" · 治疗 "+g.totalHealed+" · 最高连斩 "+g.maxCombo+" · 精英击杀 "+g.eliteKills+
+    "总伤害 "+g.totalDmg+" · 场均 "+(g.kills>0?Math.round(g.totalDmg/g.kills):0)+" · 受伤 "+g.totalDmgTaken+" · 治疗 "+g.totalHealed+" · 最高连斩 "+g.maxCombo+" · 精英击杀 "+g.eliteKills+
     "</span>"+
     deathLine+
     (isNewBest?"<br><span style='color:var(--accent);font-weight:600'>新纪录！</span>":"")+
