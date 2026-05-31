@@ -769,6 +769,11 @@ function onEnemyKilled(g,e,source,opts){
   if(baseFreeze===9&&p.killAtkTimer>0)baseFreeze=4;
   g.freezeT=Math.max(g.freezeT,baseFreeze);shake(g,e.isBoss?16:8,e.isBoss?7:4);
   g.kills++;g.killStreak++;g.killStreakT=TUNING.killStreakWindow;
+  // Kill streak milestone effects
+  if(g.killStreak===5){shake(g,4,4);snd("bossEnrage");pushLimited(g.floatTexts,{x:W/2,y:H/2-60,text:"五连斩!",life:50,maxLife:50,reason:"streak"},LIMITS.floatTexts)}
+  else if(g.killStreak===10){shake(g,6,5);spawnInk(g,p.x,p.y,12,"fire");pushLimited(g.floatTexts,{x:W/2,y:H/2-60,text:"十连斩!!",life:60,maxLife:60,reason:"streak"},LIMITS.floatTexts)}
+  else if(g.killStreak===20){shake(g,8,6);spawnInk(g,p.x,p.y,20,"accent");spawnP(g,W/2,H/2,"gold",20);pushLimited(g.floatTexts,{x:W/2,y:H/2-60,text:"二十连斩!!!",life:70,maxLife:70,reason:"streak"},LIMITS.floatTexts)}
+  else if(g.killStreak===50){shake(g,12,8);spawnInk(g,p.x,p.y,30,"fire");spawnInk(g,p.x,p.y,20,"accent");spawnP(g,W/2,H/2,"gold",40);pushLimited(g.floatTexts,{x:W/2,y:H/2-60,text:"五十连斩！！！！",life:90,maxLife:90,reason:"streak"},LIMITS.floatTexts)}
   g.waveKills++;
   g.killFeed.push({name:e.name,isBoss:e.isBoss,isElite:e.elite,time:g.time});
   if(g.killFeed.length>5)g.killFeed.shift();
