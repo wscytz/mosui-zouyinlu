@@ -400,7 +400,7 @@ function newGame(wid,diff){
     hazard:null,hazardTimer:0,hazardObjs:[],
     inkSpirits:[],
     formations:[],
-    killExplodeKills:0,blindKills:0,waveHpHealed:0,lowHpBurstKills:0,mozhuhouKills:0,executeKills:0,dodgeKills:0,killFeed:[],
+    killExplodeKills:0,blindKills:0,waveHpHealed:0,lowHpBurstKills:0,mozhuhouKills:0,executeKills:0,dodgeKills:0,critKills:0,killFeed:[],
     perf:{lastT:0,fps:60,pressure:0,peaks:{enemies:0,attacks:0,particles:0,fires:0,eProj:0,floatTexts:0,decoys:0,kites:0,frosts:0}}}
 }
 
@@ -1506,7 +1506,7 @@ function hitE(g,atk,e){
       pushAttack(g,{x:e.x,y:e.y,vx:_dx/_dl*6,vy:_dy/_dl*6,dmg:Math.max(1,Math.ceil(p.stats.dmg*0.35)),r:4,life:40,type:"proj",hitOnce:true,owner:"player"});
       spawnP(g,e.x,e.y,"accent",3)}
     pushLimited(g.frosts,{x:e.x,y:e.y,r:28,life:90,maxLife:90,dmg:Math.max(1,Math.ceil(p.stats.dmg*0.2))},LIMITS.frosts)}
-  if(atk.crit){g.critFlash=18;for(var ci=0;ci<8;ci++){var ca=ci*Math.PI/4;
+  if(atk.crit){g.critFlash=18;g.critKills=(g.critKills||0)+1;for(var ci=0;ci<8;ci++){var ca=ci*Math.PI/4;
     spawnP(g,e.x+Math.cos(ca)*10,e.y+Math.sin(ca)*10,"accent",2)}
     // 暴击额外浮字提示
     pushLimited(g.floatTexts,{x:e.x+15,y:e.y-e.r-12,text:"暴",life:20,maxLife:20,reason:"critHint"},LIMITS.floatTexts)}
@@ -4631,7 +4631,7 @@ function showEnd(g){
     "<br><span class='end-route'>构筑："+buildRoute+"</span>"+
     (relicNames?"<br><span class='end-relics'>"+relicNames+"</span>":"")+
     "<br><span style='font-size:0.82rem;color:var(--ink-soft);margin-top:4px;display:inline-block'>"+
-    "总伤害 "+g.totalDmg+" · 场均 "+(g.kills>0?Math.round(g.totalDmg/g.kills):0)+" · 受伤 "+g.totalDmgTaken+" · 治疗 "+g.totalHealed+" · 最高连斩 "+g.maxCombo+" · 闪避 "+g.dodgeKills+" · 精英击杀 "+g.eliteKills+
+    "总伤害 "+g.totalDmg+" · 场均 "+(g.kills>0?Math.round(g.totalDmg/g.kills):0)+" · 受伤 "+g.totalDmgTaken+" · 治疗 "+g.totalHealed+" · 暴击 "+g.critKills+" · 最高连斩 "+g.maxCombo+" · 闪避 "+g.dodgeKills+" · 精英击杀 "+g.eliteKills+
     "</span>"+
     deathLine+
     (isNewBest?"<br><span style='color:var(--accent);font-weight:600'>新纪录！</span>":"")+
