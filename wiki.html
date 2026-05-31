@@ -494,30 +494,78 @@
     // --- Evolutions ---
     var eg=document.getElementById('evoGrid');
     var wNames={melee:'斩妖剑',ranged:'符骨笔',aoe:'镇魂铃',dash:'伏魔伞',summon:'召魂幡'};
-    Object.keys(EVOLUTIONS).forEach(function(wtype){
-      var sec=document.createElement('div');
-      sec.style.marginBottom='24px';
-      sec.innerHTML='<h3 style="font-family:var(--title-face);font-size:1.2rem;margin:0 0 12px;color:var(--accent)">'+(wNames[wtype]||wtype)+'</h3>';
-      var grid=document.createElement('div');
-      grid.className='wiki-grid wiki-grid--4';
-      EVOLUTIONS[wtype].forEach(function(e){
-        var c=document.createElement('div');
-        c.className='wiki-card wiki-card--evo';
-        c.innerHTML='<h4>'+e.name+'</h4>'
-          +'<p>'+e.effect+'</p>';
-        grid.appendChild(c);
-      });
-      sec.appendChild(grid);
-      eg.appendChild(sec);
-    });
+    // Evolution weapon filter
+    var ef=document.createElement('div');ef.className='wiki-filter';ef.style.marginBottom='12px';
+    var efv='__all__';
+    function efmkBtn(label,val){
+      var b=tag('button',label,'wiki-filter__btn');
+      if(val==='__all__')b.classList.add('is-active');
+      b.onclick=function(){
+        efv=val;ef.querySelectorAll('.wiki-filter__btn').forEach(function(x){x.classList.remove('is-active')});
+        b.classList.add('is-active');renderEvos();
+      };return b;
+    }
+    ef.appendChild(efmkBtn('全部','__all__'));
+    Object.keys(wNames).forEach(function(k){ef.appendChild(efmkBtn(wNames[k],k))});
+    eg.parentNode.insertBefore(ef,eg);
+    function renderEvos(){
+      eg.innerHTML='';
+      Object.keys(EVOLUTIONS).forEach(function(wtype){
+        if(efv!=='__all__'&&wtype!==efv)return;
+        var sec=document.createElement('div');
+        sec.style.marginBottom='24px';
+        sec.innerHTML='<h3 style="font-family:var(--title-face);font-size:1.2rem;margin:0 0 12px;color:var(--accent)">'+(wNames[wtype]||wtype)+'</h3>';
+        var grid=document.createElement('div');
+        grid.className='wiki-grid wiki-grid--4';
+        EVOLUTIONS[wtype].forEach(function(e){
+          var c=document.createElement('div');
+          c.className='wiki-card wiki-card--evo';
+          c.innerHTML='<h4>'+e.name+'</h4>'
+            +'<p>'+e.effect+'</p>';
+          if(e.tags&&e.tags.length>0){var ts=tag('div','','wiki-card__meta');ts.textContent=e.tags.join(' · ');c.appendChild(ts)}
+          grid.appendChild(c);
+        });
+        sec.appendChild(grid);
+        eg.appendChild(sec);
+      });}
+    renderEvos();
 
     // --- Enemies ---
     var eng=document.getElementById('enemyGrid');
+    // Enemy type filter
+    var efl=document.createElement('div');efl.className='wiki-filter';efl.style.marginBottom='12px';
+    var efval='__all__';
+    function emkBtn(label,val){
+      var b=tag('button',label,'wiki-filter__btn');
+      if(val==='__all__')b.classList.add('is-active');
+      b.onclick=function(){efval=val;efl.querySelectorAll('.wiki-filter__btn').forEach(function(x){x.classList.remove('is-active')});b.classList.add('is-active');renderEnemies()};return b;
+    }
+    efl.appendChild(emkBtn('全部','__all__'));
+    efl.appendChild(emkBtn('Boss','boss'));
+    efl.appendChild(emkBtn('近战','melee'));
+    efl.appendChild(emkBtn('远程','ranged'));
+    efl.appendChild(emkBtn('召唤','summoner'));
+    efl.appendChild(emkBtn('特殊','special'));
+    eng.parentNode.insertBefore(efl,eng);
     var eOrder=Object.keys(ETYPE).sort(function(a,b){
       var ea=ETYPE[a],eb=ETYPE[b];
       if(ea.isBoss!==eb.isBoss)return ea.isBoss?1:-1;
       return (ea.hp||0)-(eb.hp||0);
     });
+    function getEnemyCat(e){
+      if(e.isBoss)return'boss';
+      if(e.summoner||e.splitter||e.spawnsOnDeath)return'summoner';
+      if(e.ranged||e.fanShot||e.webShot)return'ranged';
+      if(e.charge||e.swoop||e.mimic||e.leech||e.deathBomb||e.fireTrail||e.poisonTrail||e.hasShield||e.buffAura||e.blindShot||e.deathBuff||e.deathSlow)return'special';
+      return'melee';
+    }
+    function renderEnemies(){
+      eng.innerHTML='';
+      eOrder.forEach(function(tid){
+        var e=ETYPE[tid];
+        if(!e)return;
+        var cat=getEnemyCat(e);
+        if(efval!=='__all__'&&cat!==efval&&!(efval==='melee'&&cat==='special'))return;
     var BOSS_PHASES={
       boss:["50%血 狂暴加速","25%血 冲锋+分身(2个幻影)"],
       mojiangjun:["60%血 第二阶段","25%血 第三阶段：墨阵护盾(50点，碎后5秒恢复)"],
@@ -560,7 +608,9 @@
         +'<div class="wiki-card__meta">HP:'+hpStr+' · 速度:'+e.spd+' · 伤害:'+e.dmg+extra+'</div>'
         +bossHtml;
       eng.appendChild(c);
-    });
+      });
+    }
+    renderEnemies();
 
     // --- Waves ---
     var wl=document.getElementById('waveList');
