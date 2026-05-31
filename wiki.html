@@ -561,53 +561,49 @@
     }
     function renderEnemies(){
       eng.innerHTML='';
+      var BOSS_PHASES={
+        boss:["50%血 狂暴加速","25%血 冲锋+分身(2个幻影)"],
+        mojiangjun:["60%血 第二阶段","25%血 第三阶段：墨阵护盾(50点，碎后5秒恢复)"],
+        moguiwang:["60%血 第二阶段","25%血 第三阶段：墨潮脉冲(每3秒减速波)"]
+      };
       eOrder.forEach(function(tid){
         var e=ETYPE[tid];
         if(!e)return;
         var cat=getEnemyCat(e);
         if(efval!=='__all__'&&cat!==efval&&!(efval==='melee'&&cat==='special'))return;
-    var BOSS_PHASES={
-      boss:["50%血 狂暴加速","25%血 冲锋+分身(2个幻影)"],
-      mojiangjun:["60%血 第二阶段","25%血 第三阶段：墨阵护盾(50点，碎后5秒恢复)"],
-      moguiwang:["60%血 第二阶段","25%血 第三阶段：墨潮脉冲(每3秒减速波)"]
-    };
-    eOrder.forEach(function(tid){
-      var e=ETYPE[tid];
-      if(!e)return;
-      var c=document.createElement('div');
-      c.className='wiki-card'+(e.isBoss?' wiki-card--boss':'');
-      var hpStr=e.isBoss?'HP:'+e.hp+' (Boss)':e.hp;
-      var extra='';
-      var tags=[];
-      if(e.ranged)tags.push('远程');
-      if(e.charge)tags.push('蓄力冲锋');
-      if(e.fanShot)tags.push('三向弹');
-      if(e.fireTrail)tags.push('火径');
-      if(e.summoner)tags.push('召唤');
-      if(e.splitter)tags.push('分裂');
-      if(e.hasShield)tags.push('护盾');
-      if(e.poisonTrail)tags.push('毒径');
-      if(e.buffAura)tags.push('增益光环');
-      if(e.mimic)tags.push('伪装');
-      if(e.leech)tags.push('吸附');
-      if(e.deathBomb)tags.push('自爆');
-      if(e.swoop)tags.push('俯冲');
-      if(e.deathBuff)tags.push('死后鼓舞');
-      if(e.spawnsOnDeath)tags.push('死后孵化');
-      if(e.webShot)tags.push('吐丝');
-      if(e.reviveOnce)tags.push('再生');
-      if(e.blindShot)tags.push('致盲');
-      if(e.deathSlow)tags.push('死缓');
-      var extra=tags.length?' · '+tags.join(' · '):'';
-      var bossHtml='';
-      if(BOSS_PHASES[tid]){
-        bossHtml='<div class="wiki-card__phases">'+BOSS_PHASES[tid].map(function(p){return'<span>'+p+'</span>'}).join('')+'</div>';
-      }
-      var iconHtml='<img class="wiki-card__enemy-icon" src="assets/sprites/enemies/'+tid+'_001.jpg" alt="" onerror="this.style.display=\'none\'">';
-      c.innerHTML=iconHtml+'<h4>'+e.name+(e.isBoss?' (Boss)':'')+'</h4>'
-        +'<div class="wiki-card__meta">HP:'+hpStr+' · 速度:'+e.spd+' · 伤害:'+e.dmg+extra+'</div>'
-        +bossHtml;
-      eng.appendChild(c);
+        var c=document.createElement('div');
+        c.className='wiki-card'+(e.isBoss?' wiki-card--boss':'');
+        var hpStr=e.isBoss?'HP:'+e.hp+' (Boss)':e.hp;
+        var tags=[];
+        if(e.ranged)tags.push('远程');
+        if(e.charge)tags.push('蓄力冲锋');
+        if(e.fanShot)tags.push('三向弹');
+        if(e.fireTrail)tags.push('火径');
+        if(e.summoner)tags.push('召唤');
+        if(e.splitter)tags.push('分裂');
+        if(e.hasShield)tags.push('护盾');
+        if(e.poisonTrail)tags.push('毒径');
+        if(e.buffAura)tags.push('增益光环');
+        if(e.mimic)tags.push('伪装');
+        if(e.leech)tags.push('吸附');
+        if(e.deathBomb)tags.push('自爆');
+        if(e.swoop)tags.push('俯冲');
+        if(e.deathBuff)tags.push('死后鼓舞');
+        if(e.spawnsOnDeath)tags.push('死后孵化');
+        if(e.webShot)tags.push('吐丝');
+        if(e.reviveOnce)tags.push('再生');
+        if(e.blindShot)tags.push('致盲');
+        if(e.deathSlow)tags.push('死缓');
+        var extra=tags.length?' · '+tags.join(' · '):'';
+        var bossHtml='';
+        if(BOSS_PHASES[tid]){
+          bossHtml='<div class="wiki-card__phases">'+BOSS_PHASES[tid].map(function(p){return'<span>'+p+'</span>'}).join('')+'</div>';
+        }
+        var iconHtml='<img class="wiki-card__enemy-icon" src="assets/sprites/enemies/'+tid+'_001.jpg" alt="" onerror="this.style.display=\'none\'">';
+        c.innerHTML=iconHtml+'<h4>'+e.name+(e.isBoss?' (Boss)':'')+'</h4>'
+          +'<div class="wiki-card__meta">HP:'+hpStr+' · 速度:'+e.spd+' · 伤害:'+e.dmg+extra+'</div>'
+          +bossHtml;
+        eng.appendChild(c);
       });
     }
     renderEnemies();
