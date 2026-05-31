@@ -252,6 +252,24 @@ body.is-mobile-ui .hud__buff-icon {
   margin-bottom: 8px;
   min-height: 1.2em;
 }
+.weapon-mastery {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin: 0 0 14px;
+  font-size: 0.72rem;
+  opacity: 0;
+  animation: title-fade-in 0.7s ease-out 1.1s forwards;
+}
+.wm-badge {
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: rgba(23,19,16,0.06);
+  border: 1px solid rgba(23,19,16,0.12);
+  color: rgba(23,19,16,0.7);
+}
+.wm-badge.is-cleared { border-color: rgba(163,58,45,0.4); color: var(--accent); }
 .title-screen__btn {
   opacity: 0;
   animation: title-fade-in 0.8s ease-out 1.2s forwards;

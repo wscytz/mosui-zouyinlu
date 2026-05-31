@@ -136,7 +136,7 @@ function invalidateCanvasRect(){_cachedCanvasRect=null}
 var META_KEY="mosui_meta";
 function loadMeta(){
   var defaults={version:2,totalKills:0,totalRuns:0,bestWave:0,bestGrade:"",bossKills:0,
-    weaponsCleared:{},relicsDiscovered:{},cursesUsed:{},mojiangjunKills:0,
+    weaponsCleared:{},weaponBestWave:{},weaponTotalKills:{},relicsDiscovered:{},cursesUsed:{},mojiangjunKills:0,
     nightmareWins:0,hardWins:0,eliteKills:0,bestFireKills:0,achievements:{},unlocks:{}};
   try{
     var d=JSON.parse(localStorage.getItem(META_KEY));
@@ -155,7 +155,7 @@ function metaRecordRun(g){
   var grade=calcGrade(g);
   if(grade&&(!meta.bestGrade||gradePriority(grade)>gradePriority(meta.bestGrade)))meta.bestGrade=grade;
   if(won){var wid=g.weapon.id;meta.weaponsCleared[wid]=(meta.weaponsCleared[wid]||0)+1}
-  g.relics.forEach(function(r){meta.relicsDiscovered[r.id]=true});
+  if(wid){meta.weaponBestWave[wid]=Math.max(meta.weaponBestWave[wid]||0,g.wave);meta.weaponTotalKills[wid]=(meta.weaponTotalKills[wid]||0)+g.kills}
   if(g.curse)meta.cursesUsed[g.curse.id]=true;
   if(g.bossKilled){meta.bossKills++}
   if(g.mojiangjunKilled){meta.mojiangjunKills++}
@@ -4650,6 +4650,20 @@ function setupWeaponSelect(){
         return'<span class="ach-badge" title="'+a.name+': '+a.desc+'">'+a.name+'</span>'}).join("");
     }
   }
+  // Weapon mastery
+  var wmEl=document.getElementById("weaponMastery");
+  if(wmEl&&WEAPONS){
+    var wmParts=[];
+    WEAPONS.forEach(function(w){
+      var cleared=meta.weaponsCleared[w.id]||0;
+      var bestWave=meta.weaponBestWave[w.id]||0;
+      if(cleared>0||bestWave>0){
+        var cls=cleared>0?"wm-badge is-cleared":"wm-badge";
+        wmParts.push('<span class="'+cls+'" title="'+w.name+'">'+w.name.slice(0,3)+':'+cleared+'通'+bestWave+'波</span>');
+      }
+    });
+    if(wmParts.length>0){wmEl.style.display="";wmEl.innerHTML=wmParts.join("")}
+  }
   // Unlock indicators
   var unlockHint=document.getElementById("unlockHint");
   if(unlockHint&&meta.unlocks){
@@ -4876,7 +4890,10 @@ function init(){
       });
     }
   }catch(e){}
-  window.addEventListener("mousemove",function(e){mouse.x=e.clientX;mouse.y=e.clientY});
+  window.addEventListener("mousemove",function(e){mouse.x=e.clientX;mouse.y=e.clientY;window._cursorTimer=Date.now();canvas.style.cursor="default"});
+  var _cursorHideInterval=setInterval(function(){
+    if(G&&(G.state==="playing"||G.state==="paused")&&window._cursorTimer&&Date.now()-window._cursorTimer>2000)canvas.style.cursor="none";
+  },500);
   window.addEventListener("mousedown",function(e){if(e.button===0){mouse.down=true;if(window.GameSound)GameSound.init()}});
   window.addEventListener("mouseup",function(e){if(e.button===0)mouse.down=false});
   canvas.addEventListener("contextmenu",function(e){e.preventDefault()});
