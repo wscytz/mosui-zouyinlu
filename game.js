@@ -394,7 +394,7 @@ function newGame(wid,diff){
     hazard:null,hazardTimer:0,hazardObjs:[],
     inkSpirits:[],
     formations:[],
-    killExplodeKills:0,blindKills:0,waveHpHealed:0,lowHpBurstKills:0,mozhuhouKills:0,executeKills:0,
+    killExplodeKills:0,blindKills:0,waveHpHealed:0,lowHpBurstKills:0,mozhuhouKills:0,executeKills:0,killFeed:[],
     perf:{lastT:0,fps:60,pressure:0,peaks:{enemies:0,attacks:0,particles:0,fires:0,eProj:0,floatTexts:0,decoys:0,kites:0,frosts:0}}}
 }
 
@@ -769,6 +769,8 @@ function onEnemyKilled(g,e,source,opts){
   g.freezeT=Math.max(g.freezeT,baseFreeze);shake(g,e.isBoss?16:8,e.isBoss?7:4);
   g.kills++;g.killStreak++;g.killStreakT=TUNING.killStreakWindow;
   g.waveKills++;
+  g.killFeed.push({name:e.name,isBoss:e.isBoss,isElite:e.elite,time:g.time});
+  if(g.killFeed.length>5)g.killFeed.shift();
   if(g.waveFirstKillT===0)g.waveFirstKillT=g.time;
   if(p.atkFormation)p.atkFormCount++;
   if(p.vortexOnKill)p.vortexKills=(p.vortexKills||0)+1;
@@ -2403,7 +2405,12 @@ function update(g){
     var wkText="斩"+g.waveKills+" · "+wkStr;
     if(g.waveKills>=15)wkText+=" · 势如破竹";
     else if(g.waveKills>=8)wkText+=" · 雷厉风行";
-    pushLimited(g.floatTexts,{x:W/2,y:H*0.35,text:wkText,life:70,maxLife:70,reason:"hint"},LIMITS.floatTexts);
+    else if(g.waveKills>=4)wkText+=" · 稳中求进";
+    // special wave tag
+    if(g.waveSpecial==="elite")wkText+=" · 全精英";
+    else if(g.waveSpecial==="horde")wkText+=" · 群魔潮";
+    else if(g.waveSpecial==="survival")wkText+=" · 生存波";
+    pushLimited(g.floatTexts,{x:W/2,y:H*0.35,text:wkText,life:80,maxLife:80,reason:"hint"},LIMITS.floatTexts);
     if(p.lowHpBurst)p.lowHpBurstUsed=false;
     g.waveInkRipple={x:p.x,y:p.y,t:40};
     // 骨续泉：波次清场回血
@@ -3027,9 +3034,17 @@ function render(g){
   // 复活标记（招魂残幡）
   if(p.revive&&!p.hasRevived){c.strokeStyle="rgba(163,58,45,0.25)";c.lineWidth=1;
     c.beginPath();c.arc(0,0,p.r+3,0,Math.PI*2);c.stroke()}
-  // dodge cooldown arc
-  if(p.dodgeCd>0){var dcProg=p.dodgeCd/TUNING.dodgeCooldown;c.strokeStyle="rgba(23,19,16,0.25)";c.lineWidth=2;
-    c.beginPath();c.arc(0,0,p.r+14,-Math.PI/2,-Math.PI/2+Math.PI*2*(1-dcProg));c.stroke()}
+  // dodge cooldown arc (always visible: green when ready, gray when cooling)
+  var dcProg=p.dodgeCd/TUNING.dodgeCooldown;
+  var dcR=p.r+14;
+  if(p.dodgeCd<=0){
+    c.globalAlpha=0.4+0.2*Math.sin(g.time*0.15);c.strokeStyle="rgba(77,107,86,0.7)";c.lineWidth=2.5;
+    c.beginPath();c.arc(0,0,dcR,-Math.PI/2,-Math.PI/2+Math.PI*2);c.stroke();c.globalAlpha=1
+  }else{
+    c.strokeStyle="rgba(23,19,16,0.2)";c.lineWidth=2;
+    c.beginPath();c.arc(0,0,dcR,-Math.PI/2,-Math.PI/2+Math.PI*2);c.stroke();
+    c.strokeStyle="rgba(163,58,45,0.5)";c.lineWidth=2.5;
+    c.beginPath();c.arc(0,0,dcR,-Math.PI/2,-Math.PI/2+Math.PI*2*(1-dcProg));c.stroke()}
   // perfect dodge ring (justDodged window)
   if(p.justDodged&&p.justDodgedT>0){var jdProg=p.justDodgedT/TUNING.justDodgedWindow;
     c.globalAlpha=jdProg*0.6;c.strokeStyle=C.gold;c.lineWidth=2;
@@ -3417,6 +3432,22 @@ function render(g){
     }
     c.fillText(bossName,W/2,by-4);c.shadowBlur=0}});
 
+
+  // kill feed (top-right, last 5 kills)
+  if(g.killFeed&&g.killFeed.length>0&&g.state==="playing"){
+    var kfX=W-10,kfY=50;
+    c.font='400 12px "STKaiti","KaiTi",serif';c.textAlign="right";
+    var kfAge=g.time-(g.killFeed[g.killFeed.length-1]?g.killFeed[g.killFeed.length-1].time:0);
+    var kfAlpha=Math.max(0.3,1-(kfAge/180));
+    c.globalAlpha=kfAlpha;
+    g.killFeed.forEach(function(kf,ki){
+      var kfRowY=kfY+ki*16;
+      var kfCol=kf.isBoss?"#a33a2d":kf.isElite?"#9c835a":"rgba(23,19,16,0.7)";
+      c.fillStyle=kfCol;
+      c.fillText("斩 "+kf.name,kfX,kfRowY);
+    });
+    c.globalAlpha=1;c.textAlign="left";
+  }
   // 处决闪光
   if(g.execFlash&&g.freezeT>1){var ef=g.execFlash;
     var exA=Math.min(g.freezeT/9,1);c.globalAlpha=exA*0.6;c.fillStyle=C.accent;
