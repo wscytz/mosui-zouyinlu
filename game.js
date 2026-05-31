@@ -36,11 +36,14 @@ function requestMobileDodge(){
   mob.dodgeRequest=(mob.dodgeRequest||0)+1;
   try{if(navigator.vibrate)navigator.vibrate(20);else if(window.Capacitor&&Capacitor.Haptics)Capacitor.Haptics.impact({style:'MEDIUM'})}catch(e){}
 }
-var KILL_MILESTONES=[{at:3,text:"三连斩",life:60,pCnt:6,pCol:"accent",sh:5,shA:2,rf:0,gold:0},
-  {at:5,text:"五连斩",life:70,pCnt:8,pCol:"accent",sh:8,shA:3,rf:0,gold:0},
-  {at:10,text:"十连斩",life:80,pCnt:14,pCol:"accent",sh:12,shA:5,rf:6,gold:0},
-  {at:20,text:"百鬼夜行",life:90,pCnt:20,pCol:"accent",sh:16,shA:7,rf:8,gold:0},
-  {at:30,text:"修罗道",life:100,pCnt:28,pCol:"accent",sh:20,shA:10,rf:10,gold:12}];
+var KILL_MILESTONES=[
+  {at:3,text:"三连斩",life:60,pCnt:6,pCol:"accent",sh:5,shA:2,rf:0,gold:0},
+  {at:5,text:"五连斩!",life:70,pCnt:8,pCol:"accent",sh:8,shA:3,rf:0,gold:0},
+  {at:10,text:"十连斩!!",life:80,pCnt:14,pCol:"accent",sh:12,shA:5,rf:6,gold:0},
+  {at:20,text:"二十连斩!!!",life:90,pCnt:20,pCol:"accent",sh:16,shA:7,rf:8,gold:20},
+  {at:30,text:"三十连斩!!!!",life:100,pCnt:28,pCol:"fire",sh:20,shA:10,rf:10,gold:12},
+  {at:50,text:"五十连斩！！！！",life:120,pCnt:40,pCol:"fire",sh:24,shA:12,rf:15,gold:40}
+];
 // ════════════════════════════════════════════════════════════════
 // § PERFORMANCE — pressure detection, adaptive quality
 // ════════════════════════════════════════════════════════════════
@@ -769,11 +772,7 @@ function onEnemyKilled(g,e,source,opts){
   if(baseFreeze===9&&p.killAtkTimer>0)baseFreeze=4;
   g.freezeT=Math.max(g.freezeT,baseFreeze);shake(g,e.isBoss?16:8,e.isBoss?7:4);
   g.kills++;g.killStreak++;g.killStreakT=TUNING.killStreakWindow;
-  // Kill streak milestone effects
-  if(g.killStreak===5){shake(g,4,4);snd("bossEnrage");pushLimited(g.floatTexts,{x:W/2,y:H/2-60,text:"五连斩!",life:50,maxLife:50,reason:"streak"},LIMITS.floatTexts)}
-  else if(g.killStreak===10){shake(g,6,5);spawnInk(g,p.x,p.y,12,"fire");pushLimited(g.floatTexts,{x:W/2,y:H/2-60,text:"十连斩!!",life:60,maxLife:60,reason:"streak"},LIMITS.floatTexts)}
-  else if(g.killStreak===20){shake(g,8,6);spawnInk(g,p.x,p.y,20,"accent");spawnP(g,W/2,H/2,"gold",20);pushLimited(g.floatTexts,{x:W/2,y:H/2-60,text:"二十连斩!!!",life:70,maxLife:70,reason:"streak"},LIMITS.floatTexts)}
-  else if(g.killStreak===50){shake(g,12,8);spawnInk(g,p.x,p.y,30,"fire");spawnInk(g,p.x,p.y,20,"accent");spawnP(g,W/2,H/2,"gold",40);pushLimited(g.floatTexts,{x:W/2,y:H/2-60,text:"五十连斩！！！！",life:90,maxLife:90,reason:"streak"},LIMITS.floatTexts)}
+  // Kill streak milestone effects (handled by KILL_MILESTONES loop below)
   g.waveKills++;
   g.killFeed.push({name:e.name,isBoss:e.isBoss,isElite:e.elite,time:g.time});
   if(g.killFeed.length>5)g.killFeed.shift();
