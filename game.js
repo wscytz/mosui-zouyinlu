@@ -2284,7 +2284,7 @@ function update(g){
   // fires / ink trails
   for(var i=g.fires.length-1;i>=0;i--){var f=g.fires[i];f.life--;
     if(f.life<=0){g.fires.splice(i,1);continue}
-    if(f.slow){g.enemies.forEach(function(e){if(e.hp>0){if(collideSq(f,e))e.slowT=Math.max(e.slowT,15)}})}
+    if(f.slow){forEachLiveEnemy(g,function(e){if(collideSq(f,e))e.slowT=Math.max(e.slowT,15)})}
     else if(f.owner==="player"&&!f.isBanner){
       forEachLiveEnemy(g,function(e){var mr=f.r+e.r;if(dstSq(f,e)<mr*mr&&((g.time+f.tickOffset)%TUNING.fireTickInterval===0)){
         if(damageEnemy(g,e,f.dmg,"fire"))spawnInk(g,e.x,e.y,10,"fire");
