@@ -138,7 +138,7 @@ function invalidateCanvasRect(){_cachedCanvasRect=null}
 // --- Meta-progression (localStorage) [GLOBALS section] ---
 var META_KEY="mosui_meta";
 function loadMeta(){
-  var defaults={version:2,totalKills:0,totalRuns:0,bestWave:0,bestGrade:"",bossKills:0,bestCombo:0,
+  var defaults={version:2,totalKills:0,totalRuns:0,bestWave:0,bestGrade:"",bossKills:0,bestCombo:0,bestDodgeKills:0,
     weaponsCleared:{},weaponBestWave:{},weaponTotalKills:{},relicsDiscovered:{},cursesUsed:{},mojiangjunKills:0,
     nightmareWins:0,hardWins:0,eliteKills:0,bestFireKills:0,achievements:{},unlocks:{}};
   try{
@@ -173,6 +173,7 @@ function metaRecordRun(g){
   if((g.lowHpBurstKills||0)>(meta.bestLowHpBurstKills||0))meta.bestLowHpBurstKills=g.lowHpBurstKills;
   if((g.mozhuhouKills||0)>(meta.mozhuhouKills||0))meta.mozhuhouKills=g.mozhuhouKills;
   if((g.executeKills||0)>(meta.bestExecuteKills||0))meta.bestExecuteKills=g.executeKills;
+  if((g.dodgeKills||0)>(meta.bestDodgeKills||0))meta.bestDodgeKills=g.dodgeKills;
   // Easter egg tracking
   if(won&&!g.usedMoveKey)meta.noMoveWins=(meta.noMoveWins||0)+1;
   if(won&&g.hurtCount<=3)meta.lowHurtWins=(meta.lowHurtWins||0)+1;
@@ -399,7 +400,7 @@ function newGame(wid,diff){
     hazard:null,hazardTimer:0,hazardObjs:[],
     inkSpirits:[],
     formations:[],
-    killExplodeKills:0,blindKills:0,waveHpHealed:0,lowHpBurstKills:0,mozhuhouKills:0,executeKills:0,killFeed:[],
+    killExplodeKills:0,blindKills:0,waveHpHealed:0,lowHpBurstKills:0,mozhuhouKills:0,executeKills:0,dodgeKills:0,killFeed:[],
     perf:{lastT:0,fps:60,pressure:0,peaks:{enemies:0,attacks:0,particles:0,fires:0,eProj:0,floatTexts:0,decoys:0,kites:0,frosts:0}}}
 }
 
@@ -1236,7 +1237,7 @@ function pAtk(g){
       spawnInk(g,p.x,p.y,10,"accent");spawnP(g,p.x,p.y,"ink",8);
       p.x=p.recallMark.x;p.y=p.recallMark.y;
       spawnInk(g,p.x,p.y,12,"accent");spawnP(g,p.x,p.y,"ink",8);shake(g,6,3);
-      snd("playerDodge");p.recallMark.life=0;p.justDodged=true;p.justDodgedT=18;p.dashT=0;
+      snd("playerDodge");p.recallMark.life=0;p.justDodged=true;p.justDodgedT=18;p.dashT=0;p.dodgeKills=(p.dodgeKills||0)+1;
       p.invTimer=Math.max(p.invTimer,TUNING.dodgeInvFrames);p.atkCd=0;return}
     var dashDmg=dmg,spdPower=moveScale(p);
     dashDmg=Math.floor(dashDmg*(1+Math.max(0,spdPower-1)*0.45));
@@ -1589,7 +1590,7 @@ function startDodge(g,dx,dy){
   var sp=moveScale(p);
   p.dodgeDx=Math.cos(a)*9*sp;p.dodgeDy=Math.sin(a)*9*sp;
   p.invTimer=Math.max(p.invTimer,TUNING.dodgeInvFrames);
-  p.justDodged=true;p.justDodgedT=TUNING.justDodgedWindow;p.dodgeQueued=false;
+  p.justDodged=true;p.justDodgedT=TUNING.justDodgedWindow;p.dodgeQueued=false;p.dodgeKills=(p.dodgeKills||0)+1;
   // 墨冲影：冲刺反伤
   if(p.dashRetaliate){
     var _dr=90*90;var _dd=Math.max(1,Math.ceil(p.stats.dmg*0.35));
@@ -4628,7 +4629,7 @@ function showEnd(g){
     "<br><span class='end-route'>构筑："+buildRoute+"</span>"+
     (relicNames?"<br><span class='end-relics'>"+relicNames+"</span>":"")+
     "<br><span style='font-size:0.82rem;color:var(--ink-soft);margin-top:4px;display:inline-block'>"+
-    "总伤害 "+g.totalDmg+" · 场均 "+(g.kills>0?Math.round(g.totalDmg/g.kills):0)+" · 受伤 "+g.totalDmgTaken+" · 治疗 "+g.totalHealed+" · 最高连斩 "+g.maxCombo+" · 精英击杀 "+g.eliteKills+
+    "总伤害 "+g.totalDmg+" · 场均 "+(g.kills>0?Math.round(g.totalDmg/g.kills):0)+" · 受伤 "+g.totalDmgTaken+" · 治疗 "+g.totalHealed+" · 最高连斩 "+g.maxCombo+" · 闪避 "+g.dodgeKills+" · 精英击杀 "+g.eliteKills+
     "</span>"+
     deathLine+
     (isNewBest?"<br><span style='color:var(--accent);font-weight:600'>新纪录！</span>":"")+
