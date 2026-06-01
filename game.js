@@ -4786,6 +4786,21 @@ function showEnd(g){
     "<br><span style='font-size:0.78rem;color:var(--ash);margin-top:6px;display:inline-block'>"+
     "累计 "+meta.totalRuns+" 次走阴 · 斩祟 "+meta.totalKills+" · 最高连斩 "+meta.bestCombo+" · 图鉴 "+relicCount+"/"+RELICS.length+
     " · 成就 "+Object.keys(meta.achievements||{}).length+"/"+ACHIEVEMENTS.length+"</span>";
+  // v10.0 T4 战斗回放：localStorage存近5局
+  var _hKey="mosui_history";var _hRec={ts:Date.now(),weapon:g.weapon.type||"melee",weaponName:g.weapon.name||"?",grade:grade,kills:g.kills,wave:g.wave,relics:g.relics.length,time:Math.floor(g.time/60),boss:!!g.bossKilled,diff:g.diff||"normal"};
+  var _hist=[];try{_hist=JSON.parse(localStorage.getItem(_hKey)||"[]")}catch(e){_hist=[]}
+  _hist.push(_hRec);if(_hist.length>5)_hist=_hist.slice(-5);
+  try{localStorage.setItem(_hKey,JSON.stringify(_hist))}catch(e){}
+  var _hp=document.getElementById("historyPanel");
+  if(_hp){var _diffMap={normal:"平",hard:"险",nightmare:"噩",purgatory:"炼"};
+    var _rows=_hist.slice().reverse().map(function(h,i){
+      var _dt=new Date(h.ts);var _tsStr=(_dt.getMonth()+1)+"-"+(_dt.getDate()<10?"0":"")+_dt.getDate()+" "+(_dt.getHours()<10?"0":"")+_dt.getHours()+":"+(_dt.getMinutes()<10?"0":"")+_dt.getMinutes();
+      var _tsec=h.time||0;var _tm=Math.floor(_tsec/60);var _tr=_tsec%60;var _tDisp=(_tm<10?"0":"")+_tm+":"+(_tr<10?"0":"")+_tr;
+      var _dStr=_diffMap[h.diff||"normal"]||"平";
+      var _bossTag=h.boss?"<span style='color:var(--accent)'>★</span>":"";
+      return (i===0?"<b style='color:var(--accent)'>本局</b> ":_bossTag)+_tsStr+" "+_dStr+" "+h.grade+" "+h.weaponName+" 波"+h.wave+" 斩"+h.kills+" 遗"+h.relics+" "+_tDisp
+    }).join("<br>");
+    _hp.innerHTML="<div style='border-top:1px solid rgba(0,0,0,0.08);padding-top:6px;margin-top:6px'><span style='color:var(--accent);font-weight:600'>走阴录 · 近5局</span><br>"+_rows+"</div>"}
   el=document.getElementById("gameOver");if(el)el.style.display="";
   // v10.0 T1 结算截图
   var ssBtn=document.getElementById("screenshotBtn");
