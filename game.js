@@ -140,7 +140,8 @@ var META_KEY="mosui_meta";
 function loadMeta(){
   var defaults={version:2,totalKills:0,totalRuns:0,bestWave:0,bestGrade:"",bossKills:0,bestCombo:0,bestDodgeKills:0,bestEndlessWave:0,
     weaponsCleared:{},weaponBestWave:{},weaponTotalKills:{},relicsDiscovered:{},cursesUsed:{},mojiangjunKills:0,
-    nightmareWins:0,hardWins:0,purgatoryWins:0,eliteKills:0,bestFireKills:0,achievements:{},unlocks:{}};
+    nightmareWins:0,hardWins:0,purgatoryWins:0,eliteKills:0,bestFireKills:0,achievements:{},unlocks:{},
+    dailyStreak:0,lastDailyDate:"",bestDailyKills:0,totalDailies:0};
   try{
     var d=JSON.parse(localStorage.getItem(META_KEY));
     if(d&&d.version===2){
@@ -162,6 +163,15 @@ function metaRecordRun(g){
   if(g.curse)meta.cursesUsed[g.curse.id]=true;
   if(g.bossKilled){meta.bossKills++}
   if(g.endless){var _ew=g.wave+1;if(_ew>(meta.bestEndlessWave||0))meta.bestEndlessWave=_ew}
+  if(g.daily){
+    var _td=new Date().toISOString().slice(0,10);
+    var _yd=new Date(Date.now()-86400000).toISOString().slice(0,10);
+    if(meta.lastDailyDate===_yd)meta.dailyStreak=(meta.dailyStreak||0)+1;
+    else if(meta.lastDailyDate!==_td)meta.dailyStreak=1;
+    meta.lastDailyDate=_td;
+    meta.totalDailies=(meta.totalDailies||0)+1;
+    if(g.kills>(meta.bestDailyKills||0))meta.bestDailyKills=g.kills;
+  }
   if(g.mojiangjunKilled){meta.mojiangjunKills++}
   if(g.moguiwangKilled){meta.moguiwangKills=(meta.moguiwangKills||0)+1}
   if(won&&g.diff==="nightmare")meta.nightmareWins++;
@@ -416,6 +426,10 @@ function newGame(wid,diff){
   if(diff==="purgatory"){g.player.maxHpMult=0.7;g.player.maxRelicsOverride=5;}
   var _ec=typeof document!=="undefined"&&document.getElementById&&document.getElementById("endlessCheck");
   g.endless=(_ec&&_ec.checked)||!!(typeof location!=="undefined"&&/endless=1/.test(location.search));
+  var _dc=typeof document!=="undefined"&&document.getElementById&&document.getElementById("dailyCheck");
+  var _qs=typeof location!=="undefined"?location.search:"";
+  g.daily=(_dc&&_dc.checked)||/daily=1/.test(_qs);
+  
   return g;
 }
 
@@ -5383,6 +5397,8 @@ function init(){
     // Version display on title screen
     var verEl=document.getElementById("gameVersion");
     if(verEl&&MOSUI.version)verEl.textContent="v "+MOSUI.version;
+    var ddEl=document.getElementById("dailyDateLabel");
+    if(ddEl)ddEl.textContent=new Date().toISOString().slice(0,10);
   })()}catch(e){}
   setupWeaponSelect();if(window._loadLog)window._loadLog("init() 完成 ✓ loop启动");loop();
   // Dismiss Capacitor splash screen — try multiple methods

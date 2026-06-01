@@ -884,6 +884,7 @@ var ACHIEVEMENTS=[
   {id:"endless_15",name:"无尽初探",desc:"无尽模式到达15波",check:function(m){return (m.bestEndlessWave||0)>=15},reward:null},
   {id:"endless_25",name:"无尽踏行",desc:"无尽模式到达25波",check:function(m){return (m.bestEndlessWave||0)>=25},reward:"startRelic"},
   {id:"endless_50",name:"无尽深渊",desc:"无尽模式到达50波",check:function(m){return (m.bestEndlessWave||0)>=50},reward:"goldInk"},
+  {id:"daily_3",name:"三朝走阴",desc:"连续3天完成每日种子挑战",check:function(m){return(m.dailyStreak||0)>=3},reward:"startRelic"},
 ];
 
 // Starting relic pool for unlocked rewards
