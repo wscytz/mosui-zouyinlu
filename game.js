@@ -4843,6 +4843,13 @@ function showEnd(g){
   _lb.sort(function(a,b){var r=(_gRank[b.grade]||0)-(_gRank[a.grade]||0);if(r!==0)return r;return (b.score||0)-(a.score||0)});
   if(_lb.length>20)_lb=_lb.slice(0,20);
   try{localStorage.setItem(_lKey,JSON.stringify(_lb))}catch(e){}
+  // v11.0 任务3 无尽模式独立排行榜：按波次降序
+  if(g.endless){var _eKey="mosui_leaderboard_endless";
+    var _eRec={ts:Date.now(),weapon:g.weapon.name||"?",wave:g.wave+1,kills:g.kills,date:new Date().toISOString().slice(0,10),diff:g.diff||"normal",time:Math.floor(g.time/60)};
+    var _elb=[];try{_elb=JSON.parse(localStorage.getItem(_eKey)||"[]")}catch(e){_elb=[]}
+    _elb.push(_eRec);_elb.sort(function(a,b){return(b.wave||0)-(a.wave||0)});
+    if(_elb.length>20)_elb=_elb.slice(0,20);
+    try{localStorage.setItem(_eKey,JSON.stringify(_elb))}catch(e){}}
   el=document.getElementById("gameOver");if(el)el.style.display="";
   // v10.0 T1 结算截图
   var ssBtn=document.getElementById("screenshotBtn");
@@ -4871,12 +4878,28 @@ function showEnd(g){
   });}
 }
 
-function showLeaderboard(){
-  var _lKey="mosui_leaderboard";var _lb=[];
+function showLeaderboard(mode){
+  mode=mode||"normal";
+  var _lKey=mode==="endless"?"mosui_leaderboard_endless":"mosui_leaderboard";
+  var _lb=[];
   try{_lb=JSON.parse(localStorage.getItem(_lKey)||"[]")}catch(e){_lb=[]}
   var _diffMap={normal:"平",hard:"险",nightmare:"噩",purgatory:"炼"};
   var _list=document.getElementById("leaderboardList");
-  if(!_lb.length){if(_list)_list.innerHTML="<div style='padding:24px;text-align:center;color:var(--ash)'>暂无记录，斩一局试试</div>"}
+  var _tabs="<div style='display:flex;gap:12px;margin-bottom:8px;justify-content:center'>"+
+    "<span "+(mode==="normal"?"style='color:var(--accent);font-weight:600;border-bottom:2px solid var(--accent)'":"style='color:var(--ash);cursor:pointer' onclick='showLeaderboard(\"normal\")'")+">普通榜</span>"+
+    "<span "+(mode==="endless"?"style='color:var(--accent);font-weight:600;border-bottom:2px solid var(--accent)'":"style='color:var(--ash);cursor:pointer' onclick='showLeaderboard(\"endless\")'")+">无尽榜</span></div>";
+  if(!_lb.length){if(_list)_list.innerHTML=_tabs+"<div style='padding:24px;text-align:center;color:var(--ash)'>暂无记录，斩一局试试</div>"}
+  else if(mode==="endless"){var _rows=_lb.map(function(r,i){
+    var _dStr=_diffMap[r.diff||"normal"]||"平";
+    var _tsec=r.time||0;var _tm=Math.floor(_tsec/60);var _tr=_tsec%60;var _tDisp=(_tm<10?"0":"")+_tm+":"+(_tr<10?"0":"")+_tr;
+    return "<div style='display:flex;justify-content:space-between;padding:4px 6px;border-bottom:1px solid rgba(0,0,0,0.05)'>"+
+      "<span style='width:36px;color:var(--ash)'>"+(i+1)+".</span>"+
+      "<span style='width:90px;font-weight:600;color:var(--accent)'>第"+r.wave+"波</span>"+
+      "<span style='flex:1'>"+_dStr+" "+r.weapon+" 斩"+r.kills+"</span>"+
+      "<span style='width:80px;text-align:right;color:var(--ash)'>"+_tDisp+"</span>"+
+      "<span style='width:80px;text-align:right;color:var(--ash);font-size:0.78rem'>"+r.date+"</span>"+
+      "</div>"
+  }).join("");if(_list)_list.innerHTML=_tabs+_rows}
   else{var _rows=_lb.map(function(r,i){
     var _dStr=_diffMap[r.diff||"normal"]||"平";
     var _star=r.boss||r.wave>=9?"<span style='color:var(--accent)'>★</span>":"";
@@ -4887,7 +4910,7 @@ function showLeaderboard(){
       "<span style='width:90px;text-align:right;font-weight:600'>"+r.score+"分</span>"+
       "<span style='width:80px;text-align:right;color:var(--ash);font-size:0.78rem'>"+r.date+"</span>"+
       "</div>"
-  }).join("");if(_list)_list.innerHTML=_rows}
+  }).join("");if(_list)_list.innerHTML=_tabs+_rows}
   var _p=document.getElementById("leaderboardPanel");if(_p)_p.style.display="";
 }
 
