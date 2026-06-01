@@ -4756,6 +4756,31 @@ function showEnd(g){
     "累计 "+meta.totalRuns+" 次走阴 · 斩祟 "+meta.totalKills+" · 最高连斩 "+meta.bestCombo+" · 图鉴 "+relicCount+"/"+RELICS.length+
     " · 成就 "+Object.keys(meta.achievements||{}).length+"/"+ACHIEVEMENTS.length+"</span>";
   el=document.getElementById("gameOver");if(el)el.style.display="";
+  // v10.0 T1 结算截图
+  var ssBtn=document.getElementById("screenshotBtn");
+  if(ssBtn&&!ssBtn._bound){ssBtn._bound=true;ssBtn.addEventListener("click",function(){
+    var c=document.createElement("canvas");c.width=960;c.height=640;var x=c.getContext("2d");
+    x.fillStyle="#f1e6d4";x.fillRect(0,0,960,640);
+    x.fillStyle="#171310";x.textAlign="center";x.font="bold 32px serif";x.fillText("墨祟：走阴录",480,50);
+    x.font="bold 16px serif";x.fillStyle=diffColor;x.fillText(diffLabel,480,80);
+    x.font="bold 88px serif";x.fillStyle=gradeColors[grade]||"#171310";x.fillText(grade,480,200);
+    x.fillStyle="#171310";x.font="18px serif";x.textAlign="left";
+    var lx=80,ly=270,lh=28;
+    x.fillText("武器："+g.weapon.name,lx,ly);ly+=lh;
+    x.fillText("斩祟："+g.kills,lx,ly);ly+=lh;
+    x.fillText("波次："+g.wave+"/"+WAVE_BUDGETS.length,lx,ly);ly+=lh;
+    x.fillText("遗物："+g.relics.length+"件",lx,ly);ly+=lh;
+    x.fillText("历时："+timeStr,lx,ly);ly+=lh;
+    x.fillText("总伤害："+g.totalDmg,lx,ly);ly+=lh;
+    x.fillText("最高连斩："+g.maxCombo,lx,ly);ly+=lh;
+    x.font="16px serif";x.fillStyle="#4d3e30";
+    x.fillText("构筑："+buildLine,lx,ly);ly+=lh;
+    if(buildRoute){x.fillText("路线："+buildRoute,lx,ly);ly+=lh;}
+    if(relicNames){x.font="14px serif";x.fillText("遗物："+relicNames,lx,ly);ly+=lh;}
+    x.font="12px serif";x.fillStyle="#7a6b5d";x.fillText("v"+MOSUI.version+" · "+(won?"通关":"魂归"),480,610);
+    var link=document.createElement("a");
+    link.download="mosui-"+Date.now()+".png";link.href=c.toDataURL("image/png");link.click();
+  });}
 }
 
 function setupWeaponSelect(){
