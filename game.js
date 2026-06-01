@@ -121,7 +121,7 @@ function spawnJudgment(g,e,reason){
 var keys={},mouse={x:W/2,y:H/2,down:false},nextEnemyId=1;
 var canvas,ctx,G=null,bgCanvas=null,_cachedCanvasRect=null;
 window.MOSUI=window.MOSUI||{};
-window.MOSUI.version=window.MOSUI.version||"9.3";
+window.MOSUI.version=window.MOSUI.version||"9.4";
 window.MOSUI.hooks=window.MOSUI.hooks||{beforeUpdate:[],afterUpdate:[],beforeRender:[],afterRender:[]};
 window.MOSUI.input=window.MOSUI.input||{};
 window.MOSUI.platform=window.MOSUI.platform||{};
@@ -140,7 +140,7 @@ var META_KEY="mosui_meta";
 function loadMeta(){
   var defaults={version:2,totalKills:0,totalRuns:0,bestWave:0,bestGrade:"",bossKills:0,bestCombo:0,bestDodgeKills:0,
     weaponsCleared:{},weaponBestWave:{},weaponTotalKills:{},relicsDiscovered:{},cursesUsed:{},mojiangjunKills:0,
-    nightmareWins:0,hardWins:0,eliteKills:0,bestFireKills:0,achievements:{},unlocks:{}};
+    nightmareWins:0,hardWins:0,purgatoryWins:0,eliteKills:0,bestFireKills:0,achievements:{},unlocks:{}};
   try{
     var d=JSON.parse(localStorage.getItem(META_KEY));
     if(d&&d.version===2){
@@ -165,6 +165,7 @@ function metaRecordRun(g){
   if(g.moguiwangKilled){meta.moguiwangKills=(meta.moguiwangKills||0)+1}
   if(won&&g.diff==="nightmare")meta.nightmareWins++;
   if(won&&g.diff==="hard")meta.hardWins=(meta.hardWins||0)+1;
+  if(won&&g.diff==="purgatory")meta.purgatoryWins=(meta.purgatoryWins||0)+1;
   meta.eliteKills=(meta.eliteKills||0)+g.eliteKills;
   if(g.fireKills>(meta.bestFireKills||0))meta.bestFireKills=g.fireKills;
   if((g.killExplodeKills||0)>(meta.bestKillExplodeKills||0))meta.bestKillExplodeKills=g.killExplodeKills;
@@ -209,7 +210,7 @@ function checkAchievements(m){
 function calcGrade(g){
   var won=g.state==="victory";var score=0;
   if(won)score+=40;score+=Math.min(g.kills,100)*0.3;score+=g.relics.length*2;
-  if(g.diff==="hard")score+=10;else if(g.diff==="nightmare")score+=20;
+  if(g.diff==="hard")score+=10;else if(g.diff==="nightmare")score+=20;else if(g.diff==="purgatory")score+=30;
   if(won&&g.player.maxHp>0)score+=Math.floor(g.player.hp/g.player.maxHp*10);
   score+=Math.min(g.maxCombo,30)*0.2;
   score+=Math.min(g.critKills,20)*0.15;
@@ -370,7 +371,7 @@ function mkPlayer(){
     idleT:0}
 }
 
-var DIFF={normal:{hpM:1,spdM:1,dmgM:1},hard:{hpM:1.35,spdM:1.15,dmgM:1.25},nightmare:{hpM:1.8,spdM:1.3,dmgM:1.5}};
+var DIFF={normal:{hpM:1,spdM:1,dmgM:1},hard:{hpM:1.35,spdM:1.15,dmgM:1.25},nightmare:{hpM:1.8,spdM:1.3,dmgM:1.5},purgatory:{hpM:2.0,spdM:1.4,dmgM:1.55}};
 
 function quickRestart(g){
   if(!g||!(g.state==="playing"||g.state==="paused"))return;
@@ -386,7 +387,7 @@ function newGame(wid,diff){
   var w=WEAPONS.filter(function(x){return x.id===wid})[0];
   if(!w){console.warn("Invalid weapon id: "+wid+", defaulting to jian");w=WEAPONS[0];}
   nextEnemyId=1;
-  return{state:"playing",weapon:w,wave:0,kills:0,time:0,diff:diff||"normal",
+  var g={state:"playing",weapon:w,wave:0,kills:0,time:0,diff:diff||"normal",
     shakeT:0,shakeAmp:0,shakeX:0,shakeY:0,freezeT:0,hintT:180,ended:false,dmgDir:null,slowMo:0,
     _shakeIntensity:(function(){try{return parseFloat(localStorage.getItem("mosui_shake")||"0.8")}catch(e){return 0.8}})(),
     killStreak:0,killStreakT:0,relicFlash:0,critFlash:0,bossFlash:0,
@@ -407,7 +408,9 @@ function newGame(wid,diff){
     inkSpirits:[],
     formations:[],
     killExplodeKills:0,blindKills:0,waveHpHealed:0,lowHpBurstKills:0,mozhuhouKills:0,executeKills:0,dodgeKills:0,critKills:0,relicsSeen:{},killFeed:[],
-    perf:{lastT:0,fps:60,pressure:0,peaks:{enemies:0,attacks:0,particles:0,fires:0,eProj:0,floatTexts:0,decoys:0,kites:0,frosts:0}}}
+    perf:{lastT:0,fps:60,pressure:0,peaks:{enemies:0,attacks:0,particles:0,fires:0,eProj:0,floatTexts:0,decoys:0,kites:0,frosts:0}}};
+  if(diff==="purgatory"){g.player.maxHpMult=0.7;g.player.maxRelicsOverride=5;}
+  return g;
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -452,7 +455,7 @@ function spawnEnemy(g,type,opts){
   var hp=Math.max(1,Math.floor(t.hp*waveScale*(opts.hpMul||1)*dCfg.hpM*(p.enemyHpMult||1)*(opts.midBoss?0.55:1)));
   var spd=t.spd*(1+Math.max(0,g.wave)*WAVE_SCALE.spdPerWave)*(opts.spdMul||1)*dCfg.spdM*(p.enemySpdMult||1);
   var shield=t.hasShield?Math.floor((t.shield||0)*waveScale):0;
-  var diffEliteBonus=g.diff==="hard"?TUNING.eliteHardBonus:g.diff==="nightmare"?TUNING.eliteNightmareBonus:0;
+  var diffEliteBonus=g.diff==="hard"?TUNING.eliteHardBonus:g.diff==="nightmare"?TUNING.eliteNightmareBonus:g.diff==="purgatory"?TUNING.elitePurgatoryBonus:0;
   var eliteChance=Math.min(TUNING.eliteMaxChance,TUNING.eliteBaseChance+g.wave*TUNING.eliteWaveScale+diffEliteBonus);
   var elite=(g.wave>=3||p.allElite)&&!t.isBoss&&(p.allElite||Math.random()<eliteChance);
   var eliteAbility=null;
@@ -1073,7 +1076,7 @@ function startWave(g){
   }
   if(!w){
     // Mid-boss at wave 6 (halfway point) — 50% chance
-    if(g.wave===6&&Math.random()<0.5&&g.diff!=="nightmare"){
+    if(g.wave===6&&Math.random()<0.5&&g.diff!=="nightmare"&&g.diff!=="purgatory"){
       var midBoss=g.bossType||"boss";
       var midSupport=["zhikui","youhun","jiangshi","gudeng"];
       var midSup=[];
@@ -3929,7 +3932,7 @@ function updateHUD(g){
   if(g.evolution2)wn+=" + "+g.evolution2.name;
   if(g.evolution3)wn+=" + "+g.evolution3.name;
   if(wn!==_lastWeaponName){_lastWeaponName=wn;el=_hudEl("hudWeapon");if(el)el.textContent=wn;}
-  var wt=(({normal:"",hard:"险途 · ",nightmare:"噩梦 · "})[g.diff]||"")+(g.curse?"【"+g.curse.name+"】":"")+(g.announce||"第"+(g.wave+1)+"波")+(st&&st.name!=="净坛"?" · "+st.name:"");
+  var wt=(({normal:"",hard:"险途 · ",nightmare:"噩梦 · ",purgatory:"炼狱 · "})[g.diff]||"")+(g.curse?"【"+g.curse.name+"】":"")+(g.announce||"第"+(g.wave+1)+"波")+(st&&st.name!=="净坛"?" · "+st.name:"");
   var aliveCount=0;for(var _ai=0;_ai<g.enemies.length;_ai++){if(g.enemies[_ai].hp>0)aliveCount++;}
   if(aliveCount>0)wt+=" · 余"+aliveCount;
   if(wt!==_lastWaveText){_lastWaveText=wt;el=_hudEl("waveInfo");if(el)el.textContent=wt;}
@@ -4440,7 +4443,7 @@ function showRelic(g){
   if(wpEl&&g.wave<WAVE_BUDGETS.length-1){
     var nw=WAVE_BUDGETS[g.wave+1]||0;
     var isNextBoss=(g.wave+1)>=WAVE_BUDGETS.length-1;
-    var diffLabel2={normal:"平常",hard:"险途",nightmare:"噩梦"}[g.diff]||"";
+    var diffLabel2={normal:"平常",hard:"险途",nightmare:"噩梦",purgatory:"炼狱"}[g.diff]||"";
     wpEl.style.display="";
     wpEl.textContent=isNextBoss?"下一波：Boss决战 · 精锐集结":
       "下一波：第"+CN_NUM[g.wave+1]+"波 · "+diffLabel2+" · 威胁"+nw;
@@ -4698,15 +4701,17 @@ function showEnd(g){
   }else if(ep){ep.removeAttribute("src")}
   var won=g.state==="victory";
   var bossT=g.bossType||"boss";
-  var diffLabel={normal:"平常",hard:"险途",nightmare:"噩梦"}[g.diff]||"平常";
-  var diffColor={normal:"var(--ash)",hard:"var(--accent)",nightmare:"#c4523d"}[g.diff]||"var(--ash)";
+  var diffLabel={normal:"平常",hard:"险途",nightmare:"噩梦",purgatory:"炼狱"}[g.diff]||"平常";
+  var diffColor={normal:"var(--ash)",hard:"var(--accent)",nightmare:"#c4523d",purgatory:"#8b0000"}[g.diff]||"var(--ash)";
   var secs=Math.floor(g.time/60);var mins=Math.floor(secs/60);secs=secs%60;
   var timeStr=(mins<10?"0":"")+mins+":"+(secs<10?"0":"")+secs;
   var subtitle=won?(bossT==="moguiwang"?"墨鬼王消散了。你从墨渊中走出，手中还握着那支笔。":
+    g.diff==="purgatory"?"炼狱通关，墨渊倒悬，你已非人。":
     g.diff==="nightmare"?"噩梦地宫，一命通关，万邪辟易。":
     g.diff==="hard"?"险途已清，胆识过人。":
     "地宫已清，你的名号将记在走阴录上。"):
     (bossT==="moguiwang"?"墨鬼王吞噬了一切。地宫之下，再无光明。":
+    g.diff==="purgatory"?"炼狱火熄，墨影噬骨。":
     g.diff==="nightmare"?"噩梦未竟，魂散地宫。":
     g.diff==="hard"?"险途折戟，来日再战。":
     "纸灰掩面，你的走阴之路到此为止。");

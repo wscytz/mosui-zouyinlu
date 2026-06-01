@@ -619,7 +619,7 @@ var TUNING={
   combo3Arc:1.4,combo3Range:1.25,combo3Dmg:1.25,
   shieldStackReduction:4,inkPoolDmgMult:1.3,
   killStreak5Dmg:1.1,killStreak10Dmg:1.2,
-  eliteBaseChance:0.1,eliteWaveScale:0.025,eliteMaxChance:0.4,eliteHardBonus:0.08,eliteNightmareBonus:0.18,
+  eliteBaseChance:0.1,eliteWaveScale:0.025,eliteMaxChance:0.4,eliteHardBonus:0.08,eliteNightmareBonus:0.18,elitePurgatoryBonus:0.3,
   defFormReduction:0.75,formDefReduction:0.85,
   bossChargeSpd:5.5,bossChargeDur:14,bossPrepDur:20,
   perfThreshFull:0.95,perfThreshHigh:0.85,perfThreshMed:0.72,perfThreshLow:0.55,
@@ -680,7 +680,7 @@ function generateWave(wi,diff){
   if(wi>=WAVE_BUDGETS.length||WAVE_BUDGETS[wi]===0)return null; // boss wave handled separately
   var tier=Math.min(4,Math.floor(wi/2));
   var pool=WAVE_TIERS[tier];
-  var diffMul=diff==="hard"?1.15:diff==="nightmare"?1.35:1;
+  var diffMul=diff==="hard"?1.15:diff==="nightmare"?1.35:diff==="purgatory"?1.55:1;
   var budget=WAVE_BUDGETS[wi]*diffMul;
   var list=[];
   var totalCost=0;
@@ -691,6 +691,7 @@ function generateWave(wi,diff){
   if(wi>=2&&Math.random()<0.2){
     var specials=["horde","elite","survival"];
     if(diff==="nightmare")specials.push("elite_horde");
+    if(diff==="purgatory"){specials.push("elite_horde");specials.push("elite");}
     specialWave=_pick(specials);
     if(specialWave==="horde"){budget*=1.7;}
     else if(specialWave==="elite_horde"){budget*=1.4;}
@@ -841,6 +842,7 @@ var ACHIEVEMENTS=[
   {id:"kills_1000",name:"千斩",desc:"累计斩杀一千祟",check:function(m){return m.totalKills>=1000},reward:null},
   {id:"runs_10",name:"走阴老手",desc:"完成十次走阴",check:function(m){return m.totalRuns>=10},reward:null},
   {id:"nightmare_win",name:"噩梦行者",desc:"噩梦难度通关",check:function(m){return m.nightmareWins>0},reward:"startRelic"},
+  {id:"purgatory_win",name:"炼狱行者",desc:"炼狱难度通关",check:function(m){return (m.purgatoryWins||0)>0},reward:"startRelic"},
   {id:"hard_win",name:"险途征服",desc:"险途难度通关",check:function(m){return (m.hardWins||0)>0},reward:null},
   {id:"kill_huapi",name:"画皮克星",desc:"击败画皮娘子",check:function(m){return (m.bossKills||0)>0},reward:null},
   {id:"grade_S",name:"墨上墨",desc:"获得S级评价",check:function(m){return m.bestGrade==="S"},reward:null},
