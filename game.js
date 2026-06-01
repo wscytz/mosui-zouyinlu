@@ -429,7 +429,7 @@ function newGame(wid,diff){
   var _dc=typeof document!=="undefined"&&document.getElementById&&document.getElementById("dailyCheck");
   var _qs=typeof location!=="undefined"?location.search:"";
   g.daily=(_dc&&_dc.checked)||/daily=1/.test(_qs);
-  
+  if(g.daily){var _ds=new Date().toISOString().slice(0,10);var _seed=0;for(var _i=0;_i<_ds.length;_i++)_seed=((_seed<<5)-_seed)+_ds.charCodeAt(_i)|0;var _s=_seed;g._dailyRng=function(){_s=_s+0x6D2B79F5|0;var t=Math.imul(_s^_s>>>15,1|_s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
   return g;
 }
 
@@ -1097,6 +1097,7 @@ function cleanupWave(g){
 }
 
 function startWave(g){
+  var _dr=g.daily&&g._dailyRng;if(_dr){g._savedRng=Math.random;Math.random=g._dailyRng}
   snd("waveStart");
   cleanupWave(g);
   g.bossKilled=false;
@@ -1208,6 +1209,7 @@ function startWave(g){
   g.waveTotal=g.enemies.length;
   if(g.player.vortexOnKill)g.player.vortexKills=0;
   g.enemies.forEach(function(en){en.spawnGraceT=Math.max(en.spawnGraceT||0,TUNING.spawnGraceDuration)});
+  if(g._savedRng){Math.random=g._savedRng;delete g._savedRng}
 }
 
 function pAtk(g){
@@ -4767,7 +4769,7 @@ function showEnd(g){
   if(g.ended)return;g.ended=true;
   var newAch=metaRecordRun(g);
   if(window.GameSound)GameSound.stopAmbient();
-  if(newAch&&newAch.length>0)snd("achievementUnlock");
+  if(newAch&&newAch.length>0){snd("achievementUnlock");var _ad=document.createElement("div");_ad.style.cssText="position:fixed;top:60px;left:50%;transform:translateX(-50%);z-index:999;background:var(--accent);color:#fff;padding:8px 24px;border-radius:6px;font-size:0.88rem;font-weight:600;opacity:0;transition:opacity 0.4s;pointer-events:none";_ad.textContent="★ " + newAch.map(function(a){return a.name}).join(" · ");document.body.appendChild(_ad);requestAnimationFrame(function(){_ad.style.opacity="1"});setTimeout(function(){_ad.style.opacity="0";setTimeout(function(){_ad.remove()},500)},3500)}
   snd("gameOver");
   // Show boss portrait on end screen
   var ep=document.getElementById("endPortrait");
