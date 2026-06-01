@@ -872,6 +872,9 @@ function onEnemyKilled(g,e,source,opts){
   for(var kmi=0;kmi<KILL_MILESTONES.length;kmi++){var k=KILL_MILESTONES[kmi];if(ks===k.at){
     pushLimited(g.floatTexts,{x:W/2,y:H/2,text:k.text,life:k.life,maxLife:k.life,reason:"streak"},LIMITS.floatTexts);
     spawnP(g,p.x,p.y,k.pCol,k.pCnt);if(k.gold)spawnP(g,p.x,p.y,"gold",k.gold);
+    for(var mi=0;mi<8;mi++){var ma=mi*Math.PI/4;
+      pushLimited(g.particles,{x:p.x,y:p.y,vx:Math.cos(ma)*3,vy:Math.sin(ma)*3,
+        life:20,maxLife:20,size:rn(3,6),type:"accent"},LIMITS.particles)}
     if(k.sh)shake(g,k.sh,k.shA);if(k.rf)g.relicFlash=k.rf;snd("comboMilestone");break}}
   if(e.deathBuff){forEachLiveEnemy(g,function(oe){if(oe===e)return;
     if(dstSq(e,oe)<e.deathBuffR*e.deathBuffR){oe.buffed=e.deathBuffT;oe.buffSrc=e}})}
@@ -927,6 +930,10 @@ function onEnemyKilled(g,e,source,opts){
     spawnP(g,e.x+Math.cos(ba)*30,e.y+Math.sin(ba)*30,"gold",1)}
     for(var bi2=0;bi2<24;bi2++){var ba2=bi2*Math.PI*2/24;
       spawnInk(g,e.x+Math.cos(ba2)*rn(20,50),e.y+Math.sin(ba2)*rn(20,50),2,"boss")}
+    for(var bi3=0;bi3<16;bi3++){var ba3=bi3*Math.PI*2/16;
+      pushLimited(g.particles,{x:e.x,y:e.y,vx:Math.cos(ba3)*5,vy:Math.sin(ba3)*5,
+        life:35,maxLife:35,size:rn(5,10),type:"accent"},LIMITS.particles)}
+    spawnInk(g,e.x,e.y,15,"accent");
     g.freezeT=Math.max(g.freezeT,30);shake(g,20,10);g.slowMo=Math.max(g.slowMo||0,30);
     pushLimited(g.floatTexts,{x:e.x,y:e.y-40,text:"邪祟伏诛",life:80,maxLife:80,reason:"bossDeath"},LIMITS.floatTexts)}
   g.execFlash=e;
@@ -1526,7 +1533,11 @@ function hitE(g,atk,e){
       spawnP(g,e.x,e.y,"accent",3)}
     pushLimited(g.frosts,{x:e.x,y:e.y,r:28,life:90,maxLife:90,dmg:Math.max(1,Math.ceil(p.stats.dmg*0.2))},LIMITS.frosts)}
   if(atk.crit){g.critFlash=18;g.critKills=(g.critKills||0)+1;for(var ci=0;ci<8;ci++){var ca=ci*Math.PI/4;
-    spawnP(g,e.x+Math.cos(ca)*10,e.y+Math.sin(ca)*10,"accent",2)}if(p.meleeCritDash&&atk.crit&&g.weapon.type==="melee"){var mA=p.aimAngle||0;p.x+=Math.cos(mA)*35;p.y+=Math.sin(mA)*35;spawnP(g,p.x,p.y,"accent",4)}
+    spawnP(g,e.x+Math.cos(ca)*10,e.y+Math.sin(ca)*10,"accent",2)}spawnInk(g,e.x,e.y,8,"accent");
+    for(var cgi=0;cgi<6;cgi++){var cga=cgi*Math.PI*2/6+rn(-0.2,0.2);
+      pushLimited(g.particles,{x:e.x,y:e.y,vx:Math.cos(cga)*rn(3,5),vy:Math.sin(cga)*rn(3,5),
+        life:25,maxLife:25,size:rn(3,7),type:"gold"},LIMITS.particles)}
+    if(p.meleeCritDash&&atk.crit&&g.weapon.type==="melee"){var mA=p.aimAngle||0;p.x+=Math.cos(mA)*35;p.y+=Math.sin(mA)*35;spawnP(g,p.x,p.y,"accent",4)}
     // 暴击额外浮字提示
     pushLimited(g.floatTexts,{x:e.x,y:e.y-e.r-22,text:"暴",life:25,maxLife:25,reason:"critHint"},LIMITS.floatTexts)}
   // 墨血刃：暴击回血
