@@ -207,14 +207,17 @@ function checkAchievements(m){
   });
   return newlyUnlocked;
 }
-function calcGrade(g){
+function calcScore(g){
   var won=g.state==="victory";var score=0;
   if(won)score+=40;score+=Math.min(g.kills,100)*0.3;score+=g.relics.length*2;
   if(g.diff==="hard")score+=10;else if(g.diff==="nightmare")score+=20;else if(g.diff==="purgatory")score+=30;
   if(won&&g.player.maxHp>0)score+=Math.floor(g.player.hp/g.player.maxHp*10);
   score+=Math.min(g.maxCombo,30)*0.2;
-  score+=Math.min(g.critKills,20)*0.15;
-  score=Math.floor(score);
+  score+=Math.min(g.critKills||0,20)*0.15;
+  return Math.floor(score);
+}
+function calcGrade(g){
+  var score=calcScore(g);
   if(score>=90)return"S";else if(score>=75)return"甲";else if(score>=60)return"乙";
   else if(score>=40)return"丙";else return"丁";
 }
@@ -4801,6 +4804,15 @@ function showEnd(g){
       return (i===0?"<b style='color:var(--accent)'>本局</b> ":_bossTag)+_tsStr+" "+_dStr+" "+h.grade+" "+h.weaponName+" 波"+h.wave+" 斩"+h.kills+" 遗"+h.relics+" "+_tDisp
     }).join("<br>");
     _hp.innerHTML="<div style='border-top:1px solid rgba(0,0,0,0.08);padding-top:6px;margin-top:6px'><span style='color:var(--accent);font-weight:600'>走阴录 · 近5局</span><br>"+_rows+"</div>"}
+  // v10.0 T5 本地排行榜：按评级+分数排序存前20
+  var _lKey="mosui_leaderboard";var _lScore=calcScore(g);
+  var _lRec={ts:Date.now(),weapon:g.weapon.name||"?",grade:grade,score:_lScore,kills:g.kills,wave:g.wave,date:new Date().toISOString().slice(0,10),diff:g.diff||"normal"};
+  var _lb=[];try{_lb=JSON.parse(localStorage.getItem(_lKey)||"[]")}catch(e){_lb=[]}
+  _lb.push(_lRec);
+  var _gRank={"S":5,"甲":4,"乙":3,"丙":2,"丁":1};
+  _lb.sort(function(a,b){var r=(_gRank[b.grade]||0)-(_gRank[a.grade]||0);if(r!==0)return r;return (b.score||0)-(a.score||0)});
+  if(_lb.length>20)_lb=_lb.slice(0,20);
+  try{localStorage.setItem(_lKey,JSON.stringify(_lb))}catch(e){}
   el=document.getElementById("gameOver");if(el)el.style.display="";
   // v10.0 T1 结算截图
   var ssBtn=document.getElementById("screenshotBtn");
@@ -4827,6 +4839,26 @@ function showEnd(g){
     var link=document.createElement("a");
     link.download="mosui-"+Date.now()+".png";link.href=c.toDataURL("image/png");link.click();
   });}
+}
+
+function showLeaderboard(){
+  var _lKey="mosui_leaderboard";var _lb=[];
+  try{_lb=JSON.parse(localStorage.getItem(_lKey)||"[]")}catch(e){_lb=[]}
+  var _diffMap={normal:"平",hard:"险",nightmare:"噩",purgatory:"炼"};
+  var _list=document.getElementById("leaderboardList");
+  if(!_lb.length){if(_list)_list.innerHTML="<div style='padding:24px;text-align:center;color:var(--ash)'>暂无记录，斩一局试试</div>"}
+  else{var _rows=_lb.map(function(r,i){
+    var _dStr=_diffMap[r.diff||"normal"]||"平";
+    var _star=r.boss||r.wave>=9?"<span style='color:var(--accent)'>★</span>":"";
+    return "<div style='display:flex;justify-content:space-between;padding:4px 6px;border-bottom:1px solid rgba(0,0,0,0.05)'>"+
+      "<span style='width:36px;color:var(--ash)'>"+(i+1)+".</span>"+
+      "<span style='width:36px;font-weight:600;color:var(--accent)'>"+r.grade+"</span>"+
+      "<span style='flex:1'>"+_dStr+" "+r.weapon+" 斩"+r.kills+" 波"+r.wave+_star+"</span>"+
+      "<span style='width:90px;text-align:right;font-weight:600'>"+r.score+"分</span>"+
+      "<span style='width:80px;text-align:right;color:var(--ash);font-size:0.78rem'>"+r.date+"</span>"+
+      "</div>"
+  }).join("");if(_list)_list.innerHTML=_rows}
+  var _p=document.getElementById("leaderboardPanel");if(_p)_p.style.display="";
 }
 
 function setupWeaponSelect(){
@@ -5170,6 +5202,10 @@ function init(){
     var lines=[_ti?_ti.innerText:"",_sub?_sub.innerText:"",_txt].filter(function(l){return l});
     navigator.clipboard.writeText(lines.join("\n")).then(function(){_copyBtn.textContent="已复制";setTimeout(function(){_copyBtn.textContent="复制战绩"},1500)})
   });
+  var _lbBtn=document.getElementById("leaderboardBtn");if(_lbBtn)_lbBtn.addEventListener("click",showLeaderboard);
+  var _lbBtnR=document.getElementById("leaderboardBtnR");if(_lbBtnR)_lbBtnR.addEventListener("click",showLeaderboard);
+  var _lbClose=document.getElementById("leaderboardCloseBtn");if(_lbClose)_lbClose.addEventListener("click",function(){
+    var _p=document.getElementById("leaderboardPanel");if(_p)_p.style.display="none"});
   var _resumeBtn=document.getElementById("resumeBtn");if(_resumeBtn)_resumeBtn.addEventListener("click",togglePause);
   // Mobile HTML pause button
   var _mobilePauseBtn=document.getElementById("mobilePauseBtn");

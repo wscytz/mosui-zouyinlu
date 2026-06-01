@@ -35,6 +35,7 @@
       <div id="unlockHint" class="unlock-hint"></div>
       <button id="muteBtn" class="button button--ghost" style="font-size:0.82rem;padding:4px 10px;margin-bottom:8px">🔊 音效</button>
       <button id="startBtn" class="button title-screen__btn">进入地宫</button>
+      <button id="leaderboardBtn" class="button button--ghost" style="font-size:0.82rem;padding:4px 10px;margin-top:6px">排行榜</button>
       <div class="title-screen__links">
         <a href="index.html" class="back-link">← 返回原型页</a>
         <a href="wiki.html" class="back-link" style="margin-left:16px">百科</a>
@@ -128,8 +129,21 @@
         <button id="restartBtn" class="button">再入地宫</button>
         <button id="copyResultBtn" class="button button--ghost">复制战绩</button>
         <button id="screenshotBtn" class="button button--ghost">截图保存</button>
+        <button id="leaderboardBtnR" class="button button--ghost">排行榜</button>
         <a href="index.html" class="button button--ghost">返回原型页</a>
         <a href="wiki.html" class="button button--ghost">百科</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="leaderboardPanel" class="overlay" style="display:none;">
+    <div class="overlay__inner">
+      <span class="seal seal--small" style="margin-bottom:12px;">走阴榜</span>
+      <h2 class="overlay__title">本地排行榜</h2>
+      <p class="overlay__subtitle">按评级与分数排序，前20名</p>
+      <div id="leaderboardList" style="max-height:60vh;overflow-y:auto;width:100%;max-width:540px;font-size:0.84rem;text-align:left"></div>
+      <div class="overlay__actions">
+        <button id="leaderboardCloseBtn" class="button">关闭</button>
       </div>
     </div>
   </div>
