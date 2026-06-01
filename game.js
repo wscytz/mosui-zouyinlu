@@ -414,7 +414,8 @@ function newGame(wid,diff){
     killExplodeKills:0,blindKills:0,waveHpHealed:0,lowHpBurstKills:0,mozhuhouKills:0,executeKills:0,dodgeKills:0,critKills:0,relicsSeen:{},killFeed:[],
     perf:{lastT:0,fps:60,pressure:0,peaks:{enemies:0,attacks:0,particles:0,fires:0,eProj:0,floatTexts:0,decoys:0,kites:0,frosts:0}}};
   if(diff==="purgatory"){g.player.maxHpMult=0.7;g.player.maxRelicsOverride=5;}
-  g.endless=!!(typeof location!=="undefined"&&/endless=1/.test(location.search));
+  var _ec=typeof document!=="undefined"&&document.getElementById&&document.getElementById("endlessCheck");
+  g.endless=(_ec&&_ec.checked)||!!(typeof location!=="undefined"&&/endless=1/.test(location.search));
   return g;
 }
 
@@ -457,8 +458,12 @@ function spawnEnemy(g,type,opts){
   var waveScale=opts.noScale?1:(1+Math.max(0,g.wave)*WAVE_SCALE.hpPerWave);
   var dCfg=DIFF[g.diff]||DIFF.normal;
   var p=g.player;
-  var hp=Math.max(1,Math.floor(t.hp*waveScale*(opts.hpMul||1)*dCfg.hpM*(p.enemyHpMult||1)*(opts.midBoss?0.55:1)));
-  var spd=t.spd*(1+Math.max(0,g.wave)*WAVE_SCALE.spdPerWave)*(opts.spdMul||1)*dCfg.spdM*(p.enemySpdMult||1);
+  var _endlessExtra=g.endless?Math.max(0,g.wave-(WAVE_BUDGETS.length-1)):0;
+  var _endlessHpM=g.endless?1+_endlessExtra*0.10:1;
+  var _endlessSpdM=g.endless?1+_endlessExtra*0.05:1;
+  var _endlessDmgM=g.endless?1+_endlessExtra*0.08:1;
+  var hp=Math.max(1,Math.floor(t.hp*waveScale*(opts.hpMul||1)*dCfg.hpM*_endlessHpM*(p.enemyHpMult||1)*(opts.midBoss?0.55:1)));
+  var spd=t.spd*(1+Math.max(0,g.wave)*WAVE_SCALE.spdPerWave)*(opts.spdMul||1)*dCfg.spdM*_endlessSpdM*(p.enemySpdMult||1);
   var shield=t.hasShield?Math.floor((t.shield||0)*waveScale):0;
   var diffEliteBonus=g.diff==="hard"?TUNING.eliteHardBonus:g.diff==="nightmare"?TUNING.eliteNightmareBonus:g.diff==="purgatory"?TUNING.elitePurgatoryBonus:0;
   var eliteChance=Math.min(TUNING.eliteMaxChance,TUNING.eliteBaseChance+g.wave*TUNING.eliteWaveScale+diffEliteBonus);
@@ -470,7 +475,7 @@ function spawnEnemy(g,type,opts){
   if(!g.encountered[type]&&t.tip){g.encountered[type]=true;
     pushLimited(g.floatTexts,{x:W/2,y:H/2+40,text:t.name+" — "+t.tip,life:120,maxLife:120,reason:"hint"},LIMITS.floatTexts)}
   g.enemies.push({id:nextEnemyId++,x:x,y:y,type:type,name:t.name,hp:hp,maxHp:hp,spd:spd,r:t.r,
-    dmg:Math.max(1,Math.ceil(t.dmg*dCfg.dmgM)),atkR:t.atkR,atkCd:t.atkCd,col:t.col,edge:t.edge,
+    dmg:Math.max(1,Math.ceil(t.dmg*dCfg.dmgM*_endlessDmgM)),atkR:t.atkR,atkCd:t.atkCd,col:t.col,edge:t.edge,
     ranged:!!t.ranged,pSpd:t.pSpd||0,fireTrail:!!t.fireTrail,poisonTrail:!!t.poisonTrail,buffAura:!!t.buffAura,isBoss:!!t.isBoss,
     fanShot:t.fanShot||1,charge:!!t.charge,chargeCd:t.chargeCd||100,chargeSpeed:t.chargeSpeed||4,
     mimic:!!t.mimic,disguised:!!t.mimic,
