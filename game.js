@@ -2716,6 +2716,10 @@ function render(g){
       if(g._pm>=0.5){c.globalAlpha=0.18*(1-prog);c.strokeStyle=C.accent;c.lineWidth=1;
       for(var di=0;di<5;di++){var da=-atk.arc/2+atk.arc*(di+0.5)/5;
         c.beginPath();c.moveTo(0,0);c.lineTo(Math.cos(da)*dR*1.1,Math.sin(da)*dR*1.1);c.stroke()}}
+      // ink splash blobs at arc edges
+      if(g._pm>=0.5){c.globalAlpha=0.35*(1-prog);c.fillStyle=C.ink;
+        c.beginPath();c.arc(Math.cos(-atk.arc/2)*dR,Math.sin(-atk.arc/2)*dR,rn(3,5),0,Math.PI*2);c.fill();
+        c.beginPath();c.arc(Math.cos(atk.arc/2)*dR,Math.sin(atk.arc/2)*dR,rn(3,5),0,Math.PI*2);c.fill()}
       c.restore();
     }else if(atk.type==="slash"){
       c.save();c.translate(atk.x,atk.y);c.rotate(atk.angle);
@@ -2731,6 +2735,11 @@ function render(g){
       if(g._pm>=0.5){c.globalAlpha=0.3*(1-prog);c.fillStyle=C.ink;
       for(var si=0;si<4;si++){var sa=-atk.arc/2+atk.arc*(si+0.5)/4;
         var sd=sR+rn(-3,6);c.beginPath();c.arc(Math.cos(sa)*sd,Math.sin(sa)*sd,rn(1,2.5),0,Math.PI*2);c.fill()}}
+      // ink drip trail (radial short strokes)
+      if(g._pm>=0.5){c.globalAlpha=0.25*(1-prog);c.strokeStyle=C.ink;c.lineWidth=2;
+        for(var di2=0;di2<3;di2++){var da2=-atk.arc/2+atk.arc*(di2+0.5)/3;var dd2=sR+rn(-8,4);
+        c.beginPath();c.moveTo(Math.cos(da2)*sR,Math.sin(da2)*sR);
+        c.lineTo(Math.cos(da2)*dd2,Math.sin(da2)*dd2);c.stroke()}}
       c.restore();
     }else if(atk.type==="proj"){
       var pR=atk.r||8;
@@ -2750,6 +2759,9 @@ function render(g){
         var pAng=Math.atan2(atk.vy,atk.vx);
         c.beginPath();c.arc(atk.x,atk.y,pR,pAng-Math.PI*0.55,pAng+Math.PI*0.55);c.closePath();c.fill();
       }
+      // ink trail dot behind projectile
+      if(g._pm>=0.5){c.globalAlpha=0.3;c.fillStyle=C.ink;
+        c.beginPath();c.arc(atk.x-atk.vx*3+rn(-2,2),atk.y-atk.vy*3+rn(-2,2),rn(1,2),0,Math.PI*2);c.fill()}
       c.shadowBlur=0;
       c.globalAlpha=1;
     }else if(atk.type==="ring"){
@@ -2766,6 +2778,11 @@ function render(g){
       // inner bright edge
       c.shadowBlur=0;if(g._pm>=0.5){c.globalAlpha=0.2*(1-prog);c.strokeStyle=C.ivory;c.lineWidth=1.5;
       c.beginPath();c.arc(atk.x,atk.y,r*0.88,0,Math.PI*2);c.stroke()}
+      // pulse wave marks (sound wave rings)
+      if(g._pm>=0.5&&r>20){c.globalAlpha=0.15*(1-prog);c.strokeStyle=C.ivory;c.lineWidth=1;
+        var pulseCount=Math.floor(r/30);
+        for(var pi=0;pi<pulseCount;pi++){var pr2=r*(0.5+pi*0.15);
+        c.beginPath();c.arc(atk.x,atk.y,pr2,0,Math.PI*2);c.stroke()}}
       c.globalAlpha=1;
     }else if(atk.type==="spirit"){
       var spR=atk.r||6;
@@ -2775,6 +2792,9 @@ function render(g){
       c.fillStyle=C.ghost;c.beginPath();c.arc(atk.x,atk.y,spR,0,Math.PI*2);c.fill();
       c.shadowBlur=0;c.globalAlpha=0.5;c.fillStyle=C.ivory;
       c.beginPath();c.arc(atk.x,atk.y,spR*0.4,0,Math.PI*2);c.fill();
+      // spirit glow ring
+      if(g._pm>=0.5){c.globalAlpha=0.15;c.strokeStyle=C.spirit;c.lineWidth=1;
+        c.beginPath();c.arc(atk.x,atk.y,spR*2,0,Math.PI*2);c.stroke()}
       c.globalAlpha=1;
     }
   });
