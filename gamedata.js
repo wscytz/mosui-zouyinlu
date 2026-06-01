@@ -344,6 +344,17 @@ var RELICS=[
   {id:"mochongguang",name:"墨冲光",type:"光具",tags:["冲刺","暴击"],effect:"暴击率+8%，攻速+5%",fn:function(p){p.mochongguangBond=true;p.stats.critRate=(p.stats.critRate||0)+0.08;p.stats.spd=(p.stats.spd||1)+0.05}},
   {id:"mozhenlianhuan",name:"墨阵连环",type:"阵具",tags:["范围","持续"],effect:"范围+15%，攻击附带持续墨蚀",fn:function(p){p.mozhenlianhuan=true;p.stats.area=(p.stats.area||1)+0.15;p.hitDot=true;p.hitDotDmg=(p.hitDotDmg||0)+2;p.hitDotLife=(p.hitDotLife||0)+240}},
   {id:"mobaoliansu",name:"墨爆连锁",type:"爆具",tags:["爆炸","溅射"],effect:"溅射伤害+20%，爆炸击杀时对周围再溅射",fn:function(p){p.mobaoliansu=true;p.splashDeathBoom=true;p.splashDeathBoomChance=(p.splashDeathBoomChance||0)+0.2;p.splashDeathBoomRatio=(p.splashDeathBoomRatio||0)+0.35}}
+  ,
+  {id:"moduanren",name:"墨断刃",type:"刃具",tags:["近战","暴击"],effect:"近战暴击时向前突进并造成额外伤害",prereq:"moduanren",fn:function(p){p.meleeCritDash=true;p.meleeCritDashDmg=8}},
+  {id:"moxuejian",name:"墨血剑",type:"剑具",tags:["近战","生命"],effect:"近战命中时回复1HP，但受伤+10%",prereq:"moxuejian",fn:function(p){p.meleeHitHeal=true;p.extraDmgTaken=(p.extraDmgTaken||0)+0.1}},
+  {id:"moguidan",name:"墨鬼弹",type:"弹具",tags:["远程","溅射"],effect:"远程命中时溅射周围敌人20%伤害",prereq:"moguidan",fn:function(p){p.rangedSplash=true;p.rangedSplashRatio=0.2}},
+  {id:"mosheying",name:"墨射影",type:"影具",tags:["远程","机动"],effect:"远程击杀时获得1.5秒移速加成",prereq:"mosheying",fn:function(p){p.rangedKillSpeed=true}},
+  {id:"mohunyin",name:"墨魂音",type:"铃具",tags:["控场","魂"],effect:"铃声波命中时附加魂伤3点",prereq:"mohunyin",fn:function(p){p.aoeSoulHit=true;p.aoeSoulDmg=3}},
+  {id:"mozhenling",name:"墨镇灵",type:"铃具",tags:["控场","防御"],effect:"铃声波范围内减伤15%",prereq:"mozhenling",fn:function(p){p.aoeDefField=true;p.aoeDefFieldAmt=0.15}},
+  {id:"moyingshan",name:"墨影伞",type:"伞具",tags:["冲刺","生存"],effect:"冲刺时留下残影反伤敌人",prereq:"moyingshan",fn:function(p){p.dashDecoyStrike=true}},
+  {id:"mopofeng",name:"墨破风",type:"风具",tags:["冲刺","暴击"],effect:"冲刺后下次攻击必定暴击",prereq:"mopofeng",fn:function(p){p.dashNextCrit=true}},
+  {id:"mohunzhui",name:"墨魂坠",type:"法具",tags:["召唤","爆发"],effect:"墨魂命中时15%概率爆炸",prereq:"mohunzhui",fn:function(p){p.spiritExplodeChance=(p.spiritExplodeChance||0)+0.15}},
+  {id:"molianhun",name:"墨链魂",type:"魂器",tags:["召唤","魂"],effect:"墨魂击杀时回复2HP",prereq:"molianhun",fn:function(p){p.spiritKillHeal=(p.spiritKillHeal||0)+2}}
 ];
 
 var EVOLUTIONS={
@@ -578,7 +589,17 @@ var PREREQS={
   hanmo:function(s){return !!s.ownedIds.molingyu},
   fengmofu:function(s){return s.slowOnHit>0||s.ringSlow},
   hunfanling:function(s){return s.weaponType==="summon"},
-  xianluowen:function(s){return s.weaponType==="aoe"||s.weaponType==="summon"}
+  xianluowen:function(s){return s.weaponType==="aoe"||s.weaponType==="summon"},
+  moduanren:function(s){return s.weaponType==="melee"},
+  moxuejian:function(s){return s.weaponType==="melee"},
+  moguidan:function(s){return s.weaponType==="ranged"},
+  mosheying:function(s){return s.weaponType==="ranged"},
+  mohunyin:function(s){return s.weaponType==="aoe"},
+  mozhenling:function(s){return s.weaponType==="aoe"},
+  moyingshan:function(s){return s.weaponType==="dash"},
+  mopofeng:function(s){return s.weaponType==="dash"},
+  mohunzhui:function(s){return s.weaponType==="summon"},
+  molianhun:function(s){return s.weaponType==="summon"}
 };
 
 var CAPS={critRate:0.65,bellCombo:15,shieldStack:3,atkCdFloor:4,soulChain:4,ringSoul:6,projSize:2.0};

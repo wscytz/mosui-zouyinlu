@@ -1329,10 +1329,10 @@ code+='\n'+[
 '  if(!g147.player.justDodged)errors.push("147c: justDodged lost");',
 '}catch(e){errors.push("147: "+e.message)}',
 
-// Test 148: PREREQS count = 32 (v4.3)
+// Test 148: PREREQS count = 42 (v9.1)
 'try{',
 '  var _pc148=Object.keys(PREREQS).length;',
-'  if(_pc148!==32)errors.push("148a: PREREQS count="+_pc148+" expected 32");',
+'  if(_pc148!==42)errors.push("148a: PREREQS count="+_pc148+" expected 42");',
 '}catch(e){errors.push("148: "+e.message)}',
 
 // Test 149: mobile controls must be APK/debug gated (v3.0.1)

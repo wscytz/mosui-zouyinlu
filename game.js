@@ -342,7 +342,7 @@ function mkPlayer(){
     rangedFire:false,
     summonBurst:false,
     dashRetaliate:false,
-    meleeMobility:false,
+    meleeMobility:false,meleeCritDash:false,meleeCritDashDmg:0,meleeHitHeal:false,rangedSplash:false,rangedSplashRatio:0,rangedKillSpeed:false,aoeSoulHit:false,aoeSoulDmg:0,aoeDefField:false,aoeDefFieldAmt:0,dashDecoyStrike:false,dashNextCrit:false,spiritKillHeal:0,
     killAOE:false,
     critHeal:false,
     dodgeSplash:false,
@@ -797,6 +797,7 @@ function onEnemyKilled(g,e,source,opts){
       oe.x+=kdx/kl*kpush;oe.y+=kdy/kl*kpush}});
     spawnP(g,e.x,e.y,"ink",14);spawnP(g,e.x,e.y,"accent",6)}
   if(p.killSpeedBurst){p.speedBurstT=TUNING.speedBurstDuration;spawnP(g,p.x,p.y,"moss",6)}
+  if(p.spiritKillHeal>0&&source==="spirit"){p.hp=Math.min(p.hp+p.spiritKillHeal,p.maxHp);spawnP(g,p.x,p.y,"moss",3)}
   if(p.yinFuHeal&&source==="soul"){p.hp=Math.min(p.hp+1,p.maxHp);spawnP(g,p.x,p.y,"spirit",3)}
   if(p.breathOnKill){p.breathTicks=360;spawnP(g,p.x,p.y,"moss",4)}
   if(p.killBurstHeal&&p.hp<p.maxHp*0.5){p.hp=Math.min(p.hp+8,p.maxHp);spawnP(g,p.x,p.y,"moss",4)}
@@ -815,6 +816,7 @@ function onEnemyKilled(g,e,source,opts){
     spawnP(g,e.x,e.y,"moss",5);spawnP(g,p.x,p.y,"moss",3)}
   if(p.scentStreak){g.killStreakT+=15;if(g.killStreakT>150)g.killStreakT=150}
   // 墨疾风：近战击杀加速
+  if(p.rangedKillSpeed&&g.weapon.type==="ranged"){p.speedBurstT=90;spawnP(g,p.x,p.y,"moss",4)}
   if(p.meleeMobility&&g.weapon.type==="melee"){p.killSpdTimer=60;p.killAtkTimer=60;spawnP(g,p.x,p.y,"moss",4)}
   // 墨劫环：击杀范围伤害
   if(p.killAOE&&!e.isBoss){
@@ -1193,7 +1195,7 @@ function pAtk(g){
   if(crit)dmg=Math.floor(dmg*s.critDmg);
   else if(p.guxuePenalty)dmg=Math.floor(dmg*0.88);
   // justDodged bonus: all weapons get +20% damage after a successful dodge
-  if(p.justDodged)dmg=Math.floor(dmg*1.2);
+  if(p.justDodged)dmg=Math.floor(dmg*1.2);if(p._dashCritPending){crit=true;p._dashCritPending=false;spawnP(g,p.x,p.y,"accent",3)};
   // 夜行衣：迷雾中增伤+30%
   if(p.fogBonus&&g.fogActive)dmg=Math.floor(dmg*1.3);
   // 魂锁链：连斩加伤
@@ -1324,6 +1326,7 @@ function pAtk(g){
 }
 
 function hurtP(g,dmg,src){
+  if(g.player.aoeDefField&&g.attacks){for(var adi=0;adi<g.attacks.length;adi++){if(g.attacks[adi].type==="ring"&&dstSq(g.player,g.attacks[adi])<6400){dmg=Math.max(1,Math.floor(dmg*(1-(g.player.aoeDefFieldAmt||0.15))));break}}}
   var p=g.player;
   if(p.invTimer>0)return;
   // 墨守阵：在守阵内减伤
@@ -1460,6 +1463,7 @@ function hitE(g,atk,e){
   if(p.meleeSplash&&g.weapon.type==="melee"){var splashR=50;var splashDmg=Math.max(1,Math.floor(dmg*(p.meleeSplashRatio||0.3)));
     forEachLiveEnemy(g,function(oe){if(oe!==e&&!oe.killed&&dstSq(e,oe)<splashR*splashR)damageEnemy(g,oe,splashDmg,"splash")});
     spawnP(g,e.x,e.y,"ink",3)}
+  if(p.rangedSplash&&atk.type==="proj"){var rsR=55;var rsD=Math.max(1,Math.floor(dmg*(p.rangedSplashRatio||0.2)));forEachLiveEnemy(g,function(oe){if(oe!==e&&!oe.killed&&dstSq(e,oe)<rsR*rsR)damageEnemy(g,oe,rsD,"rangedSplash")});spawnP(g,e.x,e.y,"ink",3)}
   // 墨契：暴击回血
   if(atk.crit&&p.critHeal){var _ch=Math.min(3,p.maxHp-p.hp);if(_ch>0){p.hp+=_ch;snd("critHeal");pushLimited(g.floatTexts,{x:p.x,y:p.y-p.r-12,text:"+"+_ch,life:30,maxLife:30,reason:"heal"},LIMITS.floatTexts)}}
   // 裂冰诀：暴击留冰冻区
@@ -1519,7 +1523,7 @@ function hitE(g,atk,e){
       spawnP(g,e.x,e.y,"accent",3)}
     pushLimited(g.frosts,{x:e.x,y:e.y,r:28,life:90,maxLife:90,dmg:Math.max(1,Math.ceil(p.stats.dmg*0.2))},LIMITS.frosts)}
   if(atk.crit){g.critFlash=18;g.critKills=(g.critKills||0)+1;for(var ci=0;ci<8;ci++){var ca=ci*Math.PI/4;
-    spawnP(g,e.x+Math.cos(ca)*10,e.y+Math.sin(ca)*10,"accent",2)}
+    spawnP(g,e.x+Math.cos(ca)*10,e.y+Math.sin(ca)*10,"accent",2)}if(p.meleeCritDash&&atk.crit&&g.weapon.type==="melee"){var mA=p.aimAngle||0;p.x+=Math.cos(mA)*35;p.y+=Math.sin(mA)*35;spawnP(g,p.x,p.y,"accent",4)}
     // 暴击额外浮字提示
     pushLimited(g.floatTexts,{x:e.x,y:e.y-e.r-22,text:"暴",life:25,maxLife:25,reason:"critHint"},LIMITS.floatTexts)}
   // 墨血刃：暴击回血
@@ -1572,6 +1576,7 @@ function hitE(g,atk,e){
       pushLimited(g.floatTexts,{x:e.x+rn(-6,6),y:e.y-e.r-14,text:"魂+"+soulDmg,life:30,maxLife:30,reason:"soul"},LIMITS.floatTexts);
     }
   }
+  if(p.aoeSoulHit&&atk.type==="ring"){damageEnemy(g,e,p.aoeSoulDmg||3,"aoeSoulHit");spawnP(g,e.x,e.y,"soul",2)}
   // 返照铜片：折返弹命中留墨爆
   if(p.bounceExplosion&&atk.bounced){
     addFire(g,{x:e.x,y:e.y,r:24,life:50,dmg:1,owner:"player",kind:"inkburst"});
@@ -1604,7 +1609,7 @@ function startDodge(g,dx,dy){
   var sp=moveScale(p);
   p.dodgeDx=Math.cos(a)*9*sp;p.dodgeDy=Math.sin(a)*9*sp;
   p.invTimer=Math.max(p.invTimer,TUNING.dodgeInvFrames);
-  p.justDodged=true;p.justDodgedT=TUNING.justDodgedWindow;p.dodgeQueued=false;p.dodgeKills=(p.dodgeKills||0)+1;
+  p.justDodged=true;p.justDodgedT=TUNING.justDodgedWindow;p.dodgeQueued=false;p._dashCritPending=true;p.dodgeKills=(p.dodgeKills||0)+1;
   // 墨冲影：冲刺反伤
   if(p.dashRetaliate){
     var _dr=90*90;var _dd=Math.max(1,Math.ceil(p.stats.dmg*0.35));
@@ -1621,6 +1626,7 @@ function startDodge(g,dx,dy){
   if(p.decoyOnDodge){
     pushLimited(g.decoys,{x:p.x,y:p.y,life:50,maxLife:50,r:p.r},LIMITS.decoys);
   }
+  if(p.dashDecoyStrike){pushLimited(g.decoys,{x:p.x,y:p.y,life:40,maxLife:40,r:p.r+4,strikeDmg:Math.max(1,Math.ceil(p.stats.dmg*0.4))},LIMITS.decoys)}
   // 鬼手印：完美闪避吸取最近敌人灵魂
   if(p.dodgeSoulGrab){var closest=null,closestD=RANGES.dodgeSoulGrab*RANGES.dodgeSoulGrab;
     forEachLiveEnemy(g,function(ne){var ds=dstSq(p,ne);
@@ -2389,7 +2395,8 @@ function update(g){
     if(ft.life<=0)g.floatTexts.splice(i,1)}
 
   // decoys
-  for(var i=g.decoys.length-1;i>=0;i--){g.decoys[i].life--;
+  for(var i=g.decoys.length-1;i>=0;i--){
+    if(g.decoys[i].strikeDmg){forEachLiveEnemy(g,function(de){if(dstSq(de,g.decoys[i])<(g.decoys[i].r+de.r)*(g.decoys[i].r+de.r)){damageEnemy(g,de,g.decoys[i].strikeDmg,"dashDecoyStrike");g.decoys[i].life=0}})}g.decoys[i].life--;
     if(g.decoys[i].life<=0)g.decoys.splice(i,1)}
 
   // kites (纸鸢引)
@@ -2456,7 +2463,7 @@ function update(g){
         var bdx=nr.enemy.x-isp.x,bdy=nr.enemy.y-isp.y,bl=Math.sqrt(bdx*bdx+bdy*bdy)||1;
         pushAttack(g,{x:isp.x+bdx/bl*12,y:isp.y+bdy/bl*12,
           vx:bdx/bl*5.5,vy:bdy/bl*5.5,life:50,dmg:isp.dmg,r:7,type:"spirit"});
-        if(isp.spiritExplode){
+        if(isp.spiritExplode||(p.spiritExplodeChance>0&&Math.random()<p.spiritExplodeChance)){
           forEachLiveEnemy(g,function(oe){if(oe===nr.enemy)return;
             if(dstSq(nr.enemy,oe)<RANGES.spiritExplode*RANGES.spiritExplode)damageEnemy(g,oe,Math.floor(isp.dmg*0.4),"spiritExplode")});
           spawnInk(g,nr.enemy.x,nr.enemy.y,5,"accent")
@@ -3050,7 +3057,7 @@ function render(g){
     g.weapon.type==="aoe"?"rgba(77,97,86,0.6)":g.weapon.type==="summon"?C.accent:C.gold;
   // weapon-specific silhouette accent
   c.globalAlpha=0.4;c.fillStyle=wCol;c.strokeStyle=wCol;
-  if(g.weapon.type==="melee"){c.lineWidth=3;c.beginPath();
+  if(g.weapon.type==="melee"){if(p.meleeHitHeal){p.hp=Math.min(p.hp+1,p.maxHp);spawnP(g,p.x,p.y,"moss",2)}c.lineWidth=3;c.beginPath();
     c.moveTo(Math.cos(p.facing)*(p.r+2),Math.sin(p.facing)*(p.r+2));
     c.lineTo(Math.cos(p.facing)*(p.r+14),Math.sin(p.facing)*(p.r+14));c.stroke()}
   else if(g.weapon.type==="ranged"){c.beginPath();
