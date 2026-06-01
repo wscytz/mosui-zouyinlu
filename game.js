@@ -121,7 +121,7 @@ function spawnJudgment(g,e,reason){
 var keys={},mouse={x:W/2,y:H/2,down:false},nextEnemyId=1;
 var canvas,ctx,G=null,bgCanvas=null,_cachedCanvasRect=null;
 window.MOSUI=window.MOSUI||{};
-window.MOSUI.version=window.MOSUI.version||"9.2";
+window.MOSUI.version=window.MOSUI.version||"9.3";
 window.MOSUI.hooks=window.MOSUI.hooks||{beforeUpdate:[],afterUpdate:[],beforeRender:[],afterRender:[]};
 window.MOSUI.input=window.MOSUI.input||{};
 window.MOSUI.platform=window.MOSUI.platform||{};
@@ -1985,6 +1985,16 @@ function update(g){
       // P1 Boss阶段提示：狂暴全屏浮字
       pushLimited(g.floatTexts,{x:W/2,y:H/2-100,text:"狂 暴",life:80,maxLife:80,reason:"phase"},LIMITS.floatTexts)}
     else if(e.isBoss&&e.type!=="mojiangjun"&&e.type!=="moguiwang"&&!e.midBoss&&e.enraged)spd*=TUNING.bossEnrageSpdMult;
+    // v9.3 A1 画皮: HP<60% 触发分身(给玩家前期输出窗口)
+    if(e.isBoss&&e.type==="boss"&&!e.midBoss&&e.hp<=e.maxHp*0.6&&!e._huapiSplitDone){e._huapiSplitDone=true;
+      pushLimited(g.floatTexts,{x:e.x,y:e.y-30,text:"画皮分身",life:60,maxLife:60,reason:"mimic"},LIMITS.floatTexts);
+      snd("bossEnrage");shake(g,8,5);
+      for(var hci=0;hci<2;hci++){
+        var hca=hci*Math.PI+Math.random()*0.5;
+        var hcx=e.x+Math.cos(hca)*50,hcy=e.y+Math.sin(hca)*50;
+        spawnEnemy(g,"boss",{x:hcx,y:hcy,hpMul:0.12,noScale:true,isClone:true});
+      }
+    }
     if(e.isBoss&&e.type!=="mojiangjun"&&e.type!=="moguiwang"&&!e.midBoss&&e.hp<e.maxHp*TUNING.bossDesperateHp&&!e.desperate){e.desperate=true;
       e.atkCd=Math.max(18,Math.floor(e.atkCd*0.6));e.fanShot=Math.min(7,e.fanShot+2);
       snd("bossEnrage");shake(g,14,10);
@@ -1996,12 +2006,6 @@ function update(g){
       // P1 Boss阶段提示：绝望全屏浮字
       pushLimited(g.floatTexts,{x:W/2,y:H/2-100,text:"绝 望",life:90,maxLife:90,reason:"phase"},LIMITS.floatTexts);
       pushLimited(g.floatTexts,{x:e.x,y:e.y-30,text:"回光返照",life:60,maxLife:60,reason:"desperate"},LIMITS.floatTexts);
-      // A1: 画皮分身 — spawn 2 low-HP clones
-      for(var ci=0;ci<2;ci++){
-        var ca=ci*Math.PI+Math.random()*0.5;
-        var cx=e.x+Math.cos(ca)*50,cy=e.y+Math.sin(ca)*50;
-        spawnEnemy(g,"boss",{x:cx,y:cy,hpMul:0.12,noScale:true,isClone:true});
-      }
     }
     var toP=ang(e,p),dToPSq=dstSq(e,p),specialMove=false;
     // decoy attraction: affect movement AND attack targeting
@@ -2113,7 +2117,7 @@ function update(g){
           spawnInk(g,e.x,e.y,24,"fire");spawnInk(g,e.x,e.y,16,"accent");
           pushLimited(g.floatTexts,{x:W/2,y:H/2-40,text:"墨将军 · 狂书",life:90,maxLife:90,reason:"streak"},LIMITS.floatTexts);
           g.freezeT=Math.max(g.freezeT,8);
-          e._mjjShieldReady=true;e.maxShield=50;e.shield=50;e.hasShield=true;e.shieldRegen=300;e.shieldCd=0;
+          e._mjjShieldReady=true;e.maxShield=50;e.shield=50;e.hasShield=true;e.shieldRegen=480;e.shieldCd=0;
           pushLimited(g.floatTexts,{x:e.x,y:e.y-30,text:"墨阵护体",life:60,maxLife:60,reason:"bossShield"},LIMITS.floatTexts)}
       }
       // Phase 1: ring slam every 120 frames
@@ -2181,6 +2185,13 @@ function update(g){
           for(var pi=0;pi<8;pi++){var pa=pi*Math.PI/4;
             pushLimited(g.fires,{x:e.x+Math.cos(pa)*60,y:e.y+Math.sin(pa)*60,r:24,life:90,maxLife:90,dmg:0,owner:"enemy",slow:true,tickOffset:0,healTickOffset:0},LIMITS.fires)}
           spawnP(g,e.x,e.y,"ink",10);snd("hit")}
+        // v9.3 A3 墨鬼王: 绝望阶段 8方向朝玩家 snapshot 弹(每5秒)
+        if(g.time%300===0){
+          var ba2=Math.atan2(p.y-e.y,p.x-e.x);
+          for(var bai=0;bai<8;bai++){var baA=ba2+bai*Math.PI/4;
+            addEProj(g,{x:e.x,y:e.y,vx:Math.cos(baA)*2.5,vy:Math.sin(baA)*2.5,
+              r:6,dmg:Math.max(1,Math.floor(e.dmg*0.4)),life:55,_src:e})}
+        }
         if(g.time%TUNING.bossNormalAtkInterval===0&&!specialMove&&dToPSq<TUNING.bossChargeRange*TUNING.bossChargeRange){
           var mdx2=p.x-e.x,mdy2=p.y-e.y,ml2=Math.sqrt(mdx2*mdx2+mdy2*mdy2)||1;e.chargeVx=mdx2/ml2*5.0;e.chargeVy=mdy2/ml2*5.0;e.chargeT=16;
           snd("playerDodge");shake(g,5,4)}
