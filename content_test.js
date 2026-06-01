@@ -1664,7 +1664,7 @@ code+='\n'+[
 '  if(g165.blindKills!==0)errors.push("165h: blindKills should be 0");',
 '  if(g165.waveHpHealed!==0)errors.push("165i: waveHpHealed should be 0");',
 '  // Verify achievement count',
-'  if(ACHIEVEMENTS.length!==48)errors.push("165j: expected 48 achievements, got "+ACHIEVEMENTS.length);',
+'  if(ACHIEVEMENTS.length!==51)errors.push("165j: expected 51 achievements, got "+ACHIEVEMENTS.length);',
 '}catch(e){errors.push("165: "+e.message)}',
 
 '// Test 166: v4.18 墨偶师 — 远程召唤型敌人',

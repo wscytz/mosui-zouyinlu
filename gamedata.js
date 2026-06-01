@@ -880,6 +880,10 @@ var ACHIEVEMENTS=[
   {id:"elite_20",name:"精英杀手",desc:"单局击杀20个精英敌人",check:function(m){return (m.eliteKills||0)>=20},reward:null},
   {id:"survival_master",name:"绝境逢生",desc:"生存波击杀数量超过敌人总数150%",check:function(m){return (m.survivalMaster||0)>=1},reward:null},
   {id:"relic_50",name:"遗物猎人",desc:"单局见过50件不同遗物",check:function(m){return (m.relicsSeen||0)>=50},reward:null},
+  // v11.0 无尽模式成就
+  {id:"endless_15",name:"无尽初探",desc:"无尽模式到达15波",check:function(m){return (m.bestEndlessWave||0)>=15},reward:null},
+  {id:"endless_25",name:"无尽踏行",desc:"无尽模式到达25波",check:function(m){return (m.bestEndlessWave||0)>=25},reward:"startRelic"},
+  {id:"endless_50",name:"无尽深渊",desc:"无尽模式到达50波",check:function(m){return (m.bestEndlessWave||0)>=50},reward:"goldInk"},
 ];
 
 // Starting relic pool for unlocked rewards

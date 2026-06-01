@@ -138,7 +138,7 @@ function invalidateCanvasRect(){_cachedCanvasRect=null}
 // --- Meta-progression (localStorage) [GLOBALS section] ---
 var META_KEY="mosui_meta";
 function loadMeta(){
-  var defaults={version:2,totalKills:0,totalRuns:0,bestWave:0,bestGrade:"",bossKills:0,bestCombo:0,bestDodgeKills:0,
+  var defaults={version:2,totalKills:0,totalRuns:0,bestWave:0,bestGrade:"",bossKills:0,bestCombo:0,bestDodgeKills:0,bestEndlessWave:0,
     weaponsCleared:{},weaponBestWave:{},weaponTotalKills:{},relicsDiscovered:{},cursesUsed:{},mojiangjunKills:0,
     nightmareWins:0,hardWins:0,purgatoryWins:0,eliteKills:0,bestFireKills:0,achievements:{},unlocks:{}};
   try{
@@ -161,6 +161,7 @@ function metaRecordRun(g){
   if(wid){meta.weaponBestWave[wid]=Math.max(meta.weaponBestWave[wid]||0,g.wave);meta.weaponTotalKills[wid]=(meta.weaponTotalKills[wid]||0)+g.kills}
   if(g.curse)meta.cursesUsed[g.curse.id]=true;
   if(g.bossKilled){meta.bossKills++}
+  if(g.endless){var _ew=g.wave+1;if(_ew>(meta.bestEndlessWave||0))meta.bestEndlessWave=_ew}
   if(g.mojiangjunKilled){meta.mojiangjunKills++}
   if(g.moguiwangKilled){meta.moguiwangKills=(meta.moguiwangKills||0)+1}
   if(won&&g.diff==="nightmare")meta.nightmareWins++;
@@ -413,6 +414,7 @@ function newGame(wid,diff){
     killExplodeKills:0,blindKills:0,waveHpHealed:0,lowHpBurstKills:0,mozhuhouKills:0,executeKills:0,dodgeKills:0,critKills:0,relicsSeen:{},killFeed:[],
     perf:{lastT:0,fps:60,pressure:0,peaks:{enemies:0,attacks:0,particles:0,fires:0,eProj:0,floatTexts:0,decoys:0,kites:0,frosts:0}}};
   if(diff==="purgatory"){g.player.maxHpMult=0.7;g.player.maxRelicsOverride=5;}
+  g.endless=!!(typeof location!=="undefined"&&/endless=1/.test(location.search));
   return g;
 }
 
@@ -1083,6 +1085,24 @@ function startWave(g){
   if(g.wave<WAVE_BUDGETS.length&&WAVE_BUDGETS[g.wave]>0){
     // Procedural wave
     w=generateWave(g.wave,g.diff||"normal");
+  }
+  if(!w&&g.endless){
+    // v11.0 无尽波：从高阶敌人池随机8-12只，随机舞台，无Boss
+    var _epool=["mobei","mozhang","moyanshi","moyingjiang","moguchong","mohuanji","mofenshen","moshizhe","molian","shiyong","duzhu","gushi","mozhuhou"];
+    var _ecnt=8+ri(0,4);
+    var _elist=[];var _ebudget=Math.floor(g.wave*0.8);
+    while(_elist.length<_ecnt){
+      var _t=pick(_epool);
+      var _cost=ENEMY_COST[_t]||2;
+      if(_elist.reduce(function(s,e){return s+(e.t===_t?e.n:0)*_cost},0)+_cost>_ebudget*1.5)break;
+      var _ex=_elist.find(function(e){return e.t===_t});
+      if(_ex)_ex.n++;else _elist.push({t:_t,n:1});
+      if(_elist.length>20)break;
+    }
+    if(_elist.length===0)_elist=[{t:"zhikui",n:8}];
+    w={label:"无尽 · 第"+(g.wave+1)+"波",mod:pick(["ash","well","lantern","mask","inkpool","inktide"]),
+      flavor:"墨渊无底。每一波都比上一波更暗、更冷、更难。",
+      list:_elist};
   }
   if(!w){
     // Mid-boss at wave 6 (halfway point) — 50% chance
@@ -2559,7 +2579,11 @@ function update(g){
   if(g.waveCleared){g.waveClearT--;if(g.waveClearT>0){updateHUD(g);return}
     g.waveCleared=false;g.waveClearT=0;
     g.wave++;
-    if(g.wave>=WAVE_BUDGETS.length){g.state="victory";g.freezeT=100;
+    if(g.wave>=WAVE_BUDGETS.length){
+      if(g.endless){g.endlessWave=(g.endlessWave||0)+1;
+        pushLimited(g.floatTexts,{x:W/2,y:H/2,text:"无尽 · 第"+(g.wave+1)+"波",life:60,maxLife:60,reason:"endless"},LIMITS.floatTexts);
+        startWave(g);return}
+      g.state="victory";g.freezeT=100;
       for(var vi=0;vi<60;vi++){var va=rn(0,Math.PI*2),vr=rn(30,160);
         spawnP(g,p.x+Math.cos(va)*vr,p.y+Math.sin(va)*vr,"accent",3)}
       spawnInk(g,p.x,p.y,40,"accent");spawnInk(g,p.x,p.y,25,"gold");
@@ -3966,7 +3990,7 @@ function updateHUD(g){
   if(g.evolution2)wn+=" + "+g.evolution2.name;
   if(g.evolution3)wn+=" + "+g.evolution3.name;
   if(wn!==_lastWeaponName){_lastWeaponName=wn;el=_hudEl("hudWeapon");if(el)el.textContent=wn;}
-  var wt=(({normal:"",hard:"险途 · ",nightmare:"噩梦 · ",purgatory:"炼狱 · "})[g.diff]||"")+(g.curse?"【"+g.curse.name+"】":"")+(g.announce||"第"+(g.wave+1)+"波")+(st&&st.name!=="净坛"?" · "+st.name:"");
+  var wt=(({normal:"",hard:"险途 · ",nightmare:"噩梦 · ",purgatory:"炼狱 · "})[g.diff]||"")+(g.curse?"【"+g.curse.name+"】":"")+(g.endless?"无尽 · ":"")+(g.announce||"第"+(g.wave+1)+"波")+(st&&st.name!=="净坛"?" · "+st.name:"");
   var aliveCount=0;for(var _ai=0;_ai<g.enemies.length;_ai++){if(g.enemies[_ai].hp>0)aliveCount++;}
   if(aliveCount>0)wt+=" · 余"+aliveCount;
   if(wt!==_lastWaveText){_lastWaveText=wt;el=_hudEl("waveInfo");if(el)el.textContent=wt;}
@@ -4744,6 +4768,7 @@ function showEnd(g){
     g.diff==="nightmare"?"噩梦地宫，一命通关，万邪辟易。":
     g.diff==="hard"?"险途已清，胆识过人。":
     "地宫已清，你的名号将记在走阴录上。"):
+    g.endless?("无尽止步于第"+(g.wave+1)+"波。墨渊仍深。"):
     (bossT==="moguiwang"?"墨鬼王吞噬了一切。地宫之下，再无光明。":
     g.diff==="purgatory"?"炼狱火熄，墨影噬骨。":
     g.diff==="nightmare"?"噩梦未竟，魂散地宫。":
