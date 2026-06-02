@@ -4860,13 +4860,13 @@ function showEnd(g){
     var c=document.createElement("canvas");c.width=960;c.height=640;var x=c.getContext("2d");
     x.fillStyle="#f1e6d4";x.fillRect(0,0,960,640);
     x.fillStyle="#171310";x.textAlign="center";x.font="bold 32px serif";x.fillText("墨祟：走阴录",480,50);
-    x.font="bold 16px serif";x.fillStyle=diffColor;x.fillText(diffLabel,480,80);
+    x.font="bold 16px serif";x.fillStyle=diffColor;x.fillText(diffLabel+(g.endless?" · 无尽":"")+(g.daily?" · 每日":""),480,80);
     x.font="bold 88px serif";x.fillStyle=gradeColors[grade]||"#171310";x.fillText(grade,480,200);
     x.fillStyle="#171310";x.font="18px serif";x.textAlign="left";
     var lx=80,ly=270,lh=28;
     x.fillText("武器："+g.weapon.name,lx,ly);ly+=lh;
     x.fillText("斩祟："+g.kills,lx,ly);ly+=lh;
-    x.fillText("波次："+g.wave+"/"+WAVE_BUDGETS.length,lx,ly);ly+=lh;
+    x.fillText("波次："+(g.endless?(WAVE_BUDGETS.length+"+"+(g.endlessWave||0)):(g.wave+"/"+WAVE_BUDGETS.length)),lx,ly);ly+=lh;
     x.fillText("遗物："+g.relics.length+"件",lx,ly);ly+=lh;
     x.fillText("历时："+timeStr,lx,ly);ly+=lh;
     x.fillText("总伤害："+g.totalDmg,lx,ly);ly+=lh;
