@@ -570,6 +570,13 @@ function startStage(g,w){
     }
   }else if(id==="guishi"){
     g.merchant={x:W*0.5,y:H*0.4,used:false};
+  }else if(id==="moye"){
+    g.stage._visR=200;g.stage._visBase=200;
+  }else if(id==="longmai"){
+    g.stage.lines=[];
+    for(var lni=0;lni<3;lni++){var _lx1=rn(A.l+40,A.r-40),_ly1=rn(A.t+40,A.b-40);
+      var _la=rn(0,Math.PI);var _ll=rn(150,300);
+      g.stage.lines.push({x1:_lx1,y1:_ly1,x2:_lx1+Math.cos(_la)*_ll,y2:_ly1+Math.sin(_la)*_ll})}
   }
 }
 
@@ -599,6 +606,11 @@ function stageOnEnemyKilled(g,e){
   }else if(g.stage.id==="mirror"){
     var p=g.player,ddx=p.x-e.x,ddy=p.y-e.y,dd=Math.sqrt(ddx*ddx+ddy*ddy)||1;
     addEProj(g,{x:e.x,y:e.y,vx:ddx/dd*3.5,vy:ddy/dd*3.5,r:6,dmg:4,life:80,col:"rgba(220,210,190,0.5)",kind:"ghost"});snd("ghostProj");
+  }else if(g.stage.id==="moye"){
+    g.stage._visR=Math.min(380,(g.stage._visR||200)+25);
+  }else if(g.stage.id==="longmai"){
+    // 龙脉沿线敌人击杀时给予攻击+30%的buff
+    g.player._longmaiBoost=120;
   }
 }
 
@@ -664,13 +676,18 @@ function updateStage(g){
       }
     });
   }else if(st.id==="inkpool"){
-    // 净化倒计时
     st.zones.forEach(function(z){if(z.purified){z.purifyT--;if(z.purifyT<=0)z.purified=false}});
+  }else if(st.id==="moye"){
+    if(st._visR>(st._visBase||200))st._visR=Math.max(st._visBase||200,st._visR-0.5);
+  }else if(st.id==="longmai"){
+    // 龙脉沿线的敌人增伤在 stageSpeedFactor 旁边的 stageOnEnemyKilled 里处理
+    // 玩家在龙脉线上攻击增伤在 pAtk 里通过 _longmaiBoost 实现
+    if(p._longmaiBoost>0)p._longmaiBoost--;
   }
 }
 
 function renderStage(g,c){
-  var st=g.stage;
+  var st=g.stage,p=g.player;
   if(!st)return;
   if(st.id==="ash"){
     st.zones.forEach(function(z){
@@ -773,6 +790,28 @@ function renderStage(g,c){
     for(var di=0;di<6;di++){var dAng=g.time*0.01+di*Math.PI/3;var dR=tideR+15+Math.sin(g.time*0.05+di)*8;
       c.fillStyle=C.ink;c.beginPath();c.arc(W/2+Math.cos(dAng)*dR,H/2+Math.sin(dAng)*dR,3,0,Math.PI*2);c.fill()}
     c.globalAlpha=1;
+  }else if(st.id==="moye"){
+    // 墨夜：暗幕笼罩，视野缩小
+    var vr=st._visR||200;
+    c.globalAlpha=0.7;c.fillStyle=C.ink;c.fillRect(0,0,W,H);
+    c.globalAlpha=1;c.save();c.beginPath();c.arc(p.x,p.y,vr,0,Math.PI*2);c.clip();
+    c.clearRect(p.x-vr,p.y-vr,vr*2,vr*2);c.restore();
+    // faint stars
+    c.globalAlpha=0.15;c.fillStyle=C.paper;
+    for(var mi=0;mi<5;mi++){var mx=(g.time*0.3+mi*200)%W,my=50+mi*120;
+      c.beginPath();c.arc(mx,my,1.5,0,Math.PI*2);c.fill()}
+    c.globalAlpha=1;
+  }else if(st.id==="longmai"){
+    // 龙脉：能量线
+    c.globalAlpha=0.12;c.strokeStyle=C.accent;c.lineWidth=3;
+    for(var li=0;li<st.lines.length;li++){var ln=st.lines[li];
+      c.beginPath();c.moveTo(ln.x1,ln.y1);c.lineTo(ln.x2,ln.y2);c.stroke();
+      // pulse glow
+      var lp=(g.time+li*40)%120/120;
+      c.globalAlpha=0.25*lp;c.beginPath();
+      c.arc(ln.x1+(ln.x2-ln.x1)*lp,ln.y1+(ln.y2-ln.y1)*lp,5,0,Math.PI*2);c.fill();
+      c.globalAlpha=0.12}
+    c.globalAlpha=1;
   }
 }
 
@@ -813,8 +852,15 @@ function onEnemyKilled(g,e,source,opts){
   if(baseFreeze===9&&p.killAtkTimer>0)baseFreeze=4;
   g.freezeT=Math.max(g.freezeT,baseFreeze);shake(g,e.isBoss?16:8,e.isBoss?7:4);
   g.kills++;g.killStreak++;g.killStreakT=TUNING.killStreakWindow;
+  // 伏墨誓印：每15杀获遗物
+  if(p.killRelicEvery15&&g.kills%15===0){var _krPool=RELICS.filter(function(r){return !g.relics.some(function(or){return or.id===r.id})});if(_krPool.length>0&&g.relics.length<(p.maxRelicsOverride||6)){var _kr=pick(_krPool);g.relics.push(_kr);try{_kr.fn(p)}catch(e){};pushLimited(g.floatTexts,{x:p.x,y:p.y-p.r-24,text:"伏墨: "+_kr.name,life:60,maxLife:60,reason:"hint"},LIMITS.floatTexts);snd("relicPickup")}}
   // Kill streak milestone effects (handled by KILL_MILESTONES loop below)
   g.waveKills++;
+  // 墨冥进化：击杀分裂追踪弹
+  if(p.killSplitProj){for(var kspi=0;kspi<3;kspi++){var ksa=rn(0,Math.PI*2);
+    pushLimited(g.attacks,{x:e.x,y:e.y,vx:Math.cos(ksa)*4.5,vy:Math.sin(ksa)*4.5,dmg:Math.max(1,Math.floor(g.weapon.dmg*p.stats.dmg*0.25)),r:5,life:35,type:"proj",hitMap:{},hitOnce:true,owner:"player"},LIMITS.attacks)}}
+  // 墨影进化：冲刺击杀刷新冲刺
+  if(p.dashKillReset&&p._lastDashHit){p.dodgeCd=0;pushLimited(g.floatTexts,{x:p.x,y:p.y-p.r-16,text:"刷新!",life:20,maxLife:20,reason:"hint"},LIMITS.floatTexts)}
   g.killFeed.push({name:e.name,isBoss:e.isBoss,isElite:e.elite,time:g.time});
   if(g.killFeed.length>5)g.killFeed.shift();
   if(g.waveFirstKillT===0)g.waveFirstKillT=g.time;
@@ -964,6 +1010,8 @@ function onEnemyKilled(g,e,source,opts){
     g.freezeT=Math.max(g.freezeT,30);shake(g,20,10);g.slowMo=Math.max(g.slowMo||0,30);
     pushLimited(g.floatTexts,{x:e.x,y:e.y-40,text:"邪祟伏诛",life:80,maxLife:80,reason:"bossDeath"},LIMITS.floatTexts)}
   g.execFlash=e;
+  // 震魄进化：铃声波击杀触发恐惧
+  if(p.ringKillFear&&g._lastAtkType==="ring"){forEachLiveEnemy(g,function(oe){if(oe!==e&&dstSq(e,oe)<120*120){oe.fearT=90;oe.fleeFrom=e}});pushLimited(g.floatTexts,{x:e.x,y:e.y-20,text:"惧",life:30,maxLife:30,reason:"hint"},LIMITS.floatTexts)}
   stageOnEnemyKilled(g,e);
   if(e.isBoss&&!e.midBoss){g.bossKilled=true;if(e.type==="mojiangjun")g.mojiangjunKilled=true;
     if(e.type==="moguiwang")g.moguiwangKilled=true;
@@ -1244,6 +1292,7 @@ function pAtk(g){
   if(p.lowHpFury&&p.hp<=p.maxHp*0.5)dmg=Math.floor(dmg*TUNING.lowHpFuryDmgMult);
   // 低血增范围（血墨混染）
   if(p.lowHpRange&&p.hp<=p.maxHp*TUNING.lowHpRangeThreshold)rng*=TUNING.lowHpRangeMult;
+  if(p._longmaiBoost>0)dmg=Math.floor(dmg*1.3);
   // 蓄力增伤
   dmg=Math.floor(dmg*chargeBonus);
   // 回斩进化：击杀后下次攻击增伤
@@ -1276,6 +1325,8 @@ function pAtk(g){
     }
     spawnInk(g,p.x+Math.cos(p.facing)*rng*0.6,p.y+Math.sin(p.facing)*rng*0.6,
       Math.max(2,Math.floor(((p.comboCount+1)%3===0?8:4)*pMul)),"ink");
+    // 气剑进化：远程气浪
+    if(p.meleeWave){pushLimited(g.attacks,{x:p.x,y:p.y,vx:Math.cos(p.facing)*6,vy:Math.sin(p.facing)*6,dmg:Math.max(1,Math.floor(dmg*0.35)),r:6,life:30,type:"proj",hitMap:{},hitOnce:true,owner:"player"},LIMITS.attacks)}
   // 符骨笔：multi决定扇形弹数
   }else if(w.type==="ranged"){
     var basePSpd=w.spd||7,basePSize=8*Math.min(s.projSize,CAPS.projSize);
@@ -1313,6 +1364,7 @@ function pAtk(g){
       snd("playerDodge");p.recallMark.life=0;p.justDodged=true;p.justDodgedT=18;p.dashT=0;p.dodgeKills=(p.dodgeKills||0)+1;
       p.invTimer=Math.max(p.invTimer,TUNING.dodgeInvFrames);p.atkCd=0;return}
     var dashDmg=dmg,spdPower=moveScale(p);
+    p._lastDashHit=false;
     dashDmg=Math.floor(dashDmg*(1+Math.max(0,spdPower-1)*0.45));
     if(p.justDodged)dashDmg=Math.floor(dashDmg*1.8);
     var dashRng=rng*(0.9+spdPower*0.1);
@@ -1417,6 +1469,9 @@ function hurtP(g,dmg,src){
   if(p.stillDmgMult>0&&p.idleT>3)dmg=Math.floor(dmg*p.stillDmgMult);
   // 以血换血誓印：额外受伤倍率
   if(p.dmgTakenMult&&p.dmgTakenMult>1)dmg=Math.floor(dmg*p.dmgTakenMult);
+  // 墨烟罗：受伤后减伤
+  if(p.hurtDefBoost){p._hurtDefT=p.hurtDefDur||180}
+  if(p._hurtDefT>0){dmg=Math.ceil(dmg*(1-(p.hurtDefAmt||0.4)));p._hurtDefT--}
   // 额外受伤（血墨混染）
   if(p.extraDmgTaken>0)dmg=Math.floor(dmg*(1+p.extraDmgTaken));
   // 墨血誓印：连击越高受伤越重（每层+5%，上限10层）
@@ -1489,6 +1544,8 @@ function hurtP(g,dmg,src){
 
 function hitE(g,atk,e){
   var p=g.player;
+  g._lastAtkType=atk.type;
+  if(atk.type==="dashSlash")p._lastDashHit=true;
   if(p.comboTimer>0)p.comboCount++;else p.comboCount=1;
   var dmg=atk.dmg;
   // 连击递增（墨池残砚）
@@ -1591,6 +1648,11 @@ function hitE(g,atk,e){
     pushLimited(g.floatTexts,{x:e.x,y:e.y-e.r-22,text:"暴",life:25,maxLife:25,reason:"critHint"},LIMITS.floatTexts)}
   // 墨血刃：暴击回血
   if(p.critHeal&&atk.crit){p.hp=Math.min(p.hp+2,p.maxHp);spawnP(g,p.x,p.y,"moss",3)}
+  if(p.critHealHp&&atk.crit){var _chAmt=p.critHealHp*(g.killStreak>=3?2:1);p.hp=Math.min(p.maxHp,p.hp+_chAmt);pushLimited(g.floatTexts,{x:p.x,y:p.y-p.r-20,text:"+"+_chAmt,life:25,maxLife:25,reason:"heal"},LIMITS.floatTexts)}
+  if(p.critExtraAtk&&atk.crit&&Math.random()<p.critExtraAtk){g._extraAtkQueued=true}
+  if(p.blindOnHit&&Math.random()<p.blindOnHit){e.blindT=180;pushLimited(g.floatTexts,{x:e.x,y:e.y-e.r-14,text:"盲",life:20,maxLife:20,reason:"blind"},LIMITS.floatTexts)}
+  if(p.killChargeDmg!==undefined){p.killChargeDmg++;if(p.killChargeDmg>=(p.killChargeMax||10)){p._chargedDmg=true;p.killChargeDmg=0;pushLimited(g.floatTexts,{x:p.x,y:p.y-p.r-16,text:"蓄力!",life:30,maxLife:30,reason:"hint"},LIMITS.floatTexts)}}
+  if(p.aoeSlowField){var _asfDist=dstSq(p,e);if(_asfDist<(g.weapon.type==="aoe"?200*200:120*120)){e.slowT=Math.max(e.slowT||0,40)}}
   if(atk.crit&&p.critShrapnel){var splDmg=Math.floor(atk.dmg*0.35);var shrapHit=0;forEachLiveEnemy(g,function(oe){if(oe===e)return;if(dstSq(e,oe)<RANGES.critShrapnel*RANGES.critShrapnel){damageEnemy(g,oe,splDmg,"shrapnel");shrapHit++}});spawnP(g,e.x,e.y,"accent",5);if(shrapHit>0)pushLimited(g.floatTexts,{x:e.x,y:e.y-18,text:"碎",life:22,maxLife:22,reason:"hint"},LIMITS.floatTexts)}
   shake(g,atk.crit?6:3,atk.crit?5:3);
   // floating damage number
@@ -2581,8 +2643,10 @@ function update(g){
       if(nr.enemy&&nr.distSq<RANGES.inkSpirit*RANGES.inkSpirit){
         isp.atkTimer=isp.atkCd;
         var bdx=nr.enemy.x-isp.x,bdy=nr.enemy.y-isp.y,bl=Math.sqrt(bdx*bdx+bdy*bdy)||1;
+        var _spCrit=p.spiritCritBonus&&Math.random()<(p.spiritCritBonus||0);
         pushAttack(g,{x:isp.x+bdx/bl*12,y:isp.y+bdy/bl*12,
-          vx:bdx/bl*5.5,vy:bdy/bl*5.5,life:50,dmg:isp.dmg,r:7,type:"spirit"});
+          vx:bdx/bl*5.5,vy:bdy/bl*5.5,life:50,dmg:isp.dmg,r:7,type:"spirit",crit:_spCrit});
+        if(_spCrit)spawnP(g,isp.x,isp.y,"gold",3);
         if(isp.spiritExplode||(p.spiritExplodeChance>0&&Math.random()<p.spiritExplodeChance)){
           forEachLiveEnemy(g,function(oe){if(oe===nr.enemy)return;
             if(dstSq(nr.enemy,oe)<RANGES.spiritExplode*RANGES.spiritExplode)damageEnemy(g,oe,Math.floor(isp.dmg*0.4),"spiritExplode")});

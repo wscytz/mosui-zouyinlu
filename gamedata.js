@@ -354,7 +354,18 @@ var RELICS=[
   {id:"moyingshan",name:"墨影伞",type:"伞具",tags:["冲刺","生存"],effect:"冲刺时留下残影反伤敌人",prereq:"moyingshan",fn:function(p){p.dashDecoyStrike=true}},
   {id:"mopofeng",name:"墨破风",type:"风具",tags:["冲刺","暴击"],effect:"冲刺后下次攻击必定暴击",prereq:"mopofeng",fn:function(p){p.dashNextCrit=true}},
   {id:"mohunzhui",name:"墨魂坠",type:"法具",tags:["召唤","爆发"],effect:"墨魂命中时15%概率爆炸",prereq:"mohunzhui",fn:function(p){p.spiritExplodeChance=(p.spiritExplodeChance||0)+0.15}},
-  {id:"molianhun",name:"墨链魂",type:"魂器",tags:["召唤","魂"],effect:"墨魂击杀时回复2HP",prereq:"molianhun",fn:function(p){p.spiritKillHeal=(p.spiritKillHeal||0)+2}}
+  {id:"molianhun",name:"墨链魂",type:"魂器",tags:["召唤","魂"],effect:"墨魂击杀时回复2HP",prereq:"molianhun",fn:function(p){p.spiritKillHeal=(p.spiritKillHeal||0)+2}},
+  // v13.0 新遗物 x10
+  {id:"mozhuxi",name:"墨竹笛",type:"法器",tags:["控场","减益"],effect:"攻击有15%概率使敌人致盲3秒",fn:function(p){p.blindOnHit=(p.blindOnHit||0)+0.15}},
+  {id:"momingzhu",name:"墨明珠",type:"宝具",tags:["暴击","法术"],effect:"暴击时20%概率额外释放一次攻击",fn:function(p){p.critExtraAtk=(p.critExtraAtk||0)+0.2}},
+  {id:"moxueyu",name:"墨血玉",type:"宝具",tags:["暴击","生存"],effect:"暴击时回复1HP，连杀时翻倍",fn:function(p){p.critHealHp=(p.critHealHp||0)+1}},
+  {id:"mohunshu",name:"墨魂书",type:"法器",tags:["法术","击杀"],effect:"每击杀10个敌人，下次攻击伤害+100%",fn:function(p){p.killChargeDmg=(p.killChargeDmg||0);p.killChargeMax=10}},
+  {id:"moyanluo",name:"墨烟罗",type:"防具",tags:["生存","减益"],effect:"受伤后3秒内减伤+40%",fn:function(p){p.hurtDefBoost=true;p.hurtDefAmt=0.4;p.hurtDefDur=180}},
+  {id:"mozhijing",name:"墨纸镜",type:"宝具",tags:["防御","法术"],effect:"受到弹道伤害时有20%概率反弹",fn:function(p){p.reflectChance=(p.reflectChance||0)+0.2;p.reflectDmgMult=(p.reflectDmgMult||0)+0.3}},
+  {id:"moyeyi",name:"墨夜衣",type:"防具",tags:["生存","机动"],effect:"静止1秒后进入隐身，移速+20%",fn:function(p){p.stealthIdle=true;p.stats.spd+=0.2}},
+  {id:"mofengling",name:"墨风铃",type:"铃具",tags:["控场","减益"],effect:"敌人进入攻击范围时减速20%",fn:function(p){p.aoeSlowField=true;p.aoeSlowFieldAmt=0.2}},
+  {id:"moguiyin",name:"墨鬼印",type:"法器",tags:["法术","诅咒"],effect:"伤害+25%，但受伤+15%",fn:function(p){p.stats.dmg+=0.25;p.dmgTakenMult=(p.dmgTakenMult||1)+0.15}},
+  {id:"mohundeng",name:"墨魂灯",type:"宝具",tags:["召唤","生存"],effect:"每波开始召唤2个墨灵，墨灵伤害+20%",fn:function(p){p.hasInkSpirit=true;p.inkSpiritCount=(p.inkSpiritCount||0)+1;p.spiritDmgBonus=(p.spiritDmgBonus||0)+0.2}}
 ];
 
 var EVOLUTIONS={
@@ -375,7 +386,8 @@ var EVOLUTIONS={
       fn:function(p){p.stats.dmg+=0.3;p.stats.critRate+=0.05}},
     {id:"e_jianfeng",name:"剑锋",type:"进化",tags:["近战","控场"],effect:"攻击范围+20%，攻速-10%",
       fn:function(p){p.stats.range+=0.2;p.stats.atkSpd+=0.1}},
-    {id:"e_xiejian",name:"邪剑",type:"进化",tags:["近战","诅咒"],effect:"伤害+60%，但防御-20%",fn:function(p){p.stats.dmg+=0.6;p.stats.def-=0.2}}
+    {id:"e_xiejian",name:"邪剑",type:"进化",tags:["近战","诅咒"],effect:"伤害+60%，但防御-20%",fn:function(p){p.stats.dmg+=0.6;p.stats.def-=0.2}},
+    {id:"e_qijian",name:"气剑",type:"进化",tags:["近战","机动"],effect:"攻击释放气浪，远程命中敌人",fn:function(p){p.meleeWave=true}}
   ],
   ranged:[
     {id:"e_lianzhu",name:"连珠",type:"进化",tags:["远程"],effect:"弹数+1",
@@ -390,7 +402,8 @@ var EVOLUTIONS={
       fn:function(p){p.projTravelDmg=true}},
     {id:"e_mojiao",name:"墨蛟",type:"进化",tags:["远程","暴击"],effect:"弹道体积+30%，暴击率+8%",
       fn:function(p){p.stats.projSize+=0.3;p.stats.critRate+=0.08}},
-    {id:"e_shijian",name:"矢箭",type:"进化",tags:["远程","暴击"],effect:"弹速+30%，暴击伤害+25%",fn:function(p){p.stats.projSpd=(p.stats.projSpd||1)+0.3;p.stats.critDmg+=0.25}}
+    {id:"e_shijian",name:"矢箭",type:"进化",tags:["远程","暴击"],effect:"弹速+30%，暴击伤害+25%",fn:function(p){p.stats.projSpd=(p.stats.projSpd||1)+0.3;p.stats.critDmg+=0.25}},
+    {id:"e_moming",name:"墨冥",type:"进化",tags:["远程","击杀"],effect:"击杀后弹道分裂为3颗追踪弹",fn:function(p){p.killSplitProj=true}}
   ],
   aoe:[
     {id:"e_kuoyu",name:"扩域",type:"进化",tags:["控场"],effect:"范围+40%",
@@ -405,7 +418,8 @@ var EVOLUTIONS={
       fn:function(p){p.ringHeal=true}},
     {id:"e_hunling",name:"魂灵",type:"进化",tags:["控场","魂"],effect:"攻击范围+25%，伤害+15%",
       fn:function(p){p.stats.range+=0.25;p.stats.dmg+=0.15}},
-    {id:"e_jinggu",name:"惊鼓",type:"进化",tags:["控场","暴击"],effect:"范围+20%，暴击率+10%",fn:function(p){p.stats.range+=0.2;p.stats.critRate+=0.1}}
+    {id:"e_jinggu",name:"惊鼓",type:"进化",tags:["控场","暴击"],effect:"范围+20%，暴击率+10%",fn:function(p){p.stats.range+=0.2;p.stats.critRate+=0.1}},
+    {id:"e_zhenpo",name:"震魄",type:"进化",tags:["控场","击杀"],effect:"声波击杀触发范围恐惧",fn:function(p){p.ringKillFear=true}}
   ],
   dash:[
     {id:"e_jifeng",name:"疾风",type:"进化",tags:["突进"],effect:"移速+30%，伞击随速度增伤",
@@ -421,7 +435,8 @@ var EVOLUTIONS={
     {id:"e_huanying",name:"幻影",type:"进化",tags:["突进","机动"],effect:"移速+25%，闪避冷却-15%",
       fn:function(p){p.stats.spd+=0.25;p.stats.dodgeCd=(p.stats.dodgeCd||0)-0.15}},
     {id:"e_pinghuo",name:"平霍",type:"进化",tags:["突进","暴击"],effect:"伤害+30%，暴击率+8%",fn:function(p){p.stats.dmg+=0.3;p.stats.critRate+=0.08}},
-    {id:"e_duanying",name:"断影",type:"进化",tags:["突进","机动"],effect:"闪避冷却-20%，移速+15%",fn:function(p){p.stats.dodgeCd=(p.stats.dodgeCd||0)-0.2;p.stats.spd+=0.15}}
+    {id:"e_duanying",name:"断影",type:"进化",tags:["突进","机动"],effect:"闪避冷却-20%，移速+15%",fn:function(p){p.stats.dodgeCd=(p.stats.dodgeCd||0)-0.2;p.stats.spd+=0.15}},
+    {id:"e_moying",name:"墨影",type:"进化",tags:["突进","击杀"],effect:"冲刺击杀刷新冲刺冷却",fn:function(p){p.dashKillReset=true}}
   ],
   summon:[
     {id:"e_zhaohun",name:"招魂",type:"进化",tags:["召物","法术"],effect:"幡的魂弹穿透敌人",
@@ -436,7 +451,8 @@ var EVOLUTIONS={
       fn:function(p){p.bannerHeal=true}},
     {id:"e_youchong",name:"幽宠",type:"进化",tags:["召物","生存"],effect:"伤害+20%，防御+15%",
       fn:function(p){p.stats.dmg+=0.2;p.stats.def+=0.15}},
-    {id:"e_youyu",name:"幽羽",type:"进化",tags:["召物","机动"],effect:"移速+20%，弹道体积+30%",fn:function(p){p.stats.spd+=0.2;p.stats.projSize+=0.3}}
+    {id:"e_youyu",name:"幽羽",type:"进化",tags:["召物","机动"],effect:"移速+20%，弹道体积+30%",fn:function(p){p.stats.spd+=0.2;p.stats.projSize+=0.3}},
+    {id:"e_yousha",name:"幽杀",type:"进化",tags:["召物","暴击"],effect:"墨灵暴击率+20%，暴击时爆炸",fn:function(p){p.spiritCritBonus=(p.spiritCritBonus||0)+0.2;p.spiritExplode=true}}
   ]
 };
 
@@ -461,7 +477,9 @@ var STAGE_MODS={
   inkpool:{name:"墨池",desc:"墨池中敌人攻击力+30%，击杀可净化为加速区。"},
   guishi:{name:"鬼市",desc:"地宫深处偶遇鬼市商贩，可用遗物换购。"},
   mirror:{name:"镜殿",desc:"敌人死亡时射出残影弹，保持移动避免被击中。"},
-  inktide:{name:"墨潮",desc:"墨潮周期涌退，潮中敌人加速、玩家减速。"}
+  inktide:{name:"墨潮",desc:"墨潮周期涌退，潮中敌人加速、玩家减速。"},
+  moye:{name:"墨夜",desc:"全局视野缩小，击杀可短暂恢复视野。"},
+  longmai:{name:"龙脉",desc:"地面出现龙脉能量线，沿线的敌人增伤30%，玩家沿线的攻击也增伤。"}
 };
 
 var ETYPE={
@@ -822,7 +840,17 @@ var CURSES=[
     fn:function(p){p.lowDmgBoost=true;p.stats.spd-=0.2}},
   {id:"qianniao",name:"潜鸟",type:"誓印",tags:["机动","诅咒"],
     desc:"击杀后移速+10%持续5秒(可叠加)，但攻击范围-25%",
-    fn:function(p){p.killSpeed=true;p.stats.range-=0.25}}
+    fn:function(p){p.killSpeed=true;p.stats.range-=0.25}},
+  // v13.0 新誓印 x3
+  {id:"moyu",name:"墨羽",type:"誓印",tags:["机动","法术"],
+    desc:"移速+50%，但攻击冷却+20%",
+    fn:function(p){p.stats.spd+=0.5;p.stats.atkSpd+=0.2}},
+  {id:"xuehun",name:"血魂",type:"誓印",tags:["暴击","诅咒"],
+    desc:"暴击伤害+80%，但最大生命-40%",
+    fn:function(p){p.stats.critDmg+=0.8;p.maxHpOverride=60}},
+  {id:"fumo",name:"伏墨",type:"誓印",tags:["法术","击杀"],
+    desc:"每击杀15个敌人获得1件随机遗物，但波次间不回血",
+    fn:function(p){p.killRelicEvery15=true;p.noWaveHeal=true}}
 ];
 // --- Stage Hazards (random per wave) ---
 var STAGE_HAZARDS=[
