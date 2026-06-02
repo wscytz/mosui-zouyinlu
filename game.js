@@ -14,6 +14,7 @@ function findNearestEnemy(g,ox,oy,rSq){var n=null,nd=rSq||Infinity;for(var ei=0;
 function forEachLiveEnemy(g,fn){for(var i=0;i<g.enemies.length;i++){var e=g.enemies[i];if(e.hp>0&&e.spawnGraceT<=0)fn(e,i)}}
 function rn(a,b){return a+Math.random()*(b-a)}
 function ri(a,b){return Math.floor(rn(a,b+1))}
+function localDay(){var d=new Date();return d.getFullYear()+"-"+(d.getMonth()+1<10?"0":"")+(d.getMonth()+1)+"-"+(d.getDate()<10?"0":"")+d.getDate()}
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function shuf(a){for(var i=a.length-1;i>0;i--){var j=ri(0,i);var t=a[i];a[i]=a[j];a[j]=t}return a}
 function moveScale(p){var m=p.stats.spd;if(p.killSpdTimer>0)m+=TUNING.killSpeedBonus;if(p.speedBurstT>0)m+=TUNING.speedBurstBonus;if(p.lowHpFury&&p.hp<=p.maxHp*TUNING.lowHpFuryThreshold)m+=TUNING.lowHpFuryBonus;return m}
@@ -164,8 +165,8 @@ function metaRecordRun(g){
   if(g.bossKilled){meta.bossKills++}
   if(g.endless){var _ew=g.wave+1;if(_ew>(meta.bestEndlessWave||0))meta.bestEndlessWave=_ew}
   if(g.daily){
-    var _td=new Date().toISOString().slice(0,10);
-    var _yd=new Date(Date.now()-86400000).toISOString().slice(0,10);
+    var _td=localDay();
+    var _yd=(function(){var d=new Date(Date.now()-86400000);return d.getFullYear()+"-"+(d.getMonth()+1<10?"0":"")+(d.getMonth()+1)+"-"+(d.getDate()<10?"0":"")+d.getDate()})();
     if(meta.lastDailyDate===_yd)meta.dailyStreak=(meta.dailyStreak||0)+1;
     else if(meta.lastDailyDate!==_td)meta.dailyStreak=1;
     meta.lastDailyDate=_td;
@@ -429,7 +430,7 @@ function newGame(wid,diff){
   var _dc=typeof document!=="undefined"&&document.getElementById&&document.getElementById("dailyCheck");
   var _qs=typeof location!=="undefined"?location.search:"";
   g.daily=(_dc&&_dc.checked)||/daily=1/.test(_qs);
-  if(g.daily){var _ds=new Date().toISOString().slice(0,10);var _seed=0;for(var _i=0;_i<_ds.length;_i++)_seed=((_seed<<5)-_seed)+_ds.charCodeAt(_i)|0;var _s=_seed;g._dailyRng=function(){_s=_s+0x6D2B79F5|0;var t=Math.imul(_s^_s>>>15,1|_s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+  if(g.daily){var _ds=localDay();var _seed=0;for(var _i=0;_i<_ds.length;_i++)_seed=((_seed<<5)-_seed)+_ds.charCodeAt(_i)|0;var _s=_seed;g._dailyRng=function(){_s=_s+0x6D2B79F5|0;var t=Math.imul(_s^_s>>>15,1|_s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
   return g;
 }
 
@@ -1098,6 +1099,7 @@ function cleanupWave(g){
 
 function startWave(g){
   var _dr=g.daily&&g._dailyRng;if(_dr){g._savedRng=Math.random;Math.random=g._dailyRng}
+  try{
   snd("waveStart");
   cleanupWave(g);
   g.bossKilled=false;
@@ -1209,7 +1211,7 @@ function startWave(g){
   g.waveTotal=g.enemies.length;
   if(g.player.vortexOnKill)g.player.vortexKills=0;
   g.enemies.forEach(function(en){en.spawnGraceT=Math.max(en.spawnGraceT||0,TUNING.spawnGraceDuration)});
-  if(g._savedRng){Math.random=g._savedRng;delete g._savedRng}
+  }finally{if(g._savedRng){Math.random=g._savedRng;delete g._savedRng}}
 }
 
 function pAtk(g){
@@ -4852,7 +4854,7 @@ function showEnd(g){
     _hp.innerHTML="<div style='border-top:1px solid rgba(0,0,0,0.08);padding-top:6px;margin-top:6px'><span style='color:var(--accent);font-weight:600'>走阴录 · 近5局</span><br>"+_rows+"</div>"}
   // v10.0 T5 本地排行榜：按评级+分数排序存前20
   var _lKey="mosui_leaderboard";var _lScore=calcScore(g);
-  var _lRec={ts:Date.now(),weapon:g.weapon.name||"?",grade:grade,score:_lScore,kills:g.kills,wave:g.wave,date:new Date().toISOString().slice(0,10),diff:g.diff||"normal"};
+  var _lRec={ts:Date.now(),weapon:g.weapon.name||"?",grade:grade,score:_lScore,kills:g.kills,wave:g.wave,date:localDay(),diff:g.diff||"normal"};
   var _lb=[];try{_lb=JSON.parse(localStorage.getItem(_lKey)||"[]")}catch(e){_lb=[]}
   _lb.push(_lRec);
   var _gRank={"S":5,"甲":4,"乙":3,"丙":2,"丁":1};
@@ -4861,7 +4863,7 @@ function showEnd(g){
   try{localStorage.setItem(_lKey,JSON.stringify(_lb))}catch(e){}
   // v11.0 任务3 无尽模式独立排行榜：按波次降序
   if(g.endless){var _eKey="mosui_leaderboard_endless";
-    var _eRec={ts:Date.now(),weapon:g.weapon.name||"?",wave:g.wave+1,kills:g.kills,date:new Date().toISOString().slice(0,10),diff:g.diff||"normal",time:Math.floor(g.time/60)};
+    var _eRec={ts:Date.now(),weapon:g.weapon.name||"?",wave:g.wave+1,kills:g.kills,date:localDay(),diff:g.diff||"normal",time:Math.floor(g.time/60)};
     var _elb=[];try{_elb=JSON.parse(localStorage.getItem(_eKey)||"[]")}catch(e){_elb=[]}
     _elb.push(_eRec);_elb.sort(function(a,b){return(b.wave||0)-(a.wave||0)});
     if(_elb.length>20)_elb=_elb.slice(0,20);
@@ -5400,7 +5402,7 @@ function init(){
     var verEl=document.getElementById("gameVersion");
     if(verEl&&MOSUI.version)verEl.textContent="v "+MOSUI.version;
     var ddEl=document.getElementById("dailyDateLabel");
-    if(ddEl)ddEl.textContent=new Date().toISOString().slice(0,10);
+    if(ddEl)ddEl.textContent=localDay();
   })()}catch(e){}
   setupWeaponSelect();if(window._loadLog)window._loadLog("init() 完成 ✓ loop启动");loop();
   // Dismiss Capacitor splash screen — try multiple methods
