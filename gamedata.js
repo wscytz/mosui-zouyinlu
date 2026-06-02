@@ -482,6 +482,8 @@ var ETYPE={
     col:"rgba(23,19,16,0.55)",edge:C.ink,isBoss:true,desperate:false},
   moguiwang:{name:"墨鬼王",tip:"墨渊深处的古老存在，吞噬一切光明",hp:500,spd:0.75,r:30,dmg:18,atkR:50,atkCd:60,
     col:"rgba(23,19,16,0.6)",edge:C.accent,isBoss:true,desperate:false},
+  moxian:{name:"墨仙",tip:"笔走龙蛇，以字为阵，以墨为法",hp:420,spd:1.0,r:26,dmg:14,atkR:180,atkCd:50,
+    col:"rgba(70,90,80,0.45)",edge:C.moss,isBoss:true,desperate:false,ranged:true,pSpd:4},
   moya:{name:"墨鸦",tip:"飞行远程，快速且脆弱，优先点杀",hp:35,spd:1.9,r:11,dmg:5,atkR:240,atkCd:72,col:"rgba(23,19,16,0.35)",edge:C.ink,ranged:true,pSpd:5.2},
   shiyong:{name:"石俑",tip:"重甲盾兵，破盾后集火击杀",hp:95,spd:0.55,r:20,dmg:13,atkR:34,atkCd:68,col:"rgba(100,95,88,0.4)",edge:C.soft,hasShield:true,shield:28,maxShield:28,shieldRegen:360},
   yanyong:{name:"炎俑",tip:"重甲火径，走位时注意脚下",hp:95,spd:0.7,r:18,dmg:12,atkR:34,atkCd:62,col:"rgba(196,90,45,0.35)",edge:C.fire,fireTrail:true},
@@ -656,7 +658,7 @@ var BUILD_PREFS={
 function _ri(a,b){return Math.floor(a+Math.random()*(b-a+1))}
 function _pick(a){return a[Math.floor(Math.random()*a.length)]}
 // --- Procedural wave generation ---
-var ENEMY_COST={zhikui:1,youhun:1.5,zhikuang:1.5,fenling:2,gudeng:2,shigui:2.5,fenshen:2.5,modun:2.5,jiangshi:3,moya:1.8,shiyong:3,yanyong:2.2,sukui:1.3,duzhu:1.7,gushi:2.8,huapi:1.9,mozhi:1.4,motong:1.2,mofu:1.1,modie:1.5,moyong:2.0,morui:0.7,mozhu:1.8,mogu:2.8,momian:1.6,mojar:2.0,moying:1.5,mooushi:2.5,mozhuhou:3.0,moling:1.8,mobei:2.5,mozhang:2.0,moyanshi:2.3,molizexi:1.9,moyinggui:2.2,moyishi:2.5,moyingjiang:3.5,moguchong:1.6,molingdeng:2.0,modeng:0.6,boss:99,mojiangjun:99,moguiwang:99};
+var ENEMY_COST={zhikui:1,youhun:1.5,zhikuang:1.5,fenling:2,gudeng:2,shigui:2.5,fenshen:2.5,modun:2.5,jiangshi:3,moya:1.8,shiyong:3,yanyong:2.2,sukui:1.3,duzhu:1.7,gushi:2.8,huapi:1.9,mozhi:1.4,motong:1.2,mofu:1.1,modie:1.5,moyong:2.0,morui:0.7,mozhu:1.8,mogu:2.8,momian:1.6,mojar:2.0,moying:1.5,mooushi:2.5,mozhuhou:3.0,moling:1.8,mobei:2.5,mozhang:2.0,moyanshi:2.3,molizexi:1.9,moyinggui:2.2,moyishi:2.5,moyingjiang:3.5,moguchong:1.6,molingdeng:2.0,modeng:0.6,boss:99,mojiangjun:99,moguiwang:99,moxian:99};
 var WAVE_BUDGETS=[5,7,9.5,12,14.5,17.5,21,25,28,32,36,0];
 var WAVE_TIERS=[
   ["zhikui","youhun"],
@@ -861,7 +863,8 @@ var ACHIEVEMENTS=[
   {id:"perfect_boss",name:"完美谢幕",desc:"Boss战不受伤",check:function(m){return (m.perfectBossKills||0)>0},reward:null},
   {id:"no_evolve_win",name:"孤勇者",desc:"孤行誓印通关",check:function(m){return (m.noEvolveWins||0)>0},reward:null},
   {id:"kill_moguiwang",name:"墨鬼王克星",desc:"击败墨鬼王",check:function(m){return (m.moguiwangKills||0)>0},reward:null},
-  {id:"triple_boss",name:"三祟皆灭",desc:"击败过全部三个Boss",check:function(m){return (m.bossKills||0)>=1&&(m.mojiangjunKills||0)>=1&&(m.moguiwangKills||0)>=1},reward:"goldInk"},
+  {id:"kill_moxian",name:"墨仙克星",desc:"击败墨仙",check:function(m){return (m.moxianKills||0)>0},reward:null},
+  {id:"quad_boss",name:"四祟尽灭",desc:"击败过全部四个Boss",check:function(m){return (m.bossKills||0)>=1&&(m.mojiangjunKills||0)>=1&&(m.moguiwangKills||0)>=1&&(m.moxianKills||0)>=1},reward:"goldInk"},
   {id:"max_relics",name:"六器加身",desc:"单局集满6件遗物",check:function(m){return (m.maxRelicsInRun||0)>=6},reward:null},
 	  {id:"ash_road",name:"灰烬之路",desc:"单局战斗结束时磷火覆盖过半场",check:function(m){return (m.bestFireCoverage||0)>=0.5},reward:"goldInk"},
   {id:"swift_step",name:"疾风步",desc:"单局墨迹残步充能释放10次以上",check:function(m){return (m.bestMoveChargeFires||0)>=10},reward:null},

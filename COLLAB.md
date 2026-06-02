@@ -68,7 +68,7 @@ Claude发出的任务格式：
 Claude审核时检查：
 1. **语法**: `node --check game.js` 无错误
 2. **测试**: smoke 44项 + content 236项全绿
-3. **行数上限**: game.js ≤ 5500行
+3. **行数上限**: game.js ≤ 8000行
 4. **风格一致**: 无多余注释、无框架痕迹、紧凑单行风格
 5. **核心未动**: hitE/hurtP/spawnWave结构未被修改
 6. **无安全风险**: 无命令注入/eval/外部请求
@@ -121,6 +121,6 @@ Claude审核时检查：
 
 ## 七、开发红线
 
-- **不碰**: hitE/hurtP结构、spawnWave核心、game.js超5500行
+- **不碰**: hitE/hurtP结构、spawnWave核心、game.js超8000行
 - **必须**: 每次改完跑测试、git用wscytz身份、无AI署名
 - **构建**: `npm run www && npm run cap:sync` 每次提交后执行

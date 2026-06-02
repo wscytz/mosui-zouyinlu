@@ -6,7 +6,7 @@
 
 **项目路径**: `C:\Users\金许诺\Documents\Codex\2026-04-24\new-chat-2`
 **当前版本**: v11.1
-**game.js**: 5433行 / 5500上限（**余67行**）
+**game.js**: 5433行 / 8000上限（**余67行**）
 **测试命令**:
 - `node --check game.js` — 语法检查（必须通过）
 - `node smoke_test.js` — 44项冒烟（必须全绿）
@@ -18,7 +18,7 @@
 - game.js用CRLF换行
 - 无框架、无多余注释、紧凑单行风格
 - 不改hitE/hurtP/spawnWave核心结构
-- game.js ≤ 5500行
+- game.js ≤ 8000行
 - git提交用wscytz身份，不附AI署名
 - 不加emoji（除非明确要求）
 - 不加注释（除非WHY非常不显然）

@@ -175,6 +175,7 @@ function metaRecordRun(g){
   }
   if(g.mojiangjunKilled){meta.mojiangjunKills++}
   if(g.moguiwangKilled){meta.moguiwangKills=(meta.moguiwangKills||0)+1}
+  if(g.moxianKilled){meta.moxianKills=(meta.moxianKills||0)+1}
   if(won&&g.diff==="nightmare")meta.nightmareWins++;
   if(won&&g.diff==="hard")meta.hardWins=(meta.hardWins||0)+1;
   if(won&&g.diff==="purgatory")meta.purgatoryWins=(meta.purgatoryWins||0)+1;
@@ -421,7 +422,7 @@ function newGame(wid,diff){
     stage:null,stageDesc:"",announce:"",announceT:0,execFlash:null,evolution:null,evolution2:null,evolution3:null,floatTexts:[],decoys:[],
     kites:[],frosts:[],waveTotal:0,waveCleared:false,waveClearT:0,
     waveSpecial:null,survivalSpawnTimer:0,survivalCleared:false,
-    bossType:pick(["boss","mojiangjun","moguiwang"]),curse:null,pendingDeathbursts:[],bossIntroT:0,bossIntroName:"",_merchantCooldown:0,
+    bossType:pick(["boss","mojiangjun","moguiwang","moxian"]),curse:null,pendingDeathbursts:[],bossIntroT:0,bossIntroName:"",_merchantCooldown:0,
     fogTimer:0,soulOrbs:[],
     hazard:null,hazardTimer:0,hazardObjs:[],
     inkSpirits:[],
@@ -966,6 +967,7 @@ function onEnemyKilled(g,e,source,opts){
   stageOnEnemyKilled(g,e);
   if(e.isBoss&&!e.midBoss){g.bossKilled=true;if(e.type==="mojiangjun")g.mojiangjunKilled=true;
     if(e.type==="moguiwang")g.moguiwangKilled=true;
+    if(e.type==="moxian")g.moxianKilled=true;
     // Boss kill celebration
     g.bossCelebrationT=120;g.freezeT=Math.max(g.freezeT,120);
     shake(g,28,14);if(g.freezeT<8)g.freezeT=8;
@@ -1134,8 +1136,8 @@ function startWave(g){
       var midSupport=["zhikui","youhun","jiangshi","gudeng"];
       var midSup=[];
       for(var msi=0;msi<ri(1,2);msi++)midSup.push({t:pick(midSupport),n:1});
-      w={label:"中阵 · "+(midBoss==="mojiangjun"?"墨将巡殿":midBoss==="moguiwang"?"墨渊涌动":"画皮小堂"),mod:pick(["ash","well","lantern"]),
-        flavor:midBoss==="mojiangjun"?"墨将军的副将巡守此地，虽是分身，亦不可小觑。":midBoss==="moguiwang"?"墨渊深处涌出的古老存在，连空间都在颤抖。":"画皮娘子留下的一面在此拦路。",
+      w={label:"中阵 · "+(midBoss==="mojiangjun"?"墨将巡殿":midBoss==="moguiwang"?"墨渊涌动":midBoss==="moxian"?"仙墨回廊":"画皮小堂"),mod:pick(["ash","well","lantern"]),
+        flavor:midBoss==="mojiangjun"?"墨将军的副将巡守此地，虽是分身，亦不可小觑。":midBoss==="moguiwang"?"墨渊深处涌出的古老存在，连空间都在颤抖。":midBoss==="moxian"?"墨仙留下的残影在此处游荡，字字杀机。":"画皮娘子留下的一面在此拦路。",
         list:[{t:midBoss,n:1,midBoss:true}].concat(midSup)};
     }
   }
@@ -1145,8 +1147,8 @@ function startWave(g){
     var supportPool=["gudeng","jiangshi","fenshen","zhikuang","zhikui","youhun"];
     var sup=[];
     for(var si=0;si<2+ri(0,2);si++)sup.push({t:pick(supportPool),n:1});
-    w={label:"镇守 · "+(bossT==="mojiangjun"?"墨阵殿":bossT==="moguiwang"?"墨渊殿":"画皮堂"),mod:pick(["lantern","mask","inkpool","inktide","guishi","mirror"]),
-      flavor:bossT==="mojiangjun"?"墨将军镇守此地。以墨为甲，以书为兵。":bossT==="moguiwang"?"墨鬼王从深渊中浮现。它是墨的本源，你的笔只是它的碎片。":"画皮娘子镇守此地。她有千面，你的刀只有一面。",
+    w={label:"镇守 · "+(bossT==="mojiangjun"?"墨阵殿":bossT==="moguiwang"?"墨渊殿":bossT==="moxian"?"墨仙阁":"画皮堂"),mod:pick(["lantern","mask","inkpool","inktide","guishi","mirror"]),
+      flavor:bossT==="mojiangjun"?"墨将军镇守此地。以墨为甲，以书为兵。":bossT==="moguiwang"?"墨鬼王从深渊中浮现。它是墨的本源，你的笔只是它的碎片。":bossT==="moxian"?"墨仙端坐阁中，笔走龙蛇，字字化为杀阵。":"画皮娘子镇守此地。她有千面，你的刀只有一面。",
       list:[{t:bossT,n:1}].concat(sup)};
   }
   if(!w){g.state="victory";return}
@@ -1154,11 +1156,11 @@ function startWave(g){
   var enemyCount=w.list.reduce(function(s,e){return s+e.n},0);
   g.announce=w.label+" · "+getStageDef(w.mod).name+" · "+enemyCount+"敌";g.announceT=110;
   g.waveCleared=false;g.waveClearT=0;
-  g._isBossWave=!!(w.list&&w.list.some(function(e){return e.t==="boss"||e.t==="mojiangjun"||e.t==="moguiwang"}));
+  g._isBossWave=!!(w.list&&w.list.some(function(e){return e.t==="boss"||e.t==="mojiangjun"||e.t==="moguiwang"||e.t==="moxian"}));
   if(g._isBossWave){g.bossHurtThisWave=false;
     var bossT2=g.bossType||"boss";
-    var bossName=bossT2==="mojiangjun"?"墨将军":bossT2==="moguiwang"?"墨鬼王":"画皮娘子";
-    var bossSub=bossT2==="mojiangjun"?"以墨为甲，以书为兵":bossT2==="moguiwang"?"墨渊深处，万物归寂":"千面之下，你的刀只有一面";
+    var bossName=bossT2==="mojiangjun"?"墨将军":bossT2==="moguiwang"?"墨鬼王":bossT2==="moxian"?"墨仙":"画皮娘子";
+    var bossSub=bossT2==="mojiangjun"?"以墨为甲，以书为兵":bossT2==="moguiwang"?"墨渊深处，万物归寂":bossT2==="moxian"?"笔走龙蛇，字字杀机":"千面之下，你的刀只有一面";
     g.bossIntroT=110;g.bossIntroName=bossName;g.bossIntroSub=bossSub;
     // Load boss portrait
     var bp=document.getElementById("bossPortrait");
@@ -2039,13 +2041,13 @@ function update(g){
     var spd=e.pinned>0?0:e.spd*(e.slowT>0?(1-slowAmt):1)*(e.buffed>0?TUNING.buffedSpdMult:1);
     // v3.4: 墨潮 — enemies in ink ring move faster
     if(g.stage&&g.stage.id==="inktide"){var etR=120+60*Math.sin(g.time*0.02);var edx=e.x-W/2,edy=e.y-H/2;if(edx*edx+edy*edy<etR*etR)spd*=1.2;}
-    if(e.isBoss&&e.type!=="mojiangjun"&&e.type!=="moguiwang"&&!e.midBoss&&e.hp<e.maxHp*TUNING.bossEnrageHp&&!e.enraged){e.enraged=true;spd*=TUNING.bossEnrageSpdMult;
+    if(e.isBoss&&e.type!=="mojiangjun"&&e.type!=="moguiwang"&&e.type!=="moxian"&&!e.midBoss&&e.hp<e.maxHp*TUNING.bossEnrageHp&&!e.enraged){e.enraged=true;spd*=TUNING.bossEnrageSpdMult;
       snd("bossEnrage");shake(g,10,8);g.bossFlash=8;
       spawnInk(g,e.x,e.y,20,"fire");g.freezeT=Math.max(g.freezeT,6);
       pushLimited(g.floatTexts,{x:W/2,y:H/2-40,text:e.name+" · 怒",life:80,maxLife:80,reason:"streak"},LIMITS.floatTexts);
       // P1 Boss阶段提示：狂暴全屏浮字
       pushLimited(g.floatTexts,{x:W/2,y:H/2-100,text:"狂 暴",life:80,maxLife:80,reason:"phase"},LIMITS.floatTexts)}
-    else if(e.isBoss&&e.type!=="mojiangjun"&&e.type!=="moguiwang"&&!e.midBoss&&e.enraged)spd*=TUNING.bossEnrageSpdMult;
+    else if(e.isBoss&&e.type!=="mojiangjun"&&e.type!=="moguiwang"&&e.type!=="moxian"&&!e.midBoss&&e.enraged)spd*=TUNING.bossEnrageSpdMult;
     // v9.3 A1 画皮: HP<60% 触发分身(给玩家前期输出窗口)
     if(e.isBoss&&e.type==="boss"&&!e.midBoss&&e.hp<=e.maxHp*0.6&&!e._huapiSplitDone){e._huapiSplitDone=true;
       pushLimited(g.floatTexts,{x:e.x,y:e.y-30,text:"画皮分身",life:60,maxLife:60,reason:"mimic"},LIMITS.floatTexts);
@@ -2056,7 +2058,7 @@ function update(g){
         spawnEnemy(g,"boss",{x:hcx,y:hcy,hpMul:0.12,noScale:true,isClone:true});
       }
     }
-    if(e.isBoss&&e.type!=="mojiangjun"&&e.type!=="moguiwang"&&!e.midBoss&&e.hp<e.maxHp*TUNING.bossDesperateHp&&!e.desperate){e.desperate=true;
+    if(e.isBoss&&e.type!=="mojiangjun"&&e.type!=="moguiwang"&&e.type!=="moxian"&&!e.midBoss&&e.hp<e.maxHp*TUNING.bossDesperateHp&&!e.desperate){e.desperate=true;
       e.atkCd=Math.max(18,Math.floor(e.atkCd*0.6));e.fanShot=Math.min(7,e.fanShot+2);
       snd("bossEnrage");shake(g,14,10);
       spawnInk(g,e.x,e.y,28,"fire");spawnInk(g,e.x,e.y,16,"accent");
@@ -2146,11 +2148,11 @@ function update(g){
             chainX=nearE.x;chainY=nearE.y;chainD*=1.5}}
         e.cdT=e.atkCd}
       else if(!e.ranged&&!(e.swoop&&e.swoopState==="swoop")&&dToPSq<(e.atkR+p.r)*(e.atkR+p.r)){if(p.invTimer<=0)hurtP(g,Math.ceil(e.dmg*(e.buffed>0?1.35:1)),e);e.cdT=e.atkCd}}
-    if(e.isBoss&&e.type!=="mojiangjun"&&e.type!=="moguiwang"&&g.time%90===0){for(var ba=0;ba<8;ba++){var baA=ba*Math.PI/4;
+    if(e.isBoss&&e.type!=="mojiangjun"&&e.type!=="moguiwang"&&e.type!=="moxian"&&g.time%90===0){for(var ba=0;ba<8;ba++){var baA=ba*Math.PI/4;
       addEProj(g,{x:e.x,y:e.y,vx:Math.cos(baA)*3,vy:Math.sin(baA)*3,
       r:6,dmg:e.dmg*0.6,life:60,_src:e})}}
     // boss enraged: spiral bullets every 60 frames
-    if(e.isBoss&&e.type!=="mojiangjun"&&e.type!=="moguiwang"&&e.enraged&&g.time%60===0){var spBase=g.time*0.12;
+    if(e.isBoss&&e.type!=="mojiangjun"&&e.type!=="moguiwang"&&e.type!=="moxian"&&e.enraged&&g.time%60===0){var spBase=g.time*0.12;
       for(var spi=0;spi<5;spi++){var spA=spBase+spi*Math.PI*2/5;
         addEProj(g,{x:e.x,y:e.y,vx:Math.cos(spA)*2.5,vy:Math.sin(spA)*2.5,
         r:4,dmg:Math.max(1,Math.floor(e.dmg*0.4)),life:48,_src:e})}}
@@ -2257,6 +2259,52 @@ function update(g){
           var mdx2=p.x-e.x,mdy2=p.y-e.y,ml2=Math.sqrt(mdx2*mdx2+mdy2*mdy2)||1;e.chargeVx=mdx2/ml2*5.0;e.chargeVy=mdy2/ml2*5.0;e.chargeT=16;
           snd("playerDodge");shake(g,5,4)}
       }
+    }
+    // --- 墨仙 Boss AI ---
+    if(e.type==="moxian"){
+      var mxPhase=e.hp>e.maxHp*0.6?1:e.hp>e.maxHp*0.25?2:3;
+      if(!e._mxPhase||e._mxPhase!==mxPhase){
+        e._mxPhase=mxPhase;
+        if(mxPhase===2){snd("bossEnrage");shake(g,10,6);g.freezeT=Math.max(g.freezeT,4);g.bossFlash=6;e.enraged=true;
+          spawnInk(g,e.x,e.y,16,"moss");spawnInk(g,e.x,e.y,12,"ink");
+          pushLimited(g.floatTexts,{x:W/2,y:H/2-40,text:"墨仙 · 狂草",life:80,maxLife:80,reason:"streak"},LIMITS.floatTexts)}
+        if(mxPhase===3){snd("bossEnrage");shake(g,16,10);e.spd=1.8;g.bossFlash=12;e.enraged=true;
+          spawnInk(g,e.x,e.y,24,"moss");spawnInk(g,e.x,e.y,20,"accent");
+          pushLimited(g.floatTexts,{x:W/2,y:H/2-40,text:"墨仙 · 天书",life:90,maxLife:90,reason:"streak"},LIMITS.floatTexts);
+          g.freezeT=Math.max(g.freezeT,10)}
+      }
+      // Phase 1: 十字弹 + 跟踪墨点
+      if(mxPhase===1){
+        if(g.time%100===0){var ca2=Math.atan2(p.y-e.y,p.x-e.x);
+          for(var ci2=0;ci2<4;ci2++){var caA=ca2+ci2*Math.PI/2;
+            addEProj(g,{x:e.x,y:e.y,vx:Math.cos(caA)*3.0,vy:Math.sin(caA)*3.0,r:6,dmg:Math.max(1,Math.floor(e.dmg*0.45)),life:48,_src:e})}}
+        if(g.time%160===0){var ta=Math.atan2(p.y-e.y,p.x-e.x);
+          addEProj(g,{x:e.x,y:e.y,vx:Math.cos(ta)*2.5,vy:Math.sin(ta)*2.5,r:10,dmg:Math.max(1,Math.floor(e.dmg*0.6)),life:60,_src:e})}}
+      // Phase 2: 召唤墨灵 + 画阵减速
+      if(mxPhase===2){
+        if(g.time%200===0&&g.enemies.length<LIMITS.enemies-2){
+          for(var si3=0;si3<2;si3++){var sa4=rn(0,Math.PI*2);
+            g.enemies.push(mkMinion(e.x+Math.cos(sa4)*35,e.y+Math.sin(sa4)*35,"moya",
+              Math.max(1,Math.floor(ETYPE.moya.hp*(1+g.wave*WAVE_SCALE.hpPerWave))),
+              ETYPE.moya.spd,0,ETYPE.moya.dmg,ETYPE.moya.atkR,ETYPE.moya.atkCd,"rgba(70,90,80,0.4)",C.moss,{chargeCdT:ri(30,60)}))}
+          snd("summon")}
+        if(g.time%130===0){
+          pushLimited(g.fires,{x:p.x+rn(-20,20),y:p.y+rn(-20,20),r:40,life:90,maxLife:90,dmg:0,owner:"enemy",slow:true,tickOffset:0,healTickOffset:0},LIMITS.fires);
+          spawnP(g,p.x,p.y,"moss",6);snd("hit")}
+        if(g.time%120===0){for(var ci3=0;ci3<6;ci3++){var caB=ci3*Math.PI/3+g.time*0.05;
+          addEProj(g,{x:e.x,y:e.y,vx:Math.cos(caB)*2.5,vy:Math.sin(caB)*2.5,r:5,dmg:Math.max(1,Math.floor(e.dmg*0.35)),life:40,_src:e})}}}
+      // Phase 3: 狂草螺旋 + 闪现 + 横扫
+      if(mxPhase===3){
+        if(g.time%45===0){var spA4=g.time*0.18;
+          for(var spi4=0;spi4<5;spi4++){var spAng3=spA4+spi4*Math.PI*2/5;
+            addEProj(g,{x:e.x,y:e.y,vx:Math.cos(spAng3)*3.2,vy:Math.sin(spAng3)*3.2,r:5,dmg:Math.max(1,Math.floor(e.dmg*0.3)),life:36,_src:e})}}
+        if(g.time%200===0){var bA2=rn(0,Math.PI*2);var bD=rn(50,100);
+          e.x=cl(p.x+Math.cos(bA2)*bD,A.l+e.r,A.r-e.r);e.y=cl(p.y+Math.sin(bA2)*bD,A.t+e.r,A.b-e.r);
+          spawnP(g,e.x,e.y,"moss",12);snd("playerDodge");shake(g,5,3)}
+        if(g.time%140===0){var swA=Math.atan2(p.y-e.y,p.x-e.x);
+          for(var swi=0;swi<12;swi++){var swOff=(swi-6)*0.15;
+            addEProj(g,{x:e.x,y:e.y,vx:Math.cos(swA+swOff)*4.0,vy:Math.sin(swA+swOff)*4.0,r:4,dmg:Math.max(1,Math.floor(e.dmg*0.25)),life:30,_src:e})}
+          spawnInk(g,e.x,e.y,8,"moss");snd("hit")}}
     }
     // --- Elite abilities ---
     if(e.elite&&e.eliteAbility){
@@ -3604,7 +3652,7 @@ function render(g){
     c.strokeStyle=C.ink;c.lineWidth=1;c.strokeRect(bx-1,by-1,bw+2,bh+2);
     // phase threshold marks
     c.globalAlpha=0.35;c.strokeStyle=C.paper;c.lineWidth=1;
-    if(e.type==="mojiangjun"){
+    if(e.type==="mojiangjun"||e.type==="moxian"){
       var p1X=bx+bw*0.6;c.beginPath();c.moveTo(p1X,by);c.lineTo(p1X,by+bh);c.stroke();
       var p2X=bx+bw*0.25;c.beginPath();c.moveTo(p2X,by);c.lineTo(p2X,by+bh);c.stroke();
     }else{
@@ -3615,9 +3663,9 @@ function render(g){
     c.fillStyle=C.ink;c.font='500 13px "STKaiti","KaiTi",serif';c.textAlign="center";
     if(g._pm>=0.5){c.shadowColor="rgba(241,230,212,0.8)";c.shadowBlur=4}
     var bossName;
-    if(e.type==="mojiangjun"){
+    if(e.type==="mojiangjun"||e.type==="moxian"){
       var mjRatio=e.hp/e.maxHp;
-      bossName=e.name+(mjRatio<=0.25?" · 狂书":mjRatio<=0.6?" · 召书":"");
+      bossName=e.name+(mjRatio<=0.25?(e.type==="moxian"?" · 天书":" · 狂书"):(mjRatio<=0.6?(e.type==="moxian"?" · 狂草":" · 召书"):""));
     }else{
       bossName=e.enraged?e.name+" · 狂":e.name;
     }
@@ -3675,12 +3723,12 @@ function render(g){
     c.globalAlpha=0.85*bcCl;c.fillStyle=C.accent;c.textAlign="center";
     c.font='700 40px "STKaiti","KaiTi","Kaiti SC",serif';
     if(g._pm>=0.5){c.shadowColor="rgba(163,58,45,0.4)";c.shadowBlur=10}
-    var bcName=g.bossType==="mojiangjun"?"墨将军":g.bossType==="moguiwang"?"墨鬼王":"画皮娘子";
+    var bcName=g.bossType==="mojiangjun"?"墨将军":g.bossType==="moguiwang"?"墨鬼王":g.bossType==="moxian"?"墨仙":"画皮娘子";
     c.fillText(bcName,W/2,H/2+30);
     c.shadowBlur=0;
     // 判词
     var bcVerdict=g.bossType==="mojiangjun"?"书不成剑，墨终归土":
-      g.bossType==="moguiwang"?"墨渊无底，汝为过客":"画皮之下，不过纸灰";
+      g.bossType==="moguiwang"?"墨渊无底，汝为过客":g.bossType==="moxian"?"笔落惊风，墨化苍生":"画皮之下，不过纸灰";
     c.globalAlpha=0.55*bcCl;c.fillStyle=C.ash;
     c.font='400 16px "STKaiti","KaiTi",serif';
     c.fillText(bcVerdict,W/2,H/2+60);
@@ -4783,12 +4831,14 @@ function showEnd(g){
   var diffColor={normal:"var(--ash)",hard:"var(--accent)",nightmare:"#c4523d",purgatory:"#8b0000"}[g.diff]||"var(--ash)";
   var timeStr=fmtMmSs(Math.floor(g.time/60));
   var subtitle=won?(bossT==="moguiwang"?"墨鬼王消散了。你从墨渊中走出，手中还握着那支笔。":
+    bossT==="moxian"?"墨仙收笔入袖，化作一阵清风散去。地宫重归寂静。":
     g.diff==="purgatory"?"炼狱通关，墨渊倒悬，你已非人。":
     g.diff==="nightmare"?"噩梦地宫，一命通关，万邪辟易。":
     g.diff==="hard"?"险途已清，胆识过人。":
     "地宫已清，你的名号将记在走阴录上。"):
     g.endless?("无尽止步于第"+(g.wave+1)+"波。墨渊仍深。"):
     (bossT==="moguiwang"?"墨鬼王吞噬了一切。地宫之下，再无光明。":
+    bossT==="moxian"?"墨仙一笔，你的名字从走阴录上消失了。":
     g.diff==="purgatory"?"炼狱火熄，墨影噬骨。":
     g.diff==="nightmare"?"噩梦未竟，魂散地宫。":
     g.diff==="hard"?"险途折戟，来日再战。":
@@ -5376,7 +5426,7 @@ function init(){
     window._bossPortraitBase=_artBase+"portraits/";
     // Preload boss portrait images for canvas rendering
     window._bossPortraitImgs={};
-    ["boss","mojiangjun","moguiwang"].forEach(function(bt){
+    ["boss","mojiangjun","moguiwang","moxian"].forEach(function(bt){
       var bpi=new Image();
       bpi.onload=function(){window._bossPortraitImgs[bt]=bpi;if(window._loadLog)window._loadLog("肖像:"+bt+" ✓")};
       bpi.onerror=function(){};
