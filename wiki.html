@@ -239,6 +239,7 @@
       <a href="#sec-waves">波次</a>
       <a href="#sec-stages">关卡</a>
       <a href="#sec-hazards">事件</a>
+      <a href="#sec-modes">模式</a>
       <a href="#sec-achievements">成就</a>
       <a href="#sec-builds">构筑</a>
       <a href="#sec-caps">封顶</a>
@@ -315,6 +316,22 @@
         <p class="wiki-section__summary">战斗中随机触发的环境威胁，考验走位与反应。</p>
       </div>
       <div id="hazardGrid" class="wiki-grid wiki-grid--3"></div>
+    </section>
+
+    <section class="wiki-section" id="sec-modes">
+      <div class="section__heading">
+        <p class="section__eyebrow">Modes</p>
+        <h2>游戏模式</h2>
+        <p class="wiki-section__summary">四种难度 + 两种特殊模式，组合出不同挑战。</p>
+      </div>
+      <div class="wiki-grid wiki-grid--3">
+        <div class="wiki-card"><h4>平常</h4><p>标准体验。敌人数值正常，适合熟悉机制。</p></div>
+        <div class="wiki-card"><h4>险途</h4><p>敌人更强。通关后解锁。</p></div>
+        <div class="wiki-card"><h4>噩梦</h4><p>高强度挑战。需要丰富的构筑经验。</p></div>
+        <div class="wiki-card"><h4>炼狱</h4><p>极限难度。敌人HP×2，速度×1.4，伤害×1.55。</p></div>
+        <div class="wiki-card"><h4>无尽模式</h4><p>通关9波后继续挑战，每波敌人增强：HP+10%，速度+5%，伤害+8%。独立排行榜。</p></div>
+        <div class="wiki-card"><h4>每日种子</h4><p>同一天所有玩家面对相同的波次和遗物选择。使用确定性伪随机(mulberry32)，按本地日期生成种子。</p></div>
+      </div>
     </section>
 
     <section class="wiki-section" id="sec-achievements">
@@ -442,7 +459,8 @@
         if(activeFilter!=='__all__'&&r.tags.indexOf(activeFilter)<0)return;
         var c=document.createElement('div');
         c.className='wiki-card';
-        c.innerHTML='<h4>'+r.name+'</h4>'
+        var iconHtml='<img class="wiki-card__enemy-icon" src="assets/ui/relics/'+r.id+'.jpg" alt="" onerror="this.style.display=\'none\'">';
+        c.innerHTML=iconHtml+'<h4>'+r.name+'</h4>'
           +'<div class="wiki-card__meta">'+r.type+'</div>'
           +'<p>'+r.effect+'</p>';
         c.appendChild(tags(r.tags));

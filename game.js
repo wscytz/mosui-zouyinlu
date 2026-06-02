@@ -4772,17 +4772,16 @@ function showEnd(g){
   if(g.ended)return;g.ended=true;
   var newAch=metaRecordRun(g);
   if(window.GameSound)GameSound.stopAmbient();
-  if(newAch&&newAch.length>0){snd("achievementUnlock");var _ad=document.createElement("div");_ad.style.cssText="position:fixed;top:60px;left:50%;transform:translateX(-50%);z-index:999;background:var(--accent);color:#fff;padding:8px 24px;border-radius:6px;font-size:0.88rem;font-weight:600;opacity:0;transition:opacity 0.4s;pointer-events:none";_ad.textContent="★ " + newAch.map(function(a){return a.name}).join(" · ");document.body.appendChild(_ad);requestAnimationFrame(function(){_ad.style.opacity="1"});setTimeout(function(){_ad.style.opacity="0";setTimeout(function(){_ad.remove()},500)},3500)}
+  if(newAch&&newAch.length>0){snd("achievementUnlock");var _ad=document.createElement("div");_ad.style.cssText="position:fixed;bottom:40px;left:50%;transform:translateX(-50%);z-index:999;background:var(--accent);color:#fff;padding:8px 24px;border-radius:6px;font-size:0.88rem;font-weight:600;opacity:0;transition:opacity 0.4s;pointer-events:none";_ad.textContent="★ " + newAch.map(function(a){return a.name}).join(" · ");document.body.appendChild(_ad);requestAnimationFrame(function(){_ad.style.opacity="1"});setTimeout(function(){_ad.style.opacity="0";setTimeout(function(){_ad.remove()},500)},3500)}
   snd("gameOver");
   // Show boss portrait on end screen
+  var bossT=g.bossType||"boss";
   var ep=document.getElementById("endPortrait");
   if(ep&&g.bossKilled&&window._bossPortraitBase){
-    bossT=g.bossType||"boss";
     var epSrc=window._bossPortraitBase+"portrait-"+bossT+".png";
     var epi=new Image();epi.onload=function(){ep.src=epSrc};epi.onerror=function(){ep.removeAttribute("src")};epi.src=epSrc;
   }else if(ep){ep.removeAttribute("src")}
   var won=g.state==="victory";
-  var bossT=g.bossType||"boss";
   var diffLabel=DIFF_LABELS[g.diff]||"平常";
   var diffColor={normal:"var(--ash)",hard:"var(--accent)",nightmare:"#c4523d",purgatory:"#8b0000"}[g.diff]||"var(--ash)";
   var timeStr=fmtMmSs(Math.floor(g.time/60));
