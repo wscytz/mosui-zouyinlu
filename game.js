@@ -2508,7 +2508,7 @@ function update(g){
       var sTiers=WAVE_TIERS[Math.min(WAVE_TIERS.length-1,Math.floor(g.wave/2))]||WAVE_TIERS[0];
       var sType=sTiers[ri(0,sTiers.length-1)];
       var sEt=ETYPE[sType];
-      var sCount=1+Math.floor(Math.random()*2);
+      var sCount=1+ri(0,1);
       if(sEt&&sEt.isBoss&&g.enemies.some(function(e){return e.isBoss&&e.hp>0}))sCount=0;
       for(var si=0;si<sCount;si++)spawnEnemy(g,sType,null);
       if(g.waveFlavor)showHint(g,"survival","又有敌人涌来！撑住！");
@@ -2552,9 +2552,7 @@ function update(g){
     g.waveCleared=true;g.waveClearT=80;
     // Wave clear stats float
     var wkt=g.waveStartT>0?Math.round((g.time-g.waveStartT)/60):0;
-    var wkm=Math.floor(wkt/60);var wks=wkt%60;
-    var wkStr=(wkm<10?"0":"")+wkm+":"+(wks<10?"0":"")+wks;
-    var wkText="斩"+g.waveKills+" · "+wkStr;
+    var wkText="斩"+g.waveKills+" · "+fmtMmSs(wkt);
     if(g.waveKills>=15)wkText+=" · 势如破竹";
     else if(g.waveKills>=8)wkText+=" · 雷厉风行";
     else if(g.waveKills>=4)wkText+=" · 稳中求进";
@@ -4022,8 +4020,7 @@ function updateHUD(g){
   if(g.killStreak>=3&&g.killStreakT>0){
     el=_hudEl("comboDisplay");if(el){el.style.display="";el.textContent="×"+g.killStreak}
   }else{el=_hudEl("comboDisplay");if(el)el.style.display="none"}
-  var rs=Math.floor(g.time/60),rm=Math.floor(rs/60);rs=rs%60;
-  var kt="斩祟 "+g.kills+" · "+(rm<10?"0":"")+rm+":"+(rs<10?"0":"")+rs;
+  var kt="斩祟 "+g.kills+" · "+fmtMmSs(Math.floor(g.time/60));
   if(kt!==_lastKillText){_lastKillText=kt;el=_hudEl("killCount");if(el)el.textContent=kt;}
   var maxHudRelics=5;
   var h="";
@@ -5086,7 +5083,7 @@ function beginRun(g){
   if(meta.unlocks.startRelic&&STARTER_RELICS){
     var srPool=STARTER_RELICS.filter(function(id){return !g.relics.some(function(r){return r.id===id})});
     if(srPool.length>0){
-      var srId=srPool[Math.floor(Math.random()*srPool.length)];
+      var srId=pick(srPool);
       var sr=RELICS.filter(function(r){return r.id===srId})[0];
       if(sr){g.relics.push(sr);sr.fn(p);
         startNotices.push("起始遗物: "+sr.name)}
