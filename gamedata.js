@@ -357,9 +357,9 @@ var RELICS=[
   {id:"molianhun",name:"墨链魂",type:"魂器",tags:["召唤","魂"],effect:"墨魂击杀时回复2HP",prereq:"molianhun",fn:function(p){p.spiritKillHeal=(p.spiritKillHeal||0)+2}},
   // v13.0 新遗物 x10
   {id:"mozhuxi",name:"墨竹笛",type:"法器",tags:["控场","减益"],effect:"攻击有15%概率使敌人致盲3秒",fn:function(p){p.blindOnHit=(p.blindOnHit||0)+0.15}},
-  {id:"momingzhu",name:"墨明珠",type:"宝具",tags:["暴击","法术"],effect:"暴击时20%概率额外释放一次攻击",fn:function(p){p.critExtraAtk=(p.critExtraAtk||0)+0.2}},
+  {id:"momingzhu",name:"墨明珠",type:"宝具",tags:["暴击","法术"],effect:"暴击伤害+15%，暴击率+3%",fn:function(p){p.stats.critDmg+=0.15;p.stats.critRate=Math.min(CAPS.critRate,p.stats.critRate+0.03)}},
   {id:"moxueyu",name:"墨血玉",type:"宝具",tags:["暴击","生存"],effect:"暴击时回复1HP，连杀时翻倍",fn:function(p){p.critHealHp=(p.critHealHp||0)+1}},
-  {id:"mohunshu",name:"墨魂书",type:"法器",tags:["法术","击杀"],effect:"每击杀10个敌人，下次攻击伤害+100%",fn:function(p){p.killChargeDmg=(p.killChargeDmg||0);p.killChargeMax=10}},
+  {id:"mohunshu",name:"墨魂书",type:"法器",tags:["法术","击杀"],effect:"每击杀5个敌人，下次攻击增伤+50%",fn:function(p){p.killChargeDmg=0;p.killChargeMax=5}},
   {id:"moyanluo",name:"墨烟罗",type:"防具",tags:["生存","减益"],effect:"受伤后3秒内减伤+40%",fn:function(p){p.hurtDefBoost=true;p.hurtDefAmt=0.4;p.hurtDefDur=180}},
   {id:"mozhijing",name:"墨纸镜",type:"宝具",tags:["防御","法术"],effect:"受到弹道伤害时有20%概率反弹",fn:function(p){p.reflectChance=(p.reflectChance||0)+0.2;p.reflectDmgMult=(p.reflectDmgMult||0)+0.3}},
   {id:"moyeyi",name:"墨夜衣",type:"防具",tags:["生存","机动"],effect:"静止1秒后进入隐身，移速+20%",fn:function(p){p.stealthIdle=true;p.stats.spd+=0.2}},

@@ -791,16 +791,7 @@ function renderStage(g,c){
       c.fillStyle=C.ink;c.beginPath();c.arc(W/2+Math.cos(dAng)*dR,H/2+Math.sin(dAng)*dR,3,0,Math.PI*2);c.fill()}
     c.globalAlpha=1;
   }else if(st.id==="moye"){
-    // 墨夜：暗幕笼罩，视野缩小
-    var vr=st._visR||200;
-    c.globalAlpha=0.7;c.fillStyle=C.ink;c.fillRect(0,0,W,H);
-    c.globalAlpha=1;c.save();c.beginPath();c.arc(p.x,p.y,vr,0,Math.PI*2);c.clip();
-    c.clearRect(p.x-vr,p.y-vr,vr*2,vr*2);c.restore();
-    // faint stars
-    c.globalAlpha=0.15;c.fillStyle=C.paper;
-    for(var mi=0;mi<5;mi++){var mx=(g.time*0.3+mi*200)%W,my=50+mi*120;
-      c.beginPath();c.arc(mx,my,1.5,0,Math.PI*2);c.fill()}
-    c.globalAlpha=1;
+    // 墨夜的视野蒙版在 render() 末尾统一处理(必须在所有游戏内容之上)
   }else if(st.id==="longmai"){
     // 龙脉：能量线
     c.globalAlpha=0.12;c.strokeStyle=C.accent;c.lineWidth=3;
@@ -1293,6 +1284,8 @@ function pAtk(g){
   // 低血增范围（血墨混染）
   if(p.lowHpRange&&p.hp<=p.maxHp*TUNING.lowHpRangeThreshold)rng*=TUNING.lowHpRangeMult;
   if(p._longmaiBoost>0)dmg=Math.floor(dmg*1.3);
+  // 墨魂书：蓄力增伤
+  if(p._chargedDmg){dmg=Math.floor(dmg*1.5);p._chargedDmg=false;pushLimited(g.floatTexts,{x:p.x,y:p.y-p.r-16,text:"蓄! x1.5",life:25,maxLife:25,reason:"hint"},LIMITS.floatTexts)}
   // 蓄力增伤
   dmg=Math.floor(dmg*chargeBonus);
   // 回斩进化：击杀后下次攻击增伤
@@ -1649,9 +1642,8 @@ function hitE(g,atk,e){
   // 墨血刃：暴击回血
   if(p.critHeal&&atk.crit){p.hp=Math.min(p.hp+2,p.maxHp);spawnP(g,p.x,p.y,"moss",3)}
   if(p.critHealHp&&atk.crit){var _chAmt=p.critHealHp*(g.killStreak>=3?2:1);p.hp=Math.min(p.maxHp,p.hp+_chAmt);pushLimited(g.floatTexts,{x:p.x,y:p.y-p.r-20,text:"+"+_chAmt,life:25,maxLife:25,reason:"heal"},LIMITS.floatTexts)}
-  if(p.critExtraAtk&&atk.crit&&Math.random()<p.critExtraAtk){g._extraAtkQueued=true}
   if(p.blindOnHit&&Math.random()<p.blindOnHit){e.blindT=180;pushLimited(g.floatTexts,{x:e.x,y:e.y-e.r-14,text:"盲",life:20,maxLife:20,reason:"blind"},LIMITS.floatTexts)}
-  if(p.killChargeDmg!==undefined){p.killChargeDmg++;if(p.killChargeDmg>=(p.killChargeMax||10)){p._chargedDmg=true;p.killChargeDmg=0;pushLimited(g.floatTexts,{x:p.x,y:p.y-p.r-16,text:"蓄力!",life:30,maxLife:30,reason:"hint"},LIMITS.floatTexts)}}
+  if(p.killChargeDmg!==undefined){p.killChargeDmg++;if(p.killChargeDmg>=(p.killChargeMax||5)){p._chargedDmg=true;p.killChargeDmg=0;pushLimited(g.floatTexts,{x:p.x,y:p.y-p.r-16,text:"蓄力!",life:30,maxLife:30,reason:"hint"},LIMITS.floatTexts)}}
   if(p.aoeSlowField){var _asfDist=dstSq(p,e);if(_asfDist<(g.weapon.type==="aoe"?200*200:120*120)){e.slowT=Math.max(e.slowT||0,40)}}
   if(atk.crit&&p.critShrapnel){var splDmg=Math.floor(atk.dmg*0.35);var shrapHit=0;forEachLiveEnemy(g,function(oe){if(oe===e)return;if(dstSq(e,oe)<RANGES.critShrapnel*RANGES.critShrapnel){damageEnemy(g,oe,splDmg,"shrapnel");shrapHit++}});spawnP(g,e.x,e.y,"accent",5);if(shrapHit>0)pushLimited(g.floatTexts,{x:e.x,y:e.y-18,text:"碎",life:22,maxLife:22,reason:"hint"},LIMITS.floatTexts)}
   shake(g,atk.crit?6:3,atk.crit?5:3);
@@ -4040,6 +4032,13 @@ function render(g){
     c.globalAlpha=1});
   // Mobile controls render hook
   if(IS_TOUCH&&window._renderMobileControls)window._renderMobileControls(c,W,H);
+  // Stage post-effect overlays (墨夜视野缩小 — 必须在所有内容画完后再画蒙版)
+  if(g.stage&&g.stage.id==="moye"){
+    var _vr=g.stage._visR||200;
+    c.fillStyle=C.ink;c.globalAlpha=0.82;c.fillRect(0,0,W,H);
+    c.save();c.globalCompositeOperation="destination-out";
+    c.beginPath();c.arc(p.x,p.y,_vr,0,Math.PI*2);c.fill();
+    c.restore();c.globalCompositeOperation="source-over";c.globalAlpha=1}
   // FPS counter (F3 toggle)
   if(g._showFps&&g.perf){c.save();c.globalAlpha=0.7;c.font='11px monospace';c.fillStyle=C.ash;
     c.textAlign="left";c.fillText(Math.round(g.perf.fps)+" FPS",4,12);
@@ -4980,7 +4979,7 @@ function showEnd(g){
     var lx=80,ly=270,lh=28;
     x.fillText("武器："+g.weapon.name,lx,ly);ly+=lh;
     x.fillText("斩祟："+g.kills,lx,ly);ly+=lh;
-    x.fillText("波次："+(g.endless?(WAVE_BUDGETS.length+"+"+(g.endlessWave||0)):(g.wave+"/"+WAVE_BUDGETS.length)),lx,ly);ly+=lh;
+    x.fillText("波次："+(g.endless?("第"+(WAVE_BUDGETS.length+g.endlessWave)+"波"):(g.wave+"/"+WAVE_BUDGETS.length)),lx,ly);ly+=lh;
     x.fillText("遗物："+g.relics.length+"件",lx,ly);ly+=lh;
     x.fillText("历时："+timeStr,lx,ly);ly+=lh;
     x.fillText("总伤害："+g.totalDmg,lx,ly);ly+=lh;
