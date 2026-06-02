@@ -551,7 +551,16 @@ var ETYPE={
     cloneOnHalf:true,cloneHpRatio:0.35},
   moshizhe:{name:"墨噬者",tip:"击杀回血，被围更危险，保持距离用AOE清理",hp:75,spd:1.0,r:15,dmg:10,atkR:32,atkCd:52,
     col:"rgba(44,37,32,0.5)",edge:C.ink,
-    vampiric:true,vampiricHeal:15}
+    vampiric:true,vampiricHeal:15},
+  // v13.0 new enemies
+  mobi:{name:"墨笔",tip:"远程追踪墨线，被缠住减速，保持走位",hp:55,spd:1.4,r:11,dmg:7,atkR:200,atkCd:80,
+    col:"rgba(100,80,60,0.45)",edge:C.ink,ranged:true,pSpd:3.8,webShot:true},
+  moyao:{name:"墨妖",tip:"击杀后自爆大范围墨潭，远程击杀后远离",hp:70,spd:1.2,r:16,dmg:9,atkR:34,atkCd:50,
+    col:"rgba(163,58,45,0.4)",edge:C.accent,
+    deathBomb:true,deathBombR:70,deathBombDmg:15,deathBombDelay:25,
+    deathSlow:true,deathSlowR:90,deathSlowT:140},
+  mofeng:{name:"墨蜂",tip:"极速飞行群体，低血高伤，AOE速清",hp:28,spd:2.8,r:8,dmg:10,atkR:22,atkCd:30,
+    col:"rgba(200,160,40,0.5)",edge:C.gold}
 };
 // spawnType target
 ETYPE.modeng={name:"墨灯",tip:"灵灯孵化物，快速近战",hp:15,spd:2.8,r:6,dmg:5,atkR:22,atkCd:30,
@@ -658,7 +667,7 @@ var BUILD_PREFS={
 function _ri(a,b){return Math.floor(a+Math.random()*(b-a+1))}
 function _pick(a){return a[Math.floor(Math.random()*a.length)]}
 // --- Procedural wave generation ---
-var ENEMY_COST={zhikui:1,youhun:1.5,zhikuang:1.5,fenling:2,gudeng:2,shigui:2.5,fenshen:2.5,modun:2.5,jiangshi:3,moya:1.8,shiyong:3,yanyong:2.2,sukui:1.3,duzhu:1.7,gushi:2.8,huapi:1.9,mozhi:1.4,motong:1.2,mofu:1.1,modie:1.5,moyong:2.0,morui:0.7,mozhu:1.8,mogu:2.8,momian:1.6,mojar:2.0,moying:1.5,mooushi:2.5,mozhuhou:3.0,moling:1.8,mobei:2.5,mozhang:2.0,moyanshi:2.3,molizexi:1.9,moyinggui:2.2,moyishi:2.5,moyingjiang:3.5,moguchong:1.6,molingdeng:2.0,modeng:0.6,boss:99,mojiangjun:99,moguiwang:99,moxian:99};
+var ENEMY_COST={zhikui:1,youhun:1.5,zhikuang:1.5,fenling:2,gudeng:2,shigui:2.5,fenshen:2.5,modun:2.5,jiangshi:3,moya:1.8,shiyong:3,yanyong:2.2,sukui:1.3,duzhu:1.7,gushi:2.8,huapi:1.9,mozhi:1.4,motong:1.2,mofu:1.1,modie:1.5,moyong:2.0,morui:0.7,mozhu:1.8,mogu:2.8,momian:1.6,mojar:2.0,moying:1.5,mooushi:2.5,mozhuhou:3.0,moling:1.8,mobei:2.5,mozhang:2.0,moyanshi:2.3,molizexi:1.9,moyinggui:2.2,moyishi:2.5,moyingjiang:3.5,moguchong:1.6,molingdeng:2.0,modeng:0.6,boss:99,mojiangjun:99,moguiwang:99,moxian:99,mobi:2.0,moyao:2.5,mofeng:1.5};
 var WAVE_BUDGETS=[5,7,9.5,12,14.5,17.5,21,25,28,32,36,0];
 var WAVE_TIERS=[
   ["zhikui","youhun"],
