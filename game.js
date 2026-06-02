@@ -122,7 +122,7 @@ function spawnJudgment(g,e,reason){
 var keys={},mouse={x:W/2,y:H/2,down:false},nextEnemyId=1;
 var canvas,ctx,G=null,bgCanvas=null,_cachedCanvasRect=null;
 window.MOSUI=window.MOSUI||{};
-window.MOSUI.version=window.MOSUI.version||"10.0";
+window.MOSUI.version=window.MOSUI.version||"12.0";
 window.MOSUI.hooks=window.MOSUI.hooks||{beforeUpdate:[],afterUpdate:[],beforeRender:[],afterRender:[]};
 window.MOSUI.input=window.MOSUI.input||{};
 window.MOSUI.platform=window.MOSUI.platform||{};
@@ -1126,7 +1126,7 @@ function startWave(g){
       if(_elist.length>20)break;
     }
     if(_elist.length===0)_elist=[{t:"zhikui",n:8}];
-    w={label:"无尽 · 第"+(g.wave+1)+"波",mod:pick(["ash","well","lantern","mask","inkpool","inktide"]),
+    w={label:"无尽 · 第"+(g.wave+1)+"波",mod:pick(["ash","well","lantern","mask","inkpool","inktide","guishi","mirror"]),
       flavor:"墨渊无底。每一波都比上一波更暗、更冷、更难。",
       list:_elist};
   }
@@ -1148,7 +1148,7 @@ function startWave(g){
     var supportPool=["gudeng","jiangshi","fenshen","zhikuang","zhikui","youhun"];
     var sup=[];
     for(var si=0;si<2+ri(0,2);si++)sup.push({t:pick(supportPool),n:1});
-    w={label:"镇守 · "+(bossT==="mojiangjun"?"墨阵殿":bossT==="moguiwang"?"墨渊殿":"画皮堂"),mod:pick(["lantern","mask","inkpool","inktide"]),
+    w={label:"镇守 · "+(bossT==="mojiangjun"?"墨阵殿":bossT==="moguiwang"?"墨渊殿":"画皮堂"),mod:pick(["lantern","mask","inkpool","inktide","guishi","mirror"]),
       flavor:bossT==="mojiangjun"?"墨将军镇守此地。以墨为甲，以书为兵。":bossT==="moguiwang"?"墨鬼王从深渊中浮现。它是墨的本源，你的笔只是它的碎片。":"画皮娘子镇守此地。她有千面，你的刀只有一面。",
       list:[{t:bossT,n:1}].concat(sup)};
   }
