@@ -43,68 +43,62 @@ const fs = require('fs');
     await page.goto('http://localhost:8080/game.html', { waitUntil: 'networkidle', timeout: 30000 });
     await page.waitForTimeout(3000);
 
-    // 等待游戏脚本加载 - 检查 init 是否完成
+    // 等待游戏初始化完成
     console.log('等待游戏初始化...');
     await page.waitForFunction(() => {
-      return typeof window.WEAPONS !== 'undefined' && 
-             typeof window.startGame === 'function';
+      return window._gameInitialized === true;
     }, { timeout: 15000 });
     console.log('游戏已初始化');
-    await page.waitForTimeout(2000);
 
-    // 直接调用 startGame 开始游戏，选择铃铛
-    console.log('直接开始游戏（铃铛武器）...');
-    const started = await page.evaluate(() => {
-      try {
-        // 隐藏标题屏幕，显示武器选择
-        var ts = document.getElementById('titleScreen');
-        if (ts) ts.style.display = 'none';
-        
-        // 直接调用 startGame
-        startGame('ling');
-        return true;
-      } catch (e) {
-        console.error('启动游戏失败:', e.message);
-        return false;
-      }
-    });
+    // 点击开始按钮
+    console.log('点击开始按钮...');
+    await page.click('#startBtn');
+    await page.waitForTimeout(1500);
 
-    if (!started) {
-      throw new Error('无法启动游戏');
-    }
-    
-    await page.waitForTimeout(3000);
-
-    // 检查游戏状态
-    const gameState = await page.evaluate(() => {
-      return {
-        hasG: typeof G !== 'undefined' && G !== null,
-        playerHP: typeof G !== 'undefined' && G && G.player ? G.player.hp : null,
-        weapon: typeof G !== 'undefined' && G && G.weapon ? G.weapon.id : null,
-        state: typeof G !== 'undefined' && G ? G.state : null,
-        gameContainerVisible: document.getElementById('gameContainer')?.style.display !== 'none'
-      };
-    });
-
-    console.log('游戏状态:', gameState);
-
-    // 如果游戏在诅咒选择界面，跳过它
-    if (gameState.state === 'prep') {
-      console.log('跳过诅咒选择...');
-      await page.evaluate(() => {
-        if (typeof beginRun === 'function' && typeof G !== 'undefined' && G) {
-          beginRun(G);
-        }
-      });
-      await page.waitForTimeout(2000);
-    }
-
-    // 等待游戏真正开始
+    // 等待武器选择界面
+    console.log('等待武器选择界面...');
     await page.waitForFunction(() => {
-      return typeof G !== 'undefined' && G && G.state === 'playing';
+      const ws = document.getElementById('weaponSelect');
+      return ws && ws.style.display !== 'none';
     }, { timeout: 10000 });
     
-    console.log('游戏已开始运行！');
+    // 选择铃铛武器
+    console.log('选择铃铛武器...');
+    await page.evaluate(() => {
+      const weapons = document.querySelectorAll('.weapon-pick');
+      for (let w of weapons) {
+        if (w.dataset.weapon === 'ling') {
+          w.click();
+          return;
+        }
+      }
+      if (weapons.length >= 3) weapons[2].click();
+    });
+    await page.waitForTimeout(2000);
+
+    // 等待诅咒选择界面
+    console.log('等待诅咒选择...');
+    await page.waitForFunction(() => {
+      const cp = document.getElementById('cursePopup');
+      return cp && cp.style.display !== 'none';
+    }, { timeout: 10000 });
+    
+    // 跳过诅咒选择
+    console.log('跳过诅咒选择...');
+    await page.evaluate(() => {
+      const skipBtn = document.querySelector('.curse-skip');
+      if (skipBtn) skipBtn.click();
+    });
+    await page.waitForTimeout(2000);
+
+    // 等待游戏容器可见
+    console.log('等待游戏开始...');
+    await page.waitForFunction(() => {
+      const gc = document.getElementById('gameContainer');
+      return gc && gc.style.display !== 'none';
+    }, { timeout: 10000 });
+    console.log('游戏已开始！');
+    await page.waitForTimeout(1000);
 
     // 获取canvas
     const canvas = await page.$('#gameCanvas');
@@ -148,21 +142,19 @@ const fs = require('fs');
       // 每5秒报告一次状态
       if (elapsed % 5000 < 100) {
         const state = await page.evaluate(() => {
-          if (typeof G === 'undefined' || !G) return null;
+          const hpText = document.getElementById('hpText')?.textContent;
+          const waveInfo = document.getElementById('waveInfo')?.textContent;
+          const killCount = document.getElementById('killCount')?.textContent;
+          
           return {
-            playerHP: G.player ? G.player.hp : null,
-            maxHp: G.player ? G.player.maxHp : null,
-            wave: G.stage ? G.stage.wave : null,
-            enemies: G.enemies ? G.enemies.length : null,
-            kills: G.kills || 0,
-            frame: G.frame || 0,
-            weapon: G.weapon ? G.weapon.id : null,
-            state: G.state
+            hp: hpText,
+            wave: waveInfo,
+            kills: killCount
           };
         }).catch(() => null);
 
         if (state) {
-          console.log(`  [${(elapsed/1000).toFixed(1)}s] 状态:${state.state} 武器:${state.weapon} HP:${state.playerHP?.toFixed(0)}/${state.maxHp} 波次:${state.wave} 敌人:${state.enemies} 击杀:${state.kills}`);
+          console.log(`  [${(elapsed/1000).toFixed(1)}s] HP:${state.hp} 波次:${state.wave} 击杀:${state.kills}`);
         }
       }
 
@@ -180,4 +172,46 @@ const fs = require('fs');
   console.log('  测试结果报告');
   console.log('══════════════════════════════════════════════════');
 
-  console.log(`
+  console.log(`\n控制台消息: ${consoleLogs.length} 条`);
+  const errors = consoleLogs.filter(l => l.type === 'error');
+  const warnings = consoleLogs.filter(l => l.type === 'warning');
+
+  if (errors.length > 0) {
+    console.log(`\n错误消息 (${errors.length}):`);
+    errors.forEach(e => console.log(`  - ${e.text}`));
+  } else {
+    console.log('\n✓ 未发现控制台错误');
+  }
+
+  if (warnings.length > 0) {
+    console.log(`\n警告消息 (${warnings.length}):`);
+    warnings.forEach(w => console.log(`  - ${w.text}`));
+  }
+
+  if (pageErrors.length > 0) {
+    console.log(`\n页面错误 (${pageErrors.length}):`);
+    pageErrors.forEach(e => console.log(`  - ${e.message}`));
+  } else {
+    console.log('\n✓ 未发现页面错误');
+  }
+
+  if (networkErrors.length > 0) {
+    console.log(`\n网络错误 (${networkErrors.length}):`);
+    networkErrors.forEach(e => console.log(`  - ${e.url}: ${e.failure}`));
+  } else {
+    console.log('\n✓ 未发现网络错误');
+  }
+
+  // 保存详细日志
+  const logData = {
+    timestamp: new Date().toISOString(),
+    consoleLogs,
+    pageErrors,
+    networkErrors
+  };
+  fs.writeFileSync('bell_test_logs.json', JSON.stringify(logData, null, 2));
+  console.log('\n详细日志已保存到 bell_test_logs.json');
+
+  await browser.close();
+  console.log('\n测试完成');
+})();

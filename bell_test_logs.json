@@ -1,15 +1,35 @@
 {
-  "timestamp": "2026-06-02T10:48:45.520Z",
+  "timestamp": "2026-06-02T10:58:29.908Z",
   "consoleLogs": [
     {
       "type": "error",
       "text": "Failed to load resource: the server responded with a status of 404 (File not found)",
-      "time": 1780397314917
+      "time": 1780397889126
     },
     {
       "type": "error",
       "text": "Failed to load resource: the server responded with a status of 404 (File not found)",
-      "time": 1780397314917
+      "time": 1780397889127
+    },
+    {
+      "type": "log",
+      "text": "找到武器数量: 5",
+      "time": 1780397895369
+    },
+    {
+      "type": "log",
+      "text": "武器ID: jian",
+      "time": 1780397895369
+    },
+    {
+      "type": "log",
+      "text": "武器ID: bi",
+      "time": 1780397895369
+    },
+    {
+      "type": "log",
+      "text": "武器ID: ling",
+      "time": 1780397895369
     }
   ],
   "pageErrors": [],
