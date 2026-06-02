@@ -10,9 +10,20 @@
   "theme_color": "#171310",
   "icons": [
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='28' font-size='28'>鬼</text></svg>",
-      "sizes": "32x32",
-      "type": "image/svg+xml"
+      "src": "assets/ui/favicon-512.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "assets/ui/favicon-512.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "assets/ui/favicon-512.jpg",
+      "sizes": "180x180",
+      "type": "image/jpeg",
+      "purpose": "apple-touch-icon"
     }
   ]
 }

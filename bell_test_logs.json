@@ -1,0 +1,17 @@
+{
+  "timestamp": "2026-06-02T10:48:45.520Z",
+  "consoleLogs": [
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 404 (File not found)",
+      "time": 1780397314917
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 404 (File not found)",
+      "time": 1780397314917
+    }
+  ],
+  "pageErrors": [],
+  "networkErrors": []
+}

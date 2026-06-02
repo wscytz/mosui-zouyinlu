@@ -762,10 +762,7 @@ function renderStage(g,c){
     var tideR=120+60*Math.sin(g.time*0.02);
     c.globalAlpha=0.12+0.06*Math.sin(g.time*0.02);c.fillStyle="rgba(23,19,16,0.8)";
     c.beginPath();c.arc(W/2,H/2,tideR,0,Math.PI*2);c.fill();
-    c.glo  // soulHarvester: nearby mohuanji gains kill credit
-  forEachLiveEnemy(g,function(se){if(se.soulHarvester&&se._soulHarvest>=0){
-    if(dstSq(se,e)<40000){se._soulHarvest=(se._soulHarvest||0)+1;spawnP(g,se.x,se.y,"boss",2)}}});
-balAlpha=0.3;c.strokeStyle=C.accent;c.lineWidth=2;
+    c.globalAlpha=0.3;c.strokeStyle=C.accent;c.lineWidth=2;
     c.beginPath();c.arc(W/2,H/2,tideR,0,Math.PI*2);c.stroke();
     // inner ripple
     c.globalAlpha=0.15;c.strokeStyle=C.ink;c.lineWidth=1;c.setLineDash([3,6]);
@@ -3156,7 +3153,7 @@ function render(g){
     g.weapon.type==="aoe"?"rgba(77,97,86,0.6)":g.weapon.type==="summon"?C.accent:C.gold;
   // weapon-specific silhouette accent
   c.globalAlpha=0.4;c.fillStyle=wCol;c.strokeStyle=wCol;
-  if(g.weapon.type==="melee"){if(p.meleeHitHeal){p.hp=Math.min(p.hp+1,p.maxHp);spawnP(g,p.x,p.y,"moss",2)}c.lineWidth=3;c.beginPath();
+  if(g.weapon.type==="melee"){if(p.meleeHitHeal){/* 渲染时不回血，避免每帧触发 */}c.lineWidth=3;c.beginPath();
     c.moveTo(Math.cos(p.facing)*(p.r+2),Math.sin(p.facing)*(p.r+2));
     c.lineTo(Math.cos(p.facing)*(p.r+14),Math.sin(p.facing)*(p.r+14));c.stroke()}
   else if(g.weapon.type==="ranged"){c.beginPath();
@@ -4843,6 +4840,7 @@ function showEnd(g){
   // v10.0 T4 战斗回放：localStorage存近5局
   var _hKey="mosui_history";var _hRec={ts:Date.now(),weapon:g.weapon.type||"melee",weaponName:g.weapon.name||"?",grade:grade,kills:g.kills,wave:g.wave,relics:g.relics.length,time:Math.floor(g.time/60),boss:!!g.bossKilled,diff:g.diff||"normal"};
   var _hist=pushLSCapped(_hKey,_hRec,5,function(a,b){return b.ts-a.ts});
+  var _hp=document.getElementById("historyPanel");
   if(_hp){var _rows=_hist.map(function(h,i){
       var _dt=new Date(h.ts);var _tsStr=(_dt.getMonth()+1)+"-"+(_dt.getDate()<10?"0":"")+_dt.getDate()+" "+(_dt.getHours()<10?"0":"")+_dt.getHours()+":"+(_dt.getMinutes()<10?"0":"")+_dt.getMinutes();
       var _tDisp=fmtMmSs(h.time||0);
