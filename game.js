@@ -234,6 +234,8 @@ function calcGrade(g){
   else if(score>=40)return"丙";else return"丁";
 }
 function gradePriority(g){var m={"S":5,"甲":4,"乙":3,"丙":2,"丁":1};return m[g]||0}
+function pushLSCapped(key,rec,max,sortFn){var arr=[];try{arr=JSON.parse(localStorage.getItem(key)||"[]")}catch(e){}arr.push(rec);if(sortFn)arr.sort(sortFn);if(arr.length>max)arr=arr.slice(0,max);try{localStorage.setItem(key,JSON.stringify(arr))}catch(e){}return arr}
+function fmtMmSs(sec){var m=Math.floor(sec/60),s=sec%60;return(m<10?"0":"")+m+":"+(s<10?"0":"")+s}
 function buildEndRoute(g){
   var tagFreq={};
   (g.relics||[]).forEach(function(r){
@@ -387,6 +389,8 @@ function mkPlayer(){
 }
 
 var DIFF={normal:{hpM:1,spdM:1,dmgM:1},hard:{hpM:1.35,spdM:1.15,dmgM:1.25},nightmare:{hpM:1.8,spdM:1.3,dmgM:1.5},purgatory:{hpM:2.0,spdM:1.4,dmgM:1.55}};
+var DIFF_LABELS={normal:"平常",hard:"险途",nightmare:"噩梦",purgatory:"炼狱"};
+var DIFF_SHORT={normal:"平",hard:"险",nightmare:"噩",purgatory:"炼"};
 
 function quickRestart(g){
   if(!g||!(g.state==="playing"||g.state==="paused"))return;
@@ -4524,7 +4528,7 @@ function showRelic(g){
   if(wpEl&&g.wave<WAVE_BUDGETS.length-1){
     var nw=WAVE_BUDGETS[g.wave+1]||0;
     var isNextBoss=(g.wave+1)>=WAVE_BUDGETS.length-1;
-    var diffLabel2={normal:"平常",hard:"险途",nightmare:"噩梦",purgatory:"炼狱"}[g.diff]||"";
+    var diffLabel2=DIFF_LABELS[g.diff]||"";
     wpEl.style.display="";
     wpEl.textContent=isNextBoss?"下一波：Boss决战 · 精锐集结":
       "下一波：第"+CN_NUM[g.wave+1]+"波 · "+diffLabel2+" · 威胁"+nw;
@@ -4782,10 +4786,9 @@ function showEnd(g){
   }else if(ep){ep.removeAttribute("src")}
   var won=g.state==="victory";
   var bossT=g.bossType||"boss";
-  var diffLabel={normal:"平常",hard:"险途",nightmare:"噩梦",purgatory:"炼狱"}[g.diff]||"平常";
+  var diffLabel=DIFF_LABELS[g.diff]||"平常";
   var diffColor={normal:"var(--ash)",hard:"var(--accent)",nightmare:"#c4523d",purgatory:"#8b0000"}[g.diff]||"var(--ash)";
-  var secs=Math.floor(g.time/60);var mins=Math.floor(secs/60);secs=secs%60;
-  var timeStr=(mins<10?"0":"")+mins+":"+(secs<10?"0":"")+secs;
+  var timeStr=fmtMmSs(Math.floor(g.time/60));
   var subtitle=won?(bossT==="moguiwang"?"墨鬼王消散了。你从墨渊中走出，手中还握着那支笔。":
     g.diff==="purgatory"?"炼狱通关，墨渊倒悬，你已非人。":
     g.diff==="nightmare"?"噩梦地宫，一命通关，万邪辟易。":
@@ -4839,15 +4842,11 @@ function showEnd(g){
     " · 成就 "+Object.keys(meta.achievements||{}).length+"/"+ACHIEVEMENTS.length+"</span>";
   // v10.0 T4 战斗回放：localStorage存近5局
   var _hKey="mosui_history";var _hRec={ts:Date.now(),weapon:g.weapon.type||"melee",weaponName:g.weapon.name||"?",grade:grade,kills:g.kills,wave:g.wave,relics:g.relics.length,time:Math.floor(g.time/60),boss:!!g.bossKilled,diff:g.diff||"normal"};
-  var _hist=[];try{_hist=JSON.parse(localStorage.getItem(_hKey)||"[]")}catch(e){_hist=[]}
-  _hist.push(_hRec);if(_hist.length>5)_hist=_hist.slice(-5);
-  try{localStorage.setItem(_hKey,JSON.stringify(_hist))}catch(e){}
-  var _hp=document.getElementById("historyPanel");
-  if(_hp){var _diffMap={normal:"平",hard:"险",nightmare:"噩",purgatory:"炼"};
-    var _rows=_hist.slice().reverse().map(function(h,i){
+  var _hist=pushLSCapped(_hKey,_hRec,5,function(a,b){return b.ts-a.ts});
+  if(_hp){var _rows=_hist.map(function(h,i){
       var _dt=new Date(h.ts);var _tsStr=(_dt.getMonth()+1)+"-"+(_dt.getDate()<10?"0":"")+_dt.getDate()+" "+(_dt.getHours()<10?"0":"")+_dt.getHours()+":"+(_dt.getMinutes()<10?"0":"")+_dt.getMinutes();
-      var _tsec=h.time||0;var _tm=Math.floor(_tsec/60);var _tr=_tsec%60;var _tDisp=(_tm<10?"0":"")+_tm+":"+(_tr<10?"0":"")+_tr;
-      var _dStr=_diffMap[h.diff||"normal"]||"平";
+      var _tDisp=fmtMmSs(h.time||0);
+      var _dStr=DIFF_SHORT[h.diff||"normal"]||"平";
       var _bossTag=h.boss?"<span style='color:var(--accent)'>★</span>":"";
       return (i===0?"<b style='color:var(--accent)'>本局</b> ":_bossTag)+_tsStr+" "+_dStr+" "+h.grade+" "+h.weaponName+" 波"+h.wave+" 斩"+h.kills+" 遗"+h.relics+" "+_tDisp
     }).join("<br>");
@@ -4855,19 +4854,11 @@ function showEnd(g){
   // v10.0 T5 本地排行榜：按评级+分数排序存前20
   var _lKey="mosui_leaderboard";var _lScore=calcScore(g);
   var _lRec={ts:Date.now(),weapon:g.weapon.name||"?",grade:grade,score:_lScore,kills:g.kills,wave:g.wave,date:localDay(),diff:g.diff||"normal"};
-  var _lb=[];try{_lb=JSON.parse(localStorage.getItem(_lKey)||"[]")}catch(e){_lb=[]}
-  _lb.push(_lRec);
-  var _gRank={"S":5,"甲":4,"乙":3,"丙":2,"丁":1};
-  _lb.sort(function(a,b){var r=(_gRank[b.grade]||0)-(_gRank[a.grade]||0);if(r!==0)return r;return (b.score||0)-(a.score||0)});
-  if(_lb.length>20)_lb=_lb.slice(0,20);
-  try{localStorage.setItem(_lKey,JSON.stringify(_lb))}catch(e){}
+  pushLSCapped(_lKey,_lRec,20,function(a,b){var r=gradePriority(b.grade)-gradePriority(a.grade);if(r!==0)return r;return (b.score||0)-(a.score||0)});
   // v11.0 任务3 无尽模式独立排行榜：按波次降序
   if(g.endless){var _eKey="mosui_leaderboard_endless";
     var _eRec={ts:Date.now(),weapon:g.weapon.name||"?",wave:g.wave+1,kills:g.kills,date:localDay(),diff:g.diff||"normal",time:Math.floor(g.time/60)};
-    var _elb=[];try{_elb=JSON.parse(localStorage.getItem(_eKey)||"[]")}catch(e){_elb=[]}
-    _elb.push(_eRec);_elb.sort(function(a,b){return(b.wave||0)-(a.wave||0)});
-    if(_elb.length>20)_elb=_elb.slice(0,20);
-    try{localStorage.setItem(_eKey,JSON.stringify(_elb))}catch(e){}}
+    pushLSCapped(_eKey,_eRec,20,function(a,b){return(b.wave||0)-(a.wave||0)});}
   el=document.getElementById("gameOver");if(el)el.style.display="";
   // v10.0 T1 结算截图
   var ssBtn=document.getElementById("screenshotBtn");
@@ -4901,7 +4892,7 @@ function showLeaderboard(mode){
   var _lKey=mode==="endless"?"mosui_leaderboard_endless":"mosui_leaderboard";
   var _lb=[];
   try{_lb=JSON.parse(localStorage.getItem(_lKey)||"[]")}catch(e){_lb=[]}
-  var _diffMap={normal:"平",hard:"险",nightmare:"噩",purgatory:"炼"};
+  var _diffMap=DIFF_SHORT;
   var _list=document.getElementById("leaderboardList");
   var _tabs="<div style='display:flex;gap:12px;margin-bottom:8px;justify-content:center'>"+
     "<span "+(mode==="normal"?"style='color:var(--accent);font-weight:600;border-bottom:2px solid var(--accent)'":"style='color:var(--ash);cursor:pointer' onclick='showLeaderboard(\"normal\")'")+">普通榜</span>"+
@@ -4909,7 +4900,7 @@ function showLeaderboard(mode){
   if(!_lb.length){if(_list)_list.innerHTML=_tabs+"<div style='padding:24px;text-align:center;color:var(--ash)'>暂无记录，斩一局试试</div>"}
   else if(mode==="endless"){var _rows=_lb.map(function(r,i){
     var _dStr=_diffMap[r.diff||"normal"]||"平";
-    var _tsec=r.time||0;var _tm=Math.floor(_tsec/60);var _tr=_tsec%60;var _tDisp=(_tm<10?"0":"")+_tm+":"+(_tr<10?"0":"")+_tr;
+    var _tDisp=fmtMmSs(r.time||0);
     return "<div style='display:flex;justify-content:space-between;padding:4px 6px;border-bottom:1px solid rgba(0,0,0,0.05)'>"+
       "<span style='width:36px;color:var(--ash)'>"+(i+1)+".</span>"+
       "<span style='width:90px;font-weight:600;color:var(--accent)'>第"+r.wave+"波</span>"+
