@@ -5393,6 +5393,9 @@ function init(){
     var ddEl=document.getElementById("dailyDateLabel");
     if(ddEl)ddEl.textContent=localDay();
   })()}catch(e){}
+  var _meta=null;try{_meta=JSON.parse(localStorage.getItem("mosui_meta"))}catch(e){}
+  if(!_meta){var _tut=document.getElementById("tutorialOverlay");if(_tut){_tut.style.display="flex";
+    _tut.onclick=function(){_tut.style.display="none"}}}
   setupWeaponSelect();if(window._loadLog)window._loadLog("init() 完成 ✓ loop启动");loop();
   // Dismiss Capacitor splash screen — try multiple methods
   try{var _sp=window.Capacitor&&(Capacitor.Plugins&&Capacitor.Plugins.SplashScreen)||(Capacitor.SplashScreen);
