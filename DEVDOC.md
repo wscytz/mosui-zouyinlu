@@ -3864,6 +3864,20 @@ npm run cap:open:android  # 用 Android Studio 打开
 
 *v13.1 结构治理 更新于 2026-06-03。*
 
+### v13.2 UI 与图标管线版 (2026-06-03)
+
+**遗物图标补齐：**
+- 补齐 v13.0 新增的 19 个遗物 CSS 图标（moduanren/moxuejian/moguidan/mosheying/mozhenling/moyingshan/mopofeng/mohunzhui/molianhun/mozhuxi/momingzhu/moxueyu/mohunshu/moyanluo/mozhijing/moyeyi/mofengling/moguiyin/mohundeng）
+- 更新默认后备 `:not()` 排除列表
+- 遗物图标覆盖率：213/213（100%）
+- 缺图清单：成就 53/53、誓印 30/31 仍缺图标（B 级优先级）
+
+**验收确认：**
+- 全量测试通过：smoke 44 + content 236 + wave 16 + stress 11 + robust 5 + seeded 3 = 315 项
+- `npm run www` 构建同步正常
+
+*v13.2 UI 与图标管线版 更新于 2026-06-03。*
+
 ### 版本号规则
 
 改完一个bug → 删掉对应条目 → 版本号末尾+1
