@@ -6,13 +6,13 @@
 ## 仓库
 - GitHub: https://github.com/wscytz/mosui-zouyinlu
 - 本地: `C:\Users\金许诺\Documents\Codex\2026-04-24\new-chat-2`
-- 当前版本: **v13.0**
+- 当前版本: **v13.1**
 
 ## 技术栈
 | 项 | 选型 |
 |----|------|
 | 渲染 | Canvas 2D (960×640)，纯手写 |
-| 框架 | 零（单 IIFE，~5500 行 game.js） |
+| 框架 | 零（单 IIFE，~5548 行 game.js） |
 | 数据 | gamedata.js（共享数据，被 game.html + wiki.html 共同引用） |
 | 音效 | Web Audio API 合成 + 8 首 MP3 关卡音乐 |
 | 移动端 | mobile-controls.js 虚拟摇杆 + Capacitor 打包 APK |
@@ -52,7 +52,8 @@ index.html       概念首页
 ## 测试
 - `node smoke_test.js` — 44 项冒烟（必须全绿）
 - `node content_test.js` — 236 项内容（必须全绿）
-- 测试基线：smoke 44/44 + content 236/236
+- `node wave_test.js` — 16 项波次/机制（必须全绿）
+- 测试基线：smoke 44/44 + content 236/236 + wave 16/16
 
 ## 流程命令
 ```bash

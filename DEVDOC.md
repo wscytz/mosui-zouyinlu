@@ -3837,6 +3837,33 @@ npm run cap:open:android  # 用 Android Studio 打开
 
 *v6.0 体验打磨 + 内容深化 更新于 2026-05-17。*
 
+### v13.0 大内容版 + v13.1 结构治理 (2026-06-03)
+
+**v13.0 新增内容：**
+- 第 4 Boss 墨仙（HP 420，3 阶段 AI：十字弹+跟踪墨点 → 召唤+画阵减速 → 狂草螺旋+闪现+横扫）
+- 3 新敌人：墨笔 mobi、墨妖 moyao、墨蜂 mofeng
+- 2 新关卡调制器：墨夜 moye（视野遮罩 destination-out）+ 龙脉 longmai（能量线加速）
+- 10 新遗物（墨竹笛/墨明珠/墨血玉/墨魂书/墨烟罗/墨纸镜/墨夜衣/墨风铃/墨鬼印/墨魂灯）
+- 5 新进化：气剑 meleeWave / 墨冥 killSplitProj / 震魄 ringKillFear / 墨影 dashKillReset / 幽杀 spiritCritBonus
+- 3 新誓印：墨羽 moyu / 血魂 xuehun / 伏墨 fumo
+- 2 新成就：kill_moxian / quad_boss
+- 首局教学 overlay
+- 每日种子修复（mulberry32 PRNG）
+- 墨明珠/墨魂书效果实现化
+
+**v13.1 结构治理（当前）：**
+- source 判定统一：hitE 区分 melee/proj/hit，onEnemyKilled 中 7 处近战/远程击杀遗物改用 source 判定
+- damageEnemy 中 missChance/hitDmgMult 适配新 source 值
+- 墨将军 phase 3 shieldRegen 480→300（匹配 5s）
+- mkPlayer 状态字段补齐 17 个缺失默认值
+- 文档治理：新增 ITERATION_SYSTEM/STRUCTURE_RULES/MULTI_AGENT_PROTOCOL/AGENT_BOARD/DOC_INDEX
+- 回归测试 8→16 项：穿透 hitMap、source 判定、种子确定性、daily RNG 恢复、PREREQS 端到端、cleanupWave、Boss 分身
+
+**game.js 行数：** 5548（上限 8000）
+**测试基线：** 296 项（44 smoke + 16 wave + 236 content）
+
+*v13.1 结构治理 更新于 2026-06-03。*
+
 ### 版本号规则
 
 改完一个bug → 删掉对应条目 → 版本号末尾+1

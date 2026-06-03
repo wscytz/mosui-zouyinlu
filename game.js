@@ -386,6 +386,18 @@ function mkPlayer(){
     mofanyuBond:false,
     mokuaihunBond:false,
     mochongguangBond:false,
+    aimAngle:0,
+    aoeSlowField:false,
+    atkCdMax:0,atkHpCost:0,atkTimer:0,
+    bannerBurst:false,bannerDmgMult:0,bannerDouble:false,bannerHeal:false,bannerPierce:false,bannerRangeBonus:0,bannerSpiritSlow:false,
+    blindOnHit:false,
+    critHealHp:0,
+    dashKillReset:false,dashTrail:false,
+    dmgTakenMult:0,
+    dodgeKills:0,
+    hurtDefAmt:0,hurtDefBoost:false,hurtDefDur:0,
+    inkSpiritMax:0,
+    killSplitProj:false,
     idleT:0}
 }
 
