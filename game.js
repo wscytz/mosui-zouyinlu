@@ -122,7 +122,7 @@ function spawnJudgment(g,e,reason){
 var keys={},mouse={x:W/2,y:H/2,down:false},nextEnemyId=1;
 var canvas,ctx,G=null,bgCanvas=null,_cachedCanvasRect=null;
 window.MOSUI=window.MOSUI||{};
-window.MOSUI.version=window.MOSUI.version||"12.0";
+window.MOSUI.version=window.MOSUI.version||"13.1";
 window.MOSUI.hooks=window.MOSUI.hooks||{beforeUpdate:[],afterUpdate:[],beforeRender:[],afterRender:[]};
 window.MOSUI.input=window.MOSUI.input||{};
 window.MOSUI.platform=window.MOSUI.platform||{};
