@@ -592,6 +592,17 @@ var ETYPE={
 ETYPE.modeng={name:"墨灯",tip:"灵灯孵化物，快速近战",hp:15,spd:2.8,r:6,dmg:5,atkR:22,atkCd:30,
   col:"rgba(180,160,100,0.4)",edge:C.gold};
 
+// v14.0 阶段8：Boss 池集中表（之前散在 game.js 三个地方）
+var BOSSTYPES=["boss","mojiangjun","moguiwang","moxian","moyan"];
+// Boss 名称/地点/调性映射（之前散在 game.js midBoss 和 bossT 三元）
+var BOSS_LABELS={
+  boss:{place:"画皮堂",midPlace:"画皮小堂",flavor:"画皮娘子镇守此地。她有千面，你的刀只有一面。",midFlavor:"画皮娘子留下的一面在此拦路。"},
+  mojiangjun:{place:"墨阵殿",midPlace:"墨将巡殿",flavor:"墨将军镇守此地。以墨为甲，以书为兵。",midFlavor:"墨将军的副将巡守此地，虽是分身，亦不可小觑。"},
+  moguiwang:{place:"墨渊殿",midPlace:"墨渊涌动",flavor:"墨鬼王从深渊中浮现。它是墨的本源，你的笔只是它的碎片。",midFlavor:"墨渊深处涌出的古老存在，连空间都在颤抖。"},
+  moxian:{place:"墨仙阁",midPlace:"仙墨回廊",flavor:"墨仙端坐阁中，笔走龙蛇，字字化为杀阵。",midFlavor:"墨仙留下的残影在此处游荡，字字杀机。"},
+  moyan:{place:"魇梦殿",midPlace:"魇境惊梦",flavor:"墨魇从你的梦中升起，愈战愈狂，召唤小鬼围猎。",midFlavor:"墨魇从深渊醒来，召唤小鬼围猎你的梦。"}
+};
+
 var LIMITS={particles:260,fires:72,attacks:90,eProj:90,floatTexts:18,decoys:12,kites:4,frosts:12,enemies:80,inkSpirits:6};
 
 var PREREQS={
