@@ -583,7 +583,9 @@ var ETYPE={
     deathBomb:true,deathBombR:70,deathBombDmg:15,deathBombDelay:25,
     deathSlow:true,deathSlowR:90,deathSlowT:140},
   mofeng:{name:"墨蜂",tip:"极速飞行群体，低血高伤，AOE速清",hp:28,spd:2.8,r:8,dmg:10,atkR:22,atkCd:30,
-    col:"rgba(200,160,40,0.5)",edge:C.gold}
+    col:"rgba(200,160,40,0.5)",edge:C.gold},
+  momie:{name:"墨灭",tip:"快速法术射手，吐墨球点杀",hp:38,spd:1.6,r:10,dmg:8,atkR:220,atkCd:50,
+    col:"rgba(110,60,160,0.5)",edge:C.boss,ranged:true,pSpd:4.5}
 };
 // spawnType target
 ETYPE.modeng={name:"墨灯",tip:"灵灯孵化物，快速近战",hp:15,spd:2.8,r:6,dmg:5,atkR:22,atkCd:30,

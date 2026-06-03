@@ -3945,6 +3945,13 @@ npm run cap:open:android  # 用 Android Studio 打开
 - content_test.js 增 1 项（240）：ETYPE.moyan 存在 + isBoss + 至少 5 个 boss
 - **319 项测试全通过**
 
+**v14.0 软拆分阶段 4 — 加新敌人「墨灭」(momie)：**
+- ETYPE.momie：HP 38, spd 1.6, r 10, dmg 8, atkR 220, atkCd 50, ranged, pSpd 4.5
+- 远程法术射手，吐墨球点杀，0 game.js 改动
+- 注：曾误用 modie id 与 v3+ 时期"墨蝶"撞名，已改用 momie
+- content_test.js 增 1 项（241）：ETYPE.momie 存在 + 非 boss + ranged + ETYPE 总数 ≥ 51
+- **320 项测试全通过**
+
 *v14.0 模块化与大内容前置 更新于 2026-06-03。*
 
 ### 版本号规则
