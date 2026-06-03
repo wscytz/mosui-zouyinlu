@@ -652,7 +652,7 @@ var PREREQS={
   mopianxing:function(s){return !!s.ownedIds.mochuanshe}
 };
 
-var CAPS={critRate:0.65,bellCombo:15,shieldStack:3,atkCdFloor:4,soulChain:4,ringSoul:6,projSize:2.0,defMax:0.6};
+var CAPS={critRate:0.65,bellCombo:15,shieldStack:3,atkCdFloor:4,soulChain:4,ringSoul:6,projSize:2.0,defMax:0.6,critDmgMax:3.5};
 
 var RANGES={weakSpread:100,fireExpand:60,fear:100,soulChain:80,burst:50,
   decoyAttract:120,chargeMax:240,chargeMin:54,rangedMin:50,
@@ -799,8 +799,8 @@ var CURSES=[
     desc:"周期性视野缩小，但移速+40%",
     fn:function(p){p.fogCurse=true;p.stats.spd+=0.4}},
   {id:"guihuo",name:"鬼火",type:"誓印",tags:["法术","诅咒"],
-    desc:"敌人死亡产生追踪魂球，但击杀回血+8",
-    fn:function(p){p.soulOrbCurse=true;p.killHeal=(p.killHeal||0)+8}},
+    desc:"敌人死亡产生追踪魂球（伤害+2），但击杀回血+8",
+    fn:function(p){p.soulOrbCurse=true;p.soulOrbDmgBonus=(p.soulOrbDmgBonus||0)+2;p.killHeal=(p.killHeal||0)+8}},
   {id:"lingshi",name:"灵噬",type:"誓印",tags:["召物","诅咒"],
     desc:"墨灵伤害翻倍，但每波开始每只墨灵扣除2点生命",
     fn:function(p){p.spiritDmgBonus=(p.spiritDmgBonus||0)+1.0;p.spiritHpCost=true}},

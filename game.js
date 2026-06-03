@@ -973,7 +973,7 @@ function onEnemyKilled(g,e,source,opts){
     spawnP(g,p.x,p.y,"gold",4);snd("relicPickup");
   }
   // 鬼火诅咒：死亡产生追踪魂球
-  if(p.soulOrbCurse&&!e.isBoss){g.soulOrbs.push({x:e.x,y:e.y,r:6,spd:1.5,dmg:Math.max(3,Math.ceil(e.dmg*0.4)),life:180})}
+  if(p.soulOrbCurse&&!e.isBoss){g.soulOrbs.push({x:e.x,y:e.y,r:6,spd:1.5,dmg:Math.max(3,Math.ceil(e.dmg*0.4)+(p.soulOrbDmgBonus||0)),life:180})}
   // 墨师珠：击杀产生减速墨池
   if(p.killSlowPool&&!e.isBoss){pushLimited(g.fires,{x:e.x,y:e.y,r:28,life:60,maxLife:60,dmg:0,owner:"player",slow:true},LIMITS.fires)}
   // 墨罐死后减速墨池
@@ -4596,6 +4596,7 @@ function rebuildPlayerStats(g){
   if(f.maxHpOverride>0)f.maxHp=f.maxHpOverride;
   if(f.spiritHpPenalty>0&&f.inkSpiritCount>0)f.maxHp=Math.max(20,f.maxHp-f.spiritHpPenalty*f.inkSpiritCount);
   if(CAPS.defMax&&f.stats.def>CAPS.defMax)f.stats.def=CAPS.defMax;
+  if(CAPS.critDmgMax&&f.stats.critDmg>CAPS.critDmgMax)f.stats.critDmg=CAPS.critDmgMax;
   if(f.hp>f.maxHp)f.hp=f.maxHp;
   g.player=f;
 }
