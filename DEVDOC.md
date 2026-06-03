@@ -3916,6 +3916,20 @@ npm run cap:open:android  # 用 Android Studio 打开
 - game.js 余量 2465 行 ✓
 - 新内容可走数据表 + 通用机制 ✓
 
+**v14.0 平衡审计 P1 修复（继 v13.4 审计报告 BALANCE_AUDIT.md）：**
+- P0 减益标签进 BUILD_PREFS：aoe/summon 加 "减益" 偏好
+- P1 远程构筑支持：补 3 个远程专用遗物
+  - 墨穿蛇（远程+溅射）：projPierce+1, rangedSplashRatio 启用
+  - 墨坠羽（远程+暴击，前置 墨穿蛇）：critRate+10%, atkSpd+15%
+  - 墨片行（远程+击杀，前置 墨穿蛇）：rangedKillSpirit 击杀额外射 2 颗弱化弹
+- P1 防御上限：CAPS.defMax=0.6（最高 60% 减伤）
+- 遗物总数 213→216；PREREQS 42→44
+- 修复 PREREQS 测试期望值（test 148: 42→44）
+- 远程 BUILD_PREFS 加 "溅射"/"持续" 偏好
+- content_test.js 增 3 项（237-239）验证新遗物 ID/PREREQS/标签
+- game.css `.ink-icon::before/::after` 排除列表追加 3 个新遗物 data-icon
+- **318 项测试全通过（smoke 44 + content 239 + wave 16 + stress 11 + robust 5 + seeded 3）**
+
 *v14.0 模块化与大内容前置 更新于 2026-06-03。*
 
 ### 版本号规则

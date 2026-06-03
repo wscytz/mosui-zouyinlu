@@ -365,7 +365,10 @@ var RELICS=[
   {id:"moyeyi",name:"墨夜衣",type:"防具",tags:["生存","机动"],effect:"静止1秒后进入隐身，移速+20%",fn:function(p){p.stealthIdle=true;p.stats.spd+=0.2}},
   {id:"mofengling",name:"墨风铃",type:"铃具",tags:["控场","减益"],effect:"敌人进入攻击范围时减速20%",fn:function(p){p.aoeSlowField=true;p.aoeSlowFieldAmt=0.2}},
   {id:"moguiyin",name:"墨鬼印",type:"法器",tags:["法术","诅咒"],effect:"伤害+25%，但受伤+15%",fn:function(p){p.stats.dmg+=0.25;p.dmgTakenMult=(p.dmgTakenMult||1)+0.15}},
-  {id:"mohundeng",name:"墨魂灯",type:"宝具",tags:["召唤","生存"],effect:"每波开始召唤2个墨灵，墨灵伤害+20%",fn:function(p){p.hasInkSpirit=true;p.inkSpiritCount=(p.inkSpiritCount||0)+1;p.spiritDmgBonus=(p.spiritDmgBonus||0)+0.2}}
+  {id:"mohundeng",name:"墨魂灯",type:"宝具",tags:["召唤","生存"],effect:"每波开始召唤2个墨灵，墨灵伤害+20%",fn:function(p){p.hasInkSpirit=true;p.inkSpiritCount=(p.inkSpiritCount||0)+1;p.spiritDmgBonus=(p.spiritDmgBonus||0)+0.2}},
+  {id:"mochuanshe",name:"墨穿射",type:"弹具",tags:["远程","溅射"],effect:"远程攻击命中时弹体穿透+1，溅射范围+20%",fn:function(p){p.projPierce=true;p.rangedSplashRatio=(p.rangedSplashRatio||0.2)+0.2}},
+  {id:"mozhuiyu",name:"墨追羽",type:"羽具",tags:["远程","暴击"],effect:"暴击率+10%，弹速+15%",prereq:"mochuanshe",fn:function(p){p.stats.critRate+=0.10;p.stats.atkSpd+=0.15}},
+  {id:"mopianxing",name:"墨流星",type:"镖具",tags:["远程","击杀"],effect:"远程击杀时向周围发射2枚追踪弹",prereq:"mochuanshe",fn:function(p){p.rangedKillSpirit=true}}
 ];
 
 var EVOLUTIONS={
@@ -628,10 +631,12 @@ var PREREQS={
   moyingshan:function(s){return s.weaponType==="dash"},
   mopofeng:function(s){return s.weaponType==="dash"},
   mohunzhui:function(s){return s.weaponType==="summon"},
-  molianhun:function(s){return s.weaponType==="summon"}
+  molianhun:function(s){return s.weaponType==="summon"},
+  mozhuiyu:function(s){return !!s.ownedIds.mochuanshe},
+  mopianxing:function(s){return !!s.ownedIds.mochuanshe}
 };
 
-var CAPS={critRate:0.65,bellCombo:15,shieldStack:3,atkCdFloor:4,soulChain:4,ringSoul:6,projSize:2.0};
+var CAPS={critRate:0.65,bellCombo:15,shieldStack:3,atkCdFloor:4,soulChain:4,ringSoul:6,projSize:2.0,defMax:0.6};
 
 var RANGES={weakSpread:100,fireExpand:60,fear:100,soulChain:80,burst:50,
   decoyAttract:120,chargeMax:240,chargeMin:54,rangedMin:50,
@@ -675,10 +680,10 @@ var PCOL={ink:C.ink,accent:C.accent,moss:C.moss,soul:"rgba(100,140,120,0.8)",fir
 
 var BUILD_PREFS={
   melee:["近战","处决","暴击","击杀","生存","魂","防御","溅射","爆炸","生命","攻速"],
-  ranged:["远程","法术","分裂","魂","暴击","击杀","召物","攻速"],
-  aoe:["控场","召物","魂","冰","暴击","击杀","爆发","爆炸","持续","诅咒","范围"],
+  ranged:["远程","法术","分裂","魂","暴击","击杀","召物","攻速","溅射","持续"],
+  aoe:["控场","召物","魂","冰","暴击","击杀","爆发","爆炸","持续","诅咒","范围","减益"],
   dash:["闪避","反击","机动","远程","火","击杀","生存","防御","治疗","生命","冲刺"],
-  summon:["召物","法术","魂","击杀","生存","火","爆发","治疗","持续","生命","诅咒","召唤"]
+  summon:["召物","法术","魂","击杀","生存","火","爆发","治疗","持续","生命","诅咒","召唤","减益"]
 };
 
 // --- Procedural wave generation helpers ---

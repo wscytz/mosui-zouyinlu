@@ -1331,10 +1331,10 @@ code+='\n'+[
 '  if(!g147.player.justDodged)errors.push("147c: justDodged lost");',
 '}catch(e){errors.push("147: "+e.message)}',
 
-// Test 148: PREREQS count = 42 (v9.1)
+// Test 148: PREREQS count = 44 (v14.0: +mozhuiyu, +mopianxing)
 'try{',
 '  var _pc148=Object.keys(PREREQS).length;',
-'  if(_pc148!==42)errors.push("148a: PREREQS count="+_pc148+" expected 42");',
+'  if(_pc148!==44)errors.push("148a: PREREQS count="+_pc148+" expected 44");',
 '}catch(e){errors.push("148: "+e.message)}',
 
 // Test 149: mobile controls must be APK/debug gated (v3.0.1)
@@ -2850,8 +2850,31 @@ code+='\n'+[
 '  if(!_s274.healAuraR)errors.push("274h: spawned moyishi missing healAuraR");',
 '}catch(e){errors.push("274: "+e.message)}',
 
+// Test 237-239: v14.0 远程专用遗物
+'try{',
+'  var r237=null;for(var _i237=0;_i237<RELICS.length;_i237++){if(RELICS[_i237].id==="mochuanshe"){r237=RELICS[_i237];break}}',
+'  if(!r237)errors.push("237a: mochuanshe not found");',
+'  else{if(r237.tags.indexOf("远程")<0)errors.push("237b: mochuanshe missing 远程 tag");if(!r237.fn)errors.push("237c: no fn")}',
+'}catch(e){errors.push("237: "+e.message)}',
+'try{',
+'  var r238=null;for(var _i238=0;_i238<RELICS.length;_i238++){if(RELICS[_i238].id==="mozhuiyu"){r238=RELICS[_i238];break}}',
+'  if(!r238)errors.push("238a: mozhuiyu not found");',
+'  else{',
+'    if(!PREREQS.mozhuiyu)errors.push("238b: no PREREQ");',
+'    var _s238={ownedIds:{mochuanshe:true},weaponType:"ranged",tags:{}};',
+'    if(!PREREQS.mozhuiyu(_s238))errors.push("238c: prereq should pass with mochuanshe owned");',
+'    var _s238b={ownedIds:{},weaponType:"ranged",tags:{}};',
+'    if(PREREQS.mozhuiyu(_s238b))errors.push("238d: prereq should fail without mochuanshe");',
+'  }',
+'}catch(e){errors.push("238: "+e.message)}',
+'try{',
+'  var r239=null;for(var _i239=0;_i239<RELICS.length;_i239++){if(RELICS[_i239].id==="mopianxing"){r239=RELICS[_i239];break}}',
+'  if(!r239)errors.push("239a: mopianxing not found");',
+'  else{if(!PREREQS.mopianxing)errors.push("239b: no PREREQ");if(r239.tags.indexOf("远程")<0)errors.push("239c: missing 远程 tag")}',
+'}catch(e){errors.push("239: "+e.message)}',
+
 'if(errors.length){console.log("FAIL ("+errors.length+"):");errors.forEach(function(e){console.log("  - "+e)});process.exit(1)}',
-'else{console.log("ALL 236 TESTS PASSED");',
+'else{console.log("ALL 239 TESTS PASSED");',
 '  console.log(" 37-62. (previous 26 tests)");',
 '  console.log(" 63-68. v2.10 (墨阵/墨童/阵眼/墨竭)");',
 '  console.log(" 69-78. v2.11 (墨镜/回春阵/墨涡/墨蝠/墨瘴/墨吸/墨甲)");',

@@ -52,9 +52,9 @@ index.html       概念首页
 
 ## 测试
 - `node smoke_test.js` — 44 项冒烟（必须全绿）
-- `node content_test.js` — 236 项内容（必须全绿）
+- `node content_test.js` — 239 项内容（必须全绿）
 - `node wave_test.js` — 16 项波次/机制（必须全绿）
-- 测试基线：smoke 44/44 + content 236/236 + wave 16/16
+- 测试基线：smoke 44/44 + content 239/239 + wave 16/16
 
 ## 流程命令
 ```bash

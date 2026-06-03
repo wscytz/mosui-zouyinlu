@@ -897,6 +897,14 @@ function onEnemyKilled(g,e,source,opts){
       spawnP(g,e.x,e.y,"accent",3);
     }
   }
+  // 墨流星：远程击杀发射追踪弹
+  if(p.rangedKillSpirit&&source==="proj"&&!e.isBoss){
+    for(var _rki=0;_rki<2;_rki++){
+      var _rka=rn(0,Math.PI*2);
+      pushLimited(g.attacks,{x:e.x,y:e.y,vx:Math.cos(_rka)*4,vy:Math.sin(_rka)*4,dmg:Math.max(1,Math.floor(g.weapon.dmg*p.stats.dmg*0.2)),r:4,life:40,type:"proj",hitMap:{},hitOnce:true,owner:"player"},LIMITS.attacks);
+    }
+    spawnP(g,e.x,e.y,"moss",4);
+  }
   // 墨续命：击杀回血+无敌
   if(p.killSurvive&&!e.isBoss){p.hp=Math.min(p.hp+2,p.maxHp);p.invTimer=Math.max(p.invTimer||0,20);spawnP(g,p.x,p.y,"moss",3)}
   if(g.killStreak>g.maxCombo)g.maxCombo=g.killStreak;
@@ -4805,6 +4813,7 @@ function rebuildPlayerStats(g){
   if(f.spiritSpeed&&g.inkSpirits&&g.inkSpirits.length>0)f.stats.spd+=g.inkSpirits.length*0.03;
   if(f.maxHpOverride>0)f.maxHp=f.maxHpOverride;
   if(f.spiritHpPenalty>0&&f.inkSpiritCount>0)f.maxHp=Math.max(20,f.maxHp-f.spiritHpPenalty*f.inkSpiritCount);
+  if(CAPS.defMax&&f.stats.def>CAPS.defMax)f.stats.def=CAPS.defMax;
   if(f.hp>f.maxHp)f.hp=f.maxHp;
   g.player=f;
 }
