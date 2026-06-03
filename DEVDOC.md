@@ -1,6 +1,6 @@
-# 墨祟：走阴录 — 战斗试玩 技术文档 v12.0
+# 墨祟：走阴录 — 战斗试玩 技术文档 v13.1
 
-> 开发接手请先读 `DEVELOPMENT.md`。本文保留完整技术细节、版本历史和 Bug 追踪。
+> 开发接手请先读 `PROJECT_INTRO.md`、`ROADMAP.md`、`STRUCTURE_RULES.md`、`DEVELOPMENT.md`。本文保留完整技术细节、版本历史和 Bug 追踪。
 
 ## 一、项目概况
 
@@ -19,7 +19,7 @@
 | `game.css` | 游戏专用样式。HUD、武器/遗物卡片、遮罩层、波次动画 |
 | `styles.css` | 全站公用样式。配色变量、字体、纸张质感背景 |
 | `gamedata.js` | 共享数据文件。武器/遗物/进化/波次/敌人/前置条件/封顶值等全部常量，game.html 和 wiki.html 共同引用 |
-| `game.js` | 主游戏逻辑。IIFE 包裹，严格模式，约 5400 行，含无尽模式、每日种子、成就系统、结算截图、本地排行榜 |
+| `game.js` | 主游戏逻辑。IIFE 包裹，严格模式，约 5534 行，含无尽模式、每日种子、成就系统、结算截图、本地排行榜 |
 | `sound.js` | Web Audio API 合成音效。无音频文件，全部程序生成 |
 | `mobile-controls.js` | 移动端虚拟摇杆。触摸检测+双摇杆+自动瞄准+闪避/暂停按钮+横屏锁定，canvas 绘制 |
 | `app.js` | 首页 `index.html` 的构筑预览逻辑（与游戏无关） |
@@ -34,7 +34,7 @@
 ```
 gamedata.js (共享数据，game.html/wiki.html 均加载)
 ├── 常量：画布尺寸(W/H/A)、调色板(C)
-├── 数据表：WEAPONS(5)、RELICS(203)、EVOLUTIONS(38)、WAVES(动态)、ETYPE(47)、STAGE_MODS(8+2)、CURSES(28)、ACHIEVEMENTS(52)
+├── 数据表：WEAPONS(5)、RELICS(213)、EVOLUTIONS(43)、WAVES(动态)、ETYPE(50)、STAGE_MODS(10)、CURSES(31)、ACHIEVEMENTS(53)
 ├── 规则：PREREQS(32件前置条件)、CAPS(7项封顶值)、LIMITS(10类对象上限)、RANGES(17项距离阈值)、TUNING(70项可调参数)、WAVE_SCALE(2项波次缩放)
 ├── 映射：DEATH_COLOR、PCOL、BUILD_PREFS、JUDGMENTS
 

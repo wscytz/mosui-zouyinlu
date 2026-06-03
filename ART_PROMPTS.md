@@ -1,5 +1,7 @@
 # 墨祟：走阴录 封面图提示词备忘
 
+> 设计参考：本文保存早期封面、武器和遗物图标 prompt，可继续复用画风描述。当前资产缺口、批量补图优先级和图标管线以 `ROADMAP.md` 的 v13.2 规划与 `STRUCTURE_RULES.md` 为准。
+
 ## 文件命名建议
 
 - `cover_main.png` 主封面
@@ -71,4 +73,3 @@ Chinese ink-wash game item icon, top-down view, dark ink and cinnabar red palett
 ### 墨迹残步 ui-relic-mojicanbu-48.png ✅
 
 PNG 资产已生成存放于 `assets/ui/`，当前游戏内仍用 CSS 伪元素图标，PNG 作为高质量备选待后续统一切换。
-

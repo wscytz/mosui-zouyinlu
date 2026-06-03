@@ -1,16 +1,18 @@
-# 墨祟：走阴录 开发规范 v6.0
+# 墨祟：走阴录 开发规范 v13.1
 
-本文是给 Codex / Claude / 人类开发者的接手入口。现在项目已经进入“主 Claude + 专职 agent”协作期：先读规则，先取上下文，先校验输出，再合并测试。
+本文是给 Codex / Claude / agent / 人类开发者的接手入口。先读当前文档，先取上下文，先校验输出，再合并测试。
 
-> 当前内容体量：5武器 / 193遗物 / 30进化 / 37敌人(含3Boss) / 9关卡 / 22誓印 / 40成就。
+> 当前内容体量：5武器 / 213遗物 / 43进化 / 50敌人(含4Boss) / 9关卡 / 31誓印 / 53成就 / 10关卡调制器。
 >
-> 当前自动检查：37 smoke + 8 wave + 234 content + 11 stress + 5 robust + 3 seeded + strict audit；视觉冒烟 13 项。`content_test.js` summary 由 `.claude/fix-test-count.js` 校准；高并发测试号由 `.claude/sequencer.js` 分配。
+> 当前测试口径以 `package.json`、`npm run ctx` 和脚本实际输出为准。已知基线：44 smoke + 236 content；完整回归走 `npm run test:all`。
 
 ## 文档分工
 
 | 文件 | 用途 | 维护规则 |
 |------|------|----------|
 | `README.md` | 玩家/运行入口，保持短 | 只写当前版本、启动、测试、文件说明 |
+| `PROJECT_INTRO.md` | 当前项目事实源 | 内容数量、路径、技术栈、下一步候选变化后更新 |
+| `STRUCTURE_RULES.md` | 结构治理、代码、UI、测试、协作红线 | 规则变化或复发 bug 进入硬约束时更新 |
 | `DEVELOPMENT.md` | 开发规范和交接清单 | 每次流程变化或踩坑后更新 |
 | `AGENT_SYSTEM.md` | agent 自动化总纲 | 每次改 skill、agent、validator 后更新 |
 | `.claude/skills/add-content/SKILL.md` | add-content skill 源文件 | 先改这里并提交，再同步到全局 Claude skill |
@@ -31,7 +33,7 @@
 
 ## 每次开发顺序
 
-1. 先读 `DEVELOPMENT.md`、`AGENT_SYSTEM.md`、`DEVDOC.md` 末尾记录。
+1. 先读 `PROJECT_INTRO.md`、`DOC_INDEX.md`、`ROADMAP.md`、`ITERATION_SYSTEM.md`、`STRUCTURE_RULES.md`、`DEVELOPMENT.md`、`AGENT_SYSTEM.md`、`DEVDOC.md` 末尾记录；多 agent 并行时再读 `MULTI_AGENT_PROTOCOL.md` 和 `AGENT_BOARD.md`。
 2. 跑 `npm run ctx`，确认当前内容数量、标签缺口；批量任务再用 `.claude/sequencer.js reserve` 分配测试号。
 3. 修 Bug 优先于加内容：崩溃、卡流程、状态错乱、性能尖峰先处理。
 4. 改玩法时优先改 `gamedata.js` 数据表；只有机制需要才改 `game.js`。
@@ -113,7 +115,7 @@ node stress_test.js
 5. 在正确触发点实现机制，并传入清晰 `source`。
 6. 在 `game.css` 添加纯形状 CSS 图标，禁止 `content/position/box-shadow/inset/opacity`。
 7. 在 `content_test.js` 加数据/机制测试。
-8. 更新 `DEVDOC.md`、`ROADMAP.md` 或 `README.md` 中受影响的数量。
+8. 更新 `DEVDOC.md`、`ROADMAP.md`、`PROJECT_INTRO.md` 或 `README.md` 中受影响的数量。
 
 ## 新增敌人检查表
 
@@ -173,7 +175,7 @@ node stress_test.js
 ## 交接给另一个模型时的提示模板
 
 ```md
-先读 DEVELOPMENT.md、AGENT_SYSTEM.md 和 DEVDOC.md 末尾记录。
+先读 PROJECT_INTRO.md、DOC_INDEX.md、ROADMAP.md、ITERATION_SYSTEM.md、STRUCTURE_RULES.md、DEVELOPMENT.md、AGENT_SYSTEM.md 和 DEVDOC.md 末尾记录。
 当前目标：<一句话目标>
 优先级：先修 <Bug/稳定性>，再做 <玩法/UI/数值>。
 限制：
@@ -185,13 +187,12 @@ node stress_test.js
 验收：
 - npm run ctx
 - npm run test:all
-最后更新 DEVDOC.md、ROADMAP.md 和受影响文档。
+最后更新 DEVDOC.md、ROADMAP.md、PROJECT_INTRO.md 和受影响文档。
 ```
 
 ## 当前优先级
 
-1. 导入 ccswitch 前封板：文档、agent 模板、validator、测试脚本口径一致。
-2. 让 `npm run audit:content` 的 ERROR 清零，再考虑发布前接入 `--strict`。
-3. 扩展视觉/鲁棒性测试：Playwright 截图、长跑随机种子、移动端关键路径。
-4. 用 balance-auditor 定期输出“冷标签 + 冷组合 + 死权重”清单。
-5. 实机验证：鬼市交互、镜殿残影弹、墨契狂墨平衡、精英标记识别、移动端摇杆可见度。
+1. v13.1 结构治理：文档口径、选择逻辑、source、对象池、生命周期和回归测试收口。
+2. v13.2 UI / 图标管线：缺图清单、manifest 校验、首批核心图标补齐。
+3. v13.3 性能与移动端：debug HUD、长跑对象峰值、移动端真机验证、APK 前置流程。
+4. v14.0 前置：软拆分 `game.js`，再开放第 6 武器 / 第 5 Boss 等大内容。

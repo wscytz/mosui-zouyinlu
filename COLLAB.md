@@ -1,126 +1,113 @@
-# 墨祟：走阴录 — 协同开发规范
+# 墨祟：走阴录 — 协同开发规范 v13.1
 
-> Claude（我）= 架构师/审核者 | OpenCode模型 = 实现者/提交者
+> 当前协作重点是结构治理和稳定收口。任何模型接手前，先读 `PROJECT_INTRO.md`、`ROADMAP.md`、`STRUCTURE_RULES.md`、`DEVELOPMENT.md` 和 `DEVDOC.md` 末尾。
 
-## 一、角色分工
+## 一、角色
 
-### Claude（架构师 + 审核者）
-- 制定版本方向和优先级（按ROADMAP.md）
-- 设计机制方案，给出实现规格
-- 审核OpenCode提交的代码变更
-- 跑测试验证合规性
-- 最终git commit + push
+| 角色 | 主要职责 | 不做 |
+|---|---|---|
+| 用户 | 决定方向、验收体感、指定 Claude / Codex 接手节奏 | 不负责补测试细节 |
+| Claude | 规划、实现或派发任务、审核、文档同步 | 不凭旧文档继续堆内容 |
+| Codex | 结构治理、代码实现、审查、文档整理、验收建议 | 不绕过用户指定的主方向 |
+| 专职 agent | 按模板产出小块内容或审计清单 | 不直接合并、不猜测试编号 |
 
-### OpenCode（实现者）
-- 根据任务描述编写/修改代码
-- 在game.js/gamedata.js/content_test.js中实现具体逻辑
-- 自行跑 `node --check` 和测试确认基本正确性
-- 提交变更清单（哪些文件改了什么）
+Claude 和 Codex 的实现/审核角色可以互换；任务以当前用户指令为准。无论谁实现，最终都必须按同一套测试和文档规则验收。
 
-## 二、任务流程
+## 二、标准流程
 
-```
-Claude发任务 → OpenCode实现 → OpenCode自测 → 提交变更清单 → Claude审核 → Claude合并推送
+```text
+读当前文档 → 明确任务类型 → 限定改动范围 → 实现或派发 → 自测 → 更新文档 → 提交变更清单 → 审核
 ```
 
-### 任务格式
-Claude发出的任务格式：
-```
-## 任务：[版本号] [简述]
+任务类型只能选一个主类：
 
-### 改动范围
-- 文件：game.js / gamedata.js / content_test.js / ...
-- 涉及函数/区域：[具体位置或搜索关键词]
+- Bug 修复
+- 结构治理
+- UI 优化
+- 内容扩展
+- 性能优化
+- 文档同步
+
+如果一个任务同时涉及多个主类，拆成多个小任务。
+
+## 三、任务模板
+
+```md
+## 任务：<版本号> <一句话目标>
+
+### 类型
+<Bug 修复 / 结构治理 / UI 优化 / 内容扩展 / 性能优化 / 文档同步>
+
+### 允许修改
+- <文件或区域>
+
+### 禁止修改
+- <文件或函数>
+- 不新增无关内容
+- 不大改 hitE / hurtP / spawnWave 主结构
 
 ### 实现规格
-[具体要求，包含数据结构、逻辑描述、参考代码]
+<具体逻辑、数据结构、触发条件、验收行为>
 
-### 验证
-- `node --check game.js` 必须通过
-- `node smoke_test.js` 必须全绿
-- `node content_test.js` 必须全绿
+### 必须遵守
+- 保持 IIFE / var / function / 双引号风格。
+- 不直接 push 到 g.attacks / g.fires / g.eProj。
+- 敌人扣血统一走 damageEnemy(g,e,dmg,src)。
+- 伤害和击杀必须带 source。
+- 选择逻辑必须过滤前置和后续项。
+- 新机制必须补测试。
 
-### 注意
-- game.js使用CRLF换行
-- 不改核心结构（hitE/hurtP/spawnWave）
-- 保持代码风格一致（无框架、无注释、紧凑写法）
+### 验收
+- node --check gamedata.js
+- node --check game.js
+- node --check mobile-controls.js
+- node smoke_test.js
+- node content_test.js
+- 如改结构或测试脚本，跑 npm run test:all。
+
+### 文档
+- 是否需要更新 README / PROJECT_INTRO / ROADMAP / STRUCTURE_RULES / DEVELOPMENT / ARCHITECTURE / DEVDOC
 ```
 
-### OpenCode提交格式
-```
-## 变更清单：[任务编号]
+## 四、交付模板
+
+```md
+## 变更清单：<任务编号>
 
 ### 文件变更
-1. **game.js** — [改了什么，哪一行附近]
-2. **gamedata.js** — [改了什么]
+- <文件>：<改了什么>
 
 ### 自测结果
-- `node --check game.js`: ✅ 通过
-- `node smoke_test.js`: ✅ 44/44
-- `node content_test.js`: ✅ 236/236
+- <命令>：<结果>
 
-### 代码片段
-[关键改动的代码片段，方便审核]
+### 未解决问题
+- <没有则写“无”>
+
+### 文档同步
+- <更新了哪些文档；未改运行代码则说明>
 ```
 
-## 三、审核标准
+## 五、审核重点
 
-Claude审核时检查：
-1. **语法**: `node --check game.js` 无错误
-2. **测试**: smoke 44项 + content 236项全绿
-3. **行数上限**: game.js ≤ 8000行
-4. **风格一致**: 无多余注释、无框架痕迹、紧凑单行风格
-5. **核心未动**: hitE/hurtP/spawnWave结构未被修改
-6. **无安全风险**: 无命令注入/eval/外部请求
+1. 是否直接写入运行时对象池。
+2. 是否遗漏 source，导致遗物误触发。
+3. 是否新增隐式字段但没有默认值。
+4. 是否破坏遗物 / 进化 / 誓印前置过滤。
+5. 是否让 UI 弹窗卡住状态机。
+6. 是否新增对象但没有生命周期、上限或清理。
+7. 是否只改代码不补测试。
+8. 是否只改内容不更新 Wiki / 图标 / 文档。
+9. 是否把历史任务包当成当前任务。
 
-## 四、项目现状（2026-06-01）
+## 六、当前项目事实
 
-| 项 | 值 |
-|---|---|
-| 版本 | v9.2 |
-| 遗物 | 203个 |
-| 敌人 | 47个(3Boss) |
-| 誓印 | 28个 |
-| 成就 | 47个 |
-| 进化 | 38个 |
-| 测试 | content 236项 + smoke 44项 |
-| game.js | ~5300行 |
+当前事实源以 `PROJECT_INTRO.md` 为准。v13.0 基线：
 
-## 五、下一步任务（v9.x → v10.0）
+- 5 武器 / 213 遗物 / 43 进化 / 50 敌人 / 4 Boss / 31 誓印 / 53 成就 / 10 关卡调制器。
+- `game.js` 约 5534 行，上限 8000 行。
+- 标准测试以 `package.json` 和 `DEVELOPMENT.md` 为准。
+- 下一阶段按 `ROADMAP.md`：v13.1 结构治理，v13.2 UI/图标管线，v13.3 性能和移动端发布准备。
 
-按ROADMAP.md优先级：
+## 七、旧任务包
 
-### P2 剩余
-1. **Boss行为微调** — 基于玩家反馈调整Boss难度曲线
-2. **难度评估** — 是否需要"炼狱"第四难度
-
-### v10.0 视觉升级
-1. 结算截图生成（Canvas截图→下载）
-2. 更多敌人画像（当前47敌人仅部分有图标）
-3. 粒子效果升级（击杀/暴击/Boss击杀）
-4. 武器攻击动画差异化（5武器视觉辨识度）
-
-### v11.0+ 长期
-- 第6把武器、第4/5 Boss、无尽模式、排行榜
-
-## 六、关键代码位置速查
-
-| 搜索关键词 | 位置/用途 |
-|-----------|----------|
-| `function forEachLiveEnemy` | 遍历存活敌人 |
-| `function onEnemyKilled` | 击杀处理 |
-| `function damageEnemy` | 受伤处理（暴击/遗物触发） |
-| `function hurtP` | 玩家受伤 |
-| `function update(g)` | 主循环 |
-| `atk.type==="proj"` | 弹射物命中 |
-| `g.weapon.type==="melee"` | 近战判断 |
-| `meleeMobility:false` | 玩家默认属性区（line ~345） |
-| `var RELICS=[` | 遗物数组（line ~36） |
-| `var PREREQS={` | 前置条件（line ~549） |
-| `var ETYPE={` | 敌人定义（line ~457） |
-
-## 七、开发红线
-
-- **不碰**: hitE/hurtP结构、spawnWave核心、game.js超8000行
-- **必须**: 每次改完跑测试、git用wscytz身份、无AI署名
-- **构建**: `npm run www && npm run cap:sync` 每次提交后执行
+`TASKS.md`、`TASKS_V9.md`、`TASKS_V12.md`、`V5_PREP.md` 是历史归档，只用于追溯过去版本，不用于派发当前任务。

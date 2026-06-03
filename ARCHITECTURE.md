@@ -1,6 +1,6 @@
-# 墨祟：走阴录 架构文档 v4.26
+# 墨祟：走阴录 架构文档 v13.1
 
-> 行号会随内容扩展漂移，定位请优先用 `rg "functionName"` 或 `.claude/ctx-extract.js` 输出的片段。
+> 行号会随内容扩展漂移，定位请优先用 `rg "functionName"` 或 `.claude/ctx-extract.js` 输出的片段。结构红线详见 `STRUCTURE_RULES.md`。
 
 ## 分层总览
 
@@ -22,14 +22,14 @@ Assets       assets/ + art direction docs
 | 数据 | 用途 | 当前数量 |
 |------|------|----------|
 | `WEAPONS` | 武器定义 | 5 |
-| `RELICS` | 遗物定义 | 117 |
-| `EVOLUTIONS` | 进化定义 | 25 |
-| `ETYPE` | 敌人模板 | 35 (含3Boss) |
-| `STAGE_MODS` | 关卡调制器 | 9 |
-| `CURSES` | 誓印 | 22 |
-| `ACHIEVEMENTS` | 成就 | 38 |
-| `PREREQS` | 遗物前置条件 | 32 |
-| `RANGES` | 距离阈值 | 20 |
+| `RELICS` | 遗物定义 | 213 |
+| `EVOLUTIONS` | 进化定义 | 43 |
+| `ETYPE` | 敌人模板 | 50 (含4Boss) |
+| `STAGE_MODS` | 关卡调制器 | 10 |
+| `CURSES` | 誓印 | 31 |
+| `ACHIEVEMENTS` | 成就 | 53 |
+| `PREREQS` | 前置条件 | 以 `npm run ctx` 输出为准 |
+| `RANGES` | 距离阈值 | 以 `gamedata.js` 为准 |
 
 规则：不写依赖 DOM/canvas 的逻辑，不写游戏流程控制。新增内容优先落在数据表，机制入口才进入 `game.js`。
 
@@ -98,8 +98,9 @@ Canvas 渲染负责战斗画面、敌人、玩家、攻击、粒子、HUD 辅助
 | `.claude/agents/enemy-designer.md` | 敌人专员模板 |
 | `.claude/agents/content-writer.md` | 成就/誓印/文案专员模板 |
 | `.claude/agents/balance-auditor.md` | 平衡和覆盖审计模板 |
+| `.claude/agents/content-executor.md` | 批量 JSON block writer 模板 |
 
-主 Claude 是唯一合并者。专职 agent 只产出代码块，测试编号统一用 `TEST_ID_PLACEHOLDER`，由主 Claude 根据 ctx 结果串行替换。
+主 Claude / Codex 是合并者，按当前用户指定分工执行。专职 agent 只产出代码块或 JSON block，测试编号统一由主模型根据 ctx / sequencer 结果分配。
 
 ## 文件依赖关系
 
@@ -144,10 +145,10 @@ gamedata.js ───── wiki.html
 
 | 文件 | 类型 | 当前口径 |
 |------|------|----------|
-| `smoke_test.js` | 冒烟 + 长跑 | 37 |
-| `wave_test.js` | 波次流程 | 5 |
+| `smoke_test.js` | 冒烟 + 长跑 | 44 |
+| `wave_test.js` | 波次流程 | 以脚本输出为准 |
 | `content_test.js` | 内容静态 + 机制 | active blocks 以 ctx 扫描为准 |
-| `stress_test.js` | 压力极限 | 10 |
+| `stress_test.js` | 压力极限 | 以脚本输出为准 |
 | `.claude/validate-agent-output.js` | agent 输出校验 | raw / merged 两种模式 |
 
 标准命令：

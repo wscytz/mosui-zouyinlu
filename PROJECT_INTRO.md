@@ -65,10 +65,15 @@ git push origin main        # 需设代理 http.proxy 127.0.0.1:7897
 ```
 
 ## 文档
+- `DOC_INDEX.md` — 文档索引，说明哪些是当前入口、哪些是历史归档
 - `ROADMAP.md` — 路线书
+- `ITERATION_SYSTEM.md` — 可持续迭代机制，规定版本节奏、任务流、冻结/准入
+- `STRUCTURE_RULES.md` — 结构治理、代码、UI、测试、协作规范
+- `MULTI_AGENT_PROTOCOL.md` — 多 agent 协作协议，规定身份、文件锁、任务板和合并规则
+- `AGENT_BOARD.md` — 当前 agent 任务白板，只保留 active/pending/recently done
 - `DEVDOC.md` — 技术文档 + 版本历史
 - `DEVELOPMENT.md` — 开发规范
-- `TASKS_V12.md` — v12.0 任务包（已大部分完成）
+- `TASKS.md` / `TASKS_V9.md` / `TASKS_V12.md` / `V5_PREP.md` — 历史任务包归档，不作为当前任务来源
 - `COLLAB.md` — 协同工作约定
 
 ## 设计风格
@@ -76,14 +81,15 @@ git push origin main        # 需设代理 http.proxy 127.0.0.1:7897
 - 字体：STKaiti / KaiTi 楷体
 - 全部汉字 UI，繁体表述风格（斩祟/走阴/地宫）
 
-## 与 Codex 协同模式
-- Claude（我）做架构、审核、测试验证、文档
-- OpenCode（Codex）做实现、提交（按 pr 形式提交变更清单）
-- Codex 是多模态，可以读 mmx 生成的图标 / 理解截图
+## 协同模式
+- Claude / Codex 的实现、审核、文档角色可按用户当前安排互换。
+- 专职 agent 只做小块内容、审计或模板化输出，不直接合并。
+- 多 agent 并行时必须登记 `AGENT_BOARD.md`，并遵守 `MULTI_AGENT_PROTOCOL.md` 的文件锁。
+- 当前任务必须以 `ROADMAP.md` 和 `STRUCTURE_RULES.md` 为准，旧任务包只作历史参考。
+- Codex 是多模态，可以读 mmx 生成的图标 / 理解截图。
 
-## 下一步候选
-- T4 移动端真机验证（需用户测试）
-- T5 APK 打包（需 Android Studio）
-- 剩余 181 张遗物图标生成（用 mmx）
-- 成就图标 52 + 誓印图标 28 + 关卡调制器图标 10
-- 进阶内容：第 6 武器、第 5 Boss（需 game.js 拆分）
+## 当前迭代机制
+- 当前阶段按 `ROADMAP.md`：v13.1 结构治理，v13.2 UI/图标管线，v13.3 性能和移动端发布准备。
+- 版本节奏、任务流、冻结/准入条件见 `ITERATION_SYSTEM.md`。
+- 代码、UI、性能、测试红线见 `STRUCTURE_RULES.md`。
+- 第 6 武器 / 第 5 Boss 等大内容必须等 v14.0 前置条件满足后再开。
