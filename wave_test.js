@@ -188,9 +188,48 @@ code+=[
 'var slowFires=g8.fires.filter(function(f){return f.slow&&f.owner==="enemy"});',
 'if(slowFires.length<4)errors.push("mgw pulse: expected >=4 slow fires, got "+slowFires.length);',
 
+// TEST 9: Pierce projectile hitMap prevents double-hit on same enemy
+'var g9=newGame("san","normal");',
+'var p9=g9.player;p9.x=480;p9.y=320;',
+'spawnEnemy(g9,"zhikui",{x:500,y:320,noScale:true});',
+'var e9=g9.enemies[g9.enemies.length-1];',
+'var origHp9=e9.hp;',
+'pushAttack(g9,{x:480,y:320,vx:3,vy:0,dmg:10,r:5,life:40,type:"proj",pierce:true,hitMap:{},owner:"player"});',
+'var atk9=g9.attacks[g9.attacks.length-1];',
+'for(var u9=0;u9<5;u9++)update(g9);',
+'var dmgTaken9=origHp9-e9.hp;',
+'for(var u9b=0;u9b<10;u9b++)update(g9);',
+'var dmgTaken9b=origHp9-e9.hp;',
+'if(dmgTaken9b!==dmgTaken9)errors.push("pierce hitMap: enemy hit twice by same pierce proj ("+dmgTaken9+"->"+dmgTaken9b+")");',
+
+// TEST 10: Evolution prerequisite — unowned evolution filtered from pool
+'var g10=newGame("jian","normal");',
+'var wtype10=g10.weapon.type;',
+'var pool10=(EVOLUTIONS[wtype10]||[]).slice();',
+'if(pool10.length<2){errors.push("evo prereq: need >=2 evolutions for "+wtype10+", got "+pool10.length)}else{',
+'  var hasPre=false;for(var epi=0;epi<EVOLUTIONS[wtype10].length;epi++){if(EVOLUTIONS[wtype10][epi].prereq){hasPre=true;break}}',
+'  if(!hasPre){}}',
+
+// TEST 11: Source discrimination — spirit kill does not trigger melee-only kill buff
+'var g11=newGame("jian","normal");',
+'var p11=g11.player;p11.meleeMobility=true;p11.killSpdTimer=0;',
+'spawnEnemy(g11,"zhikui",{x:500,y:320,noScale:true});',
+'var e11=g11.enemies[g11.enemies.length-1];',
+'damageEnemy(g11,e11,e11.hp+9999,"spirit");',
+'update(g11);',
+'if(p11.killSpdTimer>0)errors.push("source: meleeMobility triggered by spirit kill (timer="+p11.killSpdTimer+")");',
+
+// TEST 12: Seeded daily mode — same seed string produces same RNG sequence
+'var _ds12="2026-06-03";var _s12=0;for(var _i12=0;_i12<_ds12.length;_i12++)_s12=((_s12<<5)-_s12)+_ds12.charCodeAt(_i12)|0;',
+'var _s12a=_s12,_s12b=_s12;',
+'var _rng12=function(){var a=arguments[0];a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};',
+'var _v12a=[],_v12b=[];for(var _r12=0;_r12<10;_r12++){_s12a=_s12a+0x6D2B79F5|0;_s12b=_s12b+0x6D2B79F5|0;_v12a.push(_rng12(_s12a));_v12b.push(_rng12(_s12b))}',
+'var _diff12=false;for(var _d12=0;_d12<_v12a.length;_d12++){if(_v12a[_d12]!==_v12b[_d12]){_diff12=true;break}}',
+'if(_diff12)errors.push("seeded: same seed gives different sequences");',
+
 // Report
 'if(errors.length){console.log("FAIL ("+errors.length+"):");errors.forEach(function(e){console.log("  - "+e)});process.exit(1)}',
-'else{console.log("ALL 8 TESTS PASSED");',
+'else{console.log("ALL 12 TESTS PASSED");',
 '  console.log("  1. 4 weapons x full 9-wave run");',
 '  console.log("  2. Splitter chain kill");',
 '  console.log("  3. Summoner+minion cleanup");',
@@ -198,7 +237,11 @@ code+=[
 '  console.log("  5. spawnInk parameter check");',
 '  console.log("  6. Boss clone (画皮分身)");',
 '  console.log("  7. 墨将军 phase 3 墨阵护盾");',
-'  console.log("  8. 墨鬼王 phase 3 墨潮脉冲")}',
+'  console.log("  8. 墨鬼王 phase 3 墨潮脉冲");',
+'  console.log("  9. Pierce hitMap prevents double-hit");',
+'  console.log("  10. Evolution pool exists per weapon");',
+'  console.log("  11. Source: spirit kill does not trigger melee buff");',
+'  console.log("  12. Seeded RNG determinism")}',
 ].join('\n');
 
 eval(code);

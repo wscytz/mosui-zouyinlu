@@ -883,8 +883,8 @@ function onEnemyKilled(g,e,source,opts){
     spawnP(g,e.x,e.y,"moss",5);spawnP(g,p.x,p.y,"moss",3)}
   if(p.scentStreak){g.killStreakT+=15;if(g.killStreakT>150)g.killStreakT=150}
   // 墨疾风：近战击杀加速
-  if(p.rangedKillSpeed&&g.weapon.type==="ranged"){p.speedBurstT=90;spawnP(g,p.x,p.y,"moss",4)}
-  if(p.meleeMobility&&g.weapon.type==="melee"){p.killSpdTimer=60;p.killAtkTimer=60;spawnP(g,p.x,p.y,"moss",4)}
+  if(p.rangedKillSpeed&&source==="proj"){p.speedBurstT=90;spawnP(g,p.x,p.y,"moss",4)}
+  if(p.meleeMobility&&source==="melee"){p.killSpdTimer=60;p.killAtkTimer=60;spawnP(g,p.x,p.y,"moss",4)}
   // 墨劫环：击杀范围伤害
   if(p.killAOE&&!e.isBoss){
     var _aor=70*70;var _aod=Math.max(1,Math.ceil(p.stats.dmg*0.25));
@@ -973,7 +973,7 @@ function onEnemyKilled(g,e,source,opts){
   if(e.deathSlow){pushLimited(g.frosts,{x:e.x,y:e.y,r:e.deathSlowR||80,life:e.deathSlowT||120,maxLife:e.deathSlowT||120},LIMITS.frosts);
     spawnInk(g,e.x,e.y,12,"ink");spawnP(g,e.x,e.y,"ink",6)}
   // 墨爆印：近战击杀爆炸
-  if(p.killExplode&&g.weapon.type==="melee"&&!e.isBoss){
+  if(p.killExplode&&source==="melee"&&!e.isBoss){
     var keR=50;var keDmg=Math.max(1,Math.ceil(p.stats.dmg*(p.killExplodeRatio||0.4)));
     forEachLiveEnemy(g,function(oe){if(dstSq(e,oe)<keR*keR)damageEnemy(g,oe,keDmg,"killExplode")});
     spawnP(g,e.x,e.y,"ink",8);spawnP(g,e.x,e.y,"accent",4);shake(g,4,3);snd("hit")}
@@ -1016,7 +1016,7 @@ function onEnemyKilled(g,e,source,opts){
     spawnInk(g,e.x,e.y,20,"gold");spawnInk(g,e.x,e.y,12,"accent");}
   if(g.waveSpecial==="survival"&&g.survivalKillsNeeded>0)g.survivalKillsNeeded--;
   if(e.isBoss)spawnJudgment(g,e,"boss");
-  else if(opts&&opts.crit&&g.weapon.type==="melee")spawnJudgment(g,e,"crit");
+  else if(opts&&opts.crit&&source==="melee")spawnJudgment(g,e,"crit");
   else if(opts&&opts.weakpoint)spawnJudgment(g,e,"weak");
   else if(opts&&opts.combo3)spawnJudgment(g,e,"combo");
   if(p.fireOnKill&&source!=="fire")addFire(g,{x:e.x,y:e.y,r:28,life:120,dmg:2,
@@ -1044,7 +1044,7 @@ function onEnemyKilled(g,e,source,opts){
     var spreadN=0;
     forEachLiveEnemy(g,function(o){if(o===e)return;if(dstSq(o,e)<RANGES.weakSpread*RANGES.weakSpread){p.weakTargets[o.id]=90;spreadN++}});
     if(spreadN>0)pushLimited(g.floatTexts,{x:e.x,y:e.y-20,text:"散",life:35,maxLife:35,reason:"spread"},LIMITS.floatTexts)}
-  if(p.meleeCdRefund&&g.weapon.type==="melee"&&source==="hit")p.atkCd=Math.max(0,p.atkCd-8);
+  if(p.meleeCdRefund&&source==="melee")p.atkCd=Math.max(0,p.atkCd-8);
   if(p.soulKillChain&&source==="soul"){
     var nr=findNearestEnemy(g,e.x,e.y);
     if(nr.enemy)damageEnemy(g,nr.enemy,Math.floor(8+p.stats.dmg*3),"soul");
@@ -1088,8 +1088,9 @@ function damageEnemy(g,e,dmg,source,opts){
   if(!e||e.hp<=0||e.killed)return false;
   var p=g.player;
   // v3.4 curse: 镜花 — miss chance + hit damage multiplier (only for direct hits)
-  if(source==="hit"&&p.missChance&&Math.random()<p.missChance){spawnP(g,e.x,e.y-15,"ash",3);return false}
-  if(source==="hit"&&p.hitDmgMult)dmg=Math.floor(dmg*p.hitDmgMult);
+  var _isDirectHit=source==="hit"||source==="melee"||source==="proj";
+  if(_isDirectHit&&p.missChance&&Math.random()<p.missChance){spawnP(g,e.x,e.y-15,"ash",3);return false}
+  if(_isDirectHit&&p.hitDmgMult)dmg=Math.floor(dmg*p.hitDmgMult);
   // kill streak bonus: 5+ → +10%, 10+ → +20%
   if(g.killStreak>=10)dmg=Math.floor(dmg*TUNING.killStreak10Dmg);
   else if(g.killStreak>=5)dmg=Math.floor(dmg*TUNING.killStreak5Dmg);
@@ -1561,7 +1562,8 @@ function hitE(g,atk,e){
     var travelDist=Math.sqrt((atk.x-atk.spawnX)*(atk.x-atk.spawnX)+(atk.y-atk.spawnY)*(atk.y-atk.spawnY));
     var distBonus=Math.min(0.5,travelDist/400);dmg=Math.floor(dmg*(1+distBonus));
   }
-  var killed=damageEnemy(g,e,dmg,"hit",{crit:!!atk.crit,weakpoint:isWeak,combo3:p.comboCount%3===0});
+  var _hitSrc=(atk.type==="proj"||atk.type==="spirit")?"proj":(atk.type==="dashSlash")?"melee":"hit";
+  var killed=damageEnemy(g,e,dmg,_hitSrc,{crit:!!atk.crit,weakpoint:isWeak,combo3:p.comboCount%3===0});
   if(killed&&p.comboHitId===e)p.comboHitId=null;
   if(p.slowOnHit>0)e.slowT=Math.max(e.slowT,30);
   // 仙螺纹：幡魂弹减速
@@ -1569,7 +1571,7 @@ function hitE(g,atk,e){
   // 九转墨符：命中计数，6次后下次攻击AOE
   if(p.hasNineSeal){p.nineSealCount++;if(p.nineSealCount>=6){p.nineSealReady=true;p.nineSealCount=0}}
   // 墨散淬：近战溅射
-  if(p.meleeSplash&&g.weapon.type==="melee"){var splashR=50;var splashDmg=Math.max(1,Math.floor(dmg*(p.meleeSplashRatio||0.3)));
+  if(p.meleeSplash&&_hitSrc==="melee"){var splashR=50;var splashDmg=Math.max(1,Math.floor(dmg*(p.meleeSplashRatio||0.3)));
     forEachLiveEnemy(g,function(oe){if(oe!==e&&!oe.killed&&dstSq(e,oe)<splashR*splashR)damageEnemy(g,oe,splashDmg,"splash")});
     spawnP(g,e.x,e.y,"ink",3)}
   if(p.rangedSplash&&atk.type==="proj"){var rsR=55;var rsD=Math.max(1,Math.floor(dmg*(p.rangedSplashRatio||0.2)));forEachLiveEnemy(g,function(oe){if(oe!==e&&!oe.killed&&dstSq(e,oe)<rsR*rsR)damageEnemy(g,oe,rsD,"rangedSplash")});spawnP(g,e.x,e.y,"ink",3)}
@@ -1636,7 +1638,7 @@ function hitE(g,atk,e){
     for(var cgi=0;cgi<6;cgi++){var cga=cgi*Math.PI*2/6+rn(-0.2,0.2);
       pushLimited(g.particles,{x:e.x,y:e.y,vx:Math.cos(cga)*rn(3,5),vy:Math.sin(cga)*rn(3,5),
         life:25,maxLife:25,size:rn(3,7),type:"gold"},LIMITS.particles)}
-    if(p.meleeCritDash&&atk.crit&&g.weapon.type==="melee"){var mA=p.aimAngle||0;p.x+=Math.cos(mA)*35;p.y+=Math.sin(mA)*35;spawnP(g,p.x,p.y,"accent",4)}
+    if(p.meleeCritDash&&atk.crit&&_hitSrc==="melee"){var mA=p.aimAngle||0;p.x+=Math.cos(mA)*35;p.y+=Math.sin(mA)*35;spawnP(g,p.x,p.y,"accent",4)}
     // 暴击额外浮字提示
     pushLimited(g.floatTexts,{x:e.x,y:e.y-e.r-22,text:"暴",life:25,maxLife:25,reason:"critHint"},LIMITS.floatTexts)}
   // 墨血刃：暴击回血
