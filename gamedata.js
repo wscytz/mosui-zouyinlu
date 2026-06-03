@@ -860,7 +860,10 @@ var CURSES=[
     fn:function(p){p.stats.critDmg+=0.8;p.maxHpOverride=60}},
   {id:"fumo",name:"伏墨",type:"誓印",tags:["法术","击杀"],
     desc:"每击杀15个敌人获得1件随机遗物，但波次间不回血",
-    fn:function(p){p.killRelicEvery15=true;p.noWaveHeal=true}}
+    fn:function(p){p.killRelicEvery15=true;p.noWaveHeal=true}},
+  {id:"moyan",name:"墨魇",type:"誓印",tags:["召唤","诅咒"],
+    desc:"每波开始召唤1只小鬼围猎你，但 boss 召唤数+1",
+    fn:function(p){p.waveStarterSummon=true;p.bossSummonBonus=(p.bossSummonBonus||0)+1}}
 ];
 // --- Stage Hazards (random per wave) ---
 var STAGE_HAZARDS=[

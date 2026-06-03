@@ -3964,6 +3964,13 @@ npm run cap:open:android  # 用 Android Studio 打开
 - content_test.js 增 1 项（243）：kill_moyan 存在 + 名称 + check 函数 + ACHIEVEMENTS ≥ 54
 - **322 项测试全通过**
 
+**v14.0 软拆分阶段 7 — 加新誓印「墨魇」(moyan curse)：**
+- CURSES 末尾新增 moyan：每波开始召唤 1 只小鬼围猎（fn 标记 waveStarterSummon + bossSummonBonus+1）
+- game.js summoner AI 加 1 行：`e.summonCount+=2+(p.bossSummonBonus||0)`
+- smoke_test 中预期 31 → 32
+- content_test.js 增 1 项（244）：moyan curse 存在 + CURSES ≥ 32
+- **323 项测试全通过**
+
 *v14.0 模块化与大内容前置 更新于 2026-06-03。*
 
 ### 版本号规则

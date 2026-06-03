@@ -2407,7 +2407,7 @@ function update(g){
             minionHp,e.spd*1.1,10,Math.floor(ETYPE.zhikui.dmg*0.6),28,ETYPE.zhikui.atkCd,
             C.ghost,C.ghostE,{_summonerId:e.id,chargeCdT:ri(30,60)}));
         }
-        e.summonCount+=2;e.summonCdT=e.summonCd;snd("summon");spawnInk(g,e.x,e.y,8,"ghost");
+        e.summonCount+=2+(p.bossSummonBonus||0);e.summonCdT=e.summonCd;snd("summon");spawnInk(g,e.x,e.y,8,"ghost");
       }
     }
     // shield regen
