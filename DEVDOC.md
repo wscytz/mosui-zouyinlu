@@ -3916,6 +3916,14 @@ npm run cap:open:android  # 用 Android Studio 打开
 - game.js 余量 2465 行 ✓
 - 新内容可走数据表 + 通用机制 ✓
 
+**v14.0 软拆分阶段 2 — RELIC_RULES 评分表外移：**
+- `RELIC_RULES`（225 行遗物评分规则表，含 c:闭包 + n/w 数值）从 `game.js` 移到 `gamedata.js` 末尾
+- `scoreRelicChoice(state)` 仍在 `game.js`，从全局引用 RELIC_RULES
+- `game.js` 减重：5544 → 5323 行（-221 行）
+- `gamedata.js` 扩增：939 → 1170 行（+231 行）
+- 0 调用点改动，0 行为变化
+- **318 项测试全通过**
+
 **v14.0 平衡审计 P1 修复（继 v13.4 审计报告 BALANCE_AUDIT.md）：**
 - P0 减益标签进 BUILD_PREFS：aoe/summon 加 "减益" 偏好
 - P1 远程构筑支持：补 3 个远程专用遗物
