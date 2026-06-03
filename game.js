@@ -2234,7 +2234,7 @@ function update(g){
           spawnInk(g,e.x,e.y,24,"fire");spawnInk(g,e.x,e.y,16,"accent");
           pushLimited(g.floatTexts,{x:W/2,y:H/2-40,text:"墨将军 · 狂书",life:90,maxLife:90,reason:"streak"},LIMITS.floatTexts);
           g.freezeT=Math.max(g.freezeT,8);
-          e._mjjShieldReady=true;e.maxShield=50;e.shield=50;e.hasShield=true;e.shieldRegen=480;e.shieldCd=0;
+          e._mjjShieldReady=true;e.maxShield=50;e.shield=50;e.hasShield=true;e.shieldRegen=300;e.shieldCd=0;
           pushLimited(g.floatTexts,{x:e.x,y:e.y-30,text:"墨阵护体",life:60,maxLife:60,reason:"bossShield"},LIMITS.floatTexts)}
       }
       // Phase 1: ring slam every 120 frames
