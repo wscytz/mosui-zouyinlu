@@ -3958,6 +3958,12 @@ npm run cap:open:android  # 用 Android Studio 打开
 - content_test.js 增 1 项（242）：e_cangshen 存在 + 近战 tag + melee 进化 ≥ 11
 - **321 项测试全通过**
 
+**v14.0 软拆分阶段 6 — 加新成就「墨魇克星」(kill_moyan)：**
+- ACHIEVEMENTS 末尾新增 kill_moyan：击败墨魇，奖励 goldInk
+- smoke_test / content_test 中两处预期 53 → 54 同步
+- content_test.js 增 1 项（243）：kill_moyan 存在 + 名称 + check 函数 + ACHIEVEMENTS ≥ 54
+- **322 项测试全通过**
+
 *v14.0 模块化与大内容前置 更新于 2026-06-03。*
 
 ### 版本号规则

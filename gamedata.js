@@ -935,6 +935,7 @@ var ACHIEVEMENTS=[
   {id:"endless_25",name:"无尽踏行",desc:"无尽模式到达25波",check:function(m){return (m.bestEndlessWave||0)>=25},reward:"startRelic"},
   {id:"endless_50",name:"无尽深渊",desc:"无尽模式到达50波",check:function(m){return (m.bestEndlessWave||0)>=50},reward:"goldInk"},
   {id:"daily_3",name:"三朝走阴",desc:"连续3天完成每日种子挑战",check:function(m){return(m.dailyStreak||0)>=3},reward:"startRelic"},
+  {id:"kill_moyan",name:"墨魇克星",desc:"击败墨魇",check:function(m){return (m.moyanKills||0)>0},reward:"goldInk"},
 ];
 
 // Starting relic pool for unlocked rewards

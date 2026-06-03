@@ -546,7 +546,7 @@ code+='\n'+[
 'newAch.forEach(function(id){var a=ACHIEVEMENTS.filter(function(x){return x.id===id})[0];if(!a)errors.push("ach: "+id+" missing")});',
 'var newCurses=["huwei","canglang","qianniao"];',
 'newCurses.forEach(function(id){var c=CURSES.filter(function(x){return x.id===id})[0];if(!c)errors.push("curse: "+id+" missing")});',
-'if(ACHIEVEMENTS.length!==53)errors.push("ach: expected 53, got "+ACHIEVEMENTS.length);',
+'if(ACHIEVEMENTS.length!==54)errors.push("ach: expected 54, got "+ACHIEVEMENTS.length);',
 'if(CURSES.length!==31)errors.push("curse: expected 31, got "+CURSES.length);',
 '}catch(e){errors.push("v9content: "+e.message)}',
 
