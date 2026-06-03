@@ -1,12 +1,12 @@
 # 墨祟：走阴录 — 项目简介（给 Codex）
 
 ## 一句话
-水墨风俯视角动作肉鸽，5 武器 × 9 波 × **5 Boss**，HTML5 Canvas 2D 单 IIFE，零框架，浏览器即玩，可打包 APK。
+水墨风俯视角动作肉鸽，5 武器 × 9 波 × **5 Boss**，HTML5 Canvas 2D 单 IIFE，零框架，浏览器即玩。**v15 = 稳定母版 / Godot 重制参考基线**。
 
 ## 仓库
 - GitHub: https://github.com/wscytz/mosui-zouyinlu
 - 本地: `C:\Users\金许诺\Documents\Codex\2026-04-24\new-chat-2`
-- 当前版本: **v14.0 完成**，下一阶段 v15.0（v15.1 墨符令 + v15.2 10 遗物 + v15.3 试炼模式 + v15.4 APK）
+- 当前版本: **v15.0 Stability Master**（v14.0 已完成 9 阶段 13 commit 收口；v15 调子：稳定母版 + Godot 迁移资料包）
 
 ## 技术栈
 | 项 | 选型 |
@@ -94,4 +94,7 @@ git push origin main        # 需设代理 http.proxy 127.0.0.1:7897
 - 当前阶段按 `ROADMAP.md`：v13.1 结构治理，v13.2 UI/图标管线，v13.3 性能和移动端发布准备。
 - 版本节奏、任务流、冻结/准入条件见 `ITERATION_SYSTEM.md`。
 - 代码、UI、性能、测试红线见 `STRUCTURE_RULES.md`。
-- 第 6 武器 / 第 5 Boss 等大内容必须等 v14.0 前置条件满足后再开。 ✅ v14.0 已完成，v15.0 解禁第 6 武器「墨符令」。
+- ~~第 6 武器 / 第 5 Boss 等大内容必须等 v14.0 前置条件满足后再开。~~ ✅ v14.0 已完成。
+- v15.0 Stability Master 5 阶段：precheck（文档+预检+测试基线）→ v15.1 稳定性修复 → v15.2 墨符令 MVP（**可选**）→ v15.3 UI 收口 → **v15.4 Godot 迁移资料包（v15 最终交付）**
+- v15 完成后项目归档，**新内容（v16+）全部走 Godot 重制**
+- 详见 `ROADMAP.md` v15 段
