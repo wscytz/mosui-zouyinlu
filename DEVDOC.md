@@ -3938,6 +3938,13 @@ npm run cap:open:android  # 用 Android Studio 打开
 - game.css `.ink-icon::before/::after` 排除列表追加 3 个新遗物 data-icon
 - **318 项测试全通过（smoke 44 + content 239 + wave 16 + stress 11 + robust 5 + seeded 3）**
 
+**v14.0 软拆分阶段 3 — 加第 5 Boss「墨魇」：**
+- ETYPE.moyan：HP 550, spd 0.85, r 30, dmg 17, atkR 50, atkCd 58, isBoss, desperate, summoner, summonType:"zhikui"
+- 4 处轻触：bossType pick 列表扩 1 项 / bossKilled 标志加 moyan / midBoss 文案加 "魇境惊梦" / boss wave 文案加 "魇梦殿"
+- spawnWave 核心结构未触碰（CLAUDE.md 锁定区保留）
+- content_test.js 增 1 项（240）：ETYPE.moyan 存在 + isBoss + 至少 5 个 boss
+- **319 项测试全通过**
+
 *v14.0 模块化与大内容前置 更新于 2026-06-03。*
 
 ### 版本号规则

@@ -419,7 +419,7 @@ function newGame(wid,diff){
     stage:null,stageDesc:"",announce:"",announceT:0,execFlash:null,evolution:null,evolution2:null,evolution3:null,floatTexts:[],decoys:[],
     kites:[],frosts:[],waveTotal:0,waveCleared:false,waveClearT:0,
     waveSpecial:null,survivalSpawnTimer:0,survivalCleared:false,
-    bossType:pick(["boss","mojiangjun","moguiwang","moxian"]),curse:null,pendingDeathbursts:[],bossIntroT:0,bossIntroName:"",_merchantCooldown:0,
+    bossType:pick(["boss","mojiangjun","moguiwang","moxian","moyan"]),curse:null,pendingDeathbursts:[],bossIntroT:0,bossIntroName:"",_merchantCooldown:0,
     fogTimer:0,soulOrbs:[],
     hazard:null,hazardTimer:0,hazardObjs:[],
     inkSpirits:[],
@@ -1012,6 +1012,7 @@ function onEnemyKilled(g,e,source,opts){
   if(e.isBoss&&!e.midBoss){g.bossKilled=true;if(e.type==="mojiangjun")g.mojiangjunKilled=true;
     if(e.type==="moguiwang")g.moguiwangKilled=true;
     if(e.type==="moxian")g.moxianKilled=true;
+    if(e.type==="moyan")g.moyanKilled=true;
     // Boss kill celebration
     g.bossCelebrationT=120;g.freezeT=Math.max(g.freezeT,120);
     shake(g,28,14);if(g.freezeT<8)g.freezeT=8;
@@ -1181,8 +1182,8 @@ function startWave(g){
       var midSupport=["zhikui","youhun","jiangshi","gudeng"];
       var midSup=[];
       for(var msi=0;msi<ri(1,2);msi++)midSup.push({t:pick(midSupport),n:1});
-      w={label:"中阵 · "+(midBoss==="mojiangjun"?"墨将巡殿":midBoss==="moguiwang"?"墨渊涌动":midBoss==="moxian"?"仙墨回廊":"画皮小堂"),mod:pick(["ash","well","lantern"]),
-        flavor:midBoss==="mojiangjun"?"墨将军的副将巡守此地，虽是分身，亦不可小觑。":midBoss==="moguiwang"?"墨渊深处涌出的古老存在，连空间都在颤抖。":midBoss==="moxian"?"墨仙留下的残影在此处游荡，字字杀机。":"画皮娘子留下的一面在此拦路。",
+      w={label:"中阵 · "+(midBoss==="mojiangjun"?"墨将巡殿":midBoss==="moguiwang"?"墨渊涌动":midBoss==="moxian"?"仙墨回廊":midBoss==="moyan"?"魇境惊梦":"画皮小堂"),mod:pick(["ash","well","lantern"]),
+        flavor:midBoss==="mojiangjun"?"墨将军的副将巡守此地，虽是分身，亦不可小觑。":midBoss==="moguiwang"?"墨渊深处涌出的古老存在，连空间都在颤抖。":midBoss==="moxian"?"墨仙留下的残影在此处游荡，字字杀机。":midBoss==="moyan"?"墨魇从深渊醒来，召唤小鬼围猎你的梦。":"画皮娘子留下的一面在此拦路。",
         list:[{t:midBoss,n:1,midBoss:true}].concat(midSup)};
     }
   }
@@ -1192,8 +1193,8 @@ function startWave(g){
     var supportPool=["gudeng","jiangshi","fenshen","zhikuang","zhikui","youhun"];
     var sup=[];
     for(var si=0;si<2+ri(0,2);si++)sup.push({t:pick(supportPool),n:1});
-    w={label:"镇守 · "+(bossT==="mojiangjun"?"墨阵殿":bossT==="moguiwang"?"墨渊殿":bossT==="moxian"?"墨仙阁":"画皮堂"),mod:pick(["lantern","mask","inkpool","inktide","guishi","mirror"]),
-      flavor:bossT==="mojiangjun"?"墨将军镇守此地。以墨为甲，以书为兵。":bossT==="moguiwang"?"墨鬼王从深渊中浮现。它是墨的本源，你的笔只是它的碎片。":bossT==="moxian"?"墨仙端坐阁中，笔走龙蛇，字字化为杀阵。":"画皮娘子镇守此地。她有千面，你的刀只有一面。",
+    w={label:"镇守 · "+(bossT==="mojiangjun"?"墨阵殿":bossT==="moguiwang"?"墨渊殿":bossT==="moxian"?"墨仙阁":bossT==="moyan"?"魇梦殿":"画皮堂"),mod:pick(["lantern","mask","inkpool","inktide","guishi","mirror"]),
+      flavor:bossT==="mojiangjun"?"墨将军镇守此地。以墨为甲，以书为兵。":bossT==="moguiwang"?"墨鬼王从深渊中浮现。它是墨的本源，你的笔只是它的碎片。":bossT==="moxian"?"墨仙端坐阁中，笔走龙蛇，字字化为杀阵。":bossT==="moyan"?"墨魇从你的梦中升起，愈战愈狂，召唤小鬼围猎。":"画皮娘子镇守此地。她有千面，你的刀只有一面。",
       list:[{t:bossT,n:1}].concat(sup)};
   }
   if(!w){g.state="victory";return}

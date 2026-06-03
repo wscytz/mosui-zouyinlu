@@ -1,7 +1,7 @@
 # 墨祟：走阴录 — 项目简介（给 Codex）
 
 ## 一句话
-水墨风俯视角动作肉鸽，5 武器 × 9 波 × 4 Boss，HTML5 Canvas 2D 单 IIFE，零框架，浏览器即玩，可打包 APK。
+水墨风俯视角动作肉鸽，5 武器 × 9 波 × **5 Boss**，HTML5 Canvas 2D 单 IIFE，零框架，浏览器即玩，可打包 APK。
 
 ## 仓库
 - GitHub: https://github.com/wscytz/mosui-zouyinlu
@@ -37,7 +37,7 @@ index.html       概念首页
 
 ## 内容体量（v13.0）
 - 5 武器 / 213 遗物 / 43 进化 / 50 敌人 / 9 关卡 / 31 誓印 / 53 成就 / 10 关卡调制器
-- 4 Boss：画皮娘子 / 墨将军 / 墨鬼王 / **墨仙**（新）
+- **5 Boss**：画皮娘子 / 墨将军 / 墨鬼王 / 墨仙 / **墨魇**（新：愈战愈狂 + 召唤小鬼围猎）
 - 4 难度：平常 / 险途 / 噩梦 / 炼狱
 - 3 模式：普通 / **无尽** / **每日种子**（mulberry32 PRNG）
 
@@ -52,9 +52,9 @@ index.html       概念首页
 
 ## 测试
 - `node smoke_test.js` — 44 项冒烟（必须全绿）
-- `node content_test.js` — 239 项内容（必须全绿）
+- `node content_test.js` — 240 项内容（必须全绿）
 - `node wave_test.js` — 16 项波次/机制（必须全绿）
-- 测试基线：smoke 44/44 + content 239/239 + wave 16/16
+- 测试基线：smoke 44/44 + content 240/240 + wave 16/16
 
 ## 流程命令
 ```bash

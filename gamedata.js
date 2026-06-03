@@ -505,6 +505,8 @@ var ETYPE={
     col:"rgba(23,19,16,0.6)",edge:C.accent,isBoss:true,desperate:false},
   moxian:{name:"墨仙",tip:"笔走龙蛇，以字为阵，以墨为法",hp:420,spd:1.0,r:26,dmg:14,atkR:180,atkCd:50,
     col:"rgba(70,90,80,0.45)",edge:C.moss,isBoss:true,desperate:false,ranged:true,pSpd:4},
+  moyan:{name:"墨魇",tip:"梦魇之主，召唤小鬼围猎，愈战愈狂",hp:550,spd:0.85,r:30,dmg:17,atkR:50,atkCd:58,
+    col:"rgba(60,40,80,0.55)",edge:C.boss,isBoss:true,desperate:true,summoner:true,summonCd:140,summonMax:3,summonType:"zhikui"},
   moya:{name:"墨鸦",tip:"飞行远程，快速且脆弱，优先点杀",hp:35,spd:1.9,r:11,dmg:5,atkR:240,atkCd:72,col:"rgba(23,19,16,0.35)",edge:C.ink,ranged:true,pSpd:5.2},
   shiyong:{name:"石俑",tip:"重甲盾兵，破盾后集火击杀",hp:95,spd:0.55,r:20,dmg:13,atkR:34,atkCd:68,col:"rgba(100,95,88,0.4)",edge:C.soft,hasShield:true,shield:28,maxShield:28,shieldRegen:360},
   yanyong:{name:"炎俑",tip:"重甲火径，走位时注意脚下",hp:95,spd:0.7,r:18,dmg:12,atkR:34,atkCd:62,col:"rgba(196,90,45,0.35)",edge:C.fire,fireTrail:true},
