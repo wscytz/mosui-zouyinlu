@@ -8,7 +8,7 @@
 - **代码规模**：`game.js` 约 5323 行 + `game-utils.js` 16 行 + `gamedata.js` 约 1170 行（RELIC_RULES 已迁入），上限 8000 行
 - **技术栈**：Canvas 2D，零框架，`game.js` 单 IIFE，`gamedata.js` 共享数据，`game-utils.js` 纯工具
 - **模式**：普通 / 无尽 / 每日种子
-- **测试基线**：smoke 44 + content 241 + wave 16 + stress 11 + robust 5 + seeded 3 = 320 项
+- **测试基线**：smoke 44 + content 242 + wave 16 + stress 11 + robust 5 + seeded 3 = 321 项
 - **最新重点**：v14.0 软拆分阶段 2 完成 + 阶段 3 加第 5 Boss「墨魇」（数据驱动）
 
 ## 总策略

@@ -3952,6 +3952,12 @@ npm run cap:open:android  # 用 Android Studio 打开
 - content_test.js 增 1 项（241）：ETYPE.momie 存在 + 非 boss + ranged + ETYPE 总数 ≥ 51
 - **320 项测试全通过**
 
+**v14.0 软拆分阶段 5 — 加新进化「藏身」(e_cangshen)：**
+- EVOLUTIONS.melee 新增 e_cangshen：击杀后隐身 0.5 秒（invTimer=30），移速+20%
+- game.js onEnemyKilled 加 1 行处理：if(p.killVanish){p.invTimer=30;spawnP(g,p.x,p.y,"ghost",4)}
+- content_test.js 增 1 项（242）：e_cangshen 存在 + 近战 tag + melee 进化 ≥ 11
+- **321 项测试全通过**
+
 *v14.0 模块化与大内容前置 更新于 2026-06-03。*
 
 ### 版本号规则

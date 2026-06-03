@@ -907,6 +907,8 @@ function onEnemyKilled(g,e,source,opts){
   }
   // 墨续命：击杀回血+无敌
   if(p.killSurvive&&!e.isBoss){p.hp=Math.min(p.hp+2,p.maxHp);p.invTimer=Math.max(p.invTimer||0,20);spawnP(g,p.x,p.y,"moss",3)}
+  // 藏身进化：击杀后短暂隐身
+  if(p.killVanish){p.invTimer=Math.max(p.invTimer||0,30);spawnP(g,p.x,p.y,"ghost",4)}
   if(g.killStreak>g.maxCombo)g.maxCombo=g.killStreak;
   if(e.elite){g.eliteKills++;spawnP(g,e.x,e.y,"gold",3);shake(g,6,4)}
   if(source==="fire")g.fireKills++;

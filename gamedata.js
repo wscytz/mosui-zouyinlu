@@ -390,7 +390,8 @@ var EVOLUTIONS={
     {id:"e_jianfeng",name:"剑锋",type:"进化",tags:["近战","控场"],effect:"攻击范围+20%，攻速-10%",
       fn:function(p){p.stats.range+=0.2;p.stats.atkSpd+=0.1}},
     {id:"e_xiejian",name:"邪剑",type:"进化",tags:["近战","诅咒"],effect:"伤害+60%，但防御-20%",fn:function(p){p.stats.dmg+=0.6;p.stats.def-=0.2}},
-    {id:"e_qijian",name:"气剑",type:"进化",tags:["近战","机动"],effect:"攻击释放气浪，远程命中敌人",fn:function(p){p.meleeWave=true}}
+    {id:"e_qijian",name:"气剑",type:"进化",tags:["近战","机动"],effect:"攻击释放气浪，远程命中敌人",fn:function(p){p.meleeWave=true}},
+    {id:"e_cangshen",name:"藏身",type:"进化",tags:["近战","生存"],effect:"击杀后隐身0.5秒，移速+20%",fn:function(p){p.killVanish=true;p.stats.spd+=0.2}}
   ],
   ranged:[
     {id:"e_lianzhu",name:"连珠",type:"进化",tags:["远程"],effect:"弹数+1",
