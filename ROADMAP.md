@@ -2,14 +2,14 @@
 
 > 这份文档决定阶段方向。具体版本节奏、任务流、冻结/准入和复盘机制见 `ITERATION_SYSTEM.md`。
 
-## 当前基线（v13.3）
+## 当前基线（v14.0）
 
 - **内容体量**：5 武器 / 213 遗物 / 43 进化 / 50 敌人 / 4 Boss / 31 誓印 / 53 成就 / 10 关卡调制器
-- **代码规模**：`game.js` 约 5551 行，上限 8000 行
-- **技术栈**：Canvas 2D，零框架，`game.js` 单 IIFE，`gamedata.js` 共享数据
+- **代码规模**：`game.js` 约 5535 行 + `game-utils.js` 16 行，上限 8000 行
+- **技术栈**：Canvas 2D，零框架，`game.js` 单 IIFE，`gamedata.js` 共享数据，`game-utils.js` 纯工具
 - **模式**：普通 / 无尽 / 每日种子
-- **测试基线**：`smoke_test.js` 44 项 + `content_test.js` 236 项 + `wave_test.js` 16 项 + stress 11 + robust 5 + seeded 3
-- **最新重点**：低性能档（移动端/低DPI降级粒子+浮字）、遗物图标 100%、source 统一
+- **测试基线**：smoke 44 + content 236 + wave 16 + stress 11 + robust 5 + seeded 3 = 315 项
+- **最新重点**：软拆分阶段1完成（纯工具函数外移 game-utils.js），大内容解锁条件已满足
 
 ## 总策略
 

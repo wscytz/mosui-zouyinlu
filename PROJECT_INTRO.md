@@ -6,7 +6,7 @@
 ## 仓库
 - GitHub: https://github.com/wscytz/mosui-zouyinlu
 - 本地: `C:\Users\金许诺\Documents\Codex\2026-04-24\new-chat-2`
-- 当前版本: **v13.3**
+- 当前版本: **v14.0**
 
 ## 技术栈
 | 项 | 选型 |
@@ -24,7 +24,8 @@
 ## 文件结构
 ```
 game.html        游戏入口（武器选择/Canvas/HUD/弹窗）
-game.js          主逻辑 IIFE（~5500行，8000上限）
+game.js          主逻辑 IIFE（~5535行，8000上限）
+game-utils.js    纯工具函数（距离/碰撞/随机/数组操作，v14.0拆分）
 gamedata.js      共享数据（武器/遗物/进化/波次/敌人/成就/誓印）
 game.css         游戏样式
 styles.css       全站样式

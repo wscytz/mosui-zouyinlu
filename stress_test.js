@@ -5,6 +5,7 @@
 
 var fs=require('fs');
 var dataCode=fs.readFileSync('gamedata.js','utf8');
+var utilsCode=fs.readFileSync('game-utils.js','utf8');
 var code=fs.readFileSync('game.js','utf8');
 
 global.window={_showDebug:false,GameSound:{play:function(){},init:function(){}},addEventListener:function(){}};
@@ -32,6 +33,7 @@ global.keys={};
 global.mouse={x:480,y:320,down:false};
 
 (0,eval)(dataCode);
+(0,eval)(utilsCode);
 code=code.replace(/^\(function\(\)\{/,'');
 code=code.replace(/\}\)\(\);?\s*$/,'');
 

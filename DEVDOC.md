@@ -3899,6 +3899,25 @@ npm run cap:open:android  # 用 Android Studio 打开
 
 *v13.3 性能与移动端发布版 更新于 2026-06-03。*
 
+### v14.0 模块化与大内容前置 (2026-06-03)
+
+**软拆分阶段 1 — 纯工具函数外移：**
+- 新增 `game-utils.js`（16 行）：dstSq, ang, collideSq, distPointToSegSq, cl, forEachLiveEnemy, rn, ri, localDay, pick, shuf, pushLimited, findNearestEnemy
+- 从 `game.js` 移出 15 行工具函数（5550→5535 行）
+- `game.html` 加载顺序：gamedata.js → game-utils.js → game.js
+- `package.json` www 构建已包含 game-utils.js
+- 所有 5 个测试文件已更新加载 game-utils.js
+- **315 项测试全通过，行为完全一致**
+
+**大内容解锁条件确认：**
+- v13.1 结构治理 ✓
+- v13.2 UI/图标管线 ✓
+- v13.3 性能/移动端 ✓
+- game.js 余量 2465 行 ✓
+- 新内容可走数据表 + 通用机制 ✓
+
+*v14.0 模块化与大内容前置 更新于 2026-06-03。*
+
 ### 版本号规则
 
 改完一个bug → 删掉对应条目 → 版本号末尾+1

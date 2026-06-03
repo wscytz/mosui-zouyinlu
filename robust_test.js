@@ -4,6 +4,7 @@
 
 var fs=require('fs');
 var dataCode=fs.readFileSync('gamedata.js','utf8');
+var utilsCode=fs.readFileSync('game-utils.js','utf8');
 var code=fs.readFileSync('game.js','utf8');
 
 // 复用 smoke_test.js 的 mock 环境
@@ -29,6 +30,7 @@ global.requestAnimationFrame=function(){};
 global.setTimeout=function(f){f()};
 
 (0,eval)(dataCode);
+(0,eval)(utilsCode);
 code=code.replace(/^\(function\(\)\{/,'');
 code=code.replace(/\}\)\(\);?\s*$/,'');
 

@@ -3,6 +3,7 @@
 
 var fs=require('fs');
 var dataCode=fs.readFileSync('gamedata.js','utf8');
+var utilsCode=fs.readFileSync('game-utils.js','utf8');
 var code=fs.readFileSync('game.js','utf8');
 
 // Mock globals first, then strip IIFE and eval body
@@ -29,6 +30,7 @@ global.setTimeout=function(f){f()};
 
 // Load data first, then strip IIFE and eval
 (0,eval)(dataCode);
+(0,eval)(utilsCode);
 code=code.replace(/^\(function\(\)\{/,'');
 code=code.replace(/\}\)\(\);?\s*$/,'');
 

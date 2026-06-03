@@ -1,6 +1,7 @@
 // wave_test.js — comprehensive wave progression test
 var fs=require('fs');
 var dataCode=fs.readFileSync('gamedata.js','utf8');
+var utilsCode=fs.readFileSync('game-utils.js','utf8');
 var code=fs.readFileSync('game.js','utf8');
 var mkCtx=function(){return{restore:function(){},save:function(){},translate:function(){},fillRect:function(){},fillText:function(){},strokeRect:function(){},beginPath:function(){},arc:function(){},fill:function(){},stroke:function(){},moveTo:function(){},lineTo:function(){},setLineDash:function(){},closePath:function(){},createRadialGradient:function(){return{addColorStop:function(){}}},scale:function(){},rotate:function(){},drawImage:function(){},globalAlpha:1,fillStyle:'',strokeStyle:'',lineWidth:1,font:'',textAlign:'left',shadowBlur:0,shadowColor:'',lineCap:'butt'}};
 global.window={_showDebug:false,GameSound:{play:function(){},init:function(){}},addEventListener:function(){}};
@@ -18,6 +19,7 @@ global.mouse={x:480,y:320,down:false};
 global.fs=fs;
 
 (0,eval)(dataCode);
+(0,eval)(utilsCode);
 code=code.replace(/^\(function\(\)\{/,'');
 code=code.replace(/\}\)\(\);?\s*$/,'');
 
