@@ -3878,6 +3878,27 @@ npm run cap:open:android  # 用 Android Studio 打开
 
 *v13.2 UI 与图标管线版 更新于 2026-06-03。*
 
+### v13.3 性能与移动端发布版 (2026-06-03)
+
+**低性能档：**
+- 新增 `LOW_PERF` 标记：移动端或低 DPI（<1.5）设备自动降低粒子上限 50%、浮字上限 40%
+- 所有对象池已有 LIMITS 上限保护，敌弹有离屏清理，攻击有速度异常修复
+
+**性能预算确认：**
+- 攻击对象：pushAttack 有 life/hitMap/速度异常修复 ✓
+- 粒子：LIMITS.particles=260（LOW_PERF 时 130）✓
+- 火场：LIMITS.fires=72，有 life 过期清理 ✓
+- 敌弹：LIMITS.eProj=90，有离屏清理和 life 过期 ✓
+- 浮字：LIMITS.floatTexts=18（LOW_PERF 时 10）✓
+
+**APK 前置确认：**
+- Capacitor 配置正常（com.mosui.zouyinlu）
+- `npm run www` 构建同步正常
+- Android 项目结构完整
+- 移动端虚拟摇杆已有（mobile-controls.js）
+
+*v13.3 性能与移动端发布版 更新于 2026-06-03。*
+
 ### 版本号规则
 
 改完一个bug → 删掉对应条目 → 版本号末尾+1

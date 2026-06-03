@@ -122,7 +122,7 @@ function spawnJudgment(g,e,reason){
 var keys={},mouse={x:W/2,y:H/2,down:false},nextEnemyId=1;
 var canvas,ctx,G=null,bgCanvas=null,_cachedCanvasRect=null;
 window.MOSUI=window.MOSUI||{};
-window.MOSUI.version=window.MOSUI.version||"13.2";
+window.MOSUI.version=window.MOSUI.version||"13.3";
 window.MOSUI.hooks=window.MOSUI.hooks||{beforeUpdate:[],afterUpdate:[],beforeRender:[],afterRender:[]};
 window.MOSUI.input=window.MOSUI.input||{};
 window.MOSUI.platform=window.MOSUI.platform||{};
@@ -5286,6 +5286,8 @@ function quitToTitle(){
 
 var _loopActive=true;
 var IS_TOUCH=needsMobileUI();
+var LOW_PERF=IS_TOUCH||(window.devicePixelRatio&&window.devicePixelRatio<1.5);
+if(LOW_PERF){LIMITS.particles=Math.floor(LIMITS.particles*0.5);LIMITS.floatTexts=Math.floor(LIMITS.floatTexts*0.6)}
 function loop(){
   var now=performance.now();
   if(G){

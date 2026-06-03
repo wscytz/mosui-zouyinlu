@@ -6,7 +6,7 @@
 ## 仓库
 - GitHub: https://github.com/wscytz/mosui-zouyinlu
 - 本地: `C:\Users\金许诺\Documents\Codex\2026-04-24\new-chat-2`
-- 当前版本: **v13.2**
+- 当前版本: **v13.3**
 
 ## 技术栈
 | 项 | 选型 |
