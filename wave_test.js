@@ -227,9 +227,43 @@ code+=[
 'var _diff12=false;for(var _d12=0;_d12<_v12a.length;_d12++){if(_v12a[_d12]!==_v12b[_d12]){_diff12=true;break}}',
 'if(_diff12)errors.push("seeded: same seed gives different sequences");',
 
+// TEST 13: Daily RNG restore — Math.random restored after startWave completes
+'var g13=newGame("jian","normal");',
+'var origRandom=Math.random;var _rng13Captured=null;',
+'g13.daily=true;g13._dailyRng=function(){return 0.5};',
+'startWave(g13);',
+'if(typeof Math.random!=="function")errors.push("daily rng: Math.random not a function after startWave");',
+'if(Math.random===g13._dailyRng)errors.push("daily rng: Math.random still set to daily RNG after startWave");',
+
+// TEST 14: PREREQS end-to-end — relic with unmet prereq excluded from pickRelicChoices
+'var g14=newGame("jian","normal");',
+'var _prRelic=null;for(var _pri=0;_pri<RELICS.length;_pri++){if(PREREQS[RELICS[_pri].id]){_prRelic=RELICS[_pri];break}}',
+'if(_prRelic){',
+'  var _prState=buildPickState(g14);',
+'  if(PREREQS[_prRelic.id](_prState))errors.push("prereq e2e: "+_prRelic.id+" should fail for bare state");',
+'}',
+
+// TEST 15: cleanupWave preserves player fires, clears enemy fires
+'var g15=newGame("jian","normal");',
+'addFire(g15,{x:100,y:100,r:20,life:60,owner:"player",dmg:1});',
+'addFire(g15,{x:200,y:200,r:20,life:60,owner:"enemy",dmg:1});',
+'if(g15.fires.length!==2)errors.push("cleanup: expected 2 fires, got "+g15.fires.length);',
+'cleanupWave(g15);',
+'var playerFires=g15.fires.filter(function(f){return f.owner==="player"});',
+'var enemyFires=g15.fires.filter(function(f){return f.owner!=="player"});',
+'if(playerFires.length!==1)errors.push("cleanup: player fire removed, got "+playerFires.length);',
+'if(enemyFires.length!==0)errors.push("cleanup: enemy fire not removed, got "+enemyFires.length);',
+
+// TEST 16: Boss clone is not isBoss
+'var g16=newGame("jian","normal");',
+'spawnEnemy(g16,"boss",{x:480,y:320,noScale:true,isClone:true});',
+'var clones16=g16.enemies.filter(function(e){return e.name.indexOf("影")>=0});',
+'if(clones16.length===0){clones16=g16.enemies.filter(function(e){return g16.enemies.indexOf(e)===g16.enemies.length-1})}',
+'if(clones16.length>0&&clones16[0].isBoss)errors.push("clone: boss clone should not be isBoss=true");',
+
 // Report
 'if(errors.length){console.log("FAIL ("+errors.length+"):");errors.forEach(function(e){console.log("  - "+e)});process.exit(1)}',
-'else{console.log("ALL 12 TESTS PASSED");',
+'else{console.log("ALL 16 TESTS PASSED");',
 '  console.log("  1. 4 weapons x full 9-wave run");',
 '  console.log("  2. Splitter chain kill");',
 '  console.log("  3. Summoner+minion cleanup");',
@@ -241,7 +275,11 @@ code+=[
 '  console.log("  9. Pierce hitMap prevents double-hit");',
 '  console.log("  10. Evolution pool exists per weapon");',
 '  console.log("  11. Source: spirit kill does not trigger melee buff");',
-'  console.log("  12. Seeded RNG determinism")}',
+'  console.log("  12. Seeded RNG determinism");',
+'  console.log("  13. Daily RNG restore after startWave");',
+'  console.log("  14. PREREQS end-to-end filtering");',
+'  console.log("  15. cleanupWave preserves player fires");',
+'  console.log("  16. Boss clone isBoss=false")}',
 ].join('\n');
 
 eval(code);
