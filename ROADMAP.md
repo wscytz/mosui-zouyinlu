@@ -9,7 +9,7 @@
 - **代码规模**：`game.js` 约 5325 行 + `game-utils.js` 16 行 + `gamedata.js` 约 1186 行（含 RELIC_RULES + BOSSTYPES + BOSS_LABELS），上限 8000 行
 - **技术栈**：Canvas 2D，零框架，`game.js` 单 IIFE，`gamedata.js` 共享数据，`game-utils.js` 纯工具
 - **模式**：普通 / 无尽 / 每日种子
-- **测试基线**：smoke 44 + content 246 + wave 16 + stress 11 + robust 5 + seeded 3 = **325 项全过**
+- **测试基线**：smoke 44 + content 249 + wave 16 + stress 11 + robust 5 + seeded 3 = **328 项全过**
 - **v14.0 阶段汇总**（共 9 个 commit，已 push origin/main）：
   - 阶段 1（v13.4 审计 P1）：远程构筑 3 新遗物（墨穿蛇/墨坠羽/墨片行）+ 防御上限 CAPS.defMax=0.6
   - 阶段 2：RELIC_RULES 225 行从 game.js 移到 gamedata.js

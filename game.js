@@ -1144,6 +1144,8 @@ function cleanupWave(g){
   g.pendingDeathbursts.length=0;
   if(g.soulOrbs)g.soulOrbs.length=0;
   if(g.formations)g.formations.length=0;
+  if(g.hazardObjs)g.hazardObjs.length=0;
+  if(g.killFeed)g.killFeed.length=0;
   g.fires=g.fires.filter(function(f){return f.owner==="player"});
   g.merchant=null;
 }
@@ -1840,8 +1842,8 @@ function update(g){
   for(var li=p.leeches.length-1;li>=0;li--){if(p.leeches[li].hp<=0)p.leeches.splice(li,1)}
 
   // 墨灵玉：生成墨灵
-  if(p.hasInkSpirit&&g.inkSpirits.length<p.inkSpiritCount&&g.bossWaveEntrance<=0&&g.announceT<=0){
-    while(g.inkSpirits.length<p.inkSpiritCount){
+  if(p.hasInkSpirit&&g.inkSpirits.length<Math.min(p.inkSpiritCount,LIMITS.inkSpirits)&&g.bossWaveEntrance<=0&&g.announceT<=0){
+    while(g.inkSpirits.length<Math.min(p.inkSpiritCount,LIMITS.inkSpirits)){
       g.inkSpirits.push({orbitAngle:rn(0,Math.PI*2),orbitR:42+rn(-5,5),atkTimer:0,atkCd:38,dmg:Math.max(3,Math.ceil(4*(p.relicPower||1)*(1+(p.spiritDmgBonus||0)))),r:8,spiritExplode:!!p.spiritExplode,spiritSlow:!!p.spiritSlow})
     }
   }

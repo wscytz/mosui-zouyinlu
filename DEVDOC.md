@@ -3971,6 +3971,12 @@ npm run cap:open:android  # 用 Android Studio 打开
 - content_test.js 增 1 项（244）：moyan curse 存在 + CURSES ≥ 32
 - **323 项测试全通过**
 
+**v15.1 稳定性修复（✅ 已完成）：**
+- cleanupWave 加清 `hazardObjs` / `killFeed`（这 2 个确属 wave 级状态，kites/frosts 是玩家召唤 buff 跨波次保留）
+- inkSpirits while 循环加 `LIMITS.inkSpirits` 兜底（防遗物把 inkSpiritCount 设很高突破对象池上限）
+- 3 个回归测试（247/248/249）
+- **328 项测试全过**
+
 *v14.0 模块化与大内容前置 更新于 2026-06-03。*
 
 ### 版本号规则
